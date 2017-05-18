@@ -22,8 +22,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -77,16 +77,16 @@ int udp_trsp_socket::bind(const string& bind_ip, unsigned short bind_port)
 	WARN("re-binding socket\n");
 	close(sd);
     }
-    
+
     if(am_inet_pton(bind_ip.c_str(),&addr) == 0){
-	
+
 	ERROR("am_inet_pton(%s): %s\n",bind_ip.c_str(),strerror(errno));
 	return -1;
     }
-    
-    if( ((addr.ss_family == AF_INET) && 
+
+    if( ((addr.ss_family == AF_INET) &&
      	 (SAv4(&addr)->sin_addr.s_addr == INADDR_ANY)) ||
-     	((addr.ss_family == AF_INET6) && 
+     	((addr.ss_family == AF_INET6) &&
      	 IN6_IS_ADDR_UNSPECIFIED(&SAv6(&addr)->sin6_addr)) ){
 
      	ERROR("Sorry, we cannot bind to 'ANY' address\n");
@@ -98,21 +98,21 @@ int udp_trsp_socket::bind(const string& bind_ip, unsigned short bind_port)
     if((sd = socket(addr.ss_family,SOCK_DGRAM,0)) == -1){
 	ERROR("socket: %s\n",strerror(errno));
 	return -1;
-    } 
-    
+    }
+
     if(::bind(sd,(const struct sockaddr*)&addr,SA_len(&addr))) {
 
 	ERROR("bind: %s\n",strerror(errno));
 	close(sd);
 	return -1;
     }
-    
+
     int true_opt = 1;
 
     if(addr.ss_family == AF_INET) {
 	if(setsockopt(sd, IPPROTO_IP, DSTADDR_SOCKOPT,
 		      (void*)&true_opt, sizeof (true_opt)) == -1) {
-	    
+
 	    ERROR("%s\n",strerror(errno));
 	    close(sd);
 	    return -1;
@@ -120,7 +120,7 @@ int udp_trsp_socket::bind(const string& bind_ip, unsigned short bind_port)
     } else {
 	if(setsockopt(sd, IPPROTO_IPV6, DSTADDR6_SOCKOPT,
 		      (void*)&true_opt, sizeof (true_opt)) == -1) {
-	    
+
 	    ERROR("%s\n",strerror(errno));
 	    close(sd);
 	    return -1;
@@ -160,16 +160,16 @@ int udp_trsp_socket::set_recvbuf_size(int rcvbuf_size)
 	    }
 	}
     }
-    
+
     return 0;
 }
 
-int udp_trsp_socket::sendto(const sockaddr_storage* sa, 
-			    const char* msg, 
+int udp_trsp_socket::sendto(const sockaddr_storage* sa,
+			    const char* msg,
 			    const int msg_len)
 {
-  int err = ::sendto(sd, msg, msg_len, 0, 
-		     (const struct sockaddr*)sa, 
+  int err = ::sendto(sd, msg, msg_len, 0,
+		     (const struct sockaddr*)sa,
 		     SA_len(sa));
 
   if (err < 0) {
@@ -187,15 +187,19 @@ int udp_trsp_socket::sendto(const sockaddr_storage* sa,
   return 0;
 }
 
-int udp_trsp_socket::sendmsg(const sockaddr_storage* sa, 
-			     const char* msg, 
+int udp_trsp_socket::sendmsg(const sockaddr_storage* sa,
+			     const char* msg,
 			     const int msg_len)
 {
     struct msghdr hdr;
     struct cmsghdr* cmsg;
 
   union {
+#if defined(IP_PKTINFO)
     char cmsg4_buf[CMSG_SPACE(sizeof(struct in_pktinfo))];
+#else
+    char cmsg4_buf[CMSG_SPACE(sizeof(struct in_addr))];
+#endif
     char cmsg6_buf[CMSG_SPACE(sizeof(struct in6_pktinfo))];
   } cmsg_buf;
 
@@ -217,23 +221,28 @@ int udp_trsp_socket::sendmsg(const sockaddr_storage* sa,
   if(sa->ss_family == AF_INET) {
 
     cmsg->cmsg_level = IPPROTO_IP;
+#if defined(IP_PKTINFO)
     cmsg->cmsg_type = IP_PKTINFO;
     cmsg->cmsg_len = CMSG_LEN(sizeof(struct in_pktinfo));
 
     struct in_pktinfo* pktinfo = (struct in_pktinfo*) CMSG_DATA(cmsg);
     pktinfo->ipi_ifindex = sys_if_idx;
+#else
+    cmsg->cmsg_type = IP_RECVDSTADDR;
+    cmsg->cmsg_len = CMSG_LEN(sizeof(struct in_addr));
+#endif
   }
   else if(sa->ss_family == AF_INET6) {
     cmsg->cmsg_level = IPPROTO_IPV6;
     cmsg->cmsg_type = IPV6_PKTINFO;
     cmsg->cmsg_len = CMSG_LEN(sizeof(struct in6_pktinfo));
-    
+
     struct in6_pktinfo* pktinfo = (struct in6_pktinfo*) CMSG_DATA(cmsg);
     pktinfo->ipi6_ifindex = sys_if_idx;
   }
 
   hdr.msg_controllen = cmsg->cmsg_len;
-  
+
   // bytes_sent = ;
   if(::sendmsg(sd, &hdr, 0) < 0) {
       char host[NI_MAXHOST] = "";
@@ -246,13 +255,13 @@ int udp_trsp_socket::sendmsg(const sockaddr_storage* sa,
   return 0;
 }
 
-int udp_trsp_socket::send(const sockaddr_storage* sa, 
-			  const char* msg, 
+int udp_trsp_socket::send(const sockaddr_storage* sa,
+			  const char* msg,
 			  const int msg_len,
 			  unsigned int flags)
 {
     if (log_level_raw_msgs >= 0) {
-	_LOG(log_level_raw_msgs, 
+	_LOG(log_level_raw_msgs,
 	     "send  msg to %s:%i\n--++--\n%.*s--++--\n",
 	     get_addr_str(sa).c_str(),
 	     ntohs(((sockaddr_in*)sa)->sin_port),
@@ -288,7 +297,7 @@ void udp_trsp::run()
     int buf_len;
 
     msghdr           msg;
-    cmsghdr*         cmsgptr; 
+    cmsghdr*         cmsgptr;
     sockaddr_storage from_addr;
     iovec            iov[1];
 
@@ -344,7 +353,7 @@ void udp_trsp::run()
 
 	if (trsp_socket::log_level_raw_msgs >= 0) {
 	    char host[NI_MAXHOST] = "";
-	    _LOG(trsp_socket::log_level_raw_msgs, 
+	    _LOG(trsp_socket::log_level_raw_msgs,
 		 "vv M [|] u recvd msg via UDP from %s:%i vv\n"
 		 "--++--\n%.*s--++--\n",
 		 am_inet_ntop_sip(&s_msg->remote_ip,host,NI_MAXHOST),
@@ -358,10 +367,10 @@ void udp_trsp::run()
 	for (cmsgptr = CMSG_FIRSTHDR(&msg);
              cmsgptr != NULL;
              cmsgptr = CMSG_NXTHDR(&msg, cmsgptr)) {
-	    
+
             if (cmsgptr->cmsg_level == IPPROTO_IP &&
                 cmsgptr->cmsg_type == DSTADDR_SOCKOPT) {
-		
+
 		s_msg->local_ip.ss_family = AF_INET;
 	        am_set_port(&s_msg->local_ip,sock->get_port());
                 memcpy(&((sockaddr_in*)(&s_msg->local_ip))->sin_addr,
@@ -388,7 +397,7 @@ void udp_trsp::on_stop()
 
 }
 
-    
+
 
 /** EMACS **
  * Local variables:

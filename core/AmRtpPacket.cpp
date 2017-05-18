@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -48,7 +48,7 @@
 AmRtpPacket::AmRtpPacket()
   : data_offset(0)
 {
-  // buffer will be overwritten by received packet 
+  // buffer will be overwritten by received packet
   // of hdr+data - does not need to be set to 0s
   //    memset(buffer,0,4096);
 }
@@ -84,7 +84,7 @@ int AmRtpPacket::parse()
   data_offset = sizeof(rtp_hdr_t) + (hdr->cc*4);
 
   if(hdr->x != 0) {
-    //#ifndef WITH_ZRTP 
+    //#ifndef WITH_ZRTP
     //if (AmConfig::IgnoreRTPXHdrs) {
     //  skip the extension header
     //#endif
@@ -155,11 +155,11 @@ int AmRtpPacket::compile(unsigned char* data_buf, unsigned int size)
   hdr->version = RTP_VERSION;
   hdr->m = marker;
   hdr->pt = payload;
-    
+
   hdr->seq = htons(sequence);
   hdr->ts = htonl(timestamp);
   hdr->ssrc = htonl(ssrc);
-    
+
   data_offset = sizeof(rtp_hdr_t);
   memcpy(&buffer[data_offset],data_buf,d_size);
 
@@ -201,9 +201,13 @@ int AmRtpPacket::sendmsg(int sd, unsigned int sys_if_idx)
 {
   struct msghdr hdr;
   struct cmsghdr* cmsg;
-    
+
   union {
+#if defined(IP_PKTINFO)
     char cmsg4_buf[CMSG_SPACE(sizeof(struct in_pktinfo))];
+#else
+    char cmsg4_buf[CMSG_SPACE(sizeof(struct in_addr))];
+#endif
     char cmsg6_buf[CMSG_SPACE(sizeof(struct in6_pktinfo))];
   } cmsg_buf;
 
@@ -224,23 +228,28 @@ int AmRtpPacket::sendmsg(int sd, unsigned int sys_if_idx)
   cmsg = CMSG_FIRSTHDR(&hdr);
   if(addr.ss_family == AF_INET) {
     cmsg->cmsg_level = IPPROTO_IP;
+#if defined(IP_PKTINFO)
     cmsg->cmsg_type = IP_PKTINFO;
     cmsg->cmsg_len = CMSG_LEN(sizeof(struct in_pktinfo));
 
     struct in_pktinfo* pktinfo = (struct in_pktinfo*) CMSG_DATA(cmsg);
     pktinfo->ipi_ifindex = sys_if_idx;
+#else
+    cmsg->cmsg_type = IP_RECVDSTADDR;
+    cmsg->cmsg_len = CMSG_LEN(sizeof(struct in_addr));
+#endif
   }
   else if(addr.ss_family == AF_INET6) {
     cmsg->cmsg_level = IPPROTO_IPV6;
     cmsg->cmsg_type = IPV6_PKTINFO;
     cmsg->cmsg_len = CMSG_LEN(sizeof(struct in6_pktinfo));
-    
+
     struct in6_pktinfo* pktinfo = (struct in6_pktinfo*) CMSG_DATA(cmsg);
     pktinfo->ipi6_ifindex = sys_if_idx;
   }
 
   hdr.msg_controllen = cmsg->cmsg_len;
-  
+
   // bytes_sent = ;
   if(::sendmsg(sd, &hdr, 0) < 0) {
       ERROR("sendto: %s\n",strerror(errno));
@@ -260,7 +269,7 @@ int AmRtpPacket::send(int sd, unsigned int sys_if_idx,
   if(sys_if_idx && AmConfig::ForceOutboundIf) {
     return sendmsg(sd,sys_if_idx);
   }
-  
+
   return sendto(sd);
 }
 
@@ -278,7 +287,7 @@ int AmRtpPacket::recv(int sd)
 
     b_size = ret;
   }
-    
+
   return ret;
 }
 
@@ -293,4 +302,3 @@ void AmRtpPacket::logSent(msg_logger *logger, struct sockaddr_storage *laddr)
   static const cstring empty;
   logger->log((const char *)buffer, b_size, laddr, &addr, empty);
 }
-

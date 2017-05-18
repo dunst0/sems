@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <string>
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 #include "msg_logger.h"
 
@@ -13,8 +15,8 @@ class pcap_logger: public file_msg_logger
     int write_file_header();
 
   public:
-    int log(const char *data, int data_len, 
-            struct sockaddr *src, struct sockaddr *dst, 
+    int log(const char *data, int data_len,
+            struct sockaddr *src, struct sockaddr *dst,
             size_t addr_len);
 
     int log(const char* buf, int len,
