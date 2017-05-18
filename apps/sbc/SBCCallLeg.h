@@ -36,7 +36,7 @@ class PayloadIdMapping
 {
   private:
     std::map<int, int> mapping;
-      
+
   public:
     void map(int stream_index, int payload_index, int payload_id);
     int get(int stream_index, int payload_index);
@@ -81,9 +81,9 @@ class SBCCallLeg : public CallLeg, public CredentialHolder
 
   // Rate limiting
   unique_ptr<RateLimit> rtp_relay_rate_limit;
-  
+
   // Measurements
-  list<atomic_int*> rtp_pegs;
+  list<std::atomic_int*> rtp_pegs;
 
   /** common logger for RTP/RTCP and SIP packets */
   msg_logger *logger;
@@ -103,8 +103,8 @@ class SBCCallLeg : public CallLeg, public CredentialHolder
   void CCEnd();
   void CCEnd(const CCInterfaceListIteratorT& end_interface);
 
-  void connectCallee(const string& remote_party, const string& remote_uri, 
-		     const string &from, const AmSipRequest &original_invite, 
+  void connectCallee(const string& remote_party, const string& remote_uri,
+		     const string &from, const AmSipRequest &original_invite,
 		     const AmSipRequest &invite_req);
 
   int filterSdp(AmMimeBody &body, const string &method);
@@ -172,18 +172,18 @@ class SBCCallLeg : public CallLeg, public CredentialHolder
 
   // SBC interface usable from CC modules
 
-  void setLocalParty(const string &party, const string &uri) { 
+  void setLocalParty(const string &party, const string &uri) {
     dlg->setLocalParty(party); dlg->setLocalUri(uri);
   }
 
-  void setRemoteParty(const string &party, const string &uri) { 
+  void setRemoteParty(const string &party, const string &uri) {
     dlg->setRemoteParty(party); dlg->setRemoteUri(uri);
   }
 
   SBCCallProfile &getCallProfile() { return call_profile; }
   CallStatus getCallStatus() { return CallLeg::getCallStatus(); }
 
-  void setRTPMeasurements(const list<atomic_int*>& rtp_meas) { rtp_pegs = rtp_meas; }
+  void setRTPMeasurements(const list<std::atomic_int*>& rtp_meas) { rtp_pegs = rtp_meas; }
   const RateLimit* getRTPRateLimit() { return rtp_relay_rate_limit.get(); }
   void setRTPRateLimit(RateLimit* rl) { rtp_relay_rate_limit.reset(rl); }
 

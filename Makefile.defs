@@ -39,9 +39,9 @@ CPPFLAGS += -D_DEBUG \
 
 
 # compile with session thread pool support?
-#      use this for very high concurrent call count 
+#      use this for very high concurrent call count
 #      applications (e.g. for signaling only)
-#      if compiled with thread pool, there will be a 
+#      if compiled with thread pool, there will be a
 #      thread pool of configurable size processing the
 #      signaling and application logic of the calls.
 #      if compiled without thread pool support, every
@@ -53,14 +53,14 @@ CPPFLAGS += -D_DEBUG \
 #   this needs a fairly new version of spandsp - tested with 0.0.4pre11
 #   will not work with spandsp 0.0.2 .
 #   (which means that current debian and gentoo packages don't work)
-#   
+#
 #USE_SPANDSP    = yes
-# statically link spandsp library? 
+# statically link spandsp library?
 #   (might need adjusting spandsp lib path LIBSPANDSP_LDIR - may be /usr/lib)
 #LIBSPANDSP_STATIC = yes
 #LIBSPANDSP_LDIR = /usr/local/lib/
 
-# compile with sample rate conversion from secret rabbit code? 
+# compile with sample rate conversion from secret rabbit code?
 # (see http://www.mega-nerd.com/SRC/)
 #
 #USE_LIBSAMPLERATE = yes
@@ -163,12 +163,21 @@ ifeq ($(ARCH),sparc)
 	endif
 endif
 
-# need OS specific for this ?
-CXX = g++
-CC = gcc
+#set some vars from the environment (and not make builtins)
+CXX   := $(shell echo "$${CXX}")
+CC   := $(shell echo "$${CC}")
+
+ifeq ($(CC),)
+	CC=gcc
+endif
+
+ifeq ($(CXX),)
+	CXX = g++
+endif
+
 LD = $(CC)
 
-CXXFLAGS += -Wall -Wno-reorder -Wno-unused -fPIC -std=c++11 -g $(EXTRA_CXXFLAGS) 
+CXXFLAGS += -Wall -Wno-reorder -Wno-unused -fPIC -std=c++11 -g $(EXTRA_CXXFLAGS)
 CFLAGS   += -Wall -fPIC -g $(EXTRA_CFLAGS)
 
 # only optimize if releasing, as it slows down the build process
@@ -185,7 +194,7 @@ ifdef WITH_ZRTP
 CPPFLAGS += -DWITH_ZRTP \
 	    -DBUILD_ZRTP_MUTEXES \
 	    -DBUILD_DEFAULT_CACHE -DBUILD_DEFAULT_TIMER -DUNIX -DBUILD_ZRTP_MUTEXES \
-	    -I/usr/local/include/zrtp 
+	    -I/usr/local/include/zrtp
 endif
 
 TARGET=
@@ -227,7 +236,7 @@ ifeq ($(OS), macosx)
 	      CPPFLAGS += -D__DARWIN_UNIX03
 	      CPPFLAGS += -I /opt/local/include
 	      LDFLAGS += -L/opt/local/lib
-	endif	      
+	endif
 else
 ifeq ($(OS), solaris)
        	LDFLAGS+= -fPIC -ldl -lsocket -lnsl $(LDFLAG_PTHREAD)
@@ -242,7 +251,7 @@ endif
 endif
 endif
 
-LDFLAGS += -lstdc++ 
+LDFLAGS += -lstdc++
 
 ifeq ($(ARCH),iphone)
 LDFLAGS += -lgcc_eh
@@ -255,13 +264,13 @@ endif
 LIB_LDFLAGS += $(LDFLAGS)
 
 
-# install path is $(basedir) $(prefix) 
+# install path is $(basedir) $(prefix)
 # example:
 #  creating a bin. archive in /tmp, which unpacks in /usr/local
 #  basedir=/tmp
 #  prefix=/usr/local
 
-DESTDIR ?= 
+DESTDIR ?=
 PREFIX ?= /usr/local
 prefix ?= $(PREFIX)
 BASEDIR ?=
@@ -319,11 +328,11 @@ ifeq ($(OS), solaris)
 INSTALL ?= ginstall
 TAR ?= gtar
 else
-INSTALL ?= install 
+INSTALL ?= install
 TAR ?= tar
 endif
 
-INSTALL_TOUCH = touch          # used to create the file first (good to 
+INSTALL_TOUCH = touch          # used to create the file first (good to
                                #  make solaris install work)
 INSTALL_CFG = $(INSTALL) -m 644
 INSTALL_BIN = $(INSTALL) -m 755
@@ -342,7 +351,7 @@ export bin_target cfg_target app_cfg_target modules_target audio_target lib_targ
 export INSTALL TAR INSTALL_TOUCH INSTALL_CFG INSTALL_BIN INSTALL_MODULES INSTALL_DOC INSTALL_AUDIO
 export APP_NAME
 
-export USE_SPANDSP LIBSPANDSP_STATIC LIBSPANDSP_LDIR 
+export USE_SPANDSP LIBSPANDSP_STATIC LIBSPANDSP_LDIR
 export USE_LIBSAMPLERATE USE_INTERNAL_RESAMPLER
 export WITH_ZRTP
 export USE_MONITORING
@@ -356,10 +365,10 @@ mk-install-dirs: $(DESTDIR)$(cfg_target) \
 		 $(DESTDIR)$(audio_prefix)/$(audio_dir) \
 		 $(DESTDIR)$(doc_prefix)/$(doc_dir)
 
-$(DESTDIR)$(cfg_target): 
+$(DESTDIR)$(cfg_target):
 	mkdir -p $(DESTDIR)$(cfg_target)
 
-$(DESTDIR)$(app_cfg_target): 
+$(DESTDIR)$(app_cfg_target):
 	mkdir -p $(DESTDIR)$(app_cfg_target)
 
 $(DESTDIR)$(bin_prefix)/$(bin_dir):

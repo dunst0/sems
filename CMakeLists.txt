@@ -271,6 +271,9 @@ ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 SET(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS_DEBUG}   -D_DEBUG")
 
+MESSAGE(STATUS "${CMAKE_C_FLAGS}")
+MESSAGE(STATUS "${CMAKE_CXX_FLAGS}")
+
 # compile with session thread pool support?
 #      use this for very high concurrent call count
 #      applications (e.g. for signaling only)

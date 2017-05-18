@@ -281,16 +281,16 @@ void SBCCallLeg::applyAProfile()
     dlg->setContactParams(call_profile.dlg_contact_params);
 }
 
-int SBCCallLeg::applySSTCfg(AmConfigReader& sst_cfg, 
+int SBCCallLeg::applySSTCfg(AmConfigReader& sst_cfg,
 			   const AmSipRequest* p_req)
 {
-  DBG("Enabling SIP Session Timers\n");  
+  DBG("Enabling SIP Session Timers\n");
   if (NULL == SBCFactory::instance()->session_timer_fact) {
     ERROR("session_timer module not loaded - "
 	  "unable to create call with SST\n");
     return -1;
   }
-    
+
   if (p_req && !SBCFactory::instance()->session_timer_fact->
       onInvite(*p_req, sst_cfg)) {
     return -1;
@@ -402,7 +402,7 @@ void SBCCallLeg::applyBProfile()
   }
 
   // was read from caller but reading directly from profile now
-  if (!call_profile.callid.empty()) 
+  if (!call_profile.callid.empty())
     dlg->setCallid(call_profile.callid);
 
   dlg->setContact(call_profile.bleg_contact);
@@ -511,9 +511,9 @@ UACAuthCred* SBCCallLeg::getCredentials() {
 }
 
 void SBCCallLeg::onSipRequest(const AmSipRequest& req) {
-  // AmB2BSession does not call AmSession::onSipRequest for 
+  // AmB2BSession does not call AmSession::onSipRequest for
   // forwarded requests - so lets call event handlers here
-  // todo: this is a hack, replace this by calling proper session 
+  // todo: this is a hack, replace this by calling proper session
   // event handler in AmB2BSession
   bool fwd = sip_relay_only && (req.method != SIP_METH_CANCEL);
   if (fwd) {
@@ -522,14 +522,14 @@ void SBCCallLeg::onSipRequest(const AmSipRequest& req) {
 
   if (fwd && call_profile.messagefilter.size()) {
     for (vector<FilterEntry>::iterator it=
-	   call_profile.messagefilter.begin(); 
+	   call_profile.messagefilter.begin();
 	 it != call_profile.messagefilter.end(); it++) {
 
       if (isActiveFilter(it->filter_type)) {
 	string method = req.method;
 	std::transform(method.begin(), method.end(), method.begin(), ::tolower);
 
-	bool is_filtered = (it->filter_type == Whitelist) ^ 
+	bool is_filtered = (it->filter_type == Whitelist) ^
 	  (it->filter_list.find(method) != it->filter_list.end());
 	if (is_filtered) {
 	  DBG("replying 405 to filtered message '%s'\n", req.method.c_str());
@@ -661,7 +661,7 @@ void SBCCallLeg::onSendRequest(AmSipRequest& req, int &flags) {
   }
   else {
     if (!call_profile.append_headers_req.empty()) {
-      DBG("appending '%s' to outbound request (B leg)\n", 
+      DBG("appending '%s' to outbound request (B leg)\n",
 	  call_profile.append_headers_req.c_str());
       req.hdrs+=call_profile.append_headers_req;
     }
@@ -770,7 +770,7 @@ void SBCCallLeg::process(AmEvent* ev) {
     if (ev->event_id == SBCCallTimerEvent_ID &&
         (ct_event = dynamic_cast<SBCCallTimerEvent*>(ev)) != NULL) {
       switch (m_state) {
-        case BB_Connected: 
+        case BB_Connected:
           switch (ct_event->timer_action) {
             case SBCCallTimerEvent::Remove:
               DBG("removing timer %d on call timer request\n", ct_event->timer_id);
@@ -792,13 +792,13 @@ void SBCCallLeg::process(AmEvent* ev) {
         case BB_Dialing:
 
           switch (ct_event->timer_action) {
-            case SBCCallTimerEvent::Remove: 
-              clearCallTimer(ct_event->timer_id); 
+            case SBCCallTimerEvent::Remove:
+              clearCallTimer(ct_event->timer_id);
               return;
 
             case SBCCallTimerEvent::Set:
             case SBCCallTimerEvent::Reset:
-              saveCallTimer(ct_event->timer_id, ct_event->timeout); 
+              saveCallTimer(ct_event->timer_id, ct_event->timeout);
               return;
 
             default: ERROR("unknown timer_action in sbc call timer event\n"); return;
@@ -863,11 +863,11 @@ void SBCCallLeg::onInvite(const AmSipRequest& req)
     }
   }
 
-  call_profile.sst_aleg_enabled = 
+  call_profile.sst_aleg_enabled =
     ctx.replaceParameters(call_profile.sst_aleg_enabled,
 			  "enable_aleg_session_timer", req);
 
-  call_profile.sst_enabled = ctx.replaceParameters(call_profile.sst_enabled, 
+  call_profile.sst_enabled = ctx.replaceParameters(call_profile.sst_enabled,
 						   "enable_session_timer", req);
 
   if ((call_profile.sst_aleg_enabled == "yes") &&
@@ -890,7 +890,7 @@ void SBCCallLeg::onInvite(const AmSipRequest& req)
 
   if (!initCCExtModules(call_profile.cc_interfaces, cc_modules)) {
     ERROR("initializing extended call control modules\n");
-    throw AmSession::Exception(500, SIP_REPLY_SERVER_INTERNAL_ERROR);    
+    throw AmSession::Exception(500, SIP_REPLY_SERVER_INTERNAL_ERROR);
   }
 
   string ruri, to, from;
@@ -902,7 +902,7 @@ void SBCCallLeg::onInvite(const AmSipRequest& req)
     throw AmSession::Exception(400,"Failed to parse R-URI");
   }
 
-  if(call_profile.contact_hiding) { 
+  if(call_profile.contact_hiding) {
     if(RegisterDialog::decodeUsername(req.user,uac_ruri)) {
       uac_req.r_uri = uac_ruri.uri_str();
     }
@@ -956,7 +956,7 @@ void SBCCallLeg::onInvite(const AmSipRequest& req)
     assertEndCRLF(append_headers);
     invite_req.hdrs+=append_headers;
   }
-  
+
   int res = filterSdp(invite_req.body, invite_req.method);
   if (res < 0) {
     // FIXME: quick hack, throw the exception from the filtering function for
@@ -994,10 +994,10 @@ void SBCCallLeg::onInvite(const AmSipRequest& req)
   }
 }
 
-void SBCCallLeg::connectCallee(const string& remote_party, 
+void SBCCallLeg::connectCallee(const string& remote_party,
 			       const string& remote_uri,
-			       const string &from, 
-			       const AmSipRequest &original_invite, 
+			       const string &from,
+			       const AmSipRequest &original_invite,
 			       const AmSipRequest &invite)
 {
   // FIXME: no fork for now
@@ -1014,7 +1014,7 @@ void SBCCallLeg::connectCallee(const string& remote_party,
   // already filtered so need not to be catched (can not) in relayEvent because
   // it is sent other way
   addCallee(callee_session, invite);
-  
+
   // we could start in SIP relay mode from the beginning if only one B leg, but
   // serial fork might mess it
   // set_sip_relay_only(true);
@@ -1380,9 +1380,9 @@ bool SBCCallLeg::onBeforeRTPRelay(AmRtpPacket* p, sockaddr_storage* remote_addr)
 
 void SBCCallLeg::onAfterRTPRelay(AmRtpPacket* p, sockaddr_storage* remote_addr)
 {
-  for(list<atomic_int*>::iterator it = rtp_pegs.begin();
+  for(list<std::atomic_int*>::iterator it = rtp_pegs.begin();
       it != rtp_pegs.end(); ++it) {
-    (*it)->inc(p->getBufferSize());
+    (*it) += p->getBufferSize();
   }
 }
 

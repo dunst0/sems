@@ -91,7 +91,7 @@ class PayloadDesc {
 
     /* FIXME: really want all of this?
      * reads from format: name/clock_rate, nothing need to be set
-     * for example: 
+     * for example:
      *	  PCMU
      *	  bla/48000
      *	  /48000
@@ -122,7 +122,7 @@ struct SBCCallProfile
     string hiding_prefix;
     string hiding_vars;
   };
-  
+
   Contact contact;
 
   class BLegContact
@@ -218,8 +218,8 @@ struct SBCCallProfile
   int rtprelay_bw_limit_rate;
   int rtprelay_bw_limit_peak;
 
-  list<atomic_int*> aleg_rtp_counters;
-  list<atomic_int*> bleg_rtp_counters;
+  list<std::atomic_int*> aleg_rtp_counters;
+  list<std::atomic_int*> bleg_rtp_counters;
 
   string outbound_interface;
   int outbound_interface_value;
@@ -229,7 +229,7 @@ struct SBCCallProfile
 
   struct TranscoderSettings {
     // non-replaced parameters
-    string callee_codec_capabilities_str, audio_codecs_str, 
+    string callee_codec_capabilities_str, audio_codecs_str,
       transcoder_mode_str, lowfi_codecs_str, dtmf_mode_str,
       audio_codecs_norelay_str, audio_codecs_norelay_aleg_str;
 
@@ -242,9 +242,9 @@ struct SBCCallProfile
     enum { DTMFAlways, DTMFLowFiCodecs, DTMFNever } dtmf_mode;
     bool readTranscoderMode(const std::string &src);
     bool readDTMFMode(const std::string &src);
-  
+
     bool enabled;
-    
+
     bool evaluate(ParamReplacerCtx& ctx, const AmSipRequest& req);
 
     bool readConfig(AmConfigReader &cfg);
@@ -266,7 +266,7 @@ struct SBCCallProfile
      * are not ordered but added after ordering is done */
     bool aleg_prefer_existing_payloads;
     std::vector<PayloadDesc> aleg_payload_order;
-    
+
     /** when reordering payloads in relayed SDP from A leg to B leg prefer already
      * present payloads to the added ones by transcoder; i.e. transcoder codecs
      * are not ordered but added after ordering is done */
@@ -277,7 +277,7 @@ struct SBCCallProfile
     void infoPrint() const;
     bool operator==(const CodecPreferences& rhs) const;
     string print() const;
-  
+
     void orderSDP(AmSdp& sdp, bool a_leg); // do the SDP changes
     bool shouldOrderPayloads(bool a_leg); // returns if call to orderSDP is needed
 
@@ -390,7 +390,7 @@ struct SBCCallProfile
   int apply_a_routing(ParamReplacerCtx& ctx,
 		      const AmSipRequest& req,
 		      AmBasicSipDialog& dlg) const;
-  
+
   int apply_b_routing(ParamReplacerCtx& ctx,
 		      const AmSipRequest& req,
 		      AmBasicSipDialog& dlg) const;
@@ -415,7 +415,7 @@ struct SBCCallProfile
 			 AmArg* values);
 
   void eval_cc_list(ParamReplacerCtx& ctx, const AmSipRequest& req);
-  
+
   void fix_append_hdrs(ParamReplacerCtx& ctx, const AmSipRequest& req);
 
   void fix_reg_contact(ParamReplacerCtx& ctx, const AmSipRequest& req,
