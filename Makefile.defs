@@ -213,7 +213,10 @@ ifeq ($(OS), linux)
 	CPPFLAGS += -DPROPAGATE_COREDUMP_SETTINGS
 else
 ifeq ($(OS), freebsd)
+	LDFLAGS += -L/usr/local/lib
+	LDFLAGS += -lexecinfo -lthr
 	LDFLAGS += $(LDFLAG_DYN) $(LDFLAG_PTHREAD)
+	CPPFLAGS += -I/usr/local/include
 else
 ifeq ($(OS), openbsd)
 	LDFLAGS += $(LDFLAG_DYN) $(LDFLAG_PTHREAD)
