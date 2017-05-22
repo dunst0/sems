@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -51,7 +51,7 @@
 
 const char* __timer_id_str[2] = {
   "RFC6665_TIMER_N",
-  "SUBSCRIPTION_EXPIRE" 
+  "SUBSCRIPTION_EXPIRE"
 };
 
 const char* __sub_state_str[] = {
@@ -63,18 +63,19 @@ const char* __sub_state_str[] = {
 };
 
 SingleSubscription::SingleSubscription(AmSipSubscription* subs, Role role,
-				       const string& event, const string& id)
-    : subs(subs), role(role), event(event), id(id),
-      sub_state(SubState_init), pending_subscribe(0), expires(0),
-      timer_n(this,RFC6665_TIMER_N),timer_expires(this,SUBSCRIPTION_EXPIRE)
-{
-  assert(subs); 
-}
+                                       const string& event, const string& id)
+  : sub_state(SubState_init),
+    pending_subscribe(0),
+    expires(0),
+    timer_n(this, RFC6665_TIMER_N),
+    timer_expires(this, SUBSCRIPTION_EXPIRE),
+    subs(subs),
+    event(event),
+    id(id),
+    role(role)
+{ assert(subs); }
 
-AmBasicSipDialog* SingleSubscription::dlg()
-{
-  return subs->dlg;
-}
+AmBasicSipDialog* SingleSubscription::dlg() { return subs->dlg; }
 
 void SingleSubscription::onTimer(int timer_id)
 {
@@ -105,7 +106,7 @@ bool SingleSubscription::terminated()
   return getState() == SubState_terminated;
 }
 
-SingleSubscription* 
+SingleSubscription*
 AmSipSubscription::newSingleSubscription(SingleSubscription::Role role,
 					 const string& event, const string& id)
 {
@@ -115,9 +116,9 @@ AmSipSubscription::newSingleSubscription(SingleSubscription::Role role,
 SingleSubscription* AmSipSubscription::makeSubscription(const AmSipRequest& req,
 							bool uac)
 {
-  SingleSubscription::Role role = 
-    uac ? 
-    SingleSubscription::Subscriber : 
+  SingleSubscription::Role role =
+    uac ?
+    SingleSubscription::Subscriber :
     SingleSubscription::Notifier;
 
   string event;
@@ -133,7 +134,7 @@ SingleSubscription* AmSipSubscription::makeSubscription(const AmSipRequest& req,
     //TODO: fetch Refer-Sub-HF (RFC 4488)
     event = "refer";
     id = int2str(req.cseq);
-  } 
+  }
   else {
     DBG("subscription are only created by SUBSCRIBE or REFER requests\n");
     // subscription are only created by SUBSCRIBE or REFER requests
@@ -177,7 +178,7 @@ bool SingleSubscription::onRequestIn(const AmSipRequest& req)
 
     if(pending_subscribe) {
       dlg()->reply(req,500, SIP_REPLY_SERVER_INTERNAL_ERROR, NULL,
-		   SIP_HDR_COLSP(SIP_HDR_RETRY_AFTER) 
+		   SIP_HDR_COLSP(SIP_HDR_RETRY_AFTER)
 		   + int2str(get_random() % 10) + CRLF);
       return false;
     }
@@ -229,7 +230,7 @@ void SingleSubscription::replyFSM(const AmSipRequest& req, const AmSipReply& rep
     }
     else {
       // success
-      
+
       // set dialog identifier if not yet set
       if(dlg()->getRemoteTag().empty()) {
 	dlg()->setRemoteTag(reply.to_tag);
@@ -261,7 +262,7 @@ void SingleSubscription::replyFSM(const AmSipRequest& req, const AmSipReply& rep
 	// -> we still have timer N...
 
 	// replies to SUBSCRIBE MUST contain a Expires-HF
-	// if not, or if not readable, we should probably 
+	// if not, or if not readable, we should probably
 	// quit the subscription
 	DBG("replies to SUBSCRIBE MUST contain a Expires-HF\n");
 	terminate();
@@ -284,7 +285,7 @@ void SingleSubscription::replyFSM(const AmSipRequest& req, const AmSipReply& rep
 	terminate();
 	subs->onFailureReply(reply,this);
 	break;
-	
+
       default:
 	// all other response codes:
 	// only the transaction fails
@@ -293,12 +294,12 @@ void SingleSubscription::replyFSM(const AmSipRequest& req, const AmSipReply& rep
 
       return;
     }
-    
+
     // check Subscription-State-HF
     string sub_state_txt = getHeader(req.hdrs,SIP_HDR_SUBSCRIPTION_STATE,true);
     string expires_txt = get_header_param(sub_state_txt,"expires");
     int notify_expire=0;
-  
+
     if(!expires_txt.empty())
       str2int(expires_txt,notify_expire);
 
@@ -318,7 +319,7 @@ void SingleSubscription::replyFSM(const AmSipRequest& req, const AmSipReply& rep
       //subs->onFailureReply(reply,this);
       return;
     }
-    
+
     // reset expire timer
     DBG("setTimer(%s,SUBSCRIPTION_EXPIRE)\n",dlg()->getLocalTag().c_str());
     AmAppTimer::instance()->setTimer(&timer_expires,(double)notify_expire);
@@ -359,7 +360,7 @@ void SingleSubscription::setState(unsigned int st)
 
 string SingleSubscription::to_str()
 {
-  return "[" 
+  return "["
     + str2json(event) + ","
     + str2json(id) + ","
     + (role == Subscriber ? str2json("SUB") : str2json("NOT")) + ","
@@ -409,7 +410,7 @@ bool AmSipSubscription::subscriptionExists(SingleSubscription::Role role,
   return findSubscription(role,event,id) != subs.end();
 }
 
-AmSipSubscription::Subscriptions::iterator 
+AmSipSubscription::Subscriptions::iterator
 AmSipSubscription::findSubscription(SingleSubscription::Role role,
 				    const string& event, const string& id)
 {
@@ -571,7 +572,7 @@ bool AmSipSubscription::onRequestIn(const AmSipRequest& req)
     dlg->reply(req, 481, SIP_REPLY_NOT_EXIST);
     return false;
   }
-  
+
   // process request;
   uas_cseq_map[req.cseq] = sub_it;
   return (*sub_it)->onRequestIn(req);
@@ -666,17 +667,21 @@ void AmSipSubscription::debug()
 }
 
 
-SIPSubscriptionEvent::SIPSubscriptionEvent(SubscriptionStatus status, 
-					   const string& handle,
-					   unsigned int expires,
-					   unsigned int code, 
-					   const string& reason)
-  : AmEvent(E_SIP_SUBSCRIPTION), status(status), 
-    handle(handle), expires(expires), code(code), 
-    reason(reason), notify_body(nullptr) 
-{}
-  
-const char* SIPSubscriptionEvent::getStatusText() 
+SIPSubscriptionEvent::SIPSubscriptionEvent(SubscriptionStatus status,
+                                           const string& handle,
+                                           unsigned int expires,
+                                           unsigned int code,
+                                           const string& reason)
+  : AmEvent(E_SIP_SUBSCRIPTION),
+    handle(handle),
+    code(code),
+    reason(reason),
+    status(status),
+    expires(expires),
+    notify_body(nullptr)
+{ }
+
+const char* SIPSubscriptionEvent::getStatusText()
 {
   switch (status) {
   case SubscribeActive: return "active";
@@ -746,9 +751,9 @@ void AmSipSubscriptionDialog::onNotify(const AmSipRequest& req,
   // subscription state is update after the reply has been sent
   reply(req, 200, "OK");
 
-  SIPSubscriptionEvent* sub_ev = 
+  SIPSubscriptionEvent* sub_ev =
     new SIPSubscriptionEvent(SIPSubscriptionEvent::SubscribeFailed, local_tag);
-  
+
   switch(sub->getState()){
   case SingleSubscription::SubState_pending:
     sub_ev->status = SIPSubscriptionEvent::SubscribePending;
@@ -777,7 +782,7 @@ void AmSipSubscriptionDialog::onFailureReply(const AmSipReply& reply,
 {
   assert(sub);
   SIPSubscriptionEvent* sub_ev =
-    new SIPSubscriptionEvent(SIPSubscriptionEvent::SubscribeFailed, 
+    new SIPSubscriptionEvent(SIPSubscriptionEvent::SubscribeFailed,
 			     local_tag, 0, reply.code, reply.reason);
 
   DBG("posting event to '%s'\n", sess_link.c_str());

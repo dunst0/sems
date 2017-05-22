@@ -21,30 +21,31 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "AmSipRegistration.h"
 #include "AmSession.h"
 #include "AmSessionContainer.h"
+
 AmSIPRegistration::AmSIPRegistration(const string& handle,
-				     const SIPRegistrationInfo& info,
-				     const string& sess_link) 
-  : info(info),
-    dlg(this),
+                                     const SIPRegistrationInfo& info,
+                                     const string& sess_link)
+  : dlg(this),
     cred(info.domain, info.auth_user, info.pwd),
-    active(false),
+    info(info),
+    sess_link(sess_link),
+    seh(NULL),
     reg_begin(0),
     reg_expires(0),
-    remove(false),
-    sess_link(sess_link),
     reg_send_begin(0),
+    expires_interval(3600),
+    active(false),
+    remove(false),
     waiting_result(false),
-    unregistering(false),
-    seh(NULL),
-    expires_interval(3600)
+    unregistering(false)
 {
   req.user     = info.user;
   req.method   = "REGISTER";
@@ -54,7 +55,7 @@ AmSIPRegistration::AmSIPRegistration(const string& handle,
   req.from_tag = handle;
   req.to       = req.from;
   req.to_tag   = "";
-  req.callid   = AmSession::getNewId(); 
+  req.callid   = AmSession::getNewId();
   //
 
   // clear dlg.callid? ->reregister?
@@ -62,9 +63,7 @@ AmSIPRegistration::AmSIPRegistration(const string& handle,
   dlg.cseq = 50;
 }
 
-AmSIPRegistration::~AmSIPRegistration() {
-  setSessionEventHandler(NULL);
-}
+AmSIPRegistration::~AmSIPRegistration() { setSessionEventHandler(NULL); }
 
 void AmSIPRegistration::setRegistrationInfo(const SIPRegistrationInfo& _info) {
   DBG("updating registration info for '%s@%s'\n",
@@ -88,17 +87,18 @@ void AmSIPRegistration::setRegistrationInfo(const SIPRegistrationInfo& _info) {
   dlg.initFromLocalRequest(req);
 }
 
-void AmSIPRegistration::setSessionEventHandler(AmSessionEventHandler* new_seh) {
+void AmSIPRegistration::setSessionEventHandler(AmSessionEventHandler* new_seh)
+{
   if (seh)
     delete seh;
   seh = new_seh;
 }
- 
+
 void AmSIPRegistration::setExpiresInterval(unsigned int desired_expires) {
   expires_interval = desired_expires;
 }
 
-bool AmSIPRegistration::doRegistration() 
+bool AmSIPRegistration::doRegistration()
 {
   bool res = true;
 
@@ -110,8 +110,8 @@ bool AmSIPRegistration::doRegistration()
 
   dlg.setRemoteTag(string());
   dlg.setRemoteUri(req.r_uri);
-    
-  // set outbound proxy as next hop 
+
+  // set outbound proxy as next hop
   if (!info.proxy.empty()) {
     dlg.outbound_proxy = info.proxy;
   } else if (!AmConfig::OutboundProxy.empty()) {
@@ -127,13 +127,13 @@ bool AmSIPRegistration::doRegistration()
       + info.contact + ">" + CRLF;
     flags = SIP_FLAGS_NOCONTACT;
   }
-    
+
   if (dlg.sendRequest(req.method, NULL, hdrs, flags) < 0) {
     ERROR("failed to send registration.\n");
     res = false;
     waiting_result = false;
   }
-    
+
   // save TS
   reg_send_begin  = time(NULL);
   return res;
@@ -150,11 +150,11 @@ bool AmSIPRegistration::doUnregister()
   req.r_uri      = "sip:"+info.domain;
   dlg.setRemoteTag(string());
   dlg.setRemoteUri(req.r_uri);
-    
-  // set outbound proxy as next hop 
+
+  // set outbound proxy as next hop
   if (!info.proxy.empty()) {
     dlg.outbound_proxy = info.proxy;
-  } else if (!AmConfig::OutboundProxy.empty()) 
+  } else if (!AmConfig::OutboundProxy.empty())
     dlg.outbound_proxy = AmConfig::OutboundProxy;
 
   int flags=0;
@@ -164,7 +164,7 @@ bool AmSIPRegistration::doUnregister()
     hdrs += info.contact + ">" + CRLF;
     flags = SIP_FLAGS_NOCONTACT;
   }
-    
+
   if (dlg.sendRequest(req.method, NULL, hdrs, flags) < 0) {
     ERROR("failed to send deregistration.\n");
     res = false;
@@ -181,7 +181,7 @@ void AmSIPRegistration::onSendRequest(AmSipRequest& req, int& flags)
   if (seh)
     seh->onSendRequest(req,flags);
 }
-	
+
 void AmSIPRegistration::onSendReply(const AmSipRequest& req, AmSipReply& reply,
 				    int& flags) {
   if (seh)
@@ -189,11 +189,11 @@ void AmSIPRegistration::onSendReply(const AmSipRequest& req, AmSipReply& reply,
 }
 
 AmSIPRegistration::RegistrationState AmSIPRegistration::getState() {
-  if (active) 
+  if (active)
     return RegisterActive;
   if (waiting_result)
     return RegisterPending;
-	
+
   return RegisterExpired;
 }
 
@@ -203,16 +203,16 @@ bool AmSIPRegistration::getUnregistering() {
 
 unsigned int AmSIPRegistration::getExpiresLeft() {
   long diff = reg_begin + reg_expires  - time(NULL);
-  if (diff < 0) 
+  if (diff < 0)
     return 0;
-  else 
+  else
     return diff;
 }
 
 time_t AmSIPRegistration::getExpiresTS() {
   return reg_begin + reg_expires;
 }
-	
+
 void AmSIPRegistration::onRegisterExpired() {
   if (sess_link.length()) {
     AmSessionContainer::instance()->postEvent(sess_link,
@@ -231,7 +231,7 @@ void AmSIPRegistration::onRegisterSendTimeout() {
 		new SIPRegistrationEvent(SIPRegistrationEvent::RegisterSendTimeout,
 					 req.from_tag));
   }
-  DBG("Registration '%s' REGISTER request timeout.\n", 
+  DBG("Registration '%s' REGISTER request timeout.\n",
       (info.user+"@"+info.domain).c_str());
   active = false;
   remove = true;
@@ -242,17 +242,17 @@ bool AmSIPRegistration::registerSendTimeout(time_t now_sec) {
 }
 
 bool AmSIPRegistration::timeToReregister(time_t now_sec) {
-  //   	if (active) 
+  //   	if (active)
   //   		DBG("compare %lu with %lu\n",(reg_begin+reg_expires), (unsigned long)now_sec);
-  return (((unsigned long)reg_begin+ reg_expires/2) < (unsigned long)now_sec);	
+  return (((unsigned long)reg_begin+ reg_expires/2) < (unsigned long)now_sec);
 }
 
 bool AmSIPRegistration::registerExpired(time_t now_sec) {
-  return ((reg_begin+reg_expires) < (unsigned int)now_sec);	
+  return ((reg_begin+reg_expires) < (unsigned int)now_sec);
 }
 
 void AmSIPRegistration::onSipReply(const AmSipRequest& req,
-				   const AmSipReply& reply, 
+				   const AmSipReply& reply,
 				   AmBasicSipDialog::Status old_dlg_status)
 {
   if ((seh!=NULL) && seh->onSipReply(req,reply, old_dlg_status))
@@ -264,7 +264,7 @@ void AmSIPRegistration::onSipReply(const AmSipRequest& req,
   if ((reply.code>=200)&&(reply.code<300)) {
 
     string contacts = reply.contact;
-    if (contacts.empty()) 
+    if (contacts.empty())
       contacts = getHeader(reply.hdrs, "Contact", "m", true);
 
     if (unregistering) {
@@ -348,7 +348,7 @@ void AmSIPRegistration::onSipReply(const AmSipRequest& req,
 	remove = true;
       }
     }
-		
+
   } else if (reply.code >= 300) {
     DBG("Registration failed.\n");
     if (sess_link.length()) {
@@ -359,7 +359,6 @@ void AmSIPRegistration::onSipReply(const AmSipRequest& req,
 					   reply.code, reply.reason));
     }
     active = false;
-    remove = true;		
+    remove = true;
   }
 }
-

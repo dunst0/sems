@@ -21,8 +21,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -44,10 +44,13 @@ AmSessionContainer* AmSessionContainer::_instance=NULL;
 _MONITORING_DECLARE_INTERFACE(AmSessionContainer);
 
 AmSessionContainer::AmSessionContainer()
-  : _run_cond(false), _container_closed(false), enable_unclean_shutdown(false),
-    CPSLimit(0), CPSHardLimit(0), max_cps(0)
-{
-}
+  : _container_closed(false),
+    _run_cond(false),
+    enable_unclean_shutdown(false),
+    max_cps(0),
+    CPSLimit(0),
+    CPSHardLimit(0)
+{ }
 
 AmSessionContainer* AmSessionContainer::instance()
 {
@@ -57,7 +60,7 @@ AmSessionContainer* AmSessionContainer::instance()
   return _instance;
 }
 
-void AmSessionContainer::dispose() 
+void AmSessionContainer::dispose()
 {
   if(_instance != NULL) {
     if(!_instance->is_stopped()) {
@@ -75,19 +78,19 @@ void AmSessionContainer::dispose()
 bool AmSessionContainer::clean_sessions() {
   ds_mut.lock();
   DBG("Session cleaner starting its work\n");
-  
+
   try {
     SessionQueue n_sessions;
-    
+
     while(!d_sessions.empty()){
-      
+
       AmSession* cur_session = d_sessions.front();
       d_sessions.pop();
-      
+
       ds_mut.unlock();
-      
+
       if(cur_session->is_stopped() && !cur_session->isProcessingMedia()){
-	
+
 	MONITORING_MARK_FINISHED(cur_session->getLocalTag().c_str());
 
 	DBG("session [%p] has been destroyed\n",(void*)cur_session->_pid);
@@ -97,12 +100,12 @@ bool AmSessionContainer::clean_sessions() {
 	DBG("session [%p] still running\n",(void*)cur_session->_pid);
 	n_sessions.push(cur_session);
       }
-      
+
       ds_mut.lock();
     }
-    
+
     swap(d_sessions,n_sessions);
-    
+
   }catch(std::exception& e){
     ERROR("exception caught in session cleaner: %s\n", e.what());
     throw; /* throw again as this is fatal (because unlocking the mutex fails!! */
@@ -125,7 +128,7 @@ void AmSessionContainer::run()
 
     _run_cond.wait_for();
 
-    if(_container_closed.get()) 
+    if(_container_closed.get())
       break;
 
     // Give the Sessions some time to stop by themselves
@@ -147,15 +150,15 @@ void AmSessionContainer::broadcastShutdown() {
     broadcast(new AmSystemEvent(AmSystemEvent::ServerShutdown));
 }
 
-void AmSessionContainer::on_stop() 
-{ 
+void AmSessionContainer::on_stop()
+{
   _container_closed.set(true);
 
   if (enable_unclean_shutdown) {
     INFO("unclean shutdown requested - not broadcasting shutdown\n");
   } else {
     broadcastShutdown();
-    
+
     DBG("waiting for active event queues to stop...\n");
 
     for (unsigned int i=0;
@@ -167,9 +170,9 @@ void AmSessionContainer::on_stop()
     if (!AmEventDispatcher::instance()->empty()) {
       WARN("Not all calls cleanly ended!\n");
     }
-    
+
     DBG("cleaning sessions...\n");
-    while (clean_sessions()) 
+    while (clean_sessions())
       usleep(10000);
   }
 
@@ -179,7 +182,7 @@ void AmSessionContainer::on_stop()
 void AmSessionContainer::stopAndQueue(AmSession* s)
 {
 
-  if (AmConfig::LogSessions) {    
+  if (AmConfig::LogSessions) {
     INFO("session cleaner about to stop %s\n",
 	 s->getLocalTag().c_str());
   }
@@ -188,7 +191,7 @@ void AmSessionContainer::stopAndQueue(AmSession* s)
 
   ds_mut.lock();
   d_sessions.push(s);
-  _run_cond.set(true);    
+  _run_cond.set(true);
   ds_mut.unlock();
 }
 
@@ -196,7 +199,7 @@ void AmSessionContainer::destroySession(AmSession* s)
 {
     AmEventQueueInterface* q = AmEventDispatcher::instance()->
       delEventQueue(s->getLocalTag());
-    
+
     if(q) {
 	stopAndQueue(s);
     }
@@ -213,41 +216,41 @@ string AmSessionContainer::startSessionUAC(const AmSipRequest& req, string& app_
     if(session.get() != 0) {
       session->dlg->initFromLocalRequest(req);
       session->setCallgroup(req.from_tag);
-      
+
       switch(addSession(req.from_tag,session.get())) {
-	
+
       case AmSessionContainer::Inserted:
 	// successful case
 	break;
-	
+
       case AmSessionContainer::ShutDown:
 	throw AmSession::Exception(AmConfig::ShutdownModeErrCode,
 				   AmConfig::ShutdownModeErrReason);
-	
+
       case AmSessionContainer::AlreadyExist:
 	throw AmSession::Exception(482,
 				   SIP_REPLY_LOOP_DETECTED);
-	
+
       default:
 	ERROR("adding session to session container\n");
 	throw string(SIP_REPLY_SERVER_INTERNAL_ERROR);
       }
-      
-      MONITORING_LOG5(req.from_tag, 
+
+      MONITORING_LOG5(req.from_tag,
 		      "app", app_name.c_str(),
 		      "dir", "out",
 		      "from", req.from.c_str(),
 		      "to", req.to.c_str(),
 		      "ruri", req.r_uri.c_str());
-      
+
       if (int err = session->sendInvite(req.hdrs)) {
 	ERROR("INVITE could not be sent: error code = %d.\n", err);
 	AmEventDispatcher::instance()->delEventQueue(req.from_tag);
 	MONITORING_MARK_FINISHED(req.from_tag.c_str());
 	return "";
       }
-      
-      if (AmConfig::LogSessions) {      
+
+      if (AmConfig::LogSessions) {
 	INFO("Starting UAC session %s app %s\n",
 	     req.from_tag.c_str(), app_name.c_str());
       }
@@ -258,7 +261,7 @@ string AmSessionContainer::startSessionUAC(const AmSipRequest& req, string& app_
 	throw;
       }
     }
-  } 
+  }
   catch(const AmSession::Exception& e){
     ERROR("%i %s\n",e.code,e.reason.c_str());
     return "";
@@ -303,21 +306,21 @@ void AmSessionContainer::startSessionUAS(AmSipRequest& req)
 	case AmSessionContainer::Inserted:
 	  // successful case
 	  break;
-	  
+
 	case AmSessionContainer::ShutDown:
 	  throw AmSession::Exception(AmConfig::ShutdownModeErrCode,
 				     AmConfig::ShutdownModeErrReason);
-	  
+
 	case AmSessionContainer::AlreadyExist:
 	  throw AmSession::Exception(482,
 				     SIP_REPLY_LOOP_DETECTED);
-	  
+
 	default:
 	  ERROR("adding session to session container\n");
 	  throw string(SIP_REPLY_SERVER_INTERNAL_ERROR);
 	}
 
-	MONITORING_LOG4(local_tag.c_str(), 
+	MONITORING_LOG4(local_tag.c_str(),
 			"dir", "in",
 			"from", req.from.c_str(),
 			"to", req.to.c_str(),
@@ -334,7 +337,7 @@ void AmSessionContainer::startSessionUAS(AmSipRequest& req)
 	session->postEvent(new AmSipRequestEvent(req));
 	session.release();
       }
-  } 
+  }
   catch(const AmSession::Exception& e){
     ERROR("%i %s %s\n",e.code,e.reason.c_str(), e.hdrs.c_str());
     AmSipDialog::reply_error(req,e.code,e.reason, e.hdrs);
@@ -350,7 +353,7 @@ void AmSessionContainer::startSessionUAS(AmSipRequest& req)
 }
 
 
-bool AmSessionContainer::postEvent(const string& callid, 
+bool AmSessionContainer::postEvent(const string& callid,
 				   const string& remote_tag,
 				   const string& via_branch,
 				   AmEvent* event)
@@ -366,7 +369,7 @@ bool AmSessionContainer::postEvent(const string& callid,
 }
 
 bool AmSessionContainer::postEvent(const string& local_tag,
-				   AmEvent* event) 
+				   AmEvent* event)
 {
     bool posted =
 	AmEventDispatcher::instance()->
@@ -401,7 +404,7 @@ void AmSessionContainer::setCPSSoftLimit(unsigned int percent)
     timersub(&tv, &cps_queue.front(), &res);
     if (res.tv_sec >= CPS_SAMPLERATE) {
       cps_queue.pop();
-    }   
+    }
     else {
       break;
     }
@@ -427,7 +430,7 @@ unsigned int AmSessionContainer::getAvgCPS()
     timersub(&tv, &cps_queue.front(), &res);
     if (res.tv_sec >= CPS_SAMPLERATE) {
       cps_queue.pop();
-    }   
+    }
     else {
       break;
     }
@@ -455,7 +458,7 @@ bool AmSessionContainer::check_and_add_cps()
     timersub(&tv, &cps_queue.front(), &res);
     if (res.tv_sec >= CPS_SAMPLERATE) {
       cps_queue.pop();
-    }   
+    }
     else {
       break;
     }
@@ -491,17 +494,17 @@ AmSession* AmSessionContainer::createSession(const AmSipRequest& req,
 
   if (AmConfig::SessionLimit &&
       AmConfig::SessionLimit <= AmSession::session_num) {
-      
-      DBG("session_limit %d reached. Not creating session.\n", 
+
+      DBG("session_limit %d reached. Not creating session.\n",
 	  AmConfig::SessionLimit);
 
-      AmSipDialog::reply_error(req,AmConfig::SessionLimitErrCode, 
+      AmSipDialog::reply_error(req,AmConfig::SessionLimitErrCode,
 			       AmConfig::SessionLimitErrReason);
       return NULL;
   }
 
   if (check_and_add_cps()) {
-      AmSipDialog::reply_error(req,AmConfig::CPSLimitErrCode, 
+      AmSipDialog::reply_error(req,AmConfig::CPSLimitErrCode,
 			       AmConfig::CPSLimitErrReason);
       return NULL;
   }
@@ -532,9 +535,9 @@ AmSession* AmSessionContainer::createSession(const AmSipRequest& req,
       session = session_factory->onInvite(req, app_name, app_params);
     }
   } else if (req.method == "REFER") {
-    if (NULL != session_params) 
+    if (NULL != session_params)
       session = session_factory->onRefer(req, app_name, *session_params);
-    else 
+    else
       session = session_factory->onRefer(req, app_name, app_params);
   }
 
@@ -556,7 +559,7 @@ AmSession* AmSessionContainer::createSession(const AmSipRequest& req,
   return session;
 }
 
-AmSessionContainer::AddSessionStatus 
+AmSessionContainer::AddSessionStatus
 AmSessionContainer::addSession(const string& callid,
 			       const string& remote_tag,
 			       const string& local_tag,
@@ -565,7 +568,7 @@ AmSessionContainer::addSession(const string& callid,
 {
   if(_container_closed.get())
     return ShutDown;
-  
+
   if(AmEventDispatcher::instance()->
      addEventQueue(local_tag,(AmEventQueue*)session,
 		   callid,remote_tag,via_branch)) {
@@ -575,11 +578,11 @@ AmSessionContainer::addSession(const string& callid,
   return AlreadyExist;
 }
 
-AmSessionContainer::AddSessionStatus 
+AmSessionContainer::AddSessionStatus
 AmSessionContainer::addSession(const string& local_tag,
 			       AmSession* session)
 {
-  if(_container_closed.get()) 
+  if(_container_closed.get())
     return ShutDown;
 
   if(AmEventDispatcher::instance()->

@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #ifndef _AmSipSubscription_h_
@@ -51,9 +51,13 @@ struct SingleSubTimeoutEvent
   int timer_id;
   SingleSubscription* sub;
 
-  SingleSubTimeoutEvent(const string& ltag, int timer_id, SingleSubscription* sub)
-    : AmEvent(E_SIP_SUBSCRIPTION), ltag(ltag), timer_id(timer_id), sub(sub)
-  {}
+  SingleSubTimeoutEvent(const string& ltag, int timer_id,
+                        SingleSubscription* sub)
+    : AmEvent(E_SIP_SUBSCRIPTION),
+      ltag(ltag),
+      timer_id(timer_id),
+      sub(sub)
+  { }
 };
 
 /**
@@ -62,7 +66,7 @@ struct SingleSubTimeoutEvent
  * This class contain only one SIP suscription,
  * identified by its event package name, id and role.
  */
-class SingleSubscription 
+class SingleSubscription
 {
 public:
   enum Role {
@@ -76,12 +80,12 @@ private:
   {
     SingleSubscription* sub;
     int timer_id;
-    
+
   public:
     SubscriptionTimer(SingleSubscription* sub, int timer_id)
       : sub(sub), timer_id(timer_id)
     {}
-    
+
     void fire(){
       sub->onTimer(timer_id);
     }
@@ -108,10 +112,10 @@ private:
   AmBasicSipDialog* dlg();
 
   void requestFSM(const AmSipRequest& req);
-  
+
   friend class SubscriptionTimer;
 
-public:  
+public:
   enum SubscriptionState {
     SubState_init=0,
     SubState_notify_wait,
@@ -119,7 +123,7 @@ public:
     SubState_active,
     SubState_terminated
   };
-  
+
   // identifiers
   string event;
   string    id;
@@ -205,7 +209,7 @@ public:
    */
   bool subscriptionExists(SingleSubscription::Role role,
 			  const string& event, const string& id);
-  
+
   bool onRequestIn(const AmSipRequest& req);
   void onRequestSent(const AmSipRequest& req);
   bool onReplyIn(const AmSipRequest& req, const AmSipReply& reply);
@@ -240,7 +244,7 @@ struct SIPSubscriptionEvent
   SIPSubscriptionEvent(SubscriptionStatus status, const string& handle,
 		       unsigned int expires = 0,
 		       unsigned int code=0, const string& reason="");
-  
+
   const char* getStatusText();
 };
 

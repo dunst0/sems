@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -67,22 +67,24 @@ struct timeval avg_first_timestamp = avg_last_timestamp;
 // AmSession methods
 
 AmSession::AmSession(AmSipDialog* p_dlg)
-  : AmEventQueue(this), dlg(p_dlg),
-    input(NULL), output(NULL),
-    sess_stopped(false),
-    m_dtmfDetector(this), m_dtmfEventQueue(&m_dtmfDetector),
+  : AmEventQueue(this),
+    m_dtmfDetector(this),
+    m_dtmfEventQueue(&m_dtmfDetector),
     m_dtmfDetectionEnabled(true),
+    processing_status(SESSION_PROCESSING_EVENTS),
+#ifdef SESSION_THREADPOOL
+    _pid(this),
+#endif
+    sess_stopped(false),
     accept_early_session(false),
     rtp_interface(-1),
+    input(NULL),
+    output(NULL),
     refresh_method(REFRESH_UPDATE_FB_REINV),
-    processing_status(SESSION_PROCESSING_EVENTS)
 #ifdef WITH_ZRTP
-  , enable_zrtp(AmConfig::enable_zrtp)
+    enable_zrtp(AmConfig::enable_zrtp),
 #endif
-
-#ifdef SESSION_THREADPOOL
-  , _pid(this)
-#endif
+      dlg(p_dlg)
 {
   DBG("dlg = %p",dlg);
   if(!dlg) dlg = new AmSipDialog(this);
@@ -93,7 +95,7 @@ AmSession::~AmSession()
 {
   for(vector<AmSessionEventHandler*>::iterator evh = ev_handlers.begin();
       evh != ev_handlers.end(); evh++) {
-    
+
     if((*evh)->destroy)
       delete *evh;
   }
@@ -121,7 +123,7 @@ void AmSession::changeCallgroup(const string& cg) {
   AmMediaProcessor::instance()->changeCallgroup(this, cg);
 }
 
-void AmSession::startMediaProcessing() 
+void AmSession::startMediaProcessing()
 {
   if(getStopped() || isProcessingMedia())
     return;
@@ -135,7 +137,7 @@ void AmSession::startMediaProcessing()
   }
 }
 
-void AmSession::stopMediaProcessing() 
+void AmSession::stopMediaProcessing()
 {
   if(!isProcessingMedia())
     return;
@@ -170,7 +172,7 @@ void AmSession::setInOut(AmAudio* in,AmAudio* out)
   output = out;
   unlockAudio();
 }
-  
+
 bool AmSession::isAudioSet()
 {
   lockAudio();
@@ -180,7 +182,7 @@ bool AmSession::isAudioSet()
 }
 
 void AmSession::lockAudio()
-{ 
+{
   audio_mut.lock();
 }
 
@@ -190,12 +192,12 @@ void AmSession::unlockAudio()
 }
 
 const string& AmSession::getCallID() const
-{ 
+{
   return dlg->getCallid();
 }
 
 const string& AmSession::getRemoteTag() const
-{ 
+{
   return dlg->getRemoteTag();
 }
 
@@ -242,9 +244,9 @@ int AmSession::getRPort()
 
 #ifdef SESSION_THREADPOOL
 void AmSession::start() {
-  AmSessionProcessorThread* processor_thread = 
+  AmSessionProcessorThread* processor_thread =
     AmSessionProcessor::getProcessorThread();
-  if (NULL == processor_thread) 
+  if (NULL == processor_thread)
     throw string("no processing thread available");
 
   // have the thread register and start us
@@ -255,7 +257,7 @@ bool AmSession::is_stopped() {
   return processing_status == SESSION_ENDED_DISCONNECTED;
 }
 #else
-// in this case every session has its own thread 
+// in this case every session has its own thread
 // - this is the main processing loop
 void AmSession::run() {
   DBG("startup session\n");
@@ -292,7 +294,7 @@ bool AmSession::startup() {
       }
 #endif
 
-    } 
+    }
     catch(const AmSession::Exception& e){ throw e; }
     catch(const string& str){
       ERROR("%s\n",str.c_str());
@@ -301,12 +303,12 @@ bool AmSession::startup() {
     catch(...){
       throw AmSession::Exception(500,"unexpected exception.");
     }
-    
+
   } catch(const AmSession::Exception& e){
     ERROR("%i %s\n",e.code,e.reason.c_str());
     onBeforeDestroy();
     destroy();
-    
+
     session_stopped();
 
     return false;
@@ -317,17 +319,17 @@ bool AmSession::startup() {
 
 bool AmSession::processEventsCatchExceptions() {
   try {
-    try {	
+    try {
       processEvents();
-    } 
+    }
     catch(const AmSession::Exception& e){ throw e; }
     catch(const string& str){
       ERROR("%s\n",str.c_str());
       throw AmSession::Exception(500,"unexpected exception.");
-    } 
+    }
     catch(...){
       throw AmSession::Exception(500,"unexpected exception.");
-    }    
+    }
   } catch(const AmSession::Exception& e){
     ERROR("%i %s\n",e.code,e.reason.c_str());
     return false;
@@ -335,7 +337,7 @@ bool AmSession::processEventsCatchExceptions() {
   return true;
 }
 
-/** one cycle of the event processing loop. 
+/** one cycle of the event processing loop.
     this should be called until it returns false. */
 bool AmSession::processingCycle() {
 
@@ -347,41 +349,41 @@ bool AmSession::processingCycle() {
       dlg->getUsages());
 
   switch (processing_status) {
-  case SESSION_PROCESSING_EVENTS: 
+  case SESSION_PROCESSING_EVENTS:
     {
       if (!processEventsCatchExceptions()) {
 	// exception occured, stop processing
 	processing_status = SESSION_ENDED_DISCONNECTED;
 	return false;
       }
-      
+
       AmSipDialog::Status dlg_status = dlg->getStatus();
       bool s_stopped = sess_stopped.get();
-      
+
       DBG("^^ S [%s|%s] %s, %s, %i UACTransPending, %i usages ^^\n",
 	  dlg->getCallid().c_str(),getLocalTag().c_str(),
 	  AmBasicSipDialog::getStatusStr(dlg_status),
 	  s_stopped?"stopped":"running",
 	  dlg->getUACTransPending(),
 	  dlg->getUsages());
-      
+
       // session running?
       if (!s_stopped || (dlg_status == AmSipDialog::Disconnecting)
 	  || dlg->getUsages())
 	return true;
-      
+
       // session stopped?
       if (s_stopped &&
 	  (dlg_status == AmSipDialog::Disconnected)) {
 	processing_status = SESSION_ENDED_DISCONNECTED;
 	return false;
       }
-      
+
       // wait for session's status to be disconnected
       // todo: set some timer to tear down the session anyway,
       //       or react properly on negative reply to BYE (e.g. timeout)
       processing_status = SESSION_WAITING_DISCONNECTED;
-      
+
       if ((dlg_status != AmSipDialog::Disconnected) &&
 	  (dlg_status != AmSipDialog::Cancelling)) {
 	DBG("app did not send BYE - do that for the app\n");
@@ -391,14 +393,14 @@ bool AmSession::processingCycle() {
 	  return false;
 	}
       }
-      
+
       return true;
-      
+
     } break;
-    
+
   case SESSION_WAITING_DISCONNECTED: {
-    // processing events until dialog status is Disconnected 
-    
+    // processing events until dialog status is Disconnected
+
     if (!processEventsCatchExceptions()) {
       processing_status = SESSION_ENDED_DISCONNECTED;
       return false; // exception occured, stop processing
@@ -420,7 +422,7 @@ bool AmSession::processingCycle() {
 
   default: {
     ERROR("unknown session processing state\n");
-    return false; // stop processing      
+    return false; // stop processing
   }
   }
 }
@@ -429,7 +431,7 @@ void AmSession::finalize()
 {
   DBG("running finalize sequence...\n");
   dlg->finalize();
-  
+
 #ifdef WITH_ZRTP
   if (enable_zrtp) {
     zrtp_session_state.freeSession();
@@ -438,16 +440,16 @@ void AmSession::finalize()
 
   onBeforeDestroy();
   destroy();
-  
+
   session_stopped();
 
   DBG("session is stopped.\n");
 }
 #ifndef SESSION_THREADPOOL
-  void AmSession::on_stop() 
+  void AmSession::on_stop()
 #else
   void AmSession::stop()
-#endif  
+#endif
 {
   DBG("AmSession::stop()\n");
 
@@ -459,11 +461,11 @@ void AmSession::finalize()
 
 void AmSession::setStopped(bool wakeup) {
   if (!sess_stopped.get()) {
-    sess_stopped.set(true); 
+    sess_stopped.set(true);
     onStop();
   }
-  if (wakeup) 
-    AmSessionContainer::instance()->postEvent(getLocalTag(), 
+  if (wakeup)
+    AmSessionContainer::instance()->postEvent(getLocalTag(),
 					      new AmEvent(0));
 }
 
@@ -579,8 +581,8 @@ unsigned int AmSession::getAvgSessionNum() {
 }
 
 void AmSession::setInbandDetector(Dtmf::InbandDetectorType t)
-{ 
-  m_dtmfDetector.setInbandDetector(t, RTPStream()->getSampleRate()); 
+{
+  m_dtmfDetector.setInbandDetector(t, RTPStream()->getSampleRate());
 }
 
 void AmSession::postDtmfEvent(AmDtmfEvent *evt)
@@ -589,13 +591,13 @@ void AmSession::postDtmfEvent(AmDtmfEvent *evt)
     {
       if (dynamic_cast<AmSipDtmfEvent *>(evt) ||
 	  dynamic_cast<AmRtpDtmfEvent *>(evt))
-        {   
+        {
 	  // this is a raw event from sip info or rtp
 	  m_dtmfEventQueue.postEvent(evt);
         }
-      else 
+      else
         {
-	  // this is an aggregated event, 
+	  // this is an aggregated event,
 	  // post it into our event queue
 	  postEvent(evt);
         }
@@ -651,7 +653,7 @@ void AmSession::process(AmEvent* ev)
 
   if (ev->event_id == E_SYSTEM) {
     AmSystemEvent* sys_ev = dynamic_cast<AmSystemEvent*>(ev);
-    if(sys_ev){	
+    if(sys_ev){
       DBG("Session received system Event\n");
       onSystemEvent(sys_ev);
       return;
@@ -672,7 +674,7 @@ void AmSession::process(AmEvent* ev)
 
   AmDtmfEvent* dtmf_ev = dynamic_cast<AmDtmfEvent*>(ev);
   if (dtmf_ev) {
-    DBG("Session received DTMF, event = %d, duration = %d\n", 
+    DBG("Session received DTMF, event = %d, duration = %d\n",
 	dtmf_ev->event(), dtmf_ev->duration());
     onDtmf(dtmf_ev->event(), dtmf_ev->duration());
     return;
@@ -732,10 +734,10 @@ void AmSession::onSipRequest(const AmSipRequest& req)
   }
   else if( req.method == SIP_METH_CANCEL ){
     onCancel(req);
-  } 
+  }
   else if( req.method == SIP_METH_INFO ){
 
-    const AmMimeBody* dtmf_body = 
+    const AmMimeBody* dtmf_body =
       req.body.hasContentType("application/dtmf-relay");
 
     if (dtmf_body) {
@@ -772,13 +774,13 @@ void AmSession::onSipReply(const AmSipRequest& req, const AmSipReply& reply,
   }
 
   if (old_dlg_status != dlg->getStatus()) {
-    DBG("Dialog status changed %s -> %s (stopped=%s) \n", 
-	AmBasicSipDialog::getStatusStr(old_dlg_status), 
+    DBG("Dialog status changed %s -> %s (stopped=%s) \n",
+	AmBasicSipDialog::getStatusStr(old_dlg_status),
 	dlg->getStatusStr(),
 	sess_stopped.get() ? "true" : "false");
   } else {
-    DBG("Dialog status stays %s (stopped=%s)\n", 
-	AmBasicSipDialog::getStatusStr(old_dlg_status), 
+    DBG("Dialog status stays %s (stopped=%s)\n",
+	AmBasicSipDialog::getStatusStr(old_dlg_status),
 	sess_stopped.get() ? "true" : "false");
   }
 }
@@ -883,7 +885,7 @@ bool AmSession::getSdpOffer(AmSdp& offer)
 
   RTPStream()->setLocalIP(localMediaIP());
   RTPStream()->getSdpOffer(media_idx,offer.media.back());
-  
+
   return true;
 }
 
@@ -920,7 +922,7 @@ bool AmSession::getSdpAnswer(const AmSdp& offer, AmSdp& answer)
   else answer.conn.addrType = offer.conn.addrType;
   answer.conn.address = advertisedIP(answer.conn.addrType);
   answer.media.clear();
-  
+
   bool audio_1st_stream = true;
   unsigned int media_index = 0;
   for(vector<SdpMedia>::const_iterator m_it = offer.media.begin();
@@ -931,7 +933,7 @@ bool AmSession::getSdpAnswer(const AmSdp& offer, AmSdp& answer)
 
     if( m_it->type == MT_AUDIO
 	&& m_it->transport == TP_RTPAVP
-        && audio_1st_stream 
+        && audio_1st_stream
         && (m_it->port != 0) ) {
 
       RTPStream()->setLocalIP(localMediaIP(answer.conn.addrType));
@@ -946,7 +948,7 @@ bool AmSession::getSdpAnswer(const AmSdp& offer, AmSdp& answer)
       audio_1st_stream = false;
     }
     else {
-      
+
       answer_media.type = m_it->type;
       answer_media.port = 0;
       answer_media.nports = 0;
@@ -985,7 +987,7 @@ int AmSession::onSdpCompleted(const AmSdp& local_sdp, const AmSdp& remote_sdp)
     ERROR("Local SDP:\n%s",
 	  debug_str.empty() ? "<empty>"
 	  : debug_str.c_str());
-    
+
     remote_sdp.print(debug_str);
     ERROR("Remote SDP:\n%s",
 	  debug_str.empty() ? "<empty>"
@@ -1003,10 +1005,10 @@ int AmSession::onSdpCompleted(const AmSdp& local_sdp, const AmSdp& remote_sdp)
 
   lockAudio();
 
-  // TODO: 
+  // TODO:
   //   - get the right media ID
-  //   - check if the stream coresponding to the media ID 
-  //     should be created or updated   
+  //   - check if the stream coresponding to the media ID
+  //     should be created or updated
   //
   int ret = 0;
 
@@ -1102,17 +1104,17 @@ void AmSession::onPrack2xx(const AmSipReply &reply)
 string AmSession::sid4dbg()
 {
   string dbg;
-  dbg = dlg->getCallid() + "/" + dlg->getLocalTag() + "/" 
-    + dlg->getRemoteTag() + "/" 
-    + int2str(RTPStream()->getLocalPort()) + "/" 
+  dbg = dlg->getCallid() + "/" + dlg->getLocalTag() + "/"
+    + dlg->getRemoteTag() + "/"
+    + int2str(RTPStream()->getLocalPort()) + "/"
     + RTPStream()->getRHost() + ":" + int2str(RTPStream()->getRPort());
   return dbg;
 }
 
-int AmSession::sendReinvite(bool updateSDP, const string& headers, int flags) 
+int AmSession::sendReinvite(bool updateSDP, const string& headers, int flags)
 {
   if(updateSDP){
-    // Forces SDP offer/answer 
+    // Forces SDP offer/answer
     AmMimeBody sdp;
     sdp.addPart(SIP_APPLICATION_SDP);
     return dlg->reinvite(headers, &sdp, flags);
@@ -1122,7 +1124,7 @@ int AmSession::sendReinvite(bool updateSDP, const string& headers, int flags)
   }
 }
 
-int AmSession::sendInvite(const string& headers) 
+int AmSession::sendInvite(const string& headers)
 {
   onOutgoingInvite(headers);
 
@@ -1137,7 +1139,7 @@ void AmSession::setOnHold(bool hold)
   lockAudio();
   bool old_hold = RTPStream()->getOnHold();
   RTPStream()->setOnHold(hold);
-  if (hold != old_hold) 
+  if (hold != old_hold)
     sendReinvite();
   unlockAudio();
 }
@@ -1193,7 +1195,7 @@ string AmSession::localMediaIP(int addrType)
 {
   // sets rtp_interface if not initialized
   getRtpInterface();
-  
+
   assert(rtp_interface >= 0);
   assert((unsigned int)rtp_interface < AmConfig::RTP_Ifs.size());
 
@@ -1209,12 +1211,12 @@ string AmSession::localMediaIP(int addrType)
 }
 
 // Utility for basic NAT handling: allow the config file to specify the IP
-// address to use in SDP bodies 
+// address to use in SDP bodies
 string AmSession::advertisedIP(int addrType)
 {
   // sets rtp_interface if not initialized
   getRtpInterface();
-  
+
   assert(rtp_interface >= 0);
   assert((unsigned int)rtp_interface < AmConfig::RTP_Ifs.size());
 
@@ -1227,7 +1229,7 @@ string AmSession::advertisedIP(int addrType)
       return set_ip;
   }
   return set_ip;
-}  
+}
 
 bool AmSession::timersSupported() {
   WARN("this function is deprecated; application timers are always supported\n");
@@ -1264,7 +1266,7 @@ bool AmSession::removeTimers() {
   return true;
 }
 
- 
+
 #ifdef WITH_ZRTP
 
 void AmSession::onZRTPProtocolEvent(zrtp_protocol_event_t event, zrtp_stream_t *stream_ctx) {
@@ -1273,34 +1275,34 @@ void AmSession::onZRTPProtocolEvent(zrtp_protocol_event_t event, zrtp_stream_t *
   if (event==ZRTP_EVENT_IS_SECURE) {
       INFO("ZRTP_EVENT_IS_SECURE \n");
       //         info->is_verified  = ctx->_session_ctx->secrets.verifieds & ZRTP_BIT_RS0;
- 
+
       // zrtp_session_t *session = stream_ctx->_session_ctx;
- 
+
       // if (ZRTP_SAS_BASE32 == session->sas_values.rendering) {
       // 	DBG("Got SAS value <<<%.4s>>>\n", session->sas_values.str1.buffer);
       // } else {
-      // 	DBG("Got SAS values SAS1 '%s' and SAS2 '%s'\n", 
+      // 	DBG("Got SAS values SAS1 '%s' and SAS2 '%s'\n",
       // 	    session->sas_values.str1.buffer,
       // 	    session->sas_values.str2.buffer);
       // }
   }
- 
+
     // case ZRTP_EVENT_IS_PENDINGCLEAR:
     //   INFO("ZRTP_EVENT_IS_PENDINGCLEAR\n");
     //   INFO("other side requested goClear. Going clear.\n\n");
     //   //      zrtp_clear_stream(zrtp_audio);
     //   break;
-  
+
 }
 
 void AmSession::onZRTPSecurityEvent(zrtp_security_event_t event, zrtp_stream_t *stream_ctx) {
   DBG("AmSession::onZRTPSecurityEvent: %s\n", zrtp_security_event_desc(event));
 }
- 
+
 #endif
 
-int AmSession::readStreams(unsigned long long ts, unsigned char *buffer) 
-{ 
+int AmSession::readStreams(unsigned long long ts, unsigned char *buffer)
+{
   int res = 0;
   lockAudio();
 
@@ -1316,13 +1318,13 @@ int AmSession::readStreams(unsigned long long ts, unsigned char *buffer)
       if (input) res = input->put(ts, buffer, stream->getSampleRate(), got);
     }
   }
-  
+
   unlockAudio();
   return res;
 }
 
-int AmSession::writeStreams(unsigned long long ts, unsigned char *buffer) 
-{ 
+int AmSession::writeStreams(unsigned long long ts, unsigned char *buffer)
+{
   int res = 0;
   lockAudio();
 
@@ -1334,7 +1336,7 @@ int AmSession::writeStreams(unsigned long long ts, unsigned char *buffer)
     if (got < 0) res = -1;
     if (got > 0) res = stream->put(ts, buffer, stream->getSampleRate(), got);
   }
-  
+
   unlockAudio();
   return res;
 

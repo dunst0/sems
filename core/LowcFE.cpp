@@ -18,8 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -61,7 +61,9 @@ void LowcFE::zeros(short *s, int cnt)
 }
 
 LowcFE::LowcFE(unsigned int sample_rate)
-  : erasecnt(0), pitchbufend(0), sample_rate(sample_rate)
+  : sample_rate(sample_rate),
+    erasecnt(0),
+    pitchbufend(0)
 {
   pitchbuf = new Float[HISTORYLEN];
   lastq = new Float[POVERLAPMAX];
@@ -349,5 +351,3 @@ void LowcFE::overlapaddatend(short *s, short *f, int cnt)
     rw += incr;
   }
 }
-
-
