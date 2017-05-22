@@ -207,7 +207,7 @@ struct SdpMedia
 
   SdpMedia()
     : type(MT_NONE),
-      ransport(TP_NONE),
+      transport(TP_NONE),
       conn(),
       dir(DirUndefined),
       send(true),
