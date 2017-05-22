@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmRtpReceiver.h */
@@ -43,14 +43,14 @@ class _AmRtpReceiver;
 /**
  * \brief receiver for RTP for all streams.
  *
- * The RtpReceiver receives RTP packets for all streams 
- * that are registered to it. It places the received packets in 
- * the stream's buffer. 
+ * The RtpReceiver receives RTP packets for all streams
+ * that are registered to it. It places the received packets in
+ * the stream's buffer.
  */
 class AmRtpReceiverThread
   : public AmThread
 {
-  struct StreamInfo 
+  struct StreamInfo
   {
     AmRtpStream* stream;
     struct event* ev_read;
@@ -58,15 +58,17 @@ class AmRtpReceiverThread
 
     StreamInfo()
       : stream(NULL),
-	ev_read(NULL),
-	thread(NULL)
-    {}
+        ev_read(NULL),
+        thread(NULL)
+    { }
   };
 
   typedef std::map<int, StreamInfo> Streams;
 
   struct event_base* ev_base;
-  struct event*      ev_default;
+  //UNUSED
+  // struct event*      ev_default;
+  //UNUSED_END
 
   Streams  streams;
   AmMutex  streams_mut;
@@ -75,10 +77,10 @@ class AmRtpReceiverThread
 
   static void _rtp_receiver_read_cb(evutil_socket_t sd, short what, void* arg);
 
-public:    
+ public:
   AmRtpReceiverThread();
   ~AmRtpReceiverThread();
-    
+
   void run();
   void on_stop();
 
@@ -95,13 +97,13 @@ class _AmRtpReceiver
 
   atomic_int next_index;
 
-protected:    
+ protected:
   _AmRtpReceiver();
   ~_AmRtpReceiver();
 
   void dispose();
 
-public:
+ public:
   void start();
 
   void addStream(int sd, AmRtpStream* stream);

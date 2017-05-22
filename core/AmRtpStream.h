@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmRtpStream.h */
@@ -68,7 +68,8 @@ class msg_logger;
 /**
  * This provides the memory for the receive buffer.
  */
-struct PacketMem {
+struct PacketMem
+{
 #define MAX_PACKETS_BITS 5
 #define MAX_PACKETS (1<<MAX_PACKETS_BITS)
 #define MAX_PACKETS_MASK (MAX_PACKETS-1)
@@ -82,7 +83,7 @@ struct PacketMem {
   inline void freePacket(AmRtpPacket* p);
   inline void clear();
 
-private:
+ private:
   unsigned int cur_idx;
   unsigned int n_used;
 };
@@ -91,9 +92,8 @@ private:
 class AmRtpTimeoutEvent
   : public AmEvent
 {
-	
-public:
-  AmRtpTimeoutEvent() 
+ public:
+  AmRtpTimeoutEvent()
     : AmEvent(0) { }
   ~AmRtpTimeoutEvent() { }
 };
@@ -102,28 +102,28 @@ public:
  * it is used to check if the payload should be relayed or not */
 class PayloadMask
 {
-  private:
-    unsigned char bits[16];
+ private:
+  unsigned char bits[16];
 
-  public:
-    // clear flag for all payloads
-    void clear();
+ public:
+  // clear flag for all payloads
+  void clear();
 
-    // set given flag (TODO: once it shows to be working, change / and % to >> and &)
-    void set(unsigned char payload_id) { if (payload_id < 128) bits[payload_id / 8] |= 1 << (payload_id % 8); }
+  // set given flag (TODO: once it shows to be working, change / and % to >> and &)
+  void set(unsigned char payload_id) { if (payload_id < 128) bits[payload_id / 8] |= 1 << (payload_id % 8); }
 
-    // set all flags to 'true'
-    void set_all();
+  // set all flags to 'true'
+  void set_all();
 
-    // invert all flags
-    void invert();
+  // invert all flags
+  void invert();
 
-    // get given flag
-    bool get(unsigned char payload_id) { if (payload_id > 127) { ERROR("BUG: payload_id out of range\n"); return false; } return (bits[payload_id / 8] & (1 << (payload_id % 8))); }
-    
-    PayloadMask() { clear(); }
-    PayloadMask(bool _set_all) { if (_set_all) set_all(); else clear(); }
-    PayloadMask(const PayloadMask &src);
+  // get given flag
+  bool get(unsigned char payload_id) { if (payload_id > 127) { ERROR("BUG: payload_id out of range\n"); return false; } return (bits[payload_id / 8] & (1 << (payload_id % 8))); }
+
+  PayloadMask() { clear(); }
+  PayloadMask(bool _set_all) { if (_set_all) set_all(); else clear(); }
+  PayloadMask(const PayloadMask &src);
 };
 
 /**
@@ -131,7 +131,8 @@ class PayloadMask
  *
  *
  */
-struct Payload {
+struct Payload
+{
   unsigned char pt;
   string        name;
   unsigned int  clock_rate;
@@ -148,18 +149,19 @@ struct Payload {
 class AmRtpStream
   : public AmObject
 {
-protected:
+ protected:
 
   // payload collection
   typedef std::vector<Payload> PayloadCollection;
-  
+
   // list of locally supported payloads
   PayloadCollection payloads;
 
   // current payload (index into @payloads)
   int payload;
 
-  struct PayloadMapping {
+  struct PayloadMapping
+  {
     // remote payload type
     int8_t remote_pt;
 
@@ -170,7 +172,7 @@ protected:
   typedef std::map<unsigned int, AmRtpPacket*, ts_less> ReceiveBuffer;
   typedef std::queue<AmRtpPacket*>                      RtpEventQueue;
   typedef std::map<unsigned char, PayloadMapping>       PayloadMappingTable;
-  
+
   // mapping from local payload type to PayloadMapping
   PayloadMappingTable pl_map;
 
@@ -182,7 +184,7 @@ protected:
 
   /**
      Payload of last received packet.
-     Usefull to detect talk spurt, looking 
+     Usefull to detect talk spurt, looking
      for comfort noise packets.
   */
   int         last_payload;
@@ -192,7 +194,7 @@ protected:
   unsigned short     r_port;
   unsigned short     r_rtcp_port;
 
-  /** 
+  /**
    * Local interface used for this stream
    * (index into @AmConfig::Ifs)
    */
@@ -286,7 +288,7 @@ protected:
   void bufferPacket(AmRtpPacket* p);
   /* Get next packet from the buffer queue */
   int nextPacket(AmRtpPacket*& p);
-  
+
   /** Try to reuse oldest buffered packet for newly coming packet */
   AmRtpPacket *reuseBufferedPacket();
 
@@ -307,13 +309,13 @@ protected:
   /** set to true if any data received */
   bool active;
 
-  /** 
-   * Select a compatible default payload 
+  /**
+   * Select a compatible default payload
    * @return -1 if none available.
    */
   int getDefaultPT();
 
-public:
+ public:
 
   /**
    * Set whether RTP stream will receive RTP packets internally (received packets will be dropped or not).
@@ -345,11 +347,11 @@ public:
   int send( unsigned int ts,
 	    unsigned char* buffer,
 	    unsigned int   size );
-  
+
   int send_raw( char* packet, unsigned int length );
 
-  int compile_and_send( const int payload, bool marker, 
-		        unsigned int ts, unsigned char* buffer, 
+  int compile_and_send( const int payload, bool marker,
+		        unsigned int ts, unsigned char* buffer,
 		        unsigned int size );
 
   int receive( unsigned char* buffer, unsigned int size,
@@ -374,31 +376,31 @@ public:
    * possible to change the IP later
    */
   void setLocalIP(const string& ip);
-	    
-  /** 
+
+  /**
    * Initializes with a new random local port if 'p' is 0,
-   * else binds the given port, and sets own attributes properly. 
+   * else binds the given port, and sets own attributes properly.
    */
   void setLocalPort(unsigned short p = 0);
 
-  /** 
+  /**
    * Gets RTP port number. If no RTP port in assigned, assigns a new one.
-   * @return local RTP port. 
+   * @return local RTP port.
    */
   int getLocalPort();
 
-  /** 
+  /**
    * Gets RTCP port number. If no RTP/RTCP port in assigned, assigns a new one.
-   * @return local RTCP port. 
+   * @return local RTCP port.
    */
   int getLocalRtcpPort();
 
-  /** 
+  /**
    * Gets remote RTP port.
    * @return remote RTP port.
    */
   int getRPort();
-    
+
   /**
    * Gets remote host IP.
    * @return remote host IP.
@@ -461,7 +463,7 @@ public:
 
   /** set the RTP stream on hold */
   void setOnHold(bool on_hold);
-  
+
   /** get whether RTP stream is on hold  */
   bool getOnHold();
 
@@ -524,4 +526,3 @@ public:
 // Local Variables:
 // mode:C++
 // End:
-

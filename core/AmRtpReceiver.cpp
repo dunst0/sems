@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -72,13 +72,13 @@ void AmRtpReceiverThread::stop_and_wait()
 {
   if(!is_stopped()) {
     stop();
-    
-    while(!is_stopped()) 
+
+    while(!is_stopped())
       usleep(10000);
   }
 }
 
-void _AmRtpReceiver::dispose() 
+void _AmRtpReceiver::dispose()
 {
   for(unsigned int i=0; i<n_receivers; i++){
     receivers[i].stop_and_wait();
@@ -89,15 +89,15 @@ void AmRtpReceiverThread::run()
 {
   // fake event to prevent the event loop from exiting
   int fake_fds[2];
+  struct event* ev_default = NULL;
+
   pipe(fake_fds);
-  struct event* ev_default =
-    event_new(ev_base,fake_fds[0],
-	      EV_READ|EV_PERSIST,
-	      NULL,NULL);
-  event_add(ev_default,NULL);
+
+  ev_default = event_new(ev_base, fake_fds[0], EV_READ|EV_PERSIST, NULL, NULL);
+  event_add(ev_default, NULL);
 
   // run the event loop
-  event_base_loop(ev_base,0);
+  event_base_loop(ev_base, 0);
 
   // clean-up fake fds/event
   event_free(ev_default);
@@ -105,7 +105,7 @@ void AmRtpReceiverThread::run()
   close(fake_fds[1]);
 }
 
-void AmRtpReceiverThread::_rtp_receiver_read_cb(evutil_socket_t sd, 
+void AmRtpReceiverThread::_rtp_receiver_read_cb(evutil_socket_t sd,
 						short what, void* arg)
 {
   AmRtpReceiverThread::StreamInfo* p_si =
@@ -139,7 +139,7 @@ void AmRtpReceiverThread::addStream(int sd, AmRtpStream* stream)
   si.thread = this;
   streams_mut.unlock();
 
-  // This must be done when 
+  // This must be done when
   // streams_mut is NOT locked
   event_add(ev_read,NULL);
 }

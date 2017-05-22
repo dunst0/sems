@@ -119,8 +119,11 @@ class AmDtmfEvent : public AmEvent
  */
 class AmKeyPressSink {
  public:
-  AmKeyPressSink() { }
-  virtual ~AmKeyPressSink() { }
+  AmKeyPressSink()
+  { }
+
+  virtual ~AmKeyPressSink()
+  { }
 
   /**
    * Through this method the AmDtmfDetector receives events that was
@@ -143,7 +146,9 @@ class AmKeyPressSink {
    * @param has_eventid whether event has an id
    * @param event_id id of the event
    */
-  virtual void registerKeyPressed(int event, Dtmf::EventSource source, bool has_eventid=false, unsigned int event_id=0) = 0;
+  virtual void registerKeyPressed(int event, Dtmf::EventSource source,
+                                  bool has_eventid = false,
+                                  unsigned int event_id = 0) = 0;
   /**
    *   Flush (report to session) any pending key if ti matches the event id
    *   @param  event_id ID of the event (e.g. RTP TS)
@@ -412,7 +417,9 @@ class AmDtmfDetector
   AmRtpDtmfDetector m_rtpDetector;
   AmSipDtmfDetector m_sipDetector;
   std::unique_ptr<AmInbandDtmfDetector> m_inbandDetector;
-  Dtmf::InbandDetectorType m_inband_type;
+  //UNUSED
+  // Dtmf::InbandDetectorType m_inband_type;
+  //UNUSED_END
 
   struct timeval m_startTime;
   struct timeval m_lastReportTime;

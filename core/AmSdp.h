@@ -70,7 +70,9 @@ struct SdpConnection
   /** IP address */
   string address;
 
-  SdpConnection() : address() {}
+  SdpConnection()
+    : address()
+  { }
 
   bool operator == (const SdpConnection& other) const;
   /** pretty print */
@@ -85,12 +87,17 @@ struct SdpOrigin
   unsigned int sessV;
   SdpConnection conn;
 
-  SdpOrigin() : user(), conn() {}
+  SdpOrigin()
+    : user(),
+      conn()
+  { }
 
   SdpOrigin(const SdpOrigin& other)
-    : user(other.user), sessId(other.sessId), sessV(other.sessV),
+    : user(other.user),
+      sessId(other.sessId),
+      sessV(other.sessV),
       conn(other.conn)
-  {}
+  { }
 
   bool operator == (const SdpOrigin& other) const;
 };
@@ -113,25 +120,30 @@ struct SdpPayload
     : payload_type(-1),
       clock_rate(-1),
       encoding_param(-1)
-  {}
+  { }
 
   SdpPayload(int pt)
     : payload_type(pt),
       clock_rate(-1),
       encoding_param(-1)
-  {}
+  { }
 
   SdpPayload(int pt, const string& name, int rate, int param)
-    : payload_type(pt), encoding_name(name),
-      clock_rate(rate), encoding_param(param)
-  {}
+    : payload_type(pt),
+      encoding_name(name),
+      clock_rate(rate),
+      encoding_param(param)
+  { }
 
   SdpPayload(const SdpPayload& other)
-    : type(other.type), payload_type(other.payload_type),
-      encoding_name(other.encoding_name), clock_rate(other.clock_rate),
-      format(other.format), sdp_format_parameters(other.sdp_format_parameters),
+    : type(other.type),
+      payload_type(other.payload_type),
+      encoding_name(other.encoding_name),
+      clock_rate(other.clock_rate),
+      format(other.format),
+      sdp_format_parameters(other.sdp_format_parameters),
       encoding_param(other.encoding_param)
-  {}
+  { }
 
   bool operator == (int r);
 
@@ -145,16 +157,20 @@ struct SdpAttribute
   string value;
 
   // property attribute
-  SdpAttribute(const string& attribute,
-	       const string& value)
-    : attribute(attribute), value(value) { }
+  SdpAttribute(const string& attribute, const string& value)
+    : attribute(attribute),
+      value(value)
+  { }
 
   // value attribute
   SdpAttribute(const string& attribute)
-    : attribute(attribute) { }
+    : attribute(attribute)
+  { }
 
   SdpAttribute(const SdpAttribute& other)
-    : attribute(other.attribute), value(other.value) {}
+    : attribute(other.attribute),
+      value(other.value)
+  { }
 
   string print() const;
 
@@ -189,7 +205,14 @@ struct SdpMedia
 
   bool operator == (const SdpMedia& other) const;
 
-  SdpMedia() : type(MT_NONE), transport(TP_NONE), conn(), dir(DirUndefined), send(true), recv(true) {}
+  SdpMedia()
+    : type(MT_NONE),
+      ransport(TP_NONE),
+      conn(),
+      dir(DirUndefined),
+      send(true),
+      recv(true)
+  { }
 
   /** pretty print */
   string debugPrint() const;
