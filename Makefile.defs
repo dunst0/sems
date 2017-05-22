@@ -172,10 +172,10 @@ ifeq ($(CC),)
 endif
 
 ifeq ($(CXX),)
-	CXX = g++
+	CXX=g++
 endif
 
-LD = $(CC)
+LD=$(CC)
 
 CXXFLAGS += -Wall -Wno-reorder -Wno-unused -fPIC -std=c++11 -g $(EXTRA_CXXFLAGS)
 CFLAGS   += -Wall -fPIC -g $(EXTRA_CFLAGS)

@@ -144,7 +144,7 @@ install-bin: $(DESTDIR)$(bin_prefix)/$(bin_dir)
 install-modules: $(PLUGIN_DIR) $(DESTDIR)$(modules_prefix)/$(modules_dir)
 	$(MAKE) -C $(PLUGIN_DIR) install
 
-install-modules-cfg: $(PLUGIN_DIR) 
+install-modules-cfg: $(PLUGIN_DIR)
 	$(MAKE) -C $(PLUGIN_DIR) install-cfg
 
 install-audio: $(DESTDIR)$(audio_prefix)/$(audio_dir)
@@ -157,7 +157,7 @@ install-audio: $(DESTDIR)$(audio_prefix)/$(audio_dir)
 
 dist: tar
 
-tar: 
+tar:
 	$(TAR) -C .. \
 		--exclude=$(notdir $(CURDIR))/ivr \
 		--exclude=$(notdir $(CURDIR))/tmp \
@@ -185,5 +185,3 @@ tar:
 			                    -zcf ../../"$(NAME)-$(notdir $(CURDIR))-$(RELEASE)".tar.gz \
 			                               "$(NAME)-$(RELEASE)" ) ; \
 			    rm -rf tmp/_tar1; rm -rf tmp/_tar2
-
-

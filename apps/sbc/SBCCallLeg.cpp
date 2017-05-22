@@ -53,8 +53,6 @@
 
 #include <algorithm>
 
-using namespace std;
-
 #define TRACE DBG
 
 // helper functions
@@ -1380,7 +1378,7 @@ bool SBCCallLeg::onBeforeRTPRelay(AmRtpPacket* p, sockaddr_storage* remote_addr)
 
 void SBCCallLeg::onAfterRTPRelay(AmRtpPacket* p, sockaddr_storage* remote_addr)
 {
-  for(list<atomic_int*>::iterator it = rtp_pegs.begin();
+  for(list<class atomic_int*>::iterator it = rtp_pegs.begin();
       it != rtp_pegs.end(); ++it) {
     (*it)->inc(p->getBufferSize());
   }
