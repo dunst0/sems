@@ -31,6 +31,7 @@
 #include "ExtendedCCInterface.h"
 #include "sbc_events.h"
 #include "RateLimit.h"
+#include "atomic_types.h"
 
 class PayloadIdMapping
 {
@@ -83,7 +84,7 @@ class SBCCallLeg : public CallLeg, public CredentialHolder
   unique_ptr<RateLimit> rtp_relay_rate_limit;
 
   // Measurements
-  list<std::atomic_int*> rtp_pegs;
+  list<atomic_int*> rtp_pegs;
 
   /** common logger for RTP/RTCP and SIP packets */
   msg_logger *logger;
@@ -183,7 +184,7 @@ class SBCCallLeg : public CallLeg, public CredentialHolder
   SBCCallProfile &getCallProfile() { return call_profile; }
   CallStatus getCallStatus() { return CallLeg::getCallStatus(); }
 
-  void setRTPMeasurements(const list<std::atomic_int*>& rtp_meas) { rtp_pegs = rtp_meas; }
+  void setRTPMeasurements(const list<atomic_int*>& rtp_meas) { rtp_pegs = rtp_meas; }
   const RateLimit* getRTPRateLimit() { return rtp_relay_rate_limit.get(); }
   void setRTPRateLimit(RateLimit* rl) { rtp_relay_rate_limit.reset(rl); }
 
