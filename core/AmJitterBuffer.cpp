@@ -20,21 +20,21 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
- 
+
 #include "AmAudio.h"
 #include "AmJitterBuffer.h"
 #include "log.h"
 #include "SampleArray.h"
 
 //
-// Warning: 
-// This jitter buffer seems to increase the buffer size, if jitter (delay variation) is 
-// present in the stream, or for example a temporary delay spike is detected, 
-// but it does not adapt the buffer to shrink again if the situation has improved. 
+// Warning:
+// This jitter buffer seems to increase the buffer size, if jitter (delay variation) is
+// present in the stream, or for example a temporary delay spike is detected,
+// but it does not adapt the buffer to shrink again if the situation has improved.
 // The adaptive playout buffer method usually shows much better results
 // in minimizing the total playout delay (using more processing power though).
 //
@@ -84,13 +84,21 @@ void PacketAllocator::free(Packet *p)
 }
 
 AmJitterBuffer::AmJitterBuffer()
-  : m_tsInited(false), m_tsDeltaInited(false), m_delayCount(0),m_tsDelta(0),
-    m_jitter(INITIAL_JITTER),m_lastAudioTs(0),m_lastResyncTs(0),m_lastTs(0),
-    m_tail(NULL), m_head(NULL), m_forceResync(false)
-{
-}
+  : m_head(NULL),
+    m_tail(NULL),
+    m_tsInited(false),
+    m_lastTs(0),
+    m_lastResyncTs(0),
+    m_lastAudioTs(0),
+    m_tsDelta(0),
+    m_tsDeltaInited(false),
+    m_delayCount(0),
+    m_jitter(INITIAL_JITTER),
+    m_forceResync(false)
+{ }
 
-void AmJitterBuffer::put(const ShortSample *data, unsigned int size, unsigned int ts, bool begin_talk)
+void AmJitterBuffer::put(const ShortSample *data, unsigned int size,
+                         unsigned int ts, bool begin_talk)
 {
   m_mutex.lock();
   if (begin_talk)
@@ -161,7 +169,7 @@ void AmJitterBuffer::put(const ShortSample *data, unsigned int size, unsigned in
  * To get all the packets for the single ts the caller must call this
  * method with the same ts till the return value will become false.
  */
-bool AmJitterBuffer::get(unsigned int ts, unsigned int ms, ShortSample *out_buf, 
+bool AmJitterBuffer::get(unsigned int ts, unsigned int ms, ShortSample *out_buf,
 			 unsigned int *out_size, unsigned int *out_ts)
 {
   bool retval = true;
@@ -183,13 +191,13 @@ bool AmJitterBuffer::get(unsigned int ts, unsigned int ms, ShortSample *out_buf,
   }
   else if (m_lastAudioTs != ts && m_lastResyncTs != m_lastTs) {
     if (ts_less()(ts + m_tsDelta, m_lastTs)) {
-      /* 
+      /*
        * New packet arrived earlier than expected -
-       *  immediate resync required 
+       *  immediate resync required
        */
       m_tsDelta += m_lastTs - ts + ms;
 #ifdef DEBUG_PLAYOUTBUF
-      DBG("Jitter buffer resynced forward (-> %d rel)\n", 
+      DBG("Jitter buffer resynced forward (-> %d rel)\n",
 	  m_tsDelta - m_tsDeltaStart);
 #endif
       m_delayCount = 0;
@@ -199,7 +207,7 @@ bool AmJitterBuffer::get(unsigned int ts, unsigned int ms, ShortSample *out_buf,
 	unsigned int d = m_tsDelta -(m_lastTs - ts + ms);
 	m_tsDelta -= d / 2;
 #ifdef DEBUG_PLAYOUTBUF
-	DBG("Jitter buffer resynced backward (-> %d rel)\n", 
+	DBG("Jitter buffer resynced backward (-> %d rel)\n",
 	    m_tsDelta - m_tsDeltaStart);
 #endif
       }

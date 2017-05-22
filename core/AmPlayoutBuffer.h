@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmPlayoutBuffer.h */
@@ -65,7 +65,7 @@ class AmPlayoutBuffer
   SampleArrayShort buffer;
 
  protected:
-  u_int32_t r_ts,w_ts;
+  u_int32_t r_ts, w_ts;
   AmPLCBuffer *m_plcbuffer;
 
   unsigned int last_ts;
@@ -73,21 +73,24 @@ class AmPlayoutBuffer
 
   unsigned int sample_rate;
 
-  /** the offset RTP receive TS <-> audio_buffer TS */ 
+  /** the offset RTP receive TS <-> audio_buffer TS */
   unsigned int   recv_offset;
-  /** the recv_offset initialized ?  */ 
+  /** the recv_offset initialized ?  */
   bool           recv_offset_i;
 
   void buffer_put(unsigned int ts, ShortSample* buf, unsigned int len);
   void buffer_get(unsigned int ts, ShortSample* buf, unsigned int len);
 
-  virtual void write_buffer(u_int32_t ref_ts, u_int32_t ts, int16_t* buf, u_int32_t len);
-  virtual void direct_write_buffer(unsigned int ts, ShortSample* buf, unsigned int len);
+  virtual void write_buffer(u_int32_t ref_ts, u_int32_t ts, int16_t* buf,
+                            u_int32_t len);
+  virtual void direct_write_buffer(unsigned int ts, ShortSample* buf,
+                                   unsigned int len);
  public:
   AmPlayoutBuffer(AmPLCBuffer *plcbuffer, unsigned int sample_rate);
   virtual ~AmPlayoutBuffer() {}
 
-  virtual void write(u_int32_t ref_ts, u_int32_t ts, int16_t* buf, u_int32_t len, bool begin_talk);
+  virtual void write(u_int32_t ref_ts, u_int32_t ts, int16_t* buf,
+                     u_int32_t len, bool begin_talk);
   virtual u_int32_t read(u_int32_t ts, int16_t* buf, u_int32_t len);
 
   void clearLastTs() { last_ts_i = false; }

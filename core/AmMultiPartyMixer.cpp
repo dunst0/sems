@@ -18,8 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -50,11 +50,13 @@ void DEBUG_MIXER_BUFFER_STATE(const MixerBufferState& mbs, const string& context
 }
 
 AmMultiPartyMixer::AmMultiPartyMixer()
-  : sampleratemap(), samplerates(),
-    channelids(), scaling_factor(16),
-    buffer_state(), audio_mut()
-{
-}
+  : sampleratemap(),
+    samplerates(),
+    channelids(),
+    buffer_state(),
+    audio_mut(),
+    scaling_factor(16)
+{ }
 
 AmMultiPartyMixer::~AmMultiPartyMixer()
 {
@@ -113,8 +115,8 @@ void AmMultiPartyMixer::removeChannel(unsigned int channel_id)
 }
 
 void AmMultiPartyMixer::PutChannelPacket(unsigned int   channel_id,
-					 unsigned long long system_ts, 
-					 unsigned char* buffer, 
+					 unsigned long long system_ts,
+					 unsigned char* buffer,
 					 unsigned int   size)
 {
   if(!size)
@@ -148,8 +150,8 @@ void AmMultiPartyMixer::PutChannelPacket(unsigned int   channel_id,
 }
 
 void AmMultiPartyMixer::GetChannelPacket(unsigned int   channel_id,
-					 unsigned long long system_ts, 
-					 unsigned char* buffer, 
+					 unsigned long long system_ts,
+					 unsigned char* buffer,
 					 unsigned int&  size,
 					 unsigned int&  output_sample_rate)
 {
@@ -224,12 +226,12 @@ void AmMultiPartyMixer::mix_sub(int* dest,int* src1,short* src2,unsigned int siz
 void AmMultiPartyMixer::scale(short* buffer,int* tmp_buf,unsigned int size)
 {
   short* end_dest = buffer + size;
-    
+
   if(scaling_factor<64)
     scaling_factor++;
-    
+
   while(buffer != end_dest){
-	
+
     int s = (*tmp_buf * scaling_factor) >> 6;
     if(abs(s) > MAX_LINEAR_SAMPLE){
       scaling_factor = abs( (MAX_LINEAR_SAMPLE<<6) / (*tmp_buf) );
@@ -260,14 +262,14 @@ std::deque<MixerBufferState>::iterator AmMultiPartyMixer::findOrCreateBufferStat
   return (rit + 1).base();
 }
 
-std::deque<MixerBufferState>::iterator 
-AmMultiPartyMixer::findBufferStateForReading(unsigned int sample_rate, 
+std::deque<MixerBufferState>::iterator
+AmMultiPartyMixer::findBufferStateForReading(unsigned int sample_rate,
 					     unsigned long long last_ts)
 {
-  for (std::deque<MixerBufferState>::iterator it = buffer_state.begin(); 
+  for (std::deque<MixerBufferState>::iterator it = buffer_state.begin();
        it != buffer_state.end(); it++) {
 
-    if (sys_ts_less()(last_ts,it->last_ts) 
+    if (sys_ts_less()(last_ts,it->last_ts)
 	|| (last_ts == it->last_ts)) {
       it->fix_channels(channelids);
       //DEBUG_MIXER_BUFFER_STATE(*it, "returned to PutChannelPacket");
@@ -286,8 +288,8 @@ AmMultiPartyMixer::findBufferStateForReading(unsigned int sample_rate,
 
 void AmMultiPartyMixer::cleanupBufferStates(unsigned int last_ts)
 {
-  while (!buffer_state.empty() 
-	 && (buffer_state.front().last_ts != 0 && buffer_state.front().last_ts < last_ts) 
+  while (!buffer_state.empty()
+	 && (buffer_state.front().last_ts != 0 && buffer_state.front().last_ts < last_ts)
 	 && (unsigned int)GetCurrentSampleRate() != buffer_state.front().sample_rate) {
 
     //DEBUG_MIXER_BUFFER_STATE(buffer_state.front(), "freed in cleanupBufferStates");
@@ -317,7 +319,7 @@ MixerBufferState::MixerBufferState(unsigned int sample_rate, std::set<int>& chan
 }
 
 MixerBufferState::MixerBufferState(const MixerBufferState& other)
-  : sample_rate(other.sample_rate), last_ts(other.last_ts), 
+  : sample_rate(other.sample_rate), last_ts(other.last_ts),
     channels(other.channels), mixed_channel(other.mixed_channel)
 {
 }

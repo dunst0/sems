@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -58,7 +58,7 @@ void AmPlaylist::gotoNextItem(bool notify)
   }
 }
 
-int AmPlaylist::get(unsigned long long system_ts, unsigned char* buffer, 
+int AmPlaylist::get(unsigned long long system_ts, unsigned char* buffer,
 		    int output_sample_rate, unsigned int nb_samples)
 {
   int ret = -1;
@@ -66,8 +66,8 @@ int AmPlaylist::get(unsigned long long system_ts, unsigned char* buffer,
   cur_mut.lock();
   updateCurrentItem();
 
-  while(cur_item && 
-	cur_item->play && 
+  while(cur_item &&
+	cur_item->play &&
 	(ret = cur_item->play->get(system_ts,buffer,
 				   output_sample_rate,
 				   nb_samples)) <= 0) {
@@ -85,14 +85,14 @@ int AmPlaylist::get(unsigned long long system_ts, unsigned char* buffer,
   return ret;
 }
 
-int AmPlaylist::put(unsigned long long system_ts, unsigned char* buffer, 
+int AmPlaylist::put(unsigned long long system_ts, unsigned char* buffer,
 		    int input_sample_rate, unsigned int size)
 {
   int ret = -1;
 
   cur_mut.lock();
   updateCurrentItem();
-  while(cur_item && 
+  while(cur_item &&
 	cur_item->record &&
 	(ret = cur_item->record->put(system_ts,buffer,
 				     input_sample_rate,
@@ -104,19 +104,19 @@ int AmPlaylist::put(unsigned long long system_ts, unsigned char* buffer,
 
   if(!cur_item || !cur_item->record)
     ret = size;
-    
+
   cur_mut.unlock();
   return ret;
 }
 
 AmPlaylist::AmPlaylist(AmEventQueue* q)
   : AmAudio(new AmAudioFormat(CODEC_PCM16)),
-    ev_q(q), cur_item(0)
-{
-  
-}
+    cur_item(0),
+    ev_q(q)
+{ }
 
-AmPlaylist::~AmPlaylist() {
+AmPlaylist::~AmPlaylist()
+{
   flush();
 }
 
@@ -137,7 +137,7 @@ void AmPlaylist::addToPlayListFront(AmPlaylistItem* item)
   }
   else {
     items.push_front(item);
-  }    
+  }
   items_mut.unlock();
   cur_mut.unlock();
 }
@@ -170,7 +170,7 @@ bool AmPlaylist::isEmpty()
   items_mut.lock();
 
   res = (!cur_item) && items.empty();
-    
+
   items_mut.unlock();
   cur_mut.unlock();
 

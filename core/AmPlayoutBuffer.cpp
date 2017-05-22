@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -40,26 +40,31 @@
 // only scale if 0.9 < f < 1.1
 #define SCALE_FACTOR_START 0.1
 
-#define PI 3.14 
+#define PI 3.14
 
 #define MAX_DELAY sample_rate*1 /* 1 second */
 
-AmPlayoutBuffer::AmPlayoutBuffer(AmPLCBuffer *plcbuffer, unsigned int sample_rate)
-  : r_ts(0),w_ts(0), sample_rate(sample_rate),
-    last_ts_i(false), recv_offset_i(false), 
-    m_plcbuffer(plcbuffer)
+AmPlayoutBuffer::AmPlayoutBuffer(AmPLCBuffer *plcbuffer,
+                                 unsigned int sample_rate)
+  : r_ts(0),
+    w_ts(0),
+    m_plcbuffer(plcbuffer),
+    last_ts_i(false),
+    sample_rate(sample_rate),
+    recv_offset_i(false)
 {
   buffer.clear_all();
 }
 
-void AmPlayoutBuffer::direct_write_buffer(unsigned int ts, ShortSample* buf, unsigned int len)
+void AmPlayoutBuffer::direct_write_buffer(unsigned int ts, ShortSample* buf,
+                                          unsigned int len)
 {
   buffer_put(w_ts,buf,len);
 }
 
-void AmPlayoutBuffer::write(u_int32_t ref_ts, u_int32_t rtp_ts, 
-			    int16_t* buf, u_int32_t len, bool begin_talk)
-{  
+void AmPlayoutBuffer::write(u_int32_t ref_ts, u_int32_t rtp_ts,
+                            int16_t* buf, u_int32_t len, bool begin_talk)
+{
   unsigned int mapped_ts;
   if(!recv_offset_i)
     {
@@ -73,7 +78,7 @@ void AmPlayoutBuffer::write(u_int32_t ref_ts, u_int32_t rtp_ts,
     mapped_ts = rtp_ts - recv_offset;
 
     // resync
-    if( ts_less()(mapped_ts, ref_ts - MAX_DELAY/2) || 
+    if( ts_less()(mapped_ts, ref_ts - MAX_DELAY/2) ||
 	!ts_less()(mapped_ts, ref_ts + MAX_DELAY) ){
 
       DBG("resync needed: reference ts = %u; write ts = %u\n",
@@ -103,7 +108,7 @@ void AmPlayoutBuffer::write(u_int32_t ref_ts, u_int32_t rtp_ts,
 
   write_buffer(ref_ts, mapped_ts, buf, len);
 
-  // update last_ts to end of received packet 
+  // update last_ts to end of received packet
   // if not out-of-sequence
   if (ts_less()(last_ts, mapped_ts) || last_ts == mapped_ts)
     last_ts = mapped_ts + len;
@@ -150,21 +155,22 @@ void AmPlayoutBuffer::buffer_get(unsigned int ts, ShortSample* buf, unsigned int
 }
 
 //
-// See: Y. J. Liang, N. Farber, and B. Girod. Adaptive playout scheduling 
-// and loss concealment for voice communication over IP networks. Submitted 
-// to IEEE Transactions on Multimedia, Feb. 2001. 
-// Online at: 
-//  http://www-ise.stanford.edu/yiliang/publications/ 
-//  http://citeseer.ist.psu.edu/liang02adaptive.html 
-// 
-AmAdaptivePlayout::AmAdaptivePlayout(AmPLCBuffer *plcbuffer, unsigned int sample_rate)
+// See: Y. J. Liang, N. Farber, and B. Girod. Adaptive playout scheduling
+// and loss concealment for voice communication over IP networks. Submitted
+// to IEEE Transactions on Multimedia, Feb. 2001.
+// Online at:
+//  http://www-ise.stanford.edu/yiliang/publications/
+//  http://citeseer.ist.psu.edu/liang02adaptive.html
+//
+AmAdaptivePlayout::AmAdaptivePlayout(AmPLCBuffer *plcbuffer,
+                                     unsigned int sample_rate)
   : AmPlayoutBuffer(plcbuffer, sample_rate),
     idx(0),
     loss_rate(ORDER_STAT_LOSS_RATE),
     wsola_off(WSOLA_START_OFF),
     shr_threshold(SHR_THRESHOLD),
-    plc_cnt(0),
     short_scaled(WSOLA_SCALED_WIN),
+    plc_cnt(0),
     fec(sample_rate)
 {
   memset(n_stat,0,sizeof(int32_t)*ORDER_STAT_WIN_SIZE);
@@ -173,25 +179,25 @@ AmAdaptivePlayout::AmAdaptivePlayout(AmPLCBuffer *plcbuffer, unsigned int sample
 u_int32_t AmAdaptivePlayout::next_delay(u_int32_t ref_ts, u_int32_t ts)
 {
   int32_t n = (int32_t)(ref_ts - ts);
-    
+
   multiset<int32_t>::iterator it = o_stat.find(n_stat[idx]);
   if(it != o_stat.end())
     o_stat.erase(it);
 
   n_stat[idx] = n;
   o_stat.insert(n);
-    
+
 
   int32_t D_r=0,D_r1=0;
   int r = int((double(o_stat.size()) + 1.0)*(1.0 - loss_rate));
-    
+
   if((r == 0) || (r >= (int)o_stat.size())){
 
     StddevValue n_std;
     for(int i=0; i<ORDER_STAT_WIN_SIZE; i++){
       n_std.push(double(n_stat[i]));
     }
-	
+
     if(r == 0){
       D_r = (*o_stat.begin()) - (int32_t)(2.0*n_std.stddev());
       D_r1 = (*o_stat.begin());
@@ -201,12 +207,12 @@ u_int32_t AmAdaptivePlayout::next_delay(u_int32_t ref_ts, u_int32_t ts)
       D_r1 = (*o_stat.rbegin()) + (int32_t)(2.0*n_std.stddev());
     }
 
-	
+
   }
   else {
     int i=0;
     for(it = o_stat.begin(); it != o_stat.end(); it++){
-	    
+
       if(++i == r){
 	D_r = (*it);
 	++it;
@@ -216,7 +222,7 @@ u_int32_t AmAdaptivePlayout::next_delay(u_int32_t ref_ts, u_int32_t ts)
     }
   }
 
-  int32_t D = 
+  int32_t D =
     int32_t(D_r + double(D_r1 - D_r)
 	    * ( (double(o_stat.size()) + 1.0)
 		*(1.0-loss_rate) - double(r)));
@@ -227,7 +233,7 @@ u_int32_t AmAdaptivePlayout::next_delay(u_int32_t ref_ts, u_int32_t ts)
   return D;
 }
 
-void AmAdaptivePlayout::write_buffer(u_int32_t ref_ts, u_int32_t ts, 
+void AmAdaptivePlayout::write_buffer(u_int32_t ref_ts, u_int32_t ts,
 				     int16_t* buf, u_int32_t len)
 {
   // predict next delay
@@ -281,14 +287,14 @@ void AmAdaptivePlayout::write_buffer(u_int32_t ref_ts, u_int32_t ts,
     short_scaled.push(0.0);
     return;
   }
-    
+
   u_int32_t old_wts = w_ts;
   buffer_put(ts,buf,len);
 
   n_len = time_scale(ts,f,len);
   wsola_off = old_off + n_len - len;
-   
-  // if we have shrinked the voice, set back w_ts 
+
+  // if we have shrinked the voice, set back w_ts
   // in order to have correct start point for possible
   // PLC
   if (n_len < (int32_t) len)
@@ -306,7 +312,7 @@ u_int32_t AmAdaptivePlayout::read(u_int32_t ts, int16_t* buf, u_int32_t len)
   bool do_plc=false;
 
   if(ts_less()(w_ts,ts+len) && (plc_cnt < 6)){
-	
+
     if(!plc_cnt){
       int nlen = time_scale(w_ts-len,2.0, len);
       wsola_off += nlen-len;
@@ -322,7 +328,7 @@ u_int32_t AmAdaptivePlayout::read(u_int32_t ts, int16_t* buf, u_int32_t len)
     short plc_buf[FRAMESZ];
 
     for(unsigned int i=0; i<len/FRAMESZ; i++){
-	    
+
       fec.dofe(plc_buf);
 
       buffer_put(w_ts,plc_buf,FRAMESZ);
@@ -346,12 +352,12 @@ void AmAdaptivePlayout::direct_write_buffer(unsigned int ts, ShortSample* buf, u
   buffer_put(ts+wsola_off,buf,len);
 }
 
-/** 
+/**
  * find best cross correlation of a TEMPLATE_SEG samples
- * long frame 
+ * long frame
  *  * starting between sr_beg ... sr_end
  *  * to TEMPLATE_SEG samples frame starting from ts
- * 
+ *
  */
 short* find_best_corr(short *ts, short *sr_beg, short* sr_end, unsigned int sample_rate)
 {
@@ -361,7 +367,7 @@ short* find_best_corr(short *ts, short *sr_beg, short* sr_end, unsigned int samp
   short *sr;
 
   for(sr = sr_beg; sr != sr_end; sr++){
-	
+
     corr=0.f;
     for(unsigned int i=0; i<TEMPLATE_SEG; i++)
       corr += float(sr[i]) * float(ts[i]);
@@ -375,10 +381,10 @@ short* find_best_corr(short *ts, short *sr_beg, short* sr_end, unsigned int samp
   return best_sr;
 }
 
-u_int32_t AmAdaptivePlayout::time_scale(u_int32_t ts, float factor, 
+u_int32_t AmAdaptivePlayout::time_scale(u_int32_t ts, float factor,
 					u_int32_t packet_len)
 {
-  // current position in strech buffer 
+  // current position in strech buffer
   short *tmpl      = p_buf + packet_len;
   // begin and end of strech buffer
   short *p_buf_beg = p_buf;
@@ -393,8 +399,8 @@ u_int32_t AmAdaptivePlayout::time_scale(u_int32_t ts, float factor,
   // safety
   if (packet_len > MAX_PACKET_SAMPLES)
     return s;
-  
-  // not possible to stretch packets shorter than 10ms 
+
+  // not possible to stretch packets shorter than 10ms
   if (packet_len < TEMPLATE_SEG)
       return s;
 
@@ -405,7 +411,7 @@ u_int32_t AmAdaptivePlayout::time_scale(u_int32_t ts, float factor,
     return s;
   }
 
-  // boundaries of scaling 
+  // boundaries of scaling
   if(factor > TSM_MAX_SCALE)
     factor = TSM_MAX_SCALE;
   else if(factor < TSM_MIN_SCALE)
@@ -414,7 +420,7 @@ u_int32_t AmAdaptivePlayout::time_scale(u_int32_t ts, float factor,
   short *srch_beg, *srch_end, *srch;
 
   while(true){
-    // get previous packet_len frame + scaled frame 
+    // get previous packet_len frame + scaled frame
     // (with size s) into p_buf
     buffer_get(ts - packet_len, p_buf_beg, s + packet_len);
     p_buf_end = p_buf_beg + s + packet_len;
@@ -423,7 +429,7 @@ u_int32_t AmAdaptivePlayout::time_scale(u_int32_t ts, float factor,
     // as srch_beg ... srch_end
     if (factor > 1.0){
       // expansion
-      srch_beg = tmpl - (int)((float)TEMPLATE_SEG * (factor - 1.0)) - SEARCH_REGION/2; 
+      srch_beg = tmpl - (int)((float)TEMPLATE_SEG * (factor - 1.0)) - SEARCH_REGION/2;
       srch_end = srch_beg + SEARCH_REGION;
 
       if(srch_beg < p_buf_beg)
@@ -436,10 +442,10 @@ u_int32_t AmAdaptivePlayout::time_scale(u_int32_t ts, float factor,
       // compression
       srch_end = tmpl + (int)((float)TEMPLATE_SEG * (1.0 - factor)) + SEARCH_REGION/2;
       srch_beg = srch_end - SEARCH_REGION;
-	    
+
       if(srch_end + TEMPLATE_SEG > p_buf_end)
 	srch_end = p_buf_end - TEMPLATE_SEG;
-	    
+
       if(srch_beg - DELTA < tmpl)
 	srch_beg = tmpl + DELTA;
     }
@@ -450,8 +456,8 @@ u_int32_t AmAdaptivePlayout::time_scale(u_int32_t ts, float factor,
     // find best correlation to tmpl in srch_beg..srch_end
     srch = find_best_corr(tmpl,srch_beg,srch_end,sample_rate);
 
-    // merge original segment (starting from tmpl) and 
-    // best correlation (starting from srch) into merge_buf 
+    // merge original segment (starting from tmpl) and
+    // best correlation (starting from srch) into merge_buf
     float f = 0.5,v = 0.5;
     for(unsigned int k=0; k<TEMPLATE_SEG; k++){
 
@@ -472,8 +478,8 @@ u_int32_t AmAdaptivePlayout::time_scale(u_int32_t ts, float factor,
       ERROR("audio after merged segment spills over\n");
       break;
     }
-    // add after merged segment audio from after srch 
-    buffer_put( cur_ts + TEMPLATE_SEG, srch + TEMPLATE_SEG, 
+    // add after merged segment audio from after srch
+    buffer_put( cur_ts + TEMPLATE_SEG, srch + TEMPLATE_SEG,
 		p_buf_end - srch - TEMPLATE_SEG );
     // size s has changed
     s      += tmpl - srch;
@@ -486,7 +492,7 @@ u_int32_t AmAdaptivePlayout::time_scale(u_int32_t ts, float factor,
     float act_fact = s / (float)packet_len;
 
 #ifdef DEBUG_PLAYOUTBUF
-    DBG("at ts %u: new size = %u, ratio = %f, requested = %f (wsola_off = %ld)\n", 
+    DBG("at ts %u: new size = %u, ratio = %f, requested = %f (wsola_off = %ld)\n",
 	ts, s, act_fact, factor, (long)wsola_off);
 #endif
     // break condition: coming to the end of the frame (with safety margin)

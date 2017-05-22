@@ -22,8 +22,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "AmDtmfDetector.h"
@@ -35,18 +35,18 @@
 #include <math.h>
 #include <sys/time.h>
 
-// per RFC this is 5000ms, but in reality then 
+// per RFC this is 5000ms, but in reality then
 // one needs to wait 5 sec on the first keypress
 // (e.g. due to a bug on recent snoms)
-#define MAX_INFO_DTMF_LENGTH 1000 
+#define MAX_INFO_DTMF_LENGTH 1000
 
 //
 // AmDtmfEventQueue methods
 //
 AmDtmfEventQueue::AmDtmfEventQueue(AmDtmfDetector *handler)
-  : AmEventQueue(handler), m_detector(handler)
-{
-}
+  : AmEventQueue(handler),
+    m_detector(handler)
+{ }
 
 void AmDtmfEventQueue::processEvents()
 {
@@ -55,7 +55,8 @@ void AmDtmfEventQueue::processEvents()
   AmEventQueue::processEvents();
 }
 
-void AmDtmfEventQueue::putDtmfAudio(const unsigned char *buf, int size, unsigned long long system_ts)
+void AmDtmfEventQueue::putDtmfAudio(const unsigned char *buf, int size,
+                                    unsigned long long system_ts)
 {
   m_detector->putDtmfAudio(buf, size, system_ts);
 }
@@ -135,7 +136,8 @@ void AmSipDtmfEvent::parseLine(const string& line)
 //
 // AmRtpDtmfEvent methods
 //
-AmRtpDtmfEvent::AmRtpDtmfEvent(const dtmf_payload_t *payload, int sample_rate, unsigned int ts)
+AmRtpDtmfEvent::AmRtpDtmfEvent(const dtmf_payload_t *payload, int sample_rate,
+                               unsigned int ts)
   : AmDtmfEvent(Dtmf::SOURCE_RTP)
 {
   m_duration_msec = ntohs(payload->duration) * 1000 / sample_rate;
@@ -154,8 +156,7 @@ AmRtpDtmfEvent::AmRtpDtmfEvent(const dtmf_payload_t *payload, int sample_rate, u
 //
 AmSipDtmfDetector::AmSipDtmfDetector(AmKeyPressSink *keysink)
   : m_keysink(keysink)
-{
-}
+{ }
 
 void AmSipDtmfDetector::process(AmSipDtmfEvent *evt)
 {
@@ -177,13 +178,17 @@ void AmSipDtmfDetector::process(AmSipDtmfEvent *evt)
 // AmDtmfDetector methods
 //
 AmDtmfDetector::AmDtmfDetector(AmDtmfSink *dtmf_sink)
-  : m_dtmfSink(dtmf_sink), m_rtpDetector(this),
+  : m_dtmfSink(dtmf_sink),
+    m_rtpDetector(this),
     m_sipDetector(this),
-    m_eventPending(false), m_sipEventReceived(false),
-    m_inbandEventReceived(false), m_rtpEventReceived(false),
     m_inband_type(Dtmf::SEMSInternal),
     m_currentEvent(-1),
-    m_current_eventid_i(false)
+    m_eventPending(false),
+    m_current_eventid_i(false),
+
+    m_sipEventReceived(false),
+    m_inbandEventReceived(false),
+    m_rtpEventReceived(false),
 {
   //#ifndef USE_SPANDSP
   //  setInbandDetector(Dtmf::SEMSInternal, m_session->RTPStream()->getSampleRate());
@@ -302,7 +307,7 @@ void AmDtmfDetector::registerKeyPressed(int event, Dtmf::EventSource type, bool 
 #ifdef EXCESSIVE_DTMF_DEBUGINFO
   DBG("registerKeyPressed(%d, .., %s, %u); m_eventPending=%s, m_currentEvent=%d, "
       "m_current_eventid=%u,m_current_eventid_i=%s\n",
-      event, has_eventid?"true":"false", event_id, m_eventPending?"true":"false", 
+      event, has_eventid?"true":"false", event_id, m_eventPending?"true":"false",
       m_currentEvent, m_current_eventid, m_current_eventid_i?"true":"false");
 #endif
   struct timeval tm;
@@ -329,7 +334,7 @@ void AmDtmfDetector::registerKeyPressed(int event, Dtmf::EventSource type, bool 
 
       long delta_msec = (tm.tv_sec - m_lastReportTime.tv_sec) * 1000 +
 	(tm.tv_usec - m_lastReportTime.tv_usec) / 1000;
-      // SIP INFO can report stop time is in future so avoid changing 
+      // SIP INFO can report stop time is in future so avoid changing
       // m_lastReportTime during that period
       if (delta_msec > 0)
 	memcpy(&m_lastReportTime, &tm, sizeof(struct timeval));
@@ -395,7 +400,7 @@ void AmDtmfDetector::putDtmfAudio(const unsigned char *buf, int size, unsigned l
 
 // AmRtpDtmfDetector methods
 AmRtpDtmfDetector::AmRtpDtmfDetector(AmKeyPressSink *keysink)
-  : m_keysink(keysink), m_eventPending(false), m_packetCount(0), 
+  : m_keysink(keysink), m_eventPending(false), m_packetCount(0),
     m_currentTS(0), m_currentTS_i(false), m_lastTS_i(false)
 {
 }
@@ -433,11 +438,11 @@ void AmRtpDtmfDetector::process(AmRtpDtmfEvent *evt)
 #ifdef EXCESSIVE_DTMF_DEBUGINFO
 	  DBG("RTP event, event()==%d, m_currentEvent == %d, m_currentTS_i=%s, "
 	      "evt->ts=%u, m_currentTS=%u\n",
-	      evt->event(), m_currentEvent, m_currentTS_i?"true":"false", 
+	      evt->event(), m_currentEvent, m_currentTS_i?"true":"false",
 	      evt->ts(), m_currentTS);
 #endif
 
-	  if ((evt->event() != m_currentEvent) || 
+	  if ((evt->event() != m_currentEvent) ||
 	      (m_currentTS_i && (evt->ts() != m_currentTS)))
             {
 	      // Previous event does not end correctly so send out it now...
@@ -473,7 +478,7 @@ void AmRtpDtmfDetector::sendPending()
       m_eventPending = false;
       m_currentTS_i = false;
       m_lastTS = m_currentTS;
-      m_lastTS_i = true;     
+      m_lastTS_i = true;
     }
 }
 
@@ -491,7 +496,7 @@ void AmRtpDtmfDetector::checkTimeout()
 //
 // AmInbandDtmfDetector methods
 
-AmInbandDtmfDetector::AmInbandDtmfDetector(AmKeyPressSink *keysink) 
+AmInbandDtmfDetector::AmInbandDtmfDetector(AmKeyPressSink *keysink)
  : m_keysink(keysink)
 {
 }
@@ -501,8 +506,8 @@ AmInbandDtmfDetector::AmInbandDtmfDetector(AmKeyPressSink *keysink)
 #define IVR_DTMF_ASTERISK 10
 #define IVR_DTMF_HASH     11
 #define IVR_DTMF_A        12
-#define IVR_DTMF_B        13 
-#define IVR_DTMF_C        14 
+#define IVR_DTMF_B        13
+#define IVR_DTMF_C        14
 #define IVR_DTMF_D        15
 
 /* the detector returns these values */
@@ -531,7 +536,7 @@ typedef struct {
   int grp;			/* low/high group */
 } dtmf_t;
 
-static dtmf_t dtmf_tones[8] = 
+static dtmf_t dtmf_tones[8] =
   {
     { 697, LOGRP},
     { 770, LOGRP},
@@ -618,7 +623,7 @@ void AmSemsInbandDtmfDetector::isdn_audio_eval_dtmf_relative()
   silence = 0;
   thresh = 0;
 
-  for (int i = 0; i < REL_NCOEFF; i++) 
+  for (int i = 0; i < REL_NCOEFF; i++)
     {
       if (m_result[i] > REL_DTMF_TRESH) {
 	if (m_result[i] > thresh)
@@ -661,11 +666,11 @@ void AmSemsInbandDtmfDetector::isdn_audio_eval_dtmf_relative()
       if ((grp[LOGRP] >= 0) && (grp[HIGRP] >= 0)) {
 	what = dtmf_matrix[grp[LOGRP]][grp[HIGRP]];
 	m_lastCode = IVR_dtmf_matrix[grp[LOGRP]][grp[HIGRP]];
-		
+
 	if (what != m_last)
 	  {
 	    m_startTime.tv_sec = m_last_ts / SAMPLERATE;
-	    m_startTime.tv_usec = ((m_last_ts * 10000) / (SAMPLERATE/100)) 
+	    m_startTime.tv_usec = ((m_last_ts * 10000) / (SAMPLERATE/100))
 	      % 1000000;
 	  }
       } else
@@ -736,7 +741,7 @@ int AmSemsInbandDtmfDetector::streamPut(const unsigned char* samples, unsigned i
 #ifdef USE_SPANDSP
 
 AmSpanDSPInbandDtmfDetector::AmSpanDSPInbandDtmfDetector(AmKeyPressSink *keysink, int sample_rate)
-  : AmInbandDtmfDetector(keysink) 
+  : AmInbandDtmfDetector(keysink)
 {
 #ifdef HAVE_OLD_SPANDSP_CALLBACK
   rx_state = (dtmf_rx_state_t*)malloc(sizeof(dtmf_rx_state_t));
@@ -746,12 +751,12 @@ AmSpanDSPInbandDtmfDetector::AmSpanDSPInbandDtmfDetector(AmKeyPressSink *keysink
 #else
   rx_state = NULL;
 #endif
-  rx_state = dtmf_rx_init(rx_state, NULL /* dtmf_rx_callback */, (void*)this); 
+  rx_state = dtmf_rx_init(rx_state, NULL /* dtmf_rx_callback */, (void*)this);
 
   if (rx_state==NULL) {
     throw string("error allocating memory for DTMF detector\n");
   }
-  dtmf_rx_set_realtime_callback(rx_state, tone_report_func, (void*)this); 
+  dtmf_rx_set_realtime_callback(rx_state, tone_report_func, (void*)this);
 }
 
 AmSpanDSPInbandDtmfDetector::~AmSpanDSPInbandDtmfDetector() {
@@ -791,17 +796,17 @@ void AmSpanDSPInbandDtmfDetector::tone_report_f(int code, int level, int delay) 
   } else { // released
     struct timeval now;
     gettimeofday(&now, NULL);
-    m_keysink->registerKeyReleased(char2int(m_lastCode), Dtmf::SOURCE_INBAND, key_start, now);    
+    m_keysink->registerKeyReleased(char2int(m_lastCode), Dtmf::SOURCE_INBAND, key_start, now);
   }
 }
 
 // uh, ugly
 int AmSpanDSPInbandDtmfDetector::char2int(char code) {
-  if (code>='0' && code<='9') 
+  if (code>='0' && code<='9')
     return code-'0';
-  if (code == '#') 
+  if (code == '#')
     return IVR_DTMF_HASH;
-  if (code == '*') 
+  if (code == '*')
     return IVR_DTMF_ASTERISK;
 
   if (code >= 'A' && code <= 'D')

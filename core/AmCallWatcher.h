@@ -68,16 +68,18 @@ class CallStatusUpdateEvent : public AmEvent {
   };
 
   CallStatusUpdateEvent(UpdateType t, const string& call_id)
-    : call_id(call_id), AmEvent(t)  { }
+    : AmEvent(t),
+      call_id(call_id)
+  {}
 
   // implicit: initialize
   CallStatusUpdateEvent(const string& call_id, CallStatus* init_status)
     : AmEvent(Initialize),
       call_id(call_id),
       init_status(init_status)
-  { }
+  {}
 
-  ~CallStatusUpdateEvent() { }
+  ~CallStatusUpdateEvent() {}
 
   string get_call_id() { return call_id; }
   CallStatus* get_init_status() { return init_status; }
@@ -89,15 +91,15 @@ class CallStatusUpdateEvent : public AmEvent {
 class CallStatus
 {
  public:
-  CallStatus()  { }
-  virtual ~CallStatus() { }
+  CallStatus() {}
+  virtual ~CallStatus() {}
 
   /** update from an event */
   virtual void update(CallStatusUpdateEvent* e) = 0;
 
   /** get a copy of self with relevant data */
   virtual CallStatus* copy() = 0;
-  virtual void dump() { }
+  virtual void dump() {}
 };
 
 class AmCallWatcherGarbageCollector;

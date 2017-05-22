@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmDtmfDetector.h */
@@ -56,11 +56,11 @@ namespace Dtmf
 {
   enum EventSource { SOURCE_RTP, SOURCE_SIP, SOURCE_INBAND, SOURCE_DETECTOR };
 
-  enum InbandDetectorType { SEMSInternal, SpanDSP }; 
+  enum InbandDetectorType { SEMSInternal, SpanDSP };
 };
 /**
- * \brief sink for audio to be processed by the inband DTMF detector 
- * 
+ * \brief sink for audio to be processed by the inband DTMF detector
+ *
  * This class adds processing of timeouts for DTMF detection
  */
 class AmDtmfEventQueue : public AmEventQueue
@@ -97,14 +97,14 @@ class AmDtmfEvent : public AmEvent
    */
   AmDtmfEvent(int id)
     : AmEvent(id)
-    {
-    }
+  {}
 
  public:
   AmDtmfEvent(int event, int duration)
-    : AmEvent(Dtmf::SOURCE_DETECTOR), m_event(event), m_duration_msec(duration)
-    {
-    }
+    : AmEvent(Dtmf::SOURCE_DETECTOR),
+      m_event(event),
+      m_duration_msec(duration)
+  {}
   /**
    * Code of the key
    */
@@ -166,8 +166,8 @@ class AmRtpDtmfEvent : public AmDtmfEvent
    */
   int m_volume;
 
-  /** 
-   * RTP timestamp 
+  /**
+   * RTP timestamp
    */
   unsigned int m_ts;
 
@@ -283,7 +283,7 @@ class AmSemsInbandDtmfDetector
 
 #ifdef USE_SPANDSP
 
-class AmSpanDSPInbandDtmfDetector 
+class AmSpanDSPInbandDtmfDetector
 : public AmInbandDtmfDetector  {
 
   struct timeval key_start;
@@ -297,11 +297,11 @@ class AmSpanDSPInbandDtmfDetector
 			       );
 
   void tone_report_f(int code, int level, int delay);
-  int char2int(char code);  
+  int char2int(char code);
 /*   static void dtmf_rx_callback(void* user_data, const char* digits, int len);  */
 /*   void dtmf_rx_f(const char* digits, int len); */
 
- public: 
+ public:
   AmSpanDSPInbandDtmfDetector(AmKeyPressSink *keysink, int sample_rate);
   ~AmSpanDSPInbandDtmfDetector();
 
@@ -337,7 +337,7 @@ class AmRtpDtmfDetector
 {
  private:
   /**
-   *  sink for detected keys 
+   *  sink for detected keys
    */
   AmKeyPressSink *m_keysink;
   /**
@@ -352,7 +352,7 @@ class AmRtpDtmfDetector
   unsigned int m_lastTS;
   bool m_lastTS_i;
 
-  // after MAX_PACKET_WAIT packets with no RTP DTMF packets received, 
+  // after MAX_PACKET_WAIT packets with no RTP DTMF packets received,
   // a RTP DTMF event is sent out to the aggregating detector
   static const int MAX_PACKET_WAIT = 8;
   /**
@@ -368,7 +368,7 @@ class AmRtpDtmfDetector
  public:
   /**
    * Constructor
-   * @param keysink is the sink for detected keys 
+   * @param keysink is the sink for detected keys
    */
   AmRtpDtmfDetector(AmKeyPressSink *keysink);
   /**
@@ -394,12 +394,12 @@ public:
 /**
  * \brief DTMF detector class
  *
- * This class collects DTMF info from three sources: RTP (RFC 2833), 
+ * This class collects DTMF info from three sources: RTP (RFC 2833),
  * SIP INFO method (RFC 2976) and DTMF tones from audio stream.
- * Received DTMF events are further reported to SEMS application via 
+ * Received DTMF events are further reported to SEMS application via
  * DialogState::onDtmf() call.
  */
-class AmDtmfDetector 
+class AmDtmfDetector
 : public AmEventHandler,
   public AmKeyPressSink
 {
@@ -429,7 +429,7 @@ class AmDtmfDetector
   AmMutex m_reportLock;
 
   /**
-   * Implementation of AmEventHandler::process(). 
+   * Implementation of AmEventHandler::process().
    * Processes events from AmMediaProcessor.
    * @see AmEventHandler
    */
