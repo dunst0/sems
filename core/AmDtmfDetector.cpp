@@ -399,10 +399,13 @@ void AmDtmfDetector::putDtmfAudio(const unsigned char *buf, int size, unsigned l
 
 // AmRtpDtmfDetector methods
 AmRtpDtmfDetector::AmRtpDtmfDetector(AmKeyPressSink *keysink)
-  : m_keysink(keysink), m_eventPending(false), m_packetCount(0),
-    m_currentTS(0), m_currentTS_i(false), m_lastTS_i(false)
-{
-}
+  : m_keysink(keysink),
+    m_eventPending(false),
+    m_currentTS(0),
+    m_currentTS_i(false),
+    m_packetCount(0),
+    m_lastTS_i(false)
+{ }
 
 void AmRtpDtmfDetector::process(AmRtpDtmfEvent *evt)
 {
@@ -555,12 +558,13 @@ static char dtmf_matrix[4][4] =
     {'*', '0', '#', 'D'}
   };
 
-AmSemsInbandDtmfDetector::AmSemsInbandDtmfDetector(AmKeyPressSink *keysink, int sample_rate)
+AmSemsInbandDtmfDetector::AmSemsInbandDtmfDetector(AmKeyPressSink *keysink,
+                                                   int sample_rate)
   : AmInbandDtmfDetector(keysink),
+    SAMPLERATE(sample_rate),
     m_last(' '),
     m_idx(0),
-    m_count(0),
-    SAMPLERATE(sample_rate)
+    m_count(0)
 {
   /* precalculate 2 * cos (2 PI k / N) */
   for(unsigned i = 0; i < NELEMSOF(rel_cos2pik); i++) {
@@ -569,8 +573,9 @@ AmSemsInbandDtmfDetector::AmSemsInbandDtmfDetector(AmKeyPressSink *keysink, int 
     rel_cos2pik[i] = (int)(2 * 32768 * cos(2 * PI * k / REL_DTMF_NPOINTS));
   }
 }
-AmSemsInbandDtmfDetector::~AmSemsInbandDtmfDetector() {
-}
+
+AmSemsInbandDtmfDetector::~AmSemsInbandDtmfDetector()
+{ }
 
 /*
  * Goertzel algorithm.

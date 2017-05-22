@@ -235,7 +235,7 @@ class AmInbandDtmfDetector
  * This class implements detection of DTMF from audio stream
  */
 class AmSemsInbandDtmfDetector
-: public AmInbandDtmfDetector
+  : public AmInbandDtmfDetector
 {
  private:
   /**
