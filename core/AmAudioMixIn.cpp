@@ -18,35 +18,37 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "AmAudioMixIn.h"
 #include "SampleArray.h"
 
-#define IS_FINISH_B_MIX    (flags & AUDIO_MIXIN_FINISH_B_MIX) 
+#define IS_FINISH_B_MIX    (flags & AUDIO_MIXIN_FINISH_B_MIX)
 #define IS_ONLY_ONCE       (flags & AUDIO_MIXIN_ONCE)
 #define IS_IMMEDIATE_START (flags & AUDIO_MIXIN_IMMEDIATE_START)
 
-AmAudioMixIn::AmAudioMixIn(AmAudio* A, AmAudio* B, 
-			   unsigned int s, double l,
-			   unsigned int flags) 
-  :   A(A),B(B), s(s), l(l), 
-      mixing(false), next_start_ts_i(false),
-      flags(flags)
-{
-}
+AmAudioMixIn::AmAudioMixIn(AmAudio* A, AmAudio* B, unsigned int s, double l,
+                           unsigned int flags)
+  : A(A),
+    B(B),
+    s(s),
+    l(l),
+    flags(flags),
+    mixing(false),
+    next_start_ts_i(false)
+{}
 
 AmAudioMixIn::~AmAudioMixIn() { }
 
-int AmAudioMixIn::get(unsigned long long system_ts, unsigned char* buffer, 
+int AmAudioMixIn::get(unsigned long long system_ts, unsigned char* buffer,
 		      int output_sample_rate, unsigned int nb_samples) {
   if (!mixing) {
     if (!next_start_ts_i) {
       next_start_ts_i = true;
-      next_start_ts = IS_IMMEDIATE_START ? 
+      next_start_ts = IS_IMMEDIATE_START ?
 	system_ts : system_ts + s*WALLCLOCK_RATE;
     }
     if (!sys_ts_less()(system_ts, next_start_ts)) {
@@ -54,8 +56,8 @@ int AmAudioMixIn::get(unsigned long long system_ts, unsigned char* buffer,
       mixing = true;
       next_start_ts = system_ts + s*WALLCLOCK_RATE;
     }
-  } 
-  
+  }
+
   if (NULL == A)
     return -1;
 
@@ -65,7 +67,7 @@ int AmAudioMixIn::get(unsigned long long system_ts, unsigned char* buffer,
     B_mut.unlock();
     return A->get(system_ts, buffer, output_sample_rate, nb_samples);
   } else {
-    if (l < 0.01) { // epsilon 
+    if (l < 0.01) { // epsilon
       // only play back from B
       int res = B->get(system_ts, buffer, output_sample_rate, nb_samples);
       if (res <= 0) { // B empty
@@ -86,7 +88,7 @@ int AmAudioMixIn::get(unsigned long long system_ts, unsigned char* buffer,
       int res = 0;
       short* pdest = (short*)buffer;
       // get audio from A
-      int len = A->get(system_ts, (unsigned char*)mix_buf, 
+      int len = A->get(system_ts, (unsigned char*)mix_buf,
 		       output_sample_rate, nb_samples);
 
       if ((len<0) && !IS_FINISH_B_MIX) { // A finished
@@ -103,17 +105,17 @@ int AmAudioMixIn::get(unsigned long long system_ts, unsigned char* buffer,
       unsigned int len_from_a = 0;
       if (res>0)
 	len_from_a=(unsigned int)res;
-      
+
       if (PCM16_S2B(nb_samples) != len_from_a)
-	memset((void*)&pdest[len_from_a>>1], 0, 
+	memset((void*)&pdest[len_from_a>>1], 0,
 	       (nb_samples<<1) - len_from_a);
-      
+
       // add audio from B
-      len = B->get(system_ts, (unsigned char*)mix_buf, 
+      len = B->get(system_ts, (unsigned char*)mix_buf,
 		   output_sample_rate, nb_samples);
       if (len<0) { // B finished
 	mixing = false;
-	
+
 	if (IS_ONLY_ONCE) {
 	  B = NULL;
 	} else {
@@ -130,13 +132,13 @@ int AmAudioMixIn::get(unsigned long long system_ts, unsigned char* buffer,
 	  res = len;
       }
       B_mut.unlock();
-	
+
       return res;
     }
   }
 }
 
-int AmAudioMixIn::put(unsigned long long system_ts, unsigned char* buffer, 
+int AmAudioMixIn::put(unsigned long long system_ts, unsigned char* buffer,
 		      int input_sample_rate, unsigned int size) {
 
   ERROR("writing not supported\n");
@@ -149,4 +151,3 @@ void AmAudioMixIn::mixin(AmAudio* f) {
   mixing = next_start_ts_i = false; /* so that mix in will re-start */
   B_mut.unlock();
 }
-
