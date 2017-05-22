@@ -63,7 +63,11 @@ endif
 ifneq ($(LD), clang)
 EXTRA_LDFLAGS += -Wl,--whole-archive $(SIP_STACK_DIR)/sip_stack.a -Wl,--no-whole-archive
 else
+ifeq ($(OS), freebsd)
+EXTRA_LDFLAGS += -Wl,--whole-archive $(SIP_STACK_DIR)/sip_stack.a -Wl,--no-whole-archive
+else
 EXTRA_LDFLAGS += -force_load $(SIP_STACK_DIR)/sip_stack.a
+endif
 endif
 
 ifneq ($(OS), freebsd)

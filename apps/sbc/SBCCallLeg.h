@@ -31,7 +31,6 @@
 #include "ExtendedCCInterface.h"
 #include "sbc_events.h"
 #include "RateLimit.h"
-#include "atomic_types.h"
 
 class PayloadIdMapping
 {
