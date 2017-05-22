@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -125,7 +125,7 @@ bool         AmConfig::AcceptForkedDialogs     = true;
 bool         AmConfig::ShutdownMode            = false;
 unsigned int AmConfig::ShutdownModeErrCode     = 503;
 string       AmConfig::ShutdownModeErrReason   = "Server shutting down";
-  
+
 string AmConfig::OptionsTranscoderOutStatsHdr; // empty by default
 string AmConfig::OptionsTranscoderInStatsHdr; // empty by default
 string AmConfig::TranscoderOutStatsHdr; // empty by default
@@ -138,7 +138,7 @@ Am100rel::State AmConfig::rel100 = Am100rel::REL100_SUPPORTED;
 
 vector <string> AmConfig::CodecOrder;
 
-Dtmf::InbandDetectorType 
+Dtmf::InbandDetectorType
 AmConfig::DefaultDTMFDetector     = Dtmf::SEMSInternal;
 bool AmConfig::IgnoreSIGCHLD      = true;
 bool AmConfig::IgnoreSIGPIPE      = true;
@@ -163,37 +163,33 @@ AmConfig::IP_interface::IP_interface()
   : LocalIP(),
     PublicIP(),
     NetIfIdx(0)
-{
-}
+{}
 
 AmConfig::SIP_interface::SIP_interface()
   : IP_interface(),
     LocalPort(5060),
     SigSockOpts(0),
-    RtpInterface(-1),
     tcp_connect_timeout(DEFAULT_TCP_CONNECT_TIMEOUT),
-    tcp_idle_timeout(DEFAULT_TCP_IDLE_TIMEOUT)
-{
-}
+    tcp_idle_timeout(DEFAULT_TCP_IDLE_TIMEOUT),
+    RtpInterface(-1)
+{}
 
 AmConfig::RTP_interface::RTP_interface()
   : IP_interface(),
     RtpLowPort(RTP_LOWPORT),
     RtpHighPort(RTP_HIGHPORT),
     next_rtp_port(-1)
-{
-}
+{}
 
 int AmConfig::RTP_interface::getNextRtpPort()
 {
-    
   int port=0;
 
   next_rtp_port_mut.lock();
   if(next_rtp_port < 0){
     next_rtp_port = RtpLowPort;
   }
-    
+
   port = next_rtp_port & 0xfffe;
   next_rtp_port += 2;
 
@@ -201,7 +197,7 @@ int AmConfig::RTP_interface::getNextRtpPort()
     next_rtp_port = RtpLowPort;
   }
   next_rtp_port_mut.unlock();
-    
+
   return port;
 }
 
@@ -264,7 +260,7 @@ int AmConfig::setDaemonMode(const string& fork) {
     return 0;
   }
   return 1;
-}		
+}
 
 #endif /* !DISABLE_DAEMON_MODE */
 
@@ -308,7 +304,7 @@ int AmConfig::setDeadRtpTime(const string& drt)
 int AmConfig::readConfiguration()
 {
   DBG("Reading configuration...\n");
-  
+
   AmConfigReader cfg;
   int            ret=0;
 
@@ -316,7 +312,7 @@ int AmConfig::readConfiguration()
     ERROR("while loading main configuration file\n");
     return -1;
   }
-       
+
   // take values from global configuration file
   // they will be overwritten by command line args
 
@@ -328,7 +324,7 @@ int AmConfig::readConfiguration()
     }
   }
 
-  // stderr 
+  // stderr
   if(cfg.hasParameter("stderr")){
     if(!setLogStderr(cfg.getParameter("stderr"), true)){
       ERROR("invalid stderr value specified,"
@@ -354,7 +350,7 @@ int AmConfig::readConfiguration()
   // Reads IP and port parameters
   if(readInterfaces(cfg) == -1)
     ret = -1;
-  
+
   // outbound_proxy
   if (cfg.hasParameter("outbound_proxy"))
     OutboundProxy = cfg.getParameter("outbound_proxy");
@@ -399,7 +395,7 @@ int AmConfig::readConfiguration()
   if(cfg.hasParameter("disable_dns_srv")) {
     _resolver::disable_srv = (cfg.getParameter("disable_dns_srv") == "yes");
   }
-  
+
 
   for (int t = STIMER_A; t < __STIMER_MAX; t++) {
 
@@ -445,7 +441,7 @@ int AmConfig::readConfiguration()
   // user_agent
   if (cfg.getParameter("use_default_signature")=="yes")
     Signature = DEFAULT_SIGNATURE;
-  else 
+  else
     Signature = cfg.getParameter("signature");
 
   if (cfg.hasParameter("max_forwards")) {
@@ -460,7 +456,7 @@ int AmConfig::readConfiguration()
 
   if(cfg.hasParameter("log_sessions"))
     LogSessions = cfg.getParameter("log_sessions")=="yes";
-  
+
   if(cfg.hasParameter("log_events"))
     LogEvents = cfg.getParameter("log_events")=="yes";
 
@@ -484,8 +480,8 @@ int AmConfig::readConfiguration()
   } else if (Application == "$(apphdr)") {
     AppSelect = App_APPHDR;
   } else if (Application == "$(mapping)") {
-    AppSelect = App_MAPPING;  
-    string appcfg_fname = ModConfigPath + "app_mapping.conf"; 
+    AppSelect = App_MAPPING;
+    string appcfg_fname = ModConfigPath + "app_mapping.conf";
     DBG("Loading application mapping...\n");
     if (!read_regex_mapping(appcfg_fname, "=>", "application mapping",
 			    AppMapping)) {
@@ -498,7 +494,7 @@ int AmConfig::readConfiguration()
 
 #ifndef DISABLE_DAEMON_MODE
 
-  // fork 
+  // fork
   if(cfg.hasParameter("fork")){
     if(!setDaemonMode(cfg.getParameter("fork"))){
       ERROR("invalid fork value specified,"
@@ -544,7 +540,7 @@ int AmConfig::readConfiguration()
     WARN("session_processor_threads specified in sems.conf,\n");
     WARN("but SEMS is compiled without SESSION_THREADPOOL support.\n");
     WARN("set USE_THREADPOOL in Makefile.defs to enable session thread pool.\n");
-    WARN("SEMS will start now, but every call will have its own thread.\n");    
+    WARN("SEMS will start now, but every call will have its own thread.\n");
 #endif
   }
 
@@ -607,7 +603,7 @@ int AmConfig::readConfiguration()
   INFO("ZRTP debug log %sabled\n", enable_zrtp_debuglog ? "en":"dis");
 #endif
 
-  if(cfg.hasParameter("session_limit")){ 
+  if(cfg.hasParameter("session_limit")){
     vector<string> limit = explode(cfg.getParameter("session_limit"), ";");
     if (limit.size() != 3) {
       ERROR("invalid session_limit specified.\n");
@@ -619,7 +615,7 @@ int AmConfig::readConfiguration()
     }
   }
 
-  if(cfg.hasParameter("options_session_limit")){ 
+  if(cfg.hasParameter("options_session_limit")){
     vector<string> limit = explode(cfg.getParameter("options_session_limit"), ";");
     if (limit.size() != 3) {
       ERROR("invalid options_session_limit specified.\n");
@@ -631,7 +627,7 @@ int AmConfig::readConfiguration()
     }
   }
 
-  if(cfg.hasParameter("cps_limit")){ 
+  if(cfg.hasParameter("cps_limit")){
     unsigned int CPSLimit = 0;
     vector<string> limit = explode(cfg.getParameter("cps_limit"), ";");
     if (limit.size() != 3) {
@@ -650,7 +646,7 @@ int AmConfig::readConfiguration()
     AcceptForkedDialogs = !(cfg.getParameter("accept_forked_dialogs") == "no");
 
   if(cfg.hasParameter("shutdown_mode_reply")){
-    string c_reply = cfg.getParameter("shutdown_mode_reply");    
+    string c_reply = cfg.getParameter("shutdown_mode_reply");
     size_t spos = c_reply.find(" ");
     if (spos == string::npos || spos == c_reply.length()) {
       ERROR("invalid shutdown_mode_reply specified, expected \"<code> <reason>\","
@@ -698,7 +694,7 @@ int AmConfig::readConfiguration()
   }
 
   return ret;
-}	
+}
 
 int AmConfig::insert_SIP_interface(const SIP_interface& intf)
 {
@@ -728,7 +724,7 @@ int AmConfig::insert_SIP_interface_mapping(const SIP_interface& intf) {
   if(LocalSIPIP2If.find(if_local_ip) == LocalSIPIP2If.end()) {
     LocalSIPIP2If.insert(make_pair(if_local_ip,idx));
   } else {
-    map<string,unsigned short>::iterator it = 
+    map<string,unsigned short>::iterator it =
       LocalSIPIP2If.find(if_local_ip);
 
     const SIP_interface& old_intf = SIP_Ifs[it->second];
@@ -828,9 +824,9 @@ int AmConfig::insert_RTP_interface(const RTP_interface& intf)
     RTP_Ifs.push_back(intf);
     unsigned short rtp_idx = RTP_Ifs.size()-1;
     RTP_If_names[intf.name] = rtp_idx;
-    
+
     // fix RtpInterface index in SIP interface
-    map<string,unsigned short>::iterator sip_idx_it = 
+    map<string,unsigned short>::iterator sip_idx_it =
       SIP_If_names.find(intf.name);
 
     if((sip_idx_it != SIP_If_names.end()) &&
@@ -946,7 +942,7 @@ static bool fillSysIntfList()
     ERROR("socket() failed: %s",strerror(errno));
     return false;
   }
-  
+
   if(getifaddrs(&ifap) < 0){
     ERROR("getifaddrs() failed: %s",strerror(errno));
     return false;
@@ -957,7 +953,7 @@ static bool fillSysIntfList()
 
     if(p_if->ifa_addr == NULL)
       continue;
-    
+
     if( (p_if->ifa_addr->sa_family != AF_INET) &&
         (p_if->ifa_addr->sa_family != AF_INET6) )
       continue;
@@ -966,7 +962,7 @@ static bool fillSysIntfList()
       continue;
 
     if(p_if->ifa_addr->sa_family == AF_INET6) {
-      
+
       struct sockaddr_in6 *addr = (struct sockaddr_in6 *)p_if->ifa_addr;
       if(IN6_IS_ADDR_LINKLOCAL(&addr->sin6_addr)){
 	// sorry, we don't support link-local addresses...
@@ -1072,7 +1068,7 @@ string fixIface2IP(const string& dev_name, bool v6_for_sip)
 
   for(vector<AmConfig::SysIntf>::iterator intf_it = AmConfig::SysIfs.begin();
       intf_it != AmConfig::SysIfs.end(); ++intf_it) {
-      
+
     if(intf_it->name != dev_name)
       continue;
 
@@ -1080,10 +1076,10 @@ string fixIface2IP(const string& dev_name, bool v6_for_sip)
       ERROR("No IP address for interface '%s'\n",intf_it->name.c_str());
       return "";
     }
-      
+
     DBG("dev_name = '%s'\n",dev_name.c_str());
     return intf_it->addrs.front().addr;
-  }    
+  }
 
   return "";
 }
@@ -1093,7 +1089,7 @@ static string getDefaultIP()
 {
   for(vector<AmConfig::SysIntf>::iterator intf_it = AmConfig::SysIfs.begin();
       intf_it != AmConfig::SysIfs.end(); ++intf_it) {
-      
+
     if(intf_it->flags & IFF_LOOPBACK)
       continue;
 
@@ -1110,7 +1106,7 @@ static string getDefaultIP()
 static int setNetInterface(AmConfig::IP_interface* ip_if)
 {
   for(unsigned int i=0; i < AmConfig::SysIfs.size(); i++) {
-    
+
     list<AmConfig::IPAddr>::iterator addr_it = AmConfig::SysIfs[i].addrs.begin();
     while(addr_it != AmConfig::SysIfs[i].addrs.end()) {
       if(ip_if->LocalIP == addr_it->addr) {
@@ -1121,7 +1117,7 @@ static int setNetInterface(AmConfig::IP_interface* ip_if)
       addr_it++;
     }
   }
-  
+
   // not interface found
   return -1;
 }
@@ -1133,7 +1129,7 @@ int AmConfig::finalizeIPConfig()
   // replace system interface names with IPs
   for(vector<SIP_interface>::iterator it = SIP_Ifs.begin();
       it != SIP_Ifs.end(); it++) {
-    
+
     it->LocalIP = fixIface2IP(it->LocalIP,true);
     if(it->LocalIP.empty()) {
       ERROR("could not determine signaling IP for "
@@ -1152,10 +1148,10 @@ int AmConfig::finalizeIPConfig()
 
   for(vector<RTP_interface>::iterator it = RTP_Ifs.begin();
       it != RTP_Ifs.end(); it++) {
-    
+
     if(it->LocalIP.empty()) {
       // try the IP from the signaling interface
-      map<string, unsigned short>::iterator sip_if = 
+      map<string, unsigned short>::iterator sip_if =
 	SIP_If_names.find(it->name);
       if(sip_if != SIP_If_names.end()) {
 	it->LocalIP = SIP_Ifs[sip_if->second].LocalIP;
@@ -1209,17 +1205,17 @@ void AmConfig::dump_Ifs()
 {
   INFO("Signaling interfaces:");
   for(int i=0; i<(int)SIP_Ifs.size(); i++) {
-    
+
     SIP_interface& it_ref = SIP_Ifs[i];
 
-    INFO("\t(%i) name='%s'" ";LocalIP='%s'" 
+    INFO("\t(%i) name='%s'" ";LocalIP='%s'"
 	 ";LocalPort='%u'" ";PublicIP='%s';TCP=%u/%u",
 	 i,it_ref.name.c_str(),it_ref.LocalIP.c_str(),
 	 it_ref.LocalPort,it_ref.PublicIP.c_str(),
 	 it_ref.tcp_connect_timeout,
 	 it_ref.tcp_idle_timeout);
   }
-  
+
   INFO("Signaling address map:");
   for(multimap<string,unsigned short>::iterator it = LocalSIPIP2If.begin();
       it != LocalSIPIP2If.end(); ++it) {
@@ -1235,10 +1231,10 @@ void AmConfig::dump_Ifs()
 
   INFO("Media interfaces:");
   for(int i=0; i<(int)RTP_Ifs.size(); i++) {
-    
+
     RTP_interface& it_ref = RTP_Ifs[i];
 
-    INFO("\t(%i) name='%s'" ";LocalIP='%s'" 
+    INFO("\t(%i) name='%s'" ";LocalIP='%s'"
 	 ";Ports=[%u;%u]" ";PublicIP='%s'",
 	 i,it_ref.name.c_str(),it_ref.LocalIP.c_str(),
 	 it_ref.RtpLowPort,it_ref.RtpHighPort,

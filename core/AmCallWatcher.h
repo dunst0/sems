@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmCallWatcher.h */
@@ -32,7 +32,7 @@
 // States are put into map on an Initialize event.
 // States are held in a map identified by call_id
 // (opaque identifier) and updated with Update events.
-// Once an Obsolete event is received, the states are 
+// Once an Obsolete event is received, the states are
 // moved to soft-state map, where they are held until
 // queried to a maximum of WATCHER_SOFT_EXPIRE_SECONDS
 
@@ -52,7 +52,7 @@ using std::pair;
 
 class CallStatus;
 
-/** 
+/**
  * \brief event that carries out call status update
  */
 class CallStatusUpdateEvent : public AmEvent {
@@ -72,7 +72,10 @@ class CallStatusUpdateEvent : public AmEvent {
 
   // implicit: initialize
   CallStatusUpdateEvent(const string& call_id, CallStatus* init_status)
-    : call_id(call_id), init_status(init_status), AmEvent(Initialize)  { }
+    : AmEvent(Initialize),
+      call_id(call_id),
+      init_status(init_status)
+  { }
 
   ~CallStatusUpdateEvent() { }
 
@@ -80,7 +83,7 @@ class CallStatusUpdateEvent : public AmEvent {
   CallStatus* get_init_status() { return init_status; }
 };
 
-/** 
+/**
  * \brief interface for an update-able call status (AmCallWatcher)
  */
 class CallStatus
@@ -99,15 +102,15 @@ class CallStatus
 
 class AmCallWatcherGarbageCollector;
 /**
- * \brief manages call status to be queried by external processes 
+ * \brief manages call status to be queried by external processes
  * call watcher is an entity for managing call status
- * via events that change status. Events are executed in a 
- * separate thread serially by processing the event queue, 
- * so synchronous status queries do not block the thread 
+ * via events that change status. Events are executed in a
+ * separate thread serially by processing the event queue,
+ * so synchronous status queries do not block the thread
  * reporting the status change.
  */
 class AmCallWatcher
-: public AmThread, 
+: public AmThread,
   public AmEventQueue,
   public AmEventHandler
 {
@@ -141,22 +144,25 @@ class AmCallWatcher
   void dump();
 };
 
-/** 
+/**
  * \brief garbage collector for the AmCallWatcher
- * 
- * checks garbage every two seconds. 
+ *
+ * checks garbage every two seconds.
  * A bit inefficient with two threads, but AmCallWatcher
  * shouldn't be blocked by event.
  */
-class AmCallWatcherGarbageCollector 
+class AmCallWatcherGarbageCollector
 : public AmThread
 {
   AmMutex& mut;
   AmCallWatcher::CallStatusTimedMap& garbage;
- public: 
+ public:
   AmCallWatcherGarbageCollector(AmMutex& mut,
-				AmCallWatcher::CallStatusTimedMap& garbage)
-    : mut(mut), garbage(garbage) {}
+                                AmCallWatcher::CallStatusTimedMap& garbage)
+    : mut(mut),
+      garbage(garbage)
+  {}
+
   void run();
   void on_stop() { }
 };

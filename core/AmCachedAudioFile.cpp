@@ -18,8 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -38,40 +38,40 @@
 
 using std::string;
 
-AmFileCache::AmFileCache() 
-  : data(NULL), 
+AmFileCache::AmFileCache()
+  : data(NULL),
     data_size(0)
 { }
 
 AmFileCache::~AmFileCache() {
-  if ((data != NULL) && 
+  if ((data != NULL) &&
       munmap(data, data_size)) {
     ERROR("while unmapping file.\n");
   }
 }
 
 int AmFileCache::load(const std::string& filename) {
-  int fd; 
+  int fd;
   struct stat sbuf;
 
   name = filename;
 
   if ((fd = open(name.c_str(), O_RDONLY)) == -1) {
-    ERROR("while opening file '%s' for caching.\n", 
+    ERROR("while opening file '%s' for caching.\n",
 	  filename.c_str());
     return -1;
   }
 
   if (fstat(fd,  &sbuf) == -1) {
-    ERROR("cannot stat file '%s'.\n", 
+    ERROR("cannot stat file '%s'.\n",
 	  name.c_str());
     close(fd);
     return -2;
   }
-	
-  if ((data = mmap((caddr_t)0, sbuf.st_size, PROT_READ, MAP_PRIVATE, 
+
+  if ((data = mmap((caddr_t)0, sbuf.st_size, PROT_READ, MAP_PRIVATE,
 		   fd, 0)) == (caddr_t)(-1)) {
-    ERROR("cannot mmap file '%s'.\n", 
+    ERROR("cannot mmap file '%s'.\n",
 	  name.c_str());
     close(fd);
     return -3;
@@ -83,8 +83,8 @@ int AmFileCache::load(const std::string& filename) {
   return 0;
 }
 
-int AmFileCache::read(void* buf, 
-		      size_t* pos, 
+int AmFileCache::read(void* buf,
+		      size_t* pos,
 		      size_t size) {
 
   if (*pos >= data_size)
@@ -110,8 +110,12 @@ inline const string& AmFileCache::getFilename() {
 }
 
 
-AmCachedAudioFile::AmCachedAudioFile(AmFileCache* cache) 
-  : cache(cache), loop(false), fpos(0), begin(0), good(false)
+AmCachedAudioFile::AmCachedAudioFile(AmFileCache* cache)
+  : cache(cache),
+    fpos(0),
+    begin(0),
+    good(false),
+    loop(false)
 {
   if (!cache) {
     ERROR("Need open file cache.\n");
@@ -125,7 +129,7 @@ AmCachedAudioFile::AmCachedAudioFile(AmFileCache* cache)
     return;
   }
   fmt.reset(f_fmt);
-	
+
   amci_file_desc_t fd;
   int ret = -1;
 
@@ -135,7 +139,7 @@ AmCachedAudioFile::AmCachedAudioFile(AmFileCache* cache)
 
   long unsigned int ofpos = fpos;
 
-  if( iofmt->mem_open && 
+  if( iofmt->mem_open &&
       !(ret = (*iofmt->mem_open)((unsigned char*)cache->getData(),cache->getSize(),&ofpos,
 				 &fd,AmAudioFile::Read,f_fmt->getHCodecNoInit())) ) {
     f_fmt->setSubtypeId(fd.subtype);
@@ -199,7 +203,7 @@ int AmCachedAudioFile::read(unsigned int user_ts, unsigned int size) {
   }
 
   int ret = cache->read((void*)((unsigned char*)samples),&fpos,size);
-	
+
   //DBG("s = %i; ret = %i\n",s,ret);
   if(loop.get() && (ret <= 0) && fpos==cache->getSize()){
     DBG("rewinding audio file...\n");
@@ -220,4 +224,3 @@ int AmCachedAudioFile::write(unsigned int user_ts, unsigned int size) {
   ERROR("AmCachedAudioFile writing not supported!\n");
   return -1;
 }
-
