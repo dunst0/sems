@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmRtpAudio.h */
@@ -47,37 +47,43 @@ enum PlayoutType {
 
 
 
-/** 
+/**
  * \brief interface for PLC buffer
  */
 
-class AmPLCBuffer {
- public: 
+class AmPLCBuffer
+{
+ public:
 
   virtual void add_to_history(int16_t *buffer, unsigned int size) = 0;
 
   // Conceals packet loss into the out_buffer
   // @return length in bytes of the recivered segment
-  virtual unsigned int conceal_loss(unsigned int ts_diff, unsigned char *out_buffer) = 0;
-  AmPLCBuffer() { }
-  virtual ~AmPLCBuffer() { }
+  virtual unsigned int conceal_loss(unsigned int ts_diff,
+                                    unsigned char *out_buffer) = 0;
+  AmPLCBuffer()
+  { }
+
+  virtual ~AmPLCBuffer()
+  { }
 };
 
 
 /** \brief RTP audio format */
-class AmAudioRtpFormat: public AmAudioFormat
+class AmAudioRtpFormat
+  : public AmAudioFormat
 {
   /** Sampling rate as advertized in SDP (differs from actual rate for G722) **/
   unsigned int advertized_rate;
 
-protected:
+ protected:
   /* frame size in samples */
   unsigned int frame_size;
 
   /** from AmAudioFormat */
   void initCodec();
 
-public:
+ public:
   AmAudioRtpFormat();
   ~AmAudioRtpFormat();
 
@@ -92,38 +98,39 @@ public:
 };
 
 
-/** 
- * \brief binds together a \ref AmRtpStream and an \ref AmAudio for a session 
+/**
+ * \brief binds together a \ref AmRtpStream and an \ref AmAudio for a session
  */
-class AmRtpAudio: public AmRtpStream, public AmAudio, public AmPLCBuffer
+class AmRtpAudio
+  : public AmRtpStream,
+    public AmAudio,
+    public AmPLCBuffer
 {
   PlayoutType m_playout_type;
   std::unique_ptr<AmPlayoutBuffer> playout_buffer;
 
 #ifdef USE_SPANDSP_PLC
     plc_state_t* plc_state;
-#else 
+#else
     std::unique_ptr<LowcFE>       fec;
 #endif
 
-  bool         use_default_plc;
+  bool use_default_plc;
 
   unsigned long long last_check;
   bool               last_check_i;
   bool               send_int;
-  
+
   unsigned long long last_send_ts;
   bool               last_send_ts_i;
 
   //
   // Default packet loss concealment functions
   //
-  unsigned int default_plc(unsigned char* out_buf,
-			   unsigned int   size,
-			   unsigned int   channels,
-			   unsigned int   rate);
+  unsigned int default_plc(unsigned char* out_buf, unsigned int size,
+                           unsigned int channels, unsigned int rate);
 
-public:
+ public:
   AmRtpAudio(AmSession* _s, int _if);
   ~AmRtpAudio();
 
@@ -139,10 +146,10 @@ public:
   int receive(unsigned long long system_ts);
 
   // AmAudio interface
-  int get(unsigned long long system_ts, unsigned char* buffer, 
+  int get(unsigned long long system_ts, unsigned char* buffer,
 	  int output_sample_rate, unsigned int nb_samples);
 
-  int put(unsigned long long system_ts, unsigned char* buffer, 
+  int put(unsigned long long system_ts, unsigned char* buffer,
 	  int input_sample_rate, unsigned int size);
 
   unsigned int bytes2samples(unsigned int) const;
@@ -164,15 +171,9 @@ public:
   // @return length in bytes of the recivered segment
   unsigned int conceal_loss(unsigned int ts_diff, unsigned char *out_buffer);
 
-protected:
+ protected:
   int read(unsigned int user_ts, unsigned int size) { return 0; }
   int write(unsigned int user_ts, unsigned int size) { return 0; }
 };
 
 #endif
-
-
-
-
-
-
