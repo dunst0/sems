@@ -278,7 +278,7 @@ AmSdp::AmSdp()
     origin(),
     sessionName(),
     conn(),
-    media(),
+    media()
 {
   origin.user = "sems";
   origin.sessId = get_random();
