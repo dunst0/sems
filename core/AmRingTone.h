@@ -4,7 +4,8 @@
 #include "AmAudio.h"
 
 /** \brief audio device that generates ring tones with uesr specified period, f and f2 */
-class AmRingTone: public AmAudio
+class AmRingTone
+  : public AmAudio
 {
   int on_period; // ms
   int off_period;// ms
