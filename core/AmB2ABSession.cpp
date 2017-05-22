@@ -18,8 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -32,19 +32,17 @@
 #include <assert.h>
 
 AmB2ABSession::AmB2ABSession()
-  : AmSession(), connector(NULL)
-{
-}
+  : AmSession(),
+    connector(NULL)
+{}
 
 AmB2ABSession::AmB2ABSession(const string& other_local_tag)
-  : other_id(other_local_tag),
-    AmSession()
+  : AmSession(),
+    other_id(other_local_tag)
 {}
 
 
-AmB2ABSession::~AmB2ABSession()
-{
-}
+AmB2ABSession::~AmB2ABSession() {}
 
 void AmB2ABSession::clear_other()
 {
@@ -100,7 +98,7 @@ void AmB2ABSession::disconnectSession()
 {
   if (!connector)
     return;
-  
+
   connector->disconnectSession(this);
 }
 
@@ -158,11 +156,11 @@ void AmB2ABCallerSession::onB2ABEvent(B2ABEvent* ev)
     callee_status = Connected;
 
     DBG("ConnectAudio event received from other leg\n");
-    B2ABConnectAudioEvent* ca = 
+    B2ABConnectAudioEvent* ca =
       dynamic_cast<B2ABConnectAudioEvent*>(ev);
-    if (!ca) 
+    if (!ca)
       return;
-		
+
     connectSession();
 
     return;
@@ -172,11 +170,11 @@ void AmB2ABCallerSession::onB2ABEvent(B2ABEvent* ev)
     callee_status = Early;
 
     DBG("ConnectEarlyAudio event received from other leg\n");
-    B2ABConnectEarlyAudioEvent* ca = 
+    B2ABConnectEarlyAudioEvent* ca =
       dynamic_cast<B2ABConnectEarlyAudioEvent*>(ev);
     if (!ca)
       return;
-		
+
     connectSession();
 
     return;
@@ -195,9 +193,9 @@ void AmB2ABCallerSession::onB2ABEvent(B2ABEvent* ev)
     callee_status = Ringing;
     return;
   } break;
-	
-  }   
- 
+
+  }
+
   AmB2ABSession::onB2ABEvent(ev);
 }
 
@@ -222,7 +220,7 @@ void AmB2ABCallerSession::connectCallee(const string& remote_party,
 void AmB2ABCallerSession::relayEvent(AmEvent* ev)
 {
   if(other_id.empty()){
-    B2ABConnectLegEvent* co_ev  = dynamic_cast<B2ABConnectLegEvent*>(ev);   
+    B2ABConnectLegEvent* co_ev  = dynamic_cast<B2ABConnectLegEvent*>(ev);
     if( co_ev ) {
       setupCalleeSession(createCalleeSession(), co_ev);
       if (other_id.length()) {
@@ -235,7 +233,7 @@ void AmB2ABCallerSession::relayEvent(AmEvent* ev)
 }
 
 void AmB2ABCallerSession::setupCalleeSession(AmB2ABCalleeSession* callee_session,
-					     B2ABConnectLegEvent* ev) 
+					     B2ABConnectLegEvent* ev)
 {
 
   if (NULL == callee_session)
@@ -251,7 +249,7 @@ void AmB2ABCallerSession::setupCalleeSession(AmB2ABCalleeSession* callee_session
   callee_dlg->setLocalTag(other_id);
 
 
-  MONITORING_LOG(other_id.c_str(), 
+  MONITORING_LOG(other_id.c_str(),
 		 "dir",  "out");
 
   callee_session->start();
@@ -265,16 +263,16 @@ AmB2ABCalleeSession* AmB2ABCallerSession::createCalleeSession()
   return new AmB2ABCalleeSession(getLocalTag(), connector);
 }
 
-AmB2ABCalleeSession::AmB2ABCalleeSession(const string& other_local_tag, 
+AmB2ABCalleeSession::AmB2ABCalleeSession(const string& other_local_tag,
 					 AmSessionAudioConnector* callers_connector)
   : AmB2ABSession(other_local_tag),
     is_connected(false)
-{ 
+{
   connector=callers_connector;
   connector->block();
 }
 
-AmB2ABCalleeSession::~AmB2ABCalleeSession() 
+AmB2ABCalleeSession::~AmB2ABCalleeSession()
 {
 }
 
@@ -293,7 +291,7 @@ void AmB2ABCalleeSession::onB2ABEvent(B2ABEvent* ev)
       B2ABConnectLegEvent* co_ev = dynamic_cast<B2ABConnectLegEvent*>(ev);
       assert(co_ev);
 
-      MONITORING_LOG4(getLocalTag().c_str(), 
+      MONITORING_LOG4(getLocalTag().c_str(),
 		      "b2b_leg", other_id.c_str(),
 		      "from",    co_ev->local_party.c_str(),
 		      "to",      co_ev->remote_party.c_str(),
@@ -301,19 +299,19 @@ void AmB2ABCalleeSession::onB2ABEvent(B2ABEvent* ev)
 
       dlg->setLocalParty(co_ev->local_party);
       dlg->setLocalUri(co_ev->local_uri);
-			
+
       dlg->setRemoteParty(co_ev->remote_party);
       dlg->setRemoteUri(co_ev->remote_uri);
 
       setCallgroup(co_ev->callgroup);
-			
+
       //setNegotiateOnReply(true);
       if (sendInvite(co_ev->headers)) {
 	throw string("INVITE could not be sent\n");
       }
 
       return;
-    } 
+    }
     catch(const AmSession::Exception& e){
       ERROR("%i %s\n",e.code,e.reason.c_str());
       relayEvent(new B2ABConnectOtherLegExceptionEvent(e.code,e.reason));
@@ -329,7 +327,7 @@ void AmB2ABCalleeSession::onB2ABEvent(B2ABEvent* ev)
       relayEvent(new B2ABConnectOtherLegExceptionEvent(500,"unexpected exception"));
       setStopped();
     }
-  }    
+  }
 
   AmB2ABSession::onB2ABEvent(ev);
 }
@@ -356,13 +354,13 @@ void AmB2ABCalleeSession::onSipReply(const AmSipRequest& req, const AmSipReply& 
 				     AmBasicSipDialog::Status old_dlg_status) {
   AmB2ABSession::onSipReply(req, rep, old_dlg_status);
   AmSipDialog::Status status = dlg->getStatus();
- 
+
   if ((old_dlg_status == AmSipDialog::Trying) ||
       (old_dlg_status == AmSipDialog::Proceeding) ||
       (old_dlg_status == AmSipDialog::Early)) {
 
     if (status == AmSipDialog::Disconnected) {
-	  
+
       DBG("callee session creation failed. notifying caller session.\n");
       DBG("this happened with reply: %d.\n", rep.code);
       relayEvent(new B2ABConnectOtherLegFailedEvent(rep.code, rep.reason));
@@ -375,7 +373,7 @@ void AmB2ABCalleeSession::onSipReply(const AmSipRequest& req, const AmSipReply& 
 
 // ----------------------- SessionAudioConnector -----------------
 
-void AmSessionAudioConnector::connectSession(AmSession* sess) 
+void AmSessionAudioConnector::connectSession(AmSession* sess)
 {
     const string& tag = sess->getLocalTag();
 
@@ -408,7 +406,7 @@ void AmSessionAudioConnector::connectSession(AmSession* sess)
     tag_mut.unlock();
 }
 
-bool AmSessionAudioConnector::disconnectSession(AmSession* sess) 
+bool AmSessionAudioConnector::disconnectSession(AmSession* sess)
 {
   bool res = true;
 
@@ -437,7 +435,7 @@ bool AmSessionAudioConnector::disconnectSession(AmSession* sess)
 void AmSessionAudioConnector::block() {
   released.set(false);
 }
-  
+
 /* mark as released by not owning entity */
 void AmSessionAudioConnector::release() {
   released.set(true);
@@ -447,4 +445,3 @@ void AmSessionAudioConnector::release() {
 void AmSessionAudioConnector::waitReleased() {
   released.wait_for();
 }
-
