@@ -401,7 +401,7 @@ AmRtpStream::AmRtpStream(AmSession* _s, int _if)
     l_sd(0),
     r_ssrc_i(false),
     passive(false),
-    passive_rtcp(false
+    passive_rtcp(false),
     hold(false),
     monitor_rtp_timeout(true),
     receiving(true),
