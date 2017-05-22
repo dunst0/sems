@@ -23,17 +23,19 @@ const char* AmBasicSipDialog::status2str[AmBasicSipDialog::__max_Status] = {
 
 AmBasicSipDialog::AmBasicSipDialog(AmBasicSipEventHandler* h)
   : status(Disconnected),
-    cseq(10),r_cseq_i(false),hdl(h),
-    logger(0),
-    outbound_proxy(AmConfig::OutboundProxy),
-    force_outbound_proxy(AmConfig::ForceOutboundProxy),
     next_hop(AmConfig::NextHop),
     next_hop_1st_req(AmConfig::NextHop1stReq),
     patch_ruri_next_hop(false),
     next_hop_fixed(false),
     outbound_interface(-1),
+    usages(0),
+    hdl(h),
+    logger(0),
+    outbound_proxy(AmConfig::OutboundProxy),
+    force_outbound_proxy(AmConfig::ForceOutboundProxy),
     nat_handling(AmConfig::SipNATHandling),
-    usages(0)
+    cseq(10),
+    r_cseq_i(false)
 {
   //assert(h);
 }
@@ -51,7 +53,7 @@ AmSipRequest* AmBasicSipDialog::getUACTrans(unsigned int t_cseq)
   TransMap::iterator it = uac_trans.find(t_cseq);
   if(it == uac_trans.end())
     return NULL;
-  
+
   return &(it->second);
 }
 
@@ -60,7 +62,7 @@ AmSipRequest* AmBasicSipDialog::getUASTrans(unsigned int t_cseq)
   TransMap::iterator it = uas_trans.find(t_cseq);
   if(it == uas_trans.end())
     return NULL;
-  
+
   return &(it->second);
 }
 
@@ -78,7 +80,7 @@ bool AmBasicSipDialog::getUACTransPending()
   return !uac_trans.empty();
 }
 
-void AmBasicSipDialog::setStatus(Status new_status) 
+void AmBasicSipDialog::setStatus(Status new_status)
 {
   DBG("setting SIP dialog status: %s->%s\n",
       getStatusStr(), getStatusStr(new_status));
@@ -134,7 +136,7 @@ string AmBasicSipDialog::getContactUri()
   int oif = getOutboundIf();
   assert(oif >= 0);
   assert(oif < (int)AmConfig::SIP_Ifs.size());
-  
+
   contact_uri += AmConfig::SIP_Ifs[oif].getIP();
   contact_uri += ":" + int2str(AmConfig::SIP_Ifs[oif].LocalPort);
 
@@ -145,7 +147,7 @@ string AmBasicSipDialog::getContactUri()
   return contact_uri;
 }
 
-string AmBasicSipDialog::getRoute() 
+string AmBasicSipDialog::getRoute()
 {
   string res;
 
@@ -171,7 +173,7 @@ void AmBasicSipDialog::setOutboundInterface(int interface_id) {
   outbound_interface = interface_id;
 }
 
-/** 
+/**
  * Computes, set and return the outbound interface
  * based on remote_uri, next_hop_ip, outbound_proxy, route.
  */
@@ -189,14 +191,14 @@ int AmBasicSipDialog::getOutboundIf()
   // 2. outbound_proxy (if 1st req or force_outbound_proxy)
   // 3. first route
   // 4. remote URI
-  
+
   string dest_uri;
   string dest_ip;
   string local_ip;
   multimap<string,unsigned short>::iterator if_it;
 
   list<sip_destination> ip_list;
-  if(!next_hop.empty() && 
+  if(!next_hop.empty() &&
      !parse_next_hop(stl2cstr(next_hop),ip_list) &&
      !ip_list.empty()) {
 
@@ -227,7 +229,7 @@ int AmBasicSipDialog::getOutboundIf()
     ERROR("No destination found (local_tag='%s')",local_tag.c_str());
     goto error;
   }
-  
+
   if(!dest_uri.empty()){
     sip_uri d_uri;
     if(parse_uri(&d_uri,dest_uri.c_str(),dest_uri.length()) < 0){
@@ -333,17 +335,17 @@ void AmBasicSipDialog::onRxRequest(const AmSipRequest& req)
 
   if(!onRxReqSanity(req))
     return;
-    
+
   uas_trans[req.cseq] = req;
-    
+
   // target refresh requests
-  if (req.from_uri.length() && 
+  if (req.from_uri.length() &&
       (remote_uri.empty() ||
-       (req.method == SIP_METH_INVITE || 
+       (req.method == SIP_METH_INVITE ||
 	req.method == SIP_METH_UPDATE ||
 	req.method == SIP_METH_SUBSCRIBE ||
 	req.method == SIP_METH_NOTIFY))) {
-    
+
     // refresh the target
     if (remote_uri != req.from_uri) {
       setRemoteUri(req.from_uri);
@@ -359,7 +361,7 @@ void AmBasicSipDialog::onRxRequest(const AmSipRequest& req)
     string ua = getHeader(req.hdrs,"User-Agent");
     setRemoteUA(ua);
   }
-  
+
   // Dlg not yet initialized?
   if(callid.empty()){
 
@@ -404,7 +406,7 @@ bool AmBasicSipDialog::onRxReplyStatus(const AmSipReply& reply)
     if(hdl) hdl->onRemoteDisappeared(reply);
     break;
   }
-  
+
   return true;
 }
 
@@ -471,7 +473,7 @@ void AmBasicSipDialog::onRxReply(const AmSipReply& reply)
 
   TransMap::iterator t_it = uac_trans.find(reply.cseq);
   if(t_it == uac_trans.end()){
-    ERROR("could not find any transaction matching reply: %s\n", 
+    ERROR("could not find any transaction matching reply: %s\n",
         ((AmSipReply)reply).print().c_str());
     return;
   }
@@ -480,7 +482,7 @@ void AmBasicSipDialog::onRxReply(const AmSipReply& reply)
       reply.code, reply.reason.c_str());
 
   updateDialogTarget(reply);
-  
+
   Status saved_status = status;
   AmSipRequest orig_req(t_it->second);
 
@@ -492,7 +494,7 @@ void AmBasicSipDialog::onRxReply(const AmSipReply& reply)
      // but not for 2xx INV reply (wait for 200 ACK)
      ((reply.cseq_method != SIP_METH_INVITE) ||
       (reply.code >= 300))) {
-       
+
     uac_trans.erase(reply.cseq);
     if (hdl) hdl->onTransFinished();
   }
@@ -509,10 +511,10 @@ void AmBasicSipDialog::updateDialogTarget(const AmSipReply& reply)
 	 (reply.cseq_method == SIP_METH_UPDATE) ||
 	 (reply.cseq_method == SIP_METH_NOTIFY))) ||
        (reply.cseq_method == SIP_METH_SUBSCRIBE)) ) {
-    
+
     setRemoteUri(reply.to_uri);
     if(!getNextHop().empty()) {
-      string nh = reply.remote_ip 
+      string nh = reply.remote_ip
 	+ ":" + int2str(reply.remote_port)
 	+ "/" + reply.trsp;
       setNextHop(nh);
@@ -537,7 +539,7 @@ int AmBasicSipDialog::onTxRequest(AmSipRequest& req, int& flags)
   return 0;
 }
 
-int AmBasicSipDialog::onTxReply(const AmSipRequest& req, 
+int AmBasicSipDialog::onTxReply(const AmSipRequest& req,
 				AmSipReply& reply, int& flags)
 {
   if(hdl) hdl->onSendReply(req,reply,flags);
@@ -545,7 +547,7 @@ int AmBasicSipDialog::onTxReply(const AmSipRequest& req,
   return 0;
 }
 
-void AmBasicSipDialog::onReplyTxed(const AmSipRequest& req, 
+void AmBasicSipDialog::onReplyTxed(const AmSipRequest& req,
 				   const AmSipReply& reply)
 {
   if(hdl) hdl->onReplySent(req, reply);
@@ -573,9 +575,9 @@ void AmBasicSipDialog::onReplyTxed(const AmSipRequest& req,
     break;
   }
 
-  if ((reply.code >= 200) && 
+  if ((reply.code >= 200) &&
       (reply.cseq_method != SIP_METH_CANCEL)) {
-    
+
     uas_trans.erase(reply.cseq);
     if (hdl) hdl->onTransFinished();
   }
@@ -613,7 +615,7 @@ int AmBasicSipDialog::reply(const AmSipRequest& req,
     return -1;
   }
   DBG("reply: transaction found!\n");
-    
+
   AmSipReply reply;
 
   reply.code = code;
@@ -662,7 +664,7 @@ int AmBasicSipDialog::reply(const AmSipRequest& req,
 
 
 /* static */
-int AmBasicSipDialog::reply_error(const AmSipRequest& req, unsigned int code, 
+int AmBasicSipDialog::reply_error(const AmSipRequest& req, unsigned int code,
 				  const string& reason, const string& hdrs,
 				  msg_logger* logger)
 {
@@ -691,7 +693,7 @@ int AmBasicSipDialog::reply_error(const AmSipRequest& req, unsigned int code,
   return ret;
 }
 
-int AmBasicSipDialog::sendRequest(const string& method, 
+int AmBasicSipDialog::sendRequest(const string& method,
 				  const AmMimeBody* body,
 				  const string& hdrs,
 				  int flags)
@@ -706,14 +708,14 @@ int AmBasicSipDialog::sendRequest(const string& method,
     req.from += ";tag=" + ext_local_tag;
   else if(!local_tag.empty())
     req.from += ";tag=" + local_tag;
-    
+
   req.to = SIP_HDR_COLSP(SIP_HDR_TO) + remote_party;
-  if(!remote_tag.empty()) 
+  if(!remote_tag.empty())
     req.to += ";tag=" + remote_tag;
-    
+
   req.cseq = cseq;
   req.callid = callid;
-    
+
   req.hdrs = hdrs;
 
   req.route = getRoute();
@@ -768,7 +770,7 @@ void AmBasicSipDialog::dump()
   if(uac_trans.size()){
     for(TransMap::iterator it = uac_trans.begin();
 	it != uac_trans.end(); it++){
-	    
+
       DBG("    cseq = %i; method = %s\n",it->first,it->second.method.c_str());
     }
   }
@@ -776,7 +778,7 @@ void AmBasicSipDialog::dump()
   if(uas_trans.size()){
     for(TransMap::iterator it = uas_trans.begin();
 	it != uas_trans.end(); it++){
-	    
+
       DBG("    cseq = %i; method = %s\n",it->first,it->second.method.c_str());
     }
   }

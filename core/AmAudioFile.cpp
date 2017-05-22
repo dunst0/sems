@@ -274,12 +274,11 @@ AmAudioFile::AmAudioFile()
     fp(0),
     begin(0),
     data_size(0),
-    loop(false),
     on_close_done(false),
     close_on_exit(true),
+    loop(false),
     autorewind(false)
-{
-}
+{}
 
 AmAudioFile::~AmAudioFile()
 {
