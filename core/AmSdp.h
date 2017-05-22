@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -51,7 +51,7 @@ using std::string;
 /** network type */
 enum NetworkType { NT_OTHER=0, NT_IN };
 /** address type */
-enum AddressType { AT_NONE=0, AT_V4, AT_V6 }; 
+enum AddressType { AT_NONE=0, AT_V4, AT_V6 };
 /** media type */
 enum MediaType { MT_NONE=0, MT_AUDIO, MT_VIDEO, MT_APPLICATION, MT_TEXT, MT_MESSAGE, MT_IMAGE };
 /** transport protocol */
@@ -94,7 +94,7 @@ struct SdpOrigin
 
   bool operator == (const SdpOrigin& other) const;
 };
-/** 
+/**
  * \brief sdp payload
  *
  * this binds together pt, name, rate and parameters
@@ -108,22 +108,22 @@ struct SdpPayload
   string format;
   string sdp_format_parameters;
   int    encoding_param;
-  
-  SdpPayload() 
-    : payload_type(-1), 
-      clock_rate(-1), 
-      encoding_param(-1) 
+
+  SdpPayload()
+    : payload_type(-1),
+      clock_rate(-1),
+      encoding_param(-1)
   {}
 
-  SdpPayload(int pt) 
-    : payload_type(pt), 
-      clock_rate(-1), 
-      encoding_param(-1) 
+  SdpPayload(int pt)
+    : payload_type(pt),
+      clock_rate(-1),
+      encoding_param(-1)
   {}
 
-  SdpPayload(int pt, const string& name, int rate, int param) 
-    : payload_type(pt), encoding_name(name), 
-      clock_rate(rate), encoding_param(param) 
+  SdpPayload(int pt, const string& name, int rate, int param)
+    : payload_type(pt), encoding_name(name),
+      clock_rate(rate), encoding_param(param)
   {}
 
   SdpPayload(const SdpPayload& other)
@@ -189,7 +189,7 @@ struct SdpMedia
 
   bool operator == (const SdpMedia& other) const;
 
-  SdpMedia() : conn(), dir(DirUndefined), type(MT_NONE), transport(TP_NONE), send(true), recv(true) {}
+  SdpMedia() : type(MT_NONE), transport(TP_NONE), conn(), dir(DirUndefined), send(true), recv(true) {}
 
   /** pretty print */
   string debugPrint() const;
@@ -201,7 +201,7 @@ struct SdpMedia
    * inserts them into the answer, compute send/recv attributes
    * and direction according to the offer.
    */
-  void calcAnswer(const AmPayloadProvider* payload_prov, 
+  void calcAnswer(const AmPayloadProvider* payload_prov,
 		  SdpMedia& answer) const;
 };
 
@@ -240,7 +240,7 @@ public:
   // parsed SDP definition
   unsigned int     version;     // v=
   SdpOrigin        origin;      // o=
-  string           sessionName; // s= 
+  string           sessionName; // s=
   string           uri;         // u=
   SdpConnection    conn;        // c=
   std::vector<SdpAttribute> attributes; // unknown session level attributes
@@ -249,11 +249,11 @@ public:
   //TODO: t= lines
 
   SdpOrigin        l_origin;      // local origin (o= )
-    
+
   AmSdp();
   AmSdp(const AmSdp& p_sdp_msg);
 
-  /** 
+  /**
    * Parse the SDP message passed as an argument.
    * @return !=0 if error encountered.
    */

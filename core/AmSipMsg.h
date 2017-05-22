@@ -71,7 +71,7 @@ class AmSipReply : public _AmSipMsgInDlg
   list<AmSipHeader> unparsed_headers;
 #endif
 
- AmSipReply() : code(0), _AmSipMsgInDlg() { }
+ AmSipReply() : _AmSipMsgInDlg(), code(0) { }
   ~AmSipReply() { }
   string print() const;
 };
@@ -102,22 +102,22 @@ class AmSipRequest : public _AmSipMsgInDlg
 
   AmSipRequest();
   ~AmSipRequest() { }
-  
+
   string print() const;
   void log(msg_logger *logger) const;
 };
 
 string getHeader(const string& hdrs,const string& hdr_name, bool single = false);
 
-string getHeader(const string& hdrs,const string& hdr_name, 
+string getHeader(const string& hdrs,const string& hdr_name,
 		 const string& compact_hdr_name, bool single = false);
 
 /** find a header, starting from char skip
-    if found, value is between pos1 and pos2 
-    and hdr start is the start of the header 
+    if found, value is between pos1 and pos2
+    and hdr start is the start of the header
     @return true if found */
-bool findHeader(const string& hdrs,const string& hdr_name, const size_t skip, 
-		size_t& pos1, size_t& pos2, 
+bool findHeader(const string& hdrs,const string& hdr_name, const size_t skip,
+		size_t& pos1, size_t& pos2,
 		size_t& hdr_start);
 
 /** @return whether header hdr_name is in hdrs */

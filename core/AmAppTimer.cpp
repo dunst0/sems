@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -32,14 +32,14 @@
 
 using std::map;
 
-class app_timer : public timer 
+class app_timer : public timer
 {
   string q_id;
   int    timer_id;
 
  public:
   app_timer(const string& q_id, int timer_id, unsigned int expires)
-    : timer(expires), timer_id(timer_id), q_id(q_id) {}
+    : timer(expires), q_id(q_id), timer_id(timer_id) {}
 
   ~app_timer() {}
 
@@ -57,7 +57,7 @@ class direct_app_timer
 {
 public:
   DirectAppTimer* dt;
-  
+
   direct_app_timer(DirectAppTimer* dt, unsigned int expires)
     : timer(expires), dt(dt) {}
 
@@ -130,7 +130,7 @@ void _AmAppTimer::direct_app_timer_cb(direct_app_timer* t)
   direct_timers_mut.unlock();
 }
 
-app_timer* _AmAppTimer::erase_timer(const string& q_id, int id) 
+app_timer* _AmAppTimer::erase_timer(const string& q_id, int id)
 {
   app_timer* res = NULL;
 
@@ -148,8 +148,8 @@ app_timer* _AmAppTimer::erase_timer(const string& q_id, int id)
   return res;
 }
 
-app_timer* _AmAppTimer::create_timer(const string& q_id, int id, 
-				     unsigned int expires) 
+app_timer* _AmAppTimer::create_timer(const string& q_id, int id,
+				     unsigned int expires)
 {
   app_timer* timer = new app_timer(q_id, id, expires);
   if (!timer)
@@ -190,7 +190,7 @@ void _AmAppTimer::setTimer(const string& eventqueue_name, int timer_id, double t
   user_timers_mut.unlock();
 }
 
-void _AmAppTimer::removeTimer(const string& eventqueue_name, int timer_id) 
+void _AmAppTimer::removeTimer(const string& eventqueue_name, int timer_id)
 {
   user_timers_mut.lock();
   app_timer* t = erase_timer(eventqueue_name, timer_id);
@@ -200,7 +200,7 @@ void _AmAppTimer::removeTimer(const string& eventqueue_name, int timer_id)
   user_timers_mut.unlock();
 }
 
-void _AmAppTimer::removeTimers(const string& eventqueue_name) 
+void _AmAppTimer::removeTimers(const string& eventqueue_name)
 {
   user_timers_mut.lock();
   TimerQueues::iterator it=user_timers.find(eventqueue_name);

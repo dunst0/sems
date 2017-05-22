@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -53,10 +53,10 @@ struct CodecContainer
 
 AmAudioFormat::AmAudioFormat(int codec_id, unsigned int rate)
   : channels(1),
+    sdp_format_parameters_out(NULL),
     codec_id(codec_id),
     rate(rate),
-    codec(NULL),
-    sdp_format_parameters_out(NULL)
+    codec(NULL)
 {
   codec = getCodec();
 }
@@ -91,7 +91,7 @@ unsigned int AmAudioFormat::bytes2samples(unsigned int bytes) const
 bool AmAudioFormat::operator == (const AmAudioFormat& r) const
 {
   return ( codec && r.codec
-	   && (r.codec->id == codec->id) 
+	   && (r.codec->id == codec->id)
 	   && (r.bytes2samples(1024) == bytes2samples(1024))
 	   && (r.channels == channels)
 	   && (r.rate == rate));
@@ -108,7 +108,7 @@ void AmAudioFormat::initCodec()
   sdp_format_parameters_out    = NULL; // reset
 
   if( codec && codec->init ) {
-    if ((h_codec = (*codec->init)(sdp_format_parameters.c_str(), 
+    if ((h_codec = (*codec->init)(sdp_format_parameters.c_str(),
 				  &sdp_format_parameters_out, &fmt_i)) == -1) {
       ERROR("could not initialize codec %i\n",codec->id);
     } else {
@@ -116,7 +116,7 @@ void AmAudioFormat::initCodec()
 	DBG("negotiated fmt parameters '%s'\n", sdp_format_parameters_out);
       }
     }
-  } 
+  }
 }
 
 void AmAudioFormat::destroyCodec()
@@ -139,7 +139,7 @@ amci_codec_t* AmAudioFormat::getCodec()
     codec = AmPlugIn::instance()->codec(codec_id);
     initCodec();
   }
-    
+
   return codec;
 }
 
@@ -253,18 +253,18 @@ unsigned int AmInternalResamplerState::resample(unsigned char *samples, unsigned
 #endif
 
 AmAudio::AmAudio()
-  : fmt(new AmAudioFormat(CODEC_PCM16)),
+  : rec_time(0),
     max_rec_time(-1),
-    rec_time(0),
+    fmt(new AmAudioFormat(CODEC_PCM16)),
     input_resampling_state(nullptr),
     output_resampling_state(nullptr)
 {
 }
 
 AmAudio::AmAudio(AmAudioFormat *_fmt)
-  : fmt(_fmt),
+  : rec_time(0),
     max_rec_time(-1),
-    rec_time(0),
+    fmt(_fmt),
     input_resampling_state(nullptr),
     output_resampling_state(nullptr)
 {
@@ -286,7 +286,7 @@ void AmAudio::close()
 
 
 // returns bytes read, else -1 if error (0 is OK)
-int AmAudio::get(unsigned long long system_ts, unsigned char* buffer, 
+int AmAudio::get(unsigned long long system_ts, unsigned char* buffer,
 		 int output_sample_rate, unsigned int nb_samples)
 {
   int size = calcBytesToRead((int)((float)nb_samples * (float)getSampleRate()
@@ -302,13 +302,13 @@ int AmAudio::get(unsigned long long system_ts, unsigned char* buffer,
   size = decode(size);
   if(size < 0) {
     DBG("decode returned %i\n",size);
-    return -1; 
+    return -1;
   }
   size = downMix(size);
 
-  size = resampleOutput((unsigned char*)samples, size, 
+  size = resampleOutput((unsigned char*)samples, size,
 			getSampleRate(), output_sample_rate);
-  
+
   if(size>0)
     memcpy(buffer,(unsigned char*)samples,size);
 
@@ -316,7 +316,7 @@ int AmAudio::get(unsigned long long system_ts, unsigned char* buffer,
 }
 
 // returns bytes written, else -1 if error (0 is OK)
-int AmAudio::put(unsigned long long system_ts, unsigned char* buffer, 
+int AmAudio::put(unsigned long long system_ts, unsigned char* buffer,
 		 int input_sample_rate, unsigned int size)
 {
   if(!size){
@@ -327,7 +327,7 @@ int AmAudio::put(unsigned long long system_ts, unsigned char* buffer,
     return -1;
 
   memcpy((unsigned char*)samples,buffer,size);
-  size = resampleInput((unsigned char*)samples, size, 
+  size = resampleInput((unsigned char*)samples, size,
 		       input_sample_rate, getSampleRate());
 
   int s = encode(size);
@@ -349,7 +349,7 @@ void AmAudio::stereo2mono(unsigned char* out_buf,unsigned char* in_buf,unsigned 
   short* in  = (short*)in_buf;
   short* end = (short*)(in_buf + size);
   short* out = (short*)out_buf;
-    
+
   while(in != end){
     *(out++) = (*in + *(in+1)) / 2;
     in += 2;
@@ -381,7 +381,7 @@ int AmAudio::decode(unsigned int size)
     if(s<0) return s;
     samples.swap();
   }
-    
+
   return s;
 }
 
@@ -399,7 +399,7 @@ int AmAudio::encode(unsigned int size)
     if(s<0) return s;
     samples.swap();
   }
-    
+
   return s;
 }
 
@@ -409,7 +409,7 @@ unsigned int AmAudio::downMix(unsigned int size)
   if(fmt->channels == 2){
     stereo2mono(samples.back_buffer(),(unsigned char*)samples,s);
     samples.swap();
-  } 
+  }
 
   return s;
 }
@@ -442,7 +442,7 @@ unsigned int AmAudio::resampleInput(unsigned char* buffer, unsigned int s, int i
 
 unsigned int AmAudio::resampleOutput(unsigned char* buffer, unsigned int s, int input_sample_rate, int output_sample_rate)
 {
-  if ((input_sample_rate == output_sample_rate) 
+  if ((input_sample_rate == output_sample_rate)
       && !output_resampling_state.get()) {
     return s;
   }
@@ -488,7 +488,7 @@ unsigned int AmAudio::scaleSystemTS(unsigned long long system_ts)
   unsigned long long user_ts =
     system_ts * ((unsigned long long)getSampleRate() / 100)
     / (WALLCLOCK_RATE / 100);
-		 
+
   return (unsigned int)user_ts;
 }
 
@@ -515,7 +515,7 @@ int AmAudio::incRecordTime(unsigned int samples)
 
 DblBuffer::DblBuffer()
   : active_buf(0)
-{ 
+{
   memset(samples, 0, AUDIO_BUFFER_SIZE * 2);
 }
 

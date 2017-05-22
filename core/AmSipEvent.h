@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmSipEvent.h */
@@ -69,7 +69,7 @@ class AmSipTimeoutEvent: public AmSipEvent
     : AmSipEvent(), type(t), cseq(cseq_num)
    {}
   AmSipTimeoutEvent(EvType t, AmSipRequest &_req, AmSipReply &_rpl)
-    : AmSipEvent(), type(t), req(_req), rpl(_rpl), cseq(_req.cseq)
+    : AmSipEvent(), type(t), cseq(_req.cseq), req(_req), rpl(_rpl)
     {}
 
   virtual void operator() (AmBasicSipDialog* dlg);
@@ -80,7 +80,7 @@ class AmSipRequestEvent: public AmSipEvent
 {
  public:
   AmSipRequest req;
-    
+
   AmSipRequestEvent(const AmSipRequest& r)
     : AmSipEvent(), req(r)
     {}
@@ -94,7 +94,7 @@ class AmSipReplyEvent: public AmSipEvent
  public:
   AmSipReply reply;
 
-  AmSipReplyEvent(const AmSipReply& r) 
+  AmSipReplyEvent(const AmSipReply& r)
     : AmSipEvent(),reply(r) {}
 
   virtual void operator() (AmBasicSipDialog* dlg);
