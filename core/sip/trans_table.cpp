@@ -22,8 +22,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -50,12 +50,10 @@ hash_table<trans_bucket> _trans_table(H_TABLE_ENTRIES);
 
 trans_bucket::trans_bucket(unsigned long id)
     : ht_bucket<sip_trans>::ht_bucket(id)
-{
-}
+{ }
 
 trans_bucket::~trans_bucket()
-{
-}
+{ }
 
 // return true if equal
 static inline bool compare_branch(sip_trans* t, sip_msg* msg,
@@ -64,11 +62,11 @@ static inline bool compare_branch(sip_trans* t, sip_msg* msg,
     if(t->msg->via_p1->branch.len != branch_len + MAGIC_BRANCH_LEN)
 	return false;
 
-    if(t->msg->via_p1->host.len != 
+    if(t->msg->via_p1->host.len !=
        msg->via_p1->host.len)
 	return false;
 
-    if(t->msg->via_p1->port.len != 
+    if(t->msg->via_p1->port.len !=
        msg->via_p1->port.len)
 	return false;
 
@@ -117,13 +115,13 @@ sip_trans* trans_bucket::match_request(sip_msg* msg, unsigned int ttype)
 
     DBG("do_3261_match = %i\n",do_3261_match);
     if(do_3261_match){
-	
+
 	const char* branch = msg->via_p1->branch.s + MAGIC_BRANCH_LEN;
 	int   len = msg->via_p1->branch.len - MAGIC_BRANCH_LEN;
-	
+
 	trans_list::iterator it = elmts.begin();
 	for(;it!=elmts.end();++it) {
-	    
+
 	    if( ((*it)->msg->type != SIP_REQUEST) ||
 		((*it)->type != ttype)){
 		continue;
@@ -135,7 +133,7 @@ sip_trans* trans_bucket::match_request(sip_msg* msg, unsigned int ttype)
 		// transaction without being a re-transmission
 		if( ((*it)->msg->u.request->method == sip_request::INVITE)
 		    && (msg->u.request->method == sip_request::ACK)) {
-		
+
 		    // match non-200 ACK first
 		    if(compare_branch(*it,msg,branch,(unsigned int)len)) {
 			t = *it;
@@ -155,7 +153,7 @@ sip_trans* trans_bucket::match_request(sip_msg* msg, unsigned int ttype)
 		continue;
 
 	    // found matching transaction
-	    t = *it; 
+	    t = *it;
 	    break;
 	}
     }
@@ -172,7 +170,7 @@ sip_trans* trans_bucket::match_request(sip_msg* msg, unsigned int ttype)
 	trans_list::iterator it = elmts.begin();
 	for(;it!=elmts.end();++it) {
 
-	    
+
 	    //Request matching:
 	    // Request-URI
 	    // From-tag
@@ -180,7 +178,7 @@ sip_trans* trans_bucket::match_request(sip_msg* msg, unsigned int ttype)
 	    // Cseq
 	    // top Via
 	    // To-tag
-	    
+
 	    //ACK matching:
 	    // Request-URI
 	    // From-tag
@@ -213,9 +211,9 @@ sip_trans* trans_bucket::match_request(sip_msg* msg, unsigned int ttype)
 	    if(memcmp(cseq->num_str.s,it_cseq->num_str.s,cseq->num_str.len))
 		continue;
 
-	    
+
 	    if(msg->u.request->method == sip_request::ACK){
-		
+
 		// ACKs must include To-tag from previous reply
 		if(to->tag.len != (*it)->to_tag.len)
 		    continue;
@@ -234,7 +232,7 @@ sip_trans* trans_bucket::match_request(sip_msg* msg, unsigned int ttype)
 		    break;
 		}
 	    }
-	    else { 
+	    else {
 		// non-ACK
 		sip_from_to* it_to = dynamic_cast<sip_from_to*>((*it)->msg->to->p);
 		if(to->tag.len != it_to->tag.len)
@@ -246,17 +244,17 @@ sip_trans* trans_bucket::match_request(sip_msg* msg, unsigned int ttype)
 
 	    // non-ACK and non-2xx ACK matching
 
-	    if((*it)->msg->u.request->ruri_str.len != 
+	    if((*it)->msg->u.request->ruri_str.len !=
 	       msg->u.request->ruri_str.len )
 		continue;
-	    
+
 	    if(memcmp(msg->u.request->ruri_str.s,
 		      (*it)->msg->u.request->ruri_str.s,
 		      msg->u.request->ruri_str.len))
 		continue;
-	    
+
 	    //TODO: missing top-Via matching
-	    
+
 	    // found matching transaction
 	    t = *it;
 	    break;
@@ -277,24 +275,24 @@ sip_trans* trans_bucket::match_reply(sip_msg* msg)
 	// this cannot match...
 	return NULL;
     }
-    
+
     sip_trans* t = NULL;
 
     const char* branch = msg->via_p1->branch.s + MAGIC_BRANCH_LEN;
     int   len = msg->via_p1->branch.len - MAGIC_BRANCH_LEN;
-    
+
     assert(get_cseq(msg));
 
     trans_list::iterator it = elmts.begin();
     for(;it!=elmts.end();++it) {
-	
+
 	if((*it)->type != TT_UAC){
 	    continue;
 	}
 
 	if((*it)->msg->via_p1->branch.len != msg->via_p1->branch.len)
 	    continue;
-	
+
 	if(get_cseq((*it)->msg)->num_str.len != get_cseq(msg)->num_str.len)
 	    continue;
 
@@ -332,7 +330,7 @@ sip_trans* trans_bucket::match_200_ack(sip_trans* t, sip_msg* msg)
     sip_from_to* t_from = dynamic_cast<sip_from_to*>(t->msg->from->p);
     if(from->tag.len != t_from->tag.len)
 	return NULL;
-    
+
     sip_cseq* t_cseq = dynamic_cast<sip_cseq*>(t->msg->cseq->p);
     if(cseq->num != t_cseq->num)
 	return NULL;
@@ -342,17 +340,17 @@ sip_trans* trans_bucket::match_200_ack(sip_trans* t, sip_msg* msg)
 
     if(to->tag.len != t->to_tag.len)
 	return NULL;
-    
+
     if(memcmp(from->tag.s,t_from->tag.s,from->tag.len))
 	return NULL;
 
     if(memcmp(msg->callid->value.s,t->msg->callid->value.s,
 	      msg->callid->value.len))
 	return NULL;
-    
+
     if(memcmp(to->tag.s,t->to_tag.s,to->tag.len))
 	return NULL;
-    
+
     return t;
 }
 
@@ -364,10 +362,10 @@ sip_trans* trans_bucket::match_1xx_prack(sip_msg* msg)
 
     if(elmts.empty())
 	return NULL;
-    
+
     trans_list::iterator it = elmts.begin();
     for(;it!=elmts.end();++it) {
-	    
+
 	if( (*it)->msg->type != SIP_REQUEST ){
 	    continue;
 	}
@@ -383,7 +381,7 @@ sip_trans* trans_bucket::match_1xx_prack(sip_msg* msg)
 	sip_from_to* to = dynamic_cast<sip_from_to*>(msg->to->p);
 	if(to->tag.len != t->to_tag.len)
 	    continue;
-	
+
 	if(msg->callid->value.len != t->msg->callid->value.len)
 	    continue;
 
@@ -391,21 +389,21 @@ sip_trans* trans_bucket::match_1xx_prack(sip_msg* msg)
 	sip_cseq* t_cseq = dynamic_cast<sip_cseq*>(t->msg->cseq->p);
 	if (rack->cseq != t_cseq->num)
 	    continue;
-	
+
 	if (rack->rseq != t->last_rseq)
 	    continue;
-	
+
 	if (rack->method != t->msg->u.request->method)
 	    continue;
-		
+
 	/* numbers fit, try content */
 	if(memcmp(from->tag.s,t_from->tag.s,from->tag.len))
 	    continue;
-	
+
 	if(memcmp(msg->callid->value.s,t->msg->callid->value.s,
 		  msg->callid->value.len))
 	    continue;
-	
+
 	if(memcmp(to->tag.s,t->to_tag.s,to->tag.len))
 	    continue;
 
@@ -423,10 +421,10 @@ sip_trans* trans_bucket::find_uac_trans(const cstring& dialog_id,
 
     if(elmts.empty())
 	return NULL;
-    
+
     trans_list::reverse_iterator it = elmts.rbegin();
     for(;it!=elmts.rend();++it) {
-	    
+
 	sip_trans* t = *it;
 	if( t->type != TT_UAC ||
 	    t->msg->type != SIP_REQUEST ){
@@ -453,7 +451,7 @@ sip_trans* trans_bucket::add_trans(sip_msg* msg, unsigned int ttype)
 
     assert(msg->type == SIP_REQUEST);
     if(msg->u.request->method == sip_request::INVITE){
-	
+
 	if(t->type == TT_UAS)
 	    t->state = TS_PROCEEDING;
 	else
@@ -464,7 +462,7 @@ sip_trans* trans_bucket::add_trans(sip_msg* msg, unsigned int ttype)
     }
 
     elmts.push_back(t);
-    
+
     return t;
 }
 
@@ -515,7 +513,7 @@ void compute_sl_to_tag(char* to_tag/*[8]*/, const sip_msg* msg)
 {
     unsigned int hl = __branch_cnt.inc();
     unsigned int hh = __branch_cnt.inc();
-    
+
     assert(msg->type == SIP_REQUEST);
     assert(msg->u.request);
 
@@ -539,7 +537,7 @@ void compute_sl_to_tag(char* to_tag/*[8]*/, const sip_msg* msg)
 	hh = hashlittle(msg->cseq->value.s,
 			msg->cseq->value.len,hh);
     }
-    
+
     compute_tag(to_tag,hl,hh);
 }
 
@@ -547,7 +545,9 @@ void compute_branch(char* branch/*[8]*/, const cstring& callid, const cstring& c
 {
     unsigned int hl=0;
     unsigned int hh=0;
-    timeval      tv;
+    //UNUSED
+    // timeval      tv;
+    //UNUSED_END
 
     hh = __branch_cnt.inc();
     hl = __branch_cnt.inc();
