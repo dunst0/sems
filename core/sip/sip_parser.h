@@ -22,8 +22,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -63,7 +63,7 @@ struct sip_request
     //
     // Request methods
     //
-    
+
     enum {
 	OTHER_METHOD=0,
 	INVITE,
@@ -85,16 +85,17 @@ struct sip_request
 
 struct sip_reply
 {
-    int     code;
-    cstring reason;
+  int     code;
+  cstring reason;
 
-    sip_reply()
-	: code(0)
-    {}
+  sip_reply()
+    : code(0)
+  { }
 
-    sip_reply(int code, const cstring& reason)
-	: code(code), reason(reason)
-    {}
+  sip_reply(int code, const cstring& reason)
+    : code(code),
+    reason(reason)
+  { }
 };
 
 
@@ -104,15 +105,15 @@ struct sip_msg
     int     len;
 
     // Request or Reply?
-    int     type; 
-    
+    int     type;
+
     union {
 	sip_request* request;
 	sip_reply*   reply;
     }u;
 
     list<sip_header*>  hdrs;
-    
+
     sip_header*        to;
     sip_header*        from;
 

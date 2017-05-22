@@ -22,8 +22,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -44,22 +44,23 @@
 using std::unique_ptr;
 
 sip_msg::sip_msg(const char* msg_buf, int msg_len)
-    : buf(NULL),
-      hdrs(),
-      to(NULL),
-      from(NULL),
-      cseq(NULL),
-      rack(NULL),
-      via1(NULL),via_p1(NULL),
-      callid(NULL),
-      contacts(),
-      route(),
-      record_route(),
-      content_type(NULL),
-      content_length(NULL),
-      body(),
-      local_socket(NULL),
-      type(SIP_UNKNOWN)
+  : buf(NULL),
+    type(SIP_UNKNOWN),
+    hdrs(),
+    to(NULL),
+    from(NULL),
+    cseq(NULL),
+    rack(NULL),
+    via1(NULL),
+    via_p1(NULL),
+    callid(NULL),
+    contacts(),
+    route(),
+    record_route(),
+    content_type(NULL),
+    content_length(NULL),
+    body(),
+    local_socket(NULL)
 {
     u.request = 0;
     u.reply   = 0;
@@ -71,22 +72,23 @@ sip_msg::sip_msg(const char* msg_buf, int msg_len)
 }
 
 sip_msg::sip_msg()
-    : buf(NULL),
-      hdrs(),
-      to(NULL),
-      from(NULL),
-      cseq(NULL),
-      rack(NULL),
-      via1(NULL),via_p1(NULL),
-      callid(NULL),
-      contacts(),
-      route(),
-      record_route(),
-      content_type(NULL),
-      content_length(NULL),
-      body(),
-      local_socket(NULL),
-      type(SIP_UNKNOWN)
+  : buf(NULL),
+    type(SIP_UNKNOWN),
+    hdrs(),
+    to(NULL),
+    from(NULL),
+    cseq(NULL),
+    rack(NULL),
+    via1(NULL),
+    via_p1(NULL),
+    callid(NULL),
+    contacts(),
+    route(),
+    record_route(),
+    content_type(NULL),
+    content_length(NULL),
+    body(),
+    local_socket(NULL)
 {
     u.request = 0;
     u.reply   = 0;
@@ -115,7 +117,7 @@ sip_msg::~sip_msg()
 	    delete u.reply;
 	}
     }
-    
+
     if(local_socket)
 	dec_ref(local_socket);
 }
@@ -139,7 +141,7 @@ void sip_msg::release()
 int sip_msg::send(unsigned int flags)
 {
     assert(local_socket);
-    return local_socket->send(&remote_ip,buf,len,flags);
+    return local_socket->send(&remote_ip, buf, len, flags);
 }
 
 
@@ -227,7 +229,7 @@ int parse_method(int* method, const char* beg, int len)
             *method = sip_request::PRACK;
         break;
     }
-    
+
     // other method
     for(;c!=end;c++){
 	if(!IS_TOKEN(*c)){
@@ -249,7 +251,7 @@ static int parse_first_line(sip_msg* msg, char** c, char* end)
     enum {
 	FL_METH=0,
 	FL_RURI,
-	
+
 	FL_SIPVER1,     // 'S'
 	FL_SIPVER2,     // 'I'
 	FL_SIPVER3,     // 'P'
@@ -367,11 +369,11 @@ static int parse_first_line(sip_msg* msg, char** c, char* end)
 // 		break;
 	    }
 	    break;
-	    
+
 	case FL_RURI:
 	    switch(**c){
 	    case SP:
-		msg->u.request->ruri_str.set(beg, *c-beg); 
+		msg->u.request->ruri_str.set(beg, *c-beg);
 		err = parse_uri(&msg->u.request->ruri, beg, *c-beg);
 		if(err)
 		    return err;
@@ -412,7 +414,7 @@ static int parse_first_line(sip_msg* msg, char** c, char* end)
 	case_STCODE(FL_STAT3);
 
 #undef case_STCODE
-	    
+
 	case FL_STAT_SP:
 	    if(**c != SP) st = FL_ERR;
 	    else {
@@ -468,8 +470,8 @@ int parse_headers(sip_msg* msg, char** c, char* end)
 	    sip_header* hdr = *it;
 	    switch(hdr->type) {
 
-	    case sip_header::H_CALL_ID:  
-		msg->callid = hdr; 
+	    case sip_header::H_CALL_ID:
+		msg->callid = hdr;
 		break;
 
 	    case sip_header::H_CONTACT:
@@ -503,9 +505,9 @@ int parse_headers(sip_msg* msg, char** c, char* end)
 	    // 	break;
 
 	    case sip_header::H_RACK:
-		if(msg->type == SIP_REQUEST && 
+		if(msg->type == SIP_REQUEST &&
 		   msg->u.request->method == sip_request::PRACK) {
-		    
+
 		    msg->rack = hdr;
 		}
 		break;
@@ -555,7 +557,7 @@ int parse_sip_msg(sip_msg* msg, char*& err_msg)
 
 	if(!msg->via1){
 	    err_msg = (char*)"missing Via header field";
-	} 
+	}
 	else if(!msg->cseq){
 	    err_msg = (char*)"missing CSeq header field";
 	}
@@ -573,9 +575,9 @@ int parse_sip_msg(sip_msg* msg, char*& err_msg)
     }
 
     unique_ptr<sip_via> via(new sip_via());
-    if(!parse_via(via.get(), 
+    if(!parse_via(via.get(),
 		  msg->via1->value.s,
-		  msg->via1->value.len) && 
+		  msg->via1->value.len) &&
        !via->parms.empty() ) {
 
 	msg->via_p1 = *via->parms.begin();

@@ -1,4 +1,4 @@
-/* 
+/*
  * $Id$
  *
  * Copyright (C) 2010 iptelorg GmbH
@@ -20,7 +20,7 @@
  *  @ingroup core
  *  Module: @ref core
  */
-/* 
+/*
  * History:
  * --------
  *  2010-06-07  initial version (from older code) andrei
@@ -100,7 +100,9 @@ int raw_socket(int proto, sockaddr_storage* ip, int iphdr_incl)
 {
 	int sock;
 	int t;
-	sockaddr_storage su;
+	//UNUSED
+	// sockaddr_storage su;
+	//UNUSED_END
 
 	sock = socket(PF_INET, SOCK_RAW, proto);
 	if (sock==-1)
@@ -284,13 +286,13 @@ int raw_udp_socket(int iphdr_incl)
 
 // 	n=recvpkt4(rsock, *buf, len, from, to);
 // 	if (unlikely(n<0)) goto error;
-	
+
 // 	end=*buf+n;
 // 	if (unlikely(n<(sizeof(struct ip)+sizeof(struct udphdr)))) {
 // 		n=-3;
 // 		goto error;
 // 	}
-	
+
 // 	/* FIXME: if initial buffer is aligned, one could skip the memcpy
 // 	   and directly cast ip and udphdr pointer to the memory */
 // 	memcpy(&iph, *buf, sizeof(struct ip));
@@ -358,13 +360,13 @@ inline unsigned short udpv4_vhdr_sum(struct udphdr* uh,
 				     unsigned short length)
 {
 	unsigned sum;
-	
+
 	/* pseudo header */
 	sum=(src->s_addr>>16)+(src->s_addr&0xffff)+
 		(dst->s_addr>>16)+(dst->s_addr&0xffff)+
 		htons(IPPROTO_UDP)+(uh->uh_ulen);
 	/* udp header */
-	sum+=(uh->uh_dport)+(uh->uh_sport)+(uh->uh_ulen) + 0 /*chksum*/; 
+	sum+=(uh->uh_dport)+(uh->uh_sport)+(uh->uh_ulen) + 0 /*chksum*/;
 	/* fold it */
 	sum=(sum>>16)+(sum&0xffff);
 	sum+=(sum>>16);
@@ -400,7 +402,7 @@ inline static unsigned short udpv4_chksum(struct udphdr* u,
 		}
 		if (length&0x1)
 			sum+=((*data)<<8);
-	
+
 	/* fold it */
 	sum=(sum>>16)+(sum&0xffff);
 	sum+=(sum>>16);
@@ -422,7 +424,7 @@ inline static unsigned short udpv4_chksum(struct udphdr* u,
 inline static int mk_udp_hdr(struct udphdr* u,
 			     const sockaddr_storage* from,
 			     const sockaddr_storage* to,
-			     unsigned char* buf, int len, 
+			     unsigned char* buf, int len,
 			     int do_chk)
 {
   struct sockaddr_in *from_v4 = (sockaddr_in*)from;
@@ -625,7 +627,7 @@ int raw_iphdr_udp4_send(int rsock, const char* buf, unsigned int len,
 	  last_frag_start = (void*)(buf + last_frag_offs - sizeof(hdr.udp));
 	  /* random id, should be != 0
 	     (if 0 the kernel will fill it) */
-	  hdr.ip.ip_id = 0; //fastrand_max(65534) + 1; 
+	  hdr.ip.ip_id = 0; //fastrand_max(65534) + 1;
 	  /* send the first fragment */
 	  iov[1].iov_base=(void*)buf;
 	  /* ip_frag_size >= sizeof(hdr.udp) because we are here only
@@ -647,8 +649,8 @@ int raw_iphdr_udp4_send(int rsock, const char* buf, unsigned int len,
 	    /* set MF  */
 	    hdr.ip.ip_off =
 	      RAW_IPHDR_IP_OFF((unsigned short)
-			       (((char*)iov[1].iov_base 
-				 - (char*)buf + sizeof(hdr.udp)) 
+			       (((char*)iov[1].iov_base
+				 - (char*)buf + sizeof(hdr.udp))
 				/ 8) | 0x2000 );
 	    ret=sendmsg(rsock, &snd_msg, 0);
 	    if (unlikely(ret < 0))

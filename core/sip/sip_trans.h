@@ -22,8 +22,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -83,23 +83,29 @@ class sip_trans;
 class trans_timer
     : protected timer
 {
-    trans_timer(const trans_timer& ti) : timer() {}
+    trans_timer(const trans_timer& ti)
+      : timer()
+    { }
 
 public:
     unsigned int type;
     unsigned int bucket_id;
     sip_trans*   t;
 
-    trans_timer(unsigned int timer_type, unsigned int expires,
-		int bucket_id, sip_trans* t)
-        : timer(expires), type(timer_type),
-	  bucket_id(bucket_id), t(t)
-    {}
+    trans_timer(unsigned int timer_type, unsigned int expires, int bucket_id,
+                sip_trans* t)
+      : timer(expires),
+        type(timer_type),
+        bucket_id(bucket_id),
+        t(t)
+    { }
 
     trans_timer(const trans_timer& ti, int bucket_id, sip_trans* t)
-        : timer(ti.expires), type(ti.type),
-	  bucket_id(bucket_id), t(t)
-    {}
+      : timer(ti.expires),
+        type(ti.type),
+        bucket_id(bucket_id),
+        t(t)
+    { }
 
     void fire();
 };
@@ -111,17 +117,14 @@ class sip_trans
  public:
     /** Transaction type */
     unsigned int type;
-    
-    /** Request that initiated 
-	the transaction */
+
+    /** Request that initiated the transaction */
     sip_msg* msg;
 
-    /** To-tag included in reply.
-	(useful for ACK matching) */
+    /** To-tag included in reply. (useful for ACK matching) */
     cstring to_tag;
 
-    /** reply code of last
-        sent/received reply */
+    /** reply code of last sent/received reply */
     int reply_status;
 
     /** Transaction state */
@@ -135,7 +138,7 @@ class sip_trans
 
     /** Destination list for requests */
     sip_target_set* targets;
-    
+
     /**
      * Retransmission buffer
      *  - UAC transaction: ACK
@@ -172,15 +175,15 @@ class sip_trans
      * @param timer_type @see sip_timer_type
      */
     trans_timer* get_timer(unsigned int timer_type);
-    
+
     /**
      * Resets a specfic timer with a delay value
      *
      * @param timer_type @see sip_timer_type
      * @param expires_delay delay before expiration in millisecond
-     * @param bucket_id id of the transaction's bucket 
+     * @param bucket_id id of the transaction's bucket
      */
-    void reset_timer(unsigned int timer_type, 
+    void reset_timer(unsigned int timer_type,
 		     unsigned int expire_delay /* ms */,
 		     unsigned int bucket_id);
 
