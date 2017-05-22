@@ -75,11 +75,11 @@ class AudioStreamData {
 
     /** Low fidelity payloads for which inband DTMF transcoding should be used */
     vector<SdpPayload> lowfi_payloads;
-  
+
     /** DTMF detector used by dtmf_queue */
     AmDtmfDetector *dtmf_detector;
-    
-    /** Queue for handling raw DTMF events. 
+
+    /** Queue for handling raw DTMF events.
      *
      * It is rather quick hack to make B2B media working with current code.
      * Each stream can use different sampling rate and thus DTMF detection need
@@ -124,13 +124,13 @@ class AudioStreamData {
     /** release old and store new DTMF sink */
     void setDtmfSink(AmDtmfSink *dtmf_sink);
 
-    /** Frees all allocated data. 
+    /** Frees all allocated data.
      *
      * Stream and its peer (relay stream) must be removed from processing before
      * calling this method! This method doesn't call stopStreamProcessing()
      * itself because of the stream here is used as relay stream in the other
      * leg. Before freeing current stream the other one has to be removed from
-     * processing as well. 
+     * processing as well.
      *
      * Please note that the "in" member is freed - this need not to be the right
      * thing but this will show once it will be really used. */
@@ -138,7 +138,7 @@ class AudioStreamData {
 
     /** Removes stream from processing by AmRtpReceiver. */
     void stopStreamProcessing();
-    
+
     /** Returns stream from processing by AmRtpReceiver if it was already there. */
     void resumeStreamProcessing();
 
@@ -172,7 +172,7 @@ class AudioStreamData {
     void sendDtmf(int event, unsigned int duration_ms);
 
     /** Writes data to won stream. Data are read either from local alternative
-     * input (in) or from stream given by src parameter. 
+     * input (in) or from stream given by src parameter.
      *
      * Buffer is just space used to read data before writing them,
      * AmMediaProcessor buffer should be propagated here (see AmMediaSession) */
@@ -180,13 +180,13 @@ class AudioStreamData {
 
     // --- helper methods propagating our private member to outside world ---
 
-    void clearRTPTimeout() { 
-      if (stream) stream->clearRTPTimeout(); 
+    void clearRTPTimeout() {
+      if (stream) stream->clearRTPTimeout();
     }
 
-    int getLocalPort() { 
-      if (stream) return stream->getLocalPort(); 
-      else return 0; 
+    int getLocalPort() {
+      if (stream) return stream->getLocalPort();
+      else return 0;
     }
 
     int getLocalRtcpPort() {
@@ -194,13 +194,13 @@ class AudioStreamData {
       else return 0;
     }
 
-    void setLocalIP(const string& ip) { 
+    void setLocalIP(const string& ip) {
       // set the address only if it is not used already
       if (stream && !stream->hasLocalSocket()) stream->setLocalIP(ip);
     }
 
-    AmRtpAudio *getStream() { 
-      return stream; 
+    AmRtpAudio *getStream() {
+      return stream;
     }
 
     bool isInitialized() { return initialized; }
@@ -318,7 +318,7 @@ class AmB2BMedia: public AmMediaSession
      * and callee's one. (FIXME: not sure if it is worth consumed additional
      * resources). */
     string callgroup;
-      
+
     // needed for updating relayed payloads
     AmSdp a_leg_local_sdp, a_leg_remote_sdp;
     AmSdp b_leg_local_sdp, b_leg_remote_sdp;
@@ -332,7 +332,7 @@ class AmB2BMedia: public AmMediaSession
      * streams. Please note that ADAPTIVE_PLAYOUT requires some kind of
      * detection if there is really data to read from the buffer because the get
      * function always return something regardless if something was written into
-     * or not. 
+     * or not.
      */
     PlayoutType playout_type;
 
@@ -342,7 +342,9 @@ class AmB2BMedia: public AmMediaSession
     std::vector<RelayStreamPair*> relay_streams;
 
     bool a_leg_muted, b_leg_muted;
-    bool a_leg_receiving, b_leg_receiving;
+    //UNUSED
+    // bool a_leg_receiving, b_leg_receiving;
+    //UNUSED_END
 
     bool relay_paused;
 
@@ -407,7 +409,7 @@ class AmB2BMedia: public AmMediaSession
     /** Replace connection address and ports within SDP.
      *
      * Throws an exception (string) in case of error. (FIXME?) */
-    void replaceConnectionAddress(AmSdp &parser_sdp, bool a_leg, 
+    void replaceConnectionAddress(AmSdp &parser_sdp, bool a_leg,
 				  const string& relay_address,
 				  const string& relay_public_address);
 
@@ -418,7 +420,7 @@ class AmB2BMedia: public AmMediaSession
     /** Update media session with local & remote SDP. */
     void updateStreams(bool a_leg, const AmSdp &local_sdp, const AmSdp &remote_sdp, RelayController *ctrl);
 
-    /** Clear audio for given leg and stop processing if both legs stopped. 
+    /** Clear audio for given leg and stop processing if both legs stopped.
      *
      * Releases all RTP streams and removes itself from media processor if still
      * there. */
@@ -426,13 +428,13 @@ class AmB2BMedia: public AmMediaSession
 
     // ---- AmMediaSession interface for processing audio in a standard way ----
 
-    /** Should read from all streams before writing to the other streams. 
-     * 
+    /** Should read from all streams before writing to the other streams.
+     *
      * Because processing is driven by destination stream (i.e. we don't read
      * anything unless the destination stream is ready to send something - see
      * sendIntReached()) all processing is done in writeStreams */
     virtual int readStreams(unsigned long long ts, unsigned char *buffer) { return 0; }
-    
+
     /** Read and write all RTP streams if data are to be written (see
      * readStreams()). */
     virtual int writeStreams(unsigned long long ts, unsigned char *buffer);
@@ -444,7 +446,7 @@ class AmB2BMedia: public AmMediaSession
     /** Sends DTMF using the given call leg */
     void sendDtmf(bool a_leg, int event, unsigned int duration_ms);
 
-    /** Release all RTP streams of both legs and both AmB2BSessions as well. 
+    /** Release all RTP streams of both legs and both AmB2BSessions as well.
      *
      * Though readStreams(), writeStreams() or processDtmfEvents() can be called
      * after call to clearAudio, they will do nothing because all relevant
@@ -456,10 +458,10 @@ class AmB2BMedia: public AmMediaSession
 
     /** Clear RTP timeout of all streams in both call legs. */
     virtual void clearRTPTimeout();
-    
+
     /** Callback function called once media processor releases this instance
      * from processing loop.
-     * 
+     *
      * Deletes itself if there are no other references! FIXME: might be
      * returning something like "release me" and calling delete from media
      * processor would be better? */

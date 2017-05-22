@@ -508,12 +508,12 @@ AmB2BMedia::RelayStreamPair::RelayStreamPair(AmB2BSession *_a, AmB2BSession *_b)
 AmB2BMedia::AmB2BMedia(AmB2BSession *_a, AmB2BSession *_b)
   : a(_a),
     b(_b),
-    ref_cnt(0), // everybody who wants to use must add one reference itselves
     callgroup(AmSession::getNewId()),
     have_a_leg_local_sdp(false),
     have_a_leg_remote_sdp(false),
     have_b_leg_local_sdp(false),
     have_b_leg_remote_sdp(false),
+    ref_cnt(0), // everybody who wants to use must add one reference itselves
     playout_type(ADAPTIVE_PLAYOUT),
     //playout_type(SIMPLE_PLAYOUT),
     a_leg_muted(false), b_leg_muted(false),
@@ -859,20 +859,22 @@ void AmB2BMedia::replaceConnectionAddress(AmSdp &parser_sdp, bool a_leg,
       relay_public_address.c_str(), replaced_ports.c_str());
 }
 
-static const char*
-_rtp_relay_mode_str(const AmB2BSession::RTPRelayMode& relay_mode)
-{
-  switch(relay_mode){
-  case AmB2BSession::RTP_Direct:
-    return "RTP_Direct";
-  case AmB2BSession::RTP_Relay:
-    return "RTP_Relay";
-  case AmB2BSession::RTP_Transcoding:
-    return "RTP_Transcoding";
-  }
-
-  return "";
-}
+//UNNUSED
+// static const char* _rtp_relay_mode_str(
+//   const AmB2BSession::RTPRelayMode& relay_mode)
+// {
+//   switch(relay_mode){
+//   case AmB2BSession::RTP_Direct:
+//     return "RTP_Direct";
+//   case AmB2BSession::RTP_Relay:
+//     return "RTP_Relay";
+//   case AmB2BSession::RTP_Transcoding:
+//     return "RTP_Transcoding";
+//   }
+//
+//   return "";
+// }
+//UNNUSED_END
 
 void AmB2BMedia::updateStreamPair(AudioStreamPair &pair)
 {

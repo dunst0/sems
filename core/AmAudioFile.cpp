@@ -275,9 +275,9 @@ AmAudioFile::AmAudioFile()
     begin(0),
     data_size(0),
     loop(false),
-    autorewind(false),
     on_close_done(false),
-    close_on_exit(true)
+    close_on_exit(true),
+    autorewind(false)
 {
 }
 

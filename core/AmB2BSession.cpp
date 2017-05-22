@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "AmB2BSession.h"
@@ -44,7 +44,7 @@ static const string empty;
 
 static void errCode2RelayedReply(AmSipReply &reply, int err_code, unsigned default_code = 500)
 {
-  // FIXME: use cleaner method to propagate error codes/reasons, 
+  // FIXME: use cleaner method to propagate error codes/reasons,
   // do it everywhere in the code
   if ((err_code < -399) && (err_code > -700)) {
     reply.code = -err_code;
@@ -65,18 +65,20 @@ static void errCode2RelayedReply(AmSipReply &reply, int err_code, unsigned defau
 //
 
 AmB2BSession::AmB2BSession(const string& other_local_tag, AmSipDialog* p_dlg,
-			   AmSipSubscription* p_subs)
+                           AmSipSubscription* p_subs)
   : AmSession(p_dlg),
     other_id(other_local_tag),
     sip_relay_only(true),
+    est_invite_cseq(0),
+    est_invite_other_cseq(0),
     subs(p_subs),
     rtp_relay_mode(RTP_Direct),
     rtp_relay_force_symmetric_rtp(false),
+    rtp_relay_transparent_seqno(true),
+    rtp_relay_transparent_ssrc(true),
     enable_dtmf_transcoding(false),
     enable_dtmf_rtp_filtering(false),
     enable_dtmf_rtp_detection(false),
-    rtp_relay_transparent_seqno(true), rtp_relay_transparent_ssrc(true),
-    est_invite_cseq(0),est_invite_other_cseq(0),
     media_session(NULL)
 {
   if(!subs) subs = new AmSipSubscription(dlg,this);
@@ -98,8 +100,8 @@ AmB2BSession::~AmB2BSession()
     delete subs;
 }
 
-void AmB2BSession::set_sip_relay_only(bool r) { 
-  sip_relay_only = r; 
+void AmB2BSession::set_sip_relay_only(bool r) {
+  sip_relay_only = r;
 
   // disable offer/answer if we just relay requests
   //dlg.setOAEnabled(!sip_relay_only); ???
@@ -177,7 +179,7 @@ void AmB2BSession::onB2BEvent(B2BEvent* ev)
   switch(ev->event_id){
 
   case B2BSipRequest:
-    {   
+    {
       B2BSipRequestEvent* req_ev = dynamic_cast<B2BSipRequestEvent*>(ev);
       assert(req_ev);
 
@@ -214,11 +216,11 @@ void AmB2BSession::onB2BEvent(B2BEvent* ev)
       }
 
        if( (req_ev->req.method == SIP_METH_BYE)
-	  // CANCEL is handled differently: other side has already 
+	  // CANCEL is handled differently: other side has already
 	  // sent a terminate event.
 	  //|| (req_ev->req.method == SIP_METH_CANCEL)
 	  ) {
-	
+
 	 if (onOtherBye(req_ev->req))
 	   req_ev->processed = true; // app should have relayed 200 to BYE
       }
@@ -231,7 +233,7 @@ void AmB2BSession::onB2BEvent(B2BEvent* ev)
 	  return;
 	}
       }
-      
+
     }
     return;
 
@@ -269,7 +271,7 @@ void AmB2BSession::onB2BEvent(B2BEvent* ev)
 	      terminateLeg();
 	    }
 	  }
-		
+
 	} else {
 	  DBG("Cannot relay reply: request already replied"
 	      " (code=%u;cseq=%u;call-id=%s)",
@@ -310,7 +312,7 @@ void AmB2BSession::onB2BEvent(B2BEvent* ev)
   //ERROR("unknown event caught\n");
 }
 
-bool AmB2BSession::getMappedReferID(unsigned int refer_id, 
+bool AmB2BSession::getMappedReferID(unsigned int refer_id,
 				    unsigned int& mapped_id) const
 {
   map<unsigned int, unsigned int>::const_iterator id_it =
@@ -370,7 +372,7 @@ void AmB2BSession::onSipRequest(const AmSipRequest& req)
 	  if(getMappedReferID(id_int,mapped_id)) {
 
 	    removeHeader(r_ev->req.hdrs,SIP_HDR_EVENT);
-	    r_ev->req.hdrs += SIP_HDR_COLSP(SIP_HDR_EVENT) "refer;id=" 
+	    r_ev->req.hdrs += SIP_HDR_COLSP(SIP_HDR_EVENT) "refer;id="
 	      + int2str(mapped_id) + CRLF;
 	  }
 	}
@@ -469,7 +471,7 @@ void AmB2BSession::onSipReply(const AmSipRequest& req, const AmSipReply& reply,
       reply.cseq_method.c_str(), reply.code,reply.reason.c_str(),
       fwd?"true":"false",reply.body.getCTStr().c_str());
 
-  if(!dlg->getRemoteTag().empty() && dlg->getRemoteTag() != reply.to_tag) {    
+  if(!dlg->getRemoteTag().empty() && dlg->getRemoteTag() != reply.to_tag) {
     DBG("sess %p received %i reply with != to-tag: %s (remote-tag:%s)",
 	this, reply.code, reply.to_tag.c_str(),dlg->getRemoteTag().c_str());
     return; // drop packet
@@ -539,14 +541,14 @@ void AmB2BSession::onReplySent(const AmSipRequest& req, const AmSipReply& reply)
        (reply.cseq_method == SIP_METH_REFER)) ) {
     subs->onReplySent(req,reply);
   }
-  
+
   if(reply.code >= 200 && reply.cseq_method != SIP_METH_CANCEL){
     if((req.method == SIP_METH_INVITE) && (reply.code >= 300)) {
       DBG("relayed INVITE failed with %u %s\n", reply.code, reply.reason.c_str());
     }
     DBG("recvd_req.erase(<%u,%s>)\n", req.cseq, req.method.c_str());
     recvd_req.erase(reply.cseq);
-  } 
+  }
 
   AmSession::onReplySent(req,reply);
 }
@@ -613,9 +615,9 @@ bool AmB2BSession::onOtherBye(const AmSipRequest& req)
 
 bool AmB2BSession::onOtherReply(const AmSipReply& reply)
 {
-  if(reply.code >= 300) 
+  if(reply.code >= 300)
     setStopped();
-  
+
   return false;
 }
 
@@ -726,7 +728,7 @@ bool AmB2BSession::updateSessionDescription(const AmMimeBody& body) {
   return false;
 }
 
-int AmB2BSession::sendEstablishedReInvite() {  
+int AmB2BSession::sendEstablishedReInvite() {
   if (established_body.empty()) {
     ERROR("trying to re-INVITE with saved description, but none saved\n");
     return -1;
@@ -815,14 +817,14 @@ int AmB2BSession::relaySip(const AmSipRequest& req)
     }
 
   } else {
-    //its a (200) ACK 
-    TransMap::iterator t = relayed_req.begin(); 
+    //its a (200) ACK
+    TransMap::iterator t = relayed_req.begin();
 
     while (t != relayed_req.end()) {
       if (t->second.cseq == req.cseq)
 	break;
       t++;
-    } 
+    }
     if (t == relayed_req.end()) {
       ERROR("transaction for ACK not found in relayed requests\n");
       // FIXME: local body (if updated) should be discarded here
@@ -944,7 +946,7 @@ void AmB2BSession::clearRtpReceiverRelay() {
 
     case RTP_Relay:
     case RTP_Transcoding:
-      if (media_session) { 
+      if (media_session) {
         media_session->stop(a_leg);
         media_session->releaseReference();
         media_session = NULL;
@@ -990,7 +992,7 @@ void AmB2BSession::computeRelayMask(const SdpMedia &m, bool &enable, PayloadMask
 }
 
 
-// 
+//
 // AmB2BCallerSession methods
 //
 
@@ -1007,7 +1009,7 @@ AmB2BCallerSession::~AmB2BCallerSession()
 
 void AmB2BCallerSession::set_sip_relay_early_media_sdp(bool r)
 {
-  sip_relay_early_media_sdp = r; 
+  sip_relay_early_media_sdp = r;
 }
 
 void AmB2BCallerSession::terminateLeg()
@@ -1045,7 +1047,7 @@ void AmB2BCallerSession::onB2BEvent(B2BEvent* ev)
     }
 
     DBG("%u %s reply received from other leg\n", reply.code, reply.reason.c_str());
-      
+
     switch(callee_status){
     case NoReply:
     case Ringing:
@@ -1073,7 +1075,7 @@ void AmB2BCallerSession::onB2BEvent(B2BEvent* ev)
 	  callee_status = Ringing;
 
 	} else if(reply.code < 300){
-	  
+
 	  callee_status  = Connected;
 	  DBG("setting callee status to connected\n");
 	  if (!sip_relay_only) {
@@ -1096,22 +1098,22 @@ void AmB2BCallerSession::onB2BEvent(B2BEvent* ev)
 	} else {
 	  // 	DBG("received %i from other leg: other_id=%s; reply.local_tag=%s\n",
 	  // 	    reply.code,other_id.c_str(),reply.local_tag.c_str());
-	  
+
 	  // TODO: terminated my own leg instead? (+ clear_other())
 	  terminateOtherLeg();
 	}
 
 	processed = onOtherReply(reply);
       }
-	
+
       break;
-	
+
     default:
       DBG("reply from callee: %u %s\n",reply.code,reply.reason.c_str());
       break;
     }
   }
-   
+
   if (!processed)
     AmB2BSession::onB2BEvent(ev);
 }
@@ -1220,14 +1222,14 @@ int AmB2BCallerSession::reinviteCaller(const AmSipReply& callee_reply)
 }
 
 void AmB2BCallerSession::createCalleeSession() {
-  AmB2BCalleeSession* callee_session = newCalleeSession();  
-  if (NULL == callee_session) 
+  AmB2BCalleeSession* callee_session = newCalleeSession();
+  if (NULL == callee_session)
     return;
 
   AmSipDialog* callee_dlg = callee_session->dlg;
 
   setOtherId(AmSession::getNewId());
-  
+
   callee_dlg->setLocalTag(getOtherId());
   if (callee_dlg->getCallid().empty())
     callee_dlg->setCallid(AmSession::getNewId());
@@ -1241,7 +1243,7 @@ void AmB2BCallerSession::createCalleeSession() {
 	 callee_session->getLocalTag().c_str());
   }
 
-  MONITORING_LOG4(getOtherId().c_str(), 
+  MONITORING_LOG4(getOtherId().c_str(),
 		  "dir",  "out",
 		  "from", callee_dlg->getLocalParty().c_str(),
 		  "to",   callee_dlg->getRemoteParty().c_str(),
@@ -1264,19 +1266,19 @@ AmB2BCalleeSession* AmB2BCallerSession::newCalleeSession()
 {
   return new AmB2BCalleeSession(this);
 }
-    
-void AmB2BSession::setMediaSession(AmB2BMedia *new_session) 
-{ 
+
+void AmB2BSession::setMediaSession(AmB2BMedia *new_session)
+{
   // FIXME: ignore old media_session? can it be already set here?
   if (media_session) ERROR("BUG: non-empty media session overwritten\n");
-  media_session = new_session; 
+  media_session = new_session;
   if (media_session)
     media_session->addReference(); // new reference for me
 }
 
 void AmB2BCallerSession::initializeRTPRelay(AmB2BCalleeSession* callee_session) {
   if (!callee_session) return;
-  
+
   callee_session->setRtpRelayMode(rtp_relay_mode);
   callee_session->setEnableDtmfTranscoding(enable_dtmf_transcoding);
   callee_session->setEnableDtmfRtpFiltering(enable_dtmf_rtp_filtering);
@@ -1313,7 +1315,7 @@ void AmB2BCalleeSession::onB2BEvent(B2BEvent* ev)
     if (!co_ev)
       return;
 
-    MONITORING_LOG3(getLocalTag().c_str(), 
+    MONITORING_LOG3(getLocalTag().c_str(),
 		    "b2b_leg", getOtherId().c_str(),
 		    "to", co_ev->remote_party.c_str(),
 		    "ruri", co_ev->remote_uri.c_str());
@@ -1333,7 +1335,7 @@ void AmB2BCalleeSession::onB2BEvent(B2BEvent* ev)
     try {
       updateLocalBody(body);
     } catch (const string& s) {
-      relayError(SIP_METH_INVITE, co_ev->r_cseq, co_ev->relayed_invite, 500, 
+      relayError(SIP_METH_INVITE, co_ev->r_cseq, co_ev->relayed_invite, 500,
           SIP_REPLY_SERVER_INTERNAL_ERROR);
       throw;
     }
@@ -1358,7 +1360,7 @@ void AmB2BCalleeSession::onB2BEvent(B2BEvent* ev)
     est_invite_other_cseq = co_ev->r_cseq;
 
     return;
-  }    
+  }
 
   AmB2BSession::onB2BEvent(ev);
 }
