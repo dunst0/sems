@@ -16,7 +16,7 @@
 
 #define READ_NUMBER(_no, _c_, _end_) \
   do { \
-    register bool fin; \
+    /* register */ bool fin; \
     (_no) = 0; \
     for (fin = false; !fin && (_c_) < (_end_); ) { \
       switch (*(_c_)) { \
@@ -84,7 +84,7 @@ bool parse_rack(sip_rack *rack, const char *start, int len)
   READ_NUMBER(rseq, pos, end);
   if (pos == sav)
     goto error;
-  
+
   EAT_WS(pos, end);
 
   sav = pos;
