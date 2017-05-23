@@ -2,15 +2,9 @@
  *parse or be parsed
  */
 
-
-#include <stdio.h>
-#include <fcntl.h>
-#include <assert.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include "AmSdp.h"
 
 #include "AmConfig.h"
-#include "AmSdp.h"
 #include "AmUtils.h"
 #include "AmPlugIn.h"
 #include "AmSession.h"
@@ -18,15 +12,17 @@
 #include "amci/amci.h"
 #include "log.h"
 
+#include <stdio.h>
+#include <fcntl.h>
+#include <assert.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <stdexcept>
-
-#include <string>
 #include <map>
-using std::string;
-using std::map;
-
 #include <cctype>
 #include <algorithm>
+
+using std::map;
 
 // Not on Solaris!
 #if !defined (__SVR4) && !defined (__sun)
@@ -323,17 +319,17 @@ void AmSdp::print(string& body) const
     int2str(origin.sessV)+" IN ";
 
   if (!origin.conn.address.empty())
-    if (origin.conn.address.find(".") != std::string::npos)
+    if (origin.conn.address.find(".") != string::npos)
       out_buf += "IP4 " + origin.conn.address + "\r\n";
     else
       out_buf += "IP6 " + origin.conn.address + "\r\n";
   else if (!conn.address.empty())
-    if (conn.address.find(".") != std::string::npos)
+    if (conn.address.find(".") != string::npos)
       out_buf += "IP4 " + conn.address + "\r\n";
     else
       out_buf += "IP6 " + conn.address + "\r\n";
   else if (media.size() && !media[0].conn.address.empty())
-    if (media[0].conn.address.find(".") != std::string::npos)
+    if (media[0].conn.address.find(".") != string::npos)
       out_buf += "IP4 " + media[0].conn.address + "\r\n";
     else
       out_buf += "IP6 " + media[0].conn.address + "\r\n";
@@ -343,7 +339,7 @@ void AmSdp::print(string& body) const
   out_buf +=
     "s="+sessionName+"\r\n";
   if (!conn.address.empty()) {
-    if (conn.address.find(".") != std::string::npos)
+    if (conn.address.find(".") != string::npos)
       out_buf += "c=IN IP4 ";
     else
       out_buf += "c=IN IP6 ";
@@ -568,7 +564,7 @@ static bool parse_sdp_line_ex(AmSdp* sdp_msg, char*& s)
   if (!s) return true; // SDP can't be empty, return error (true really used for failure?)
 
   char* next=0; size_t line_len = 0;
-  register parse_st state;
+  /* register */ parse_st state;
   //default state
   state=SDP_DESCR;
   DBG("parsing SDP message...\n");
@@ -743,7 +739,7 @@ static char* parse_sdp_connection(AmSdp* sdp_msg, char* s, char t)
     return next_line;
   }
 
-  register sdp_connection_st state;
+  /* register */ sdp_connection_st state;
   state = NET_TYPE;
 
   //DBG("parse_sdp_line_ex: parse_sdp_connection: parsing sdp connection\n");
@@ -819,7 +815,7 @@ static void parse_sdp_media(AmSdp* sdp_msg, char* s)
 {
   SdpMedia m;
 
-  register sdp_media_st state;
+  /* register */ sdp_media_st state;
   state = MEDIA;
   int parsing = 1;
   char* media_line=s;
@@ -997,8 +993,8 @@ static char* parse_sdp_attr(AmSdp* sdp_msg, char* s)
 
   SdpPayload payload;
 
-  register sdp_attr_rtpmap_st rtpmap_st;
-  register sdp_attr_fmtp_st fmtp_st;
+  /* register */ sdp_attr_rtpmap_st rtpmap_st;
+  /* register */ sdp_attr_fmtp_st fmtp_st;
   rtpmap_st = TYPE;
   fmtp_st = FORMAT;
   char* attr_line=s;
@@ -1207,7 +1203,7 @@ static void parse_sdp_origin(AmSdp* sdp_msg, char* s)
   size_t line_len=0;
   line_end = skip_till_next_line(s, line_len);
 
-  register sdp_origin_st origin_st;
+  /* register */ sdp_origin_st origin_st;
   origin_st = USER;
   int parsing = 1;
 
@@ -1458,7 +1454,7 @@ inline char* skip_till_next_line(char* s, size_t& line_len)
 /*
  *Check if known media type is used
  */
-static MediaType media_type(std::string media)
+static MediaType media_type(string media)
 {
   if(media == "audio")
     return MT_AUDIO;
@@ -1504,7 +1500,7 @@ static TransProt transport_type(string transport)
 /*
 *Check if known attribute name is used
 */
-static bool attr_check(std::string attr)
+static bool attr_check(string attr)
 {
   if(attr == "cat")
     return true;

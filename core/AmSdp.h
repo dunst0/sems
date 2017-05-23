@@ -28,12 +28,14 @@
 #ifndef __SdpParser__
 #define __SdpParser__
 
+#include "AmPlugIn.h"
+
 #include <string>
 #include <map>
 #include <vector>
 #include <netinet/in.h>
-#include "AmPlugIn.h"
 #include <memory>
+
 using std::string;
 
 
