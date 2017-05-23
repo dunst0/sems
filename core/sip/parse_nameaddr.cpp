@@ -21,8 +21,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "parse_nameaddr.h"
@@ -52,14 +52,14 @@ int parse_nameaddr(sip_nameaddr* na, const char** c, int len)
 
     const char* beg = *c;
     const char* end = *c + len;
-    
+
     const char* uri_end=0;
 
     int saved_st=0, st=NA_SWS;
     //int ret=0;
 
     for(;*c!=end;(*c)++){
-	
+
 	switch(st){
 
 	case NA_SWS:
@@ -102,7 +102,7 @@ int parse_nameaddr(sip_nameaddr* na, const char** c, int len)
 	    case '<':
 		st = NA_URI;
 		na->name.set(beg, *c - beg);
-		beg = *c+1;		
+		beg = *c+1;
 		break;
 
 	    case ';':
@@ -225,20 +225,20 @@ int parse_nameaddr(sip_nameaddr* na, const char** c, int len)
 	DBG("Incomplete name-addr (st=%i) <%.*s>\n",st,(int)(end-beg),beg);
 	return MALFORMED_SIP_MSG;
     }
-    
+
     return parse_gen_params_sc(&na->params,c, end-*c, 0);
 }
 
 int parse_nameaddr_uri(sip_nameaddr* na, const char** c, int len)
 {
     if(parse_nameaddr(na, c, len) < 0) {
-      
+
       DBG("Parsing name-addr failed\n");
       return -1;
     }
-    
+
     if(parse_uri(&na->uri,na->addr.s,na->addr.len) < 0) {
-	
+
 	DBG("Parsing uri failed\n");
 	return -1;
     }
@@ -246,7 +246,7 @@ int parse_nameaddr_uri(sip_nameaddr* na, const char** c, int len)
     return 0;
 }
 
-static int skip_2_next_nameaddr(const char*& c, 
+static int skip_2_next_nameaddr(const char*& c,
 				const char*& na_end,
 				const char*  end)
 {
@@ -264,7 +264,7 @@ static int skip_2_next_nameaddr(const char*& c,
     int st = RR_BEGIN;
     na_end = NULL;
     for(;c<end;c++){
-		
+
 	switch(st){
 	case RR_BEGIN:
 	    switch(*c){
@@ -327,7 +327,7 @@ static int skip_2_next_nameaddr(const char*& c,
 
  nxt_nameaddr:
  error:
-	    
+
     switch(st){
     case RR_QUOTED:
 	DBG("Malformed nameaddr\n");
@@ -377,7 +377,9 @@ int parse_first_nameaddr(sip_nameaddr* na, const char* c, int len)
   const char* tmp_c = c;
   const char* end = c + len;
   const char* na_end = NULL;
-  const char* na_begin = c;
+  //UNUSED
+  // const char* na_begin = c;
+  //UNUSED_END
 
   int err = skip_2_next_nameaddr(tmp_c,na_end,end);
   if(err < 0){

@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -42,7 +42,7 @@ class AmTimeoutEvent;
 // these are the timer IDs for session timer
 // Caution: do not use these for other purposes
 #define ID_SESSION_TIMER_TIMERS_START -2
-#define ID_SESSION_TIMER_TIMERS_END -1
+#define ID_SESSION_TIMER_TIMERS_END   -1
 
 #define ID_SESSION_INTERVAL_TIMER -1
 #define ID_SESSION_REFRESH_TIMER  -2
@@ -85,15 +85,15 @@ class AmSessionTimerConfig
 public:
   AmSessionTimerConfig();
   ~AmSessionTimerConfig();
-  
+
 
   /** Session Timer: Enable Session Timer?
       returns 0 on invalid value */
   int setEnableSessionTimer(const string& enable);
-  /** Session Timer: Setter for Desired Session-Expires, 
+  /** Session Timer: Setter for Desired Session-Expires,
       returns 0 on invalid value */
   int setSessionExpires(const string& se);
-  /** Session Timer: Setter for Minimum Session-Expires, 
+  /** Session Timer: Setter for Minimum Session-Expires,
       returns 0 on invalid value */
   int setMinimumTimer(const string& minse);
 
@@ -133,14 +133,14 @@ protected:
 
   bool                 remote_timer_aware;
   unsigned int         min_se;
-  unsigned int         session_interval;  
+  unsigned int         session_interval;
   SessionRefresher     session_refresher;
   SessionRefresherRole session_refresher_role;
   bool                 accept_501_reply;
 
   void updateTimer(AmSession* s,const AmSipRequest& req);
   void updateTimer(AmSession* s,const AmSipReply& reply);
-    
+
   virtual void setTimers(AmSession* s);
   void retryRefreshTimer(AmSession* s);
   void removeTimers(AmSession* s);
@@ -159,11 +159,11 @@ protected:
   virtual ~SessionTimer();
 
   /* @see AmSessionEventHandler */
-  virtual int  configure(AmConfigReader& conf); 
+  virtual int  configure(AmConfigReader& conf);
   virtual bool process(AmEvent*);
 
   virtual bool onSipRequest(const AmSipRequest&);
-  virtual bool onSipReply(const AmSipRequest&, const AmSipReply&, 
+  virtual bool onSipReply(const AmSipRequest&, const AmSipReply&,
 			  AmBasicSipDialog::Status old_dlg_status);
 
   virtual bool onSendRequest(AmSipRequest& req, int& flags);
@@ -180,8 +180,8 @@ struct SIPRequestInfo {
   SIPRequestInfo(const string& method,
 		 const AmMimeBody* body,
 		 const string& hdrs)
-    : method(method), hdrs(hdrs) 
-  { 
+    : method(method), hdrs(hdrs)
+  {
     if(body) this->body = *body;
   }
 
