@@ -22,96 +22,79 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 #include "msg_hdrs.h"
-
 
 int copy_hdrs_len(const list<sip_header*>& hdrs)
 {
-    int ret = 0;
+  int ret = 0;
 
-    list<sip_header*>::const_iterator it = hdrs.begin();
-    for(;it != hdrs.end(); ++it){
-	ret += copy_hdr_len(*it);
-    }
-    
-    return ret;
+  list<sip_header*>::const_iterator it = hdrs.begin();
+  for (; it != hdrs.end(); ++it) {
+    ret += copy_hdr_len(*it);
+  }
+
+  return ret;
 }
 
-int  copy_hdrs_len_no_via(const list<sip_header*>& hdrs)
+int copy_hdrs_len_no_via(const list<sip_header*>& hdrs)
 {
-    int ret = 0;
+  int ret = 0;
 
-    list<sip_header*>::const_iterator it = hdrs.begin();
-    for(;it != hdrs.end(); ++it){
+  list<sip_header*>::const_iterator it = hdrs.begin();
+  for (; it != hdrs.end(); ++it) {
+    if ((*it)->type == sip_header::H_VIA) continue;
 
-        if((*it)->type == sip_header::H_VIA)
-	  continue;
+    ret += copy_hdr_len(*it);
+  }
 
-	ret += copy_hdr_len(*it);
-    }
-    
-    return ret;
+  return ret;
 }
 
-int  copy_hdrs_len_no_via_contact(const list<sip_header*>& hdrs)
+int copy_hdrs_len_no_via_contact(const list<sip_header*>& hdrs)
 {
-    int ret = 0;
+  int ret = 0;
 
-    list<sip_header*>::const_iterator it = hdrs.begin();
-    for(;it != hdrs.end(); ++it){
-
-      switch((*it)->type) {
+  list<sip_header*>::const_iterator it = hdrs.begin();
+  for (; it != hdrs.end(); ++it) {
+    switch ((*it)->type) {
       case sip_header::H_VIA:
-      case sip_header::H_CONTACT:
-	continue;
-
-      default:
-	ret += copy_hdr_len(*it);
-	break;
-      }
+      case sip_header::H_CONTACT: continue;
+      default: ret += copy_hdr_len(*it); break;
     }
-    
-    return ret;
+  }
+
+  return ret;
 }
 
 void copy_hdrs_wr(char** c, const list<sip_header*>& hdrs)
 {
-    list<sip_header*>::const_iterator it = hdrs.begin();
-    for(;it != hdrs.end(); ++it)
-        copy_hdr_wr(c,*it);
+  list<sip_header*>::const_iterator it = hdrs.begin();
+  for (; it != hdrs.end(); ++it) copy_hdr_wr(c, *it);
 }
 
 void copy_hdrs_wr_no_via(char** c, const list<sip_header*>& hdrs)
 {
-    list<sip_header*>::const_iterator it = hdrs.begin();
-    for(;it != hdrs.end(); ++it) {
+  list<sip_header*>::const_iterator it = hdrs.begin();
+  for (; it != hdrs.end(); ++it) {
+    if ((*it)->type == sip_header::H_VIA) continue;
 
-        if((*it)->type == sip_header::H_VIA)
-	  continue;
-
-        copy_hdr_wr(c,*it);
-    }
+    copy_hdr_wr(c, *it);
+  }
 }
 
 void copy_hdrs_wr_no_via_contact(char** c, const list<sip_header*>& hdrs)
 {
-    list<sip_header*>::const_iterator it = hdrs.begin();
-    for(;it != hdrs.end(); ++it){
-
-      switch((*it)->type) {
+  list<sip_header*>::const_iterator it = hdrs.begin();
+  for (; it != hdrs.end(); ++it) {
+    switch ((*it)->type) {
       case sip_header::H_VIA:
-      case sip_header::H_CONTACT:
-	continue;
-
-      default:
-	copy_hdr_wr(c,*it);
-	break;
-      }
+      case sip_header::H_CONTACT: continue;
+      default: copy_hdr_wr(c, *it); break;
     }
+  }
 }

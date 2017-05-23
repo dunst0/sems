@@ -22,14 +22,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-#ifndef _msg_fline_h
-#define _msg_fline_h
+#ifndef _MSG_FLINE_H_
+#define _MSG_FLINE_H_
 
 #include "cstring.h"
 #include "parse_common.h"
@@ -39,37 +38,22 @@ struct sip_msg;
 //
 // Request-line builder
 //
-inline int request_line_len(const cstring& method,
-			    const cstring& ruri)
+inline int request_line_len(const cstring& method, const cstring& ruri)
 {
-    return method.len + ruri.len + SIPVER_len
-	+ 4; // 2*SP + CRLF
+  return method.len + ruri.len + SIPVER_len + 4; // 2*SP + CRLF
 }
 
-void request_line_wr(char** c,
-		     const cstring& method,
-		     const cstring& ruri);
+void request_line_wr(char** c, const cstring& method, const cstring& ruri);
 
 //
 // Status-line builder
 //
 inline int status_line_len(const cstring& reason)
 {
-    return SIPVER_len + 3/*status code*/
-	+ reason.len
-	+ 4; // 2*SP + CRLF
+  /*status code*/
+  return SIPVER_len + 3 + reason.len + 4; // 2*SP + CRLF
 }
 
-void status_line_wr(char** c, int status_code,
-		    const cstring& reason);
-
+void status_line_wr(char** c, int status_code, const cstring& reason);
 
 #endif
-
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 4
- * End:
- */
