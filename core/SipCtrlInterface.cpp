@@ -22,8 +22,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "SipCtrlInterface.h"
@@ -75,14 +75,14 @@ int _SipCtrlInterface::alloc_udp_structs()
 
 int _SipCtrlInterface::init_udp_servers(int if_num)
 {
-    udp_trsp_socket* udp_socket = 
+    udp_trsp_socket* udp_socket =
 	new udp_trsp_socket(if_num,AmConfig::SIP_Ifs[if_num].SigSockOpts
-			    | (AmConfig::ForceOutboundIf ? 
+			    | (AmConfig::ForceOutboundIf ?
 			       trsp_socket::force_outbound_if : 0)
 			    | (AmConfig::UseRawSockets ?
 			       trsp_socket::use_raw_sockets : 0),
 			    AmConfig::SIP_Ifs[if_num].NetIfIdx);
-	
+
     if(!AmConfig::SIP_Ifs[if_num].PublicIP.empty()) {
 	udp_socket->set_public_ip(AmConfig::SIP_Ifs[if_num].PublicIP);
     }
@@ -108,7 +108,7 @@ int _SipCtrlInterface::init_udp_servers(int if_num)
     nr_udp_sockets++;
 
     for(int j=0; j<AmConfig::SIPServerThreads;j++){
-	udp_servers[if_num * AmConfig::SIPServerThreads + j] = 
+	udp_servers[if_num * AmConfig::SIPServerThreads + j] =
 	    new udp_trsp(udp_socket);
 	nr_udp_servers++;
     }
@@ -178,14 +178,14 @@ int _SipCtrlInterface::load()
     string cfgfile = AmConfig::ConfigurationFile.c_str();
     if (file_exists(cfgfile) && !cfg.loadFile(cfgfile)) {
 	if (cfg.hasParameter("accept_fr_without_totag")) {
-	    trans_layer::accept_fr_without_totag = 
+	    trans_layer::accept_fr_without_totag =
 		cfg.getParameter("accept_fr_without_totag") == "yes";
 	}
-	DBG("accept_fr_without_totag = %s\n", 
+	DBG("accept_fr_without_totag = %s\n",
 	    trans_layer::accept_fr_without_totag?"yes":"no");
 
 	if (cfg.hasParameter("default_bl_ttl")) {
-	    trans_layer::default_bl_ttl = 
+	    trans_layer::default_bl_ttl =
 		cfg.getParameterInt("default_bl_ttl",
 				    trans_layer::default_bl_ttl);
 	}
@@ -199,13 +199,13 @@ int _SipCtrlInterface::load()
 	    else if (msglog == "info")  trsp_socket::log_level_raw_msgs = L_INFO;
 	    else if (msglog == "debug") trsp_socket::log_level_raw_msgs = L_DBG;
 	}
-	DBG("log_raw_messages level = %d\n", 
+	DBG("log_raw_messages level = %d\n",
 	    trsp_socket::log_level_raw_msgs);
 
 	if (cfg.hasParameter("log_parsed_messages")) {
 	    log_parsed_messages = cfg.getParameter("log_parsed_messages")=="yes";
 	}
-	DBG("log_parsed_messages = %s\n", 
+	DBG("log_parsed_messages = %s\n",
 	    log_parsed_messages?"yes":"no");
 
 	if (cfg.hasParameter("udp_rcvbuf")) {
@@ -246,17 +246,21 @@ int _SipCtrlInterface::load()
 	}
     }
 
-    return 0;    
+    return 0;
 }
 
 _SipCtrlInterface::_SipCtrlInterface()
-    : stopped(false),
-      udp_servers(NULL), udp_sockets(NULL),
-      nr_udp_sockets(0), nr_udp_servers(0),
-      tcp_servers(NULL), tcp_sockets(NULL),
-      nr_tcp_sockets(0), nr_tcp_servers(0)
+  : stopped(false),
+    nr_udp_sockets(0),
+    udp_sockets(NULL),
+    nr_udp_servers(0),
+    udp_servers(NULL),
+    nr_tcp_sockets(0),
+    tcp_sockets(NULL),
+    nr_tcp_servers(0),
+    tcp_servers(NULL)
 {
-    trans_layer::instance()->register_ua(this);
+  trans_layer::instance()->register_ua(this);
 }
 
 int _SipCtrlInterface::cancel(trans_ticket* tt, const string& dialog_id,
@@ -274,7 +278,7 @@ int _SipCtrlInterface::send(AmSipRequest &req, const string& dialog_id,
 	return cancel(&req.tt, dialog_id, req.cseq, req.hdrs);
 
     sip_msg* msg = new sip_msg();
-    
+
     msg->type = SIP_REQUEST;
     msg->u.request = new sip_request();
 
@@ -287,7 +291,7 @@ int _SipCtrlInterface::send(AmSipRequest &req, const string& dialog_id,
     // CSeq
     // Contact
     // Max-Forwards
-    
+
     char* c = (char*)req.from.c_str();
     int err = parse_headers(msg,&c,c+req.from.length());
 
@@ -319,12 +323,12 @@ int _SipCtrlInterface::send(AmSipRequest &req, const string& dialog_id,
 	    return -1;
 	}
     }
-    
+
     if(!req.route.empty()){
-	
+
  	c = (char*)req.route.c_str();
 	err = parse_headers(msg,&c,c+req.route.length());
-	
+
 	if(err){
 	    ERROR("Route headers parsing failed\n");
 	    ERROR("Faulty headers were: <%s>\n",req.route.c_str());
@@ -341,11 +345,11 @@ int _SipCtrlInterface::send(AmSipRequest &req, const string& dialog_id,
     msg->hdrs.push_back(new sip_header(0,SIP_HDR_MAX_FORWARDS,stl2cstr(mf)));
 
     if(!req.hdrs.empty()) {
-	
+
  	c = (char*)req.hdrs.c_str();
-	
+
  	err = parse_headers(msg,&c,c+req.hdrs.length());
-	
+
 	if(err){
 	    ERROR("Additional headers parsing failed\n");
 	    ERROR("Faulty headers were: <%s>\n",req.hdrs.c_str());
@@ -509,14 +513,14 @@ int _SipCtrlInterface::send(const AmSipReply &rep, const string& dialog_id,
 }
 
 
-inline bool _SipCtrlInterface::sip_msg2am_request(const sip_msg *msg, 
+inline bool _SipCtrlInterface::sip_msg2am_request(const sip_msg *msg,
 						 const trans_ticket& tt,
 						 AmSipRequest &req)
 {
     assert(msg);
     assert(msg->from && msg->from->p);
     assert(msg->to && msg->to->p);
-    
+
     req.method   = c2stlstr(msg->u.request->method_str);
     req.user     = c2stlstr(msg->u.request->ruri.user);
     req.domain   = c2stlstr(msg->u.request->ruri.host);
@@ -532,7 +536,7 @@ inline bool _SipCtrlInterface::sip_msg2am_request(const sip_msg *msg,
 	    WARN("\tcontact = '%.*s'\n",contact.len,contact.s);
 	    WARN("\trequest = '%.*s'\n",msg->len,msg->buf);
 
-	    trans_layer::instance()->send_sf_error_reply(&tt, msg, 400, 
+	    trans_layer::instance()->send_sf_error_reply(&tt, msg, 400,
 							 "Bad Contact");
 	    return false;
 	}
@@ -570,7 +574,7 @@ inline bool _SipCtrlInterface::sip_msg2am_request(const sip_msg *msg,
 	    return false;
 	}
     }
-    
+
     if(req.from_uri.empty()) {
 	req.from_uri = c2stlstr(get_from(msg)->nameaddr.addr);
     }
@@ -609,18 +613,18 @@ inline bool _SipCtrlInterface::sip_msg2am_request(const sip_msg *msg,
     }
 
     prepare_routes_uas(msg->record_route, req.route);
-	
-    for (list<sip_header *>::const_iterator it = msg->hdrs.begin(); 
+
+    for (list<sip_header *>::const_iterator it = msg->hdrs.begin();
 	 it != msg->hdrs.end(); ++it) {
 
 	switch((*it)->type) {
 	case sip_header::H_OTHER:
 	case sip_header::H_REQUIRE:
-	    req.hdrs += c2stlstr((*it)->name) + ": " 
+	    req.hdrs += c2stlstr((*it)->name) + ": "
 		+ c2stlstr((*it)->value) + CRLF;
 	    break;
 	case sip_header::H_VIA:
-	    req.vias += c2stlstr((*it)->name) + ": " 
+	    req.vias += c2stlstr((*it)->name) + ": "
 		+ c2stlstr((*it)->value) + CRLF;
 	    break;
 	case sip_header::H_MAX_FORWARDS:
@@ -650,7 +654,7 @@ inline bool _SipCtrlInterface::sip_msg2am_request(const sip_msg *msg,
     req.via1 = c2stlstr(msg->via1->value);
     if(msg->vias.size() > 1) {
 	req.first_hop = false;
-    } 
+    }
     else {
 	sip_via* via1 = (sip_via*)msg->via1->p;
 	assert(via1); // gets parsed in parse_sip_msg()
@@ -687,7 +691,7 @@ inline bool _SipCtrlInterface::sip_msg2am_reply(sip_msg *msg, AmSipReply &reply)
 	sip_nameaddr na;
 	cstring contact = get_contact(msg)->value;
 	if(parse_first_nameaddr(&na,contact.s,contact.len) < 0) {
-	    
+
 	    ERROR("Contact nameaddr parsing failed ('%.*s')\n",
 		  contact.len,contact.s);
 	}
@@ -705,7 +709,7 @@ inline bool _SipCtrlInterface::sip_msg2am_reply(sip_msg *msg, AmSipReply &reply)
     }
 
     reply.callid = c2stlstr(msg->callid->value);
-    
+
     reply.to_tag = c2stlstr(((sip_from_to*)msg->to->p)->tag);
     reply.from_tag  = c2stlstr(((sip_from_to*)msg->from->p)->tag);
 
@@ -713,7 +717,7 @@ inline bool _SipCtrlInterface::sip_msg2am_reply(sip_msg *msg, AmSipReply &reply)
     prepare_routes_uac(msg->record_route, reply.route);
 
     unsigned rseq;
-    for (list<sip_header*>::iterator it = msg->hdrs.begin(); 
+    for (list<sip_header*>::iterator it = msg->hdrs.begin();
 	 it != msg->hdrs.end(); ++it) {
 #ifdef PROPAGATE_UNPARSED_REPLY_HEADERS
         reply.unparsed_headers.push_back(AmSipHeader((*it)->name, (*it)->value));
@@ -721,7 +725,7 @@ inline bool _SipCtrlInterface::sip_msg2am_reply(sip_msg *msg, AmSipReply &reply)
         switch ((*it)->type) {
           case sip_header::H_OTHER:
           case sip_header::H_REQUIRE:
-	      reply.hdrs += c2stlstr((*it)->name) + ": " 
+	      reply.hdrs += c2stlstr((*it)->name) + ": "
                   + c2stlstr((*it)->value) + CRLF;
               break;
           case sip_header::H_RSEQ:
@@ -755,7 +759,7 @@ void _SipCtrlInterface::handle_sip_request(const trans_ticket& tt, sip_msg* msg)
     assert(msg);
     assert(msg->from && msg->from->p);
     assert(msg->to && msg->to->p);
-    
+
     AmSipRequest req;
 
     if(!sip_msg2am_request(msg, tt, req))
@@ -792,7 +796,7 @@ void _SipCtrlInterface::handle_sip_reply(const string& dialog_id, sip_msg* msg)
 {
     assert(msg->from && msg->from->p);
     assert(msg->to && msg->to->p);
-    
+
     AmSipReply   reply;
 
 
@@ -809,7 +813,7 @@ void _SipCtrlInterface::handle_sip_reply(const string& dialog_id, sip_msg* msg)
       AmSipDispatcher::instance()->handleSipMsg(dialog_id, reply);
       return;
     }
-    
+
     DBG("Received reply: %i %s\n",reply.code,reply.reason.c_str());
     DBG_PARAM(reply.callid);
     DBG_PARAM(reply.from_tag);
@@ -832,7 +836,7 @@ void _SipCtrlInterface::handle_reply_timeout(AmSipTimeoutEvent::EvType evt,
     sip_trans *tr, trans_bucket *buk)
 {
   AmSipTimeoutEvent *tmo_evt;
-  
+
   switch (evt) {
   case AmSipTimeoutEvent::noACK: {
       sip_cseq* cseq = dynamic_cast<sip_cseq*>(tr->msg->cseq->p);
@@ -851,7 +855,7 @@ void _SipCtrlInterface::handle_reply_timeout(AmSipTimeoutEvent::EvType evt,
       char* err_msg=0;
       int err = parse_sip_msg(&msg, err_msg);
       if (err) {
-          ERROR("failed to parse (own) reply[%d]: %s.\n", err, 
+          ERROR("failed to parse (own) reply[%d]: %s.\n", err,
               err_msg ? err_msg : "???");
           return;
       }
@@ -897,7 +901,7 @@ void _SipCtrlInterface::prepare_routes_uac(const list<sip_header*>& routes, stri
 {
     if(routes.empty())
 	return;
-	
+
     list<sip_header*>::const_reverse_iterator it_rh = routes.rbegin();
     if(parse_route(*it_rh) < 0){
 	DBG("Could not parse route header [%.*s]\n",
@@ -908,9 +912,9 @@ void _SipCtrlInterface::prepare_routes_uac(const list<sip_header*>& routes, stri
 
     list<route_elmt*>::const_reverse_iterator it_re = route->elmts.rbegin();
     route_field = c2stlstr((*it_re)->route);
-    
+
     while(true) {
-	
+
 	if(++it_re == route->elmts.rend()) {
 	    if(++it_rh == routes.rend()){
 		DBG("route_field = [%s]\n",route_field.c_str());
@@ -927,7 +931,7 @@ void _SipCtrlInterface::prepare_routes_uac(const list<sip_header*>& routes, stri
 		return;
 	    it_re = route->elmts.rbegin();
 	}
-	
+
 	route_field += ", " + c2stlstr((*it_re)->route);
     }
 
@@ -936,14 +940,14 @@ void _SipCtrlInterface::prepare_routes_uac(const list<sip_header*>& routes, stri
 void _SipCtrlInterface::prepare_routes_uas(const list<sip_header*>& routes, string& route_field)
 {
     if(!routes.empty()){
-	
+
 	list<sip_header*>::const_iterator it = routes.begin();
 
 	route_field = c2stlstr((*it)->value);
 	++it;
 
 	for(; it != routes.end(); ++it) {
-		
+
 	    route_field += ", " + c2stlstr((*it)->value);
 	}
     }
