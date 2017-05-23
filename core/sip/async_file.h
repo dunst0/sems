@@ -3,6 +3,8 @@
 
 #include "fifo_buffer.h"
 
+#include "AmThread.h"
+
 #include <event2/event.h>
 
 class async_file
