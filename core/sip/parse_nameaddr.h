@@ -21,27 +21,26 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _parse_nameaddr_h_
-#define _parse_nameaddr_h_
+#ifndef _PARSE_NAMEADDR_H_
+#define _PARSE_NAMEADDR_H_
 
 #include "parse_uri.h"
 
 struct sip_nameaddr
 {
+  cstring name;
+  cstring addr;
 
-    cstring name;
-    cstring addr;
+  sip_uri uri;
 
-    sip_uri uri;
+  list<sip_avp*> params;
 
-    list<sip_avp*> params;
-
-    sip_nameaddr() {}
-    ~sip_nameaddr();
+  sip_nameaddr() {}
+  ~sip_nameaddr();
 };
 
 int parse_nameaddr(sip_nameaddr* na, const char** c, int len);
