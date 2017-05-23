@@ -1,15 +1,16 @@
-#ifndef _async_file_h_
+#ifndef _ASYNC_FILE_H_
+#define _ASYNC_FILE_H_
 
 #include "fifo_buffer.h"
 
 #include <event2/event.h>
 
 class async_file
-  : protected fifo_buffer,
-    public AmMutex
+    : protected fifo_buffer
+    , public AmMutex
 {
   struct event_base* evbase;
-  struct event*    ev_write;
+  struct event*      ev_write;
 
   bool closed;
   bool error;
@@ -27,26 +28,26 @@ class async_file
 
   unsigned int write_thresh;
 
-protected:
+ protected:
   /**
    * Write to the file itself
    *
    * returns the number of bytes written or -1.
    */
-  virtual int write_to_file(const void* buf, unsigned int len)=0;
+  virtual int write_to_file(const void* buf, unsigned int len) = 0;
 
-  virtual void on_flushed()=0;
+  virtual void on_flushed() = 0;
 
-public:
-
+ public:
   async_file(unsigned int buf_len);
   virtual ~async_file();
 
-  enum StatusCode {
-    OK=0,
-    BufferFull=-1,
-    Closed=-2,
-    Error=-3
+  enum StatusCode
+  {
+    OK         = 0,
+    BufferFull = -1,
+    Closed     = -2,
+    Error      = -3
   };
 
   /**
@@ -56,7 +57,7 @@ public:
    * into the buffer.
    */
   int write(const void* buf, unsigned int len);
-  int writev(const struct iovec *iov, int iovcnt);
+  int writev(const struct iovec* iov, int iovcnt);
 
   /**
    * Mark the file as closed

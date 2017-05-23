@@ -36,9 +36,9 @@
  * The type definitions below are valid for 32-bit architectures and
  * may have to be adjusted for 16- or 64-bit architectures.
  */
-typedef unsigned char u_int8;
+typedef unsigned char  u_int8;
 typedef unsigned short u_int16;
-typedef unsigned int u_int32;
+typedef unsigned int   u_int32;
 
 /*
  * DTMF Payload

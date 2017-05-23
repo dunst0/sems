@@ -23,9 +23,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
- /*
-  * rtp.h  --  RTP header file (RFC 1889)
-  */
+/*
+ * rtp.h  --  RTP header file (RFC 1889)
+ */
 
 #ifndef _RTP_H_
 #define _RTP_H_
@@ -37,7 +37,7 @@
  * may have to be adjusted for 16- or 64-bit architectures.
  */
 typedef unsigned short u_int16;
-typedef unsigned int u_int32;
+typedef unsigned int   u_int32;
 
 /*
  * Current protocol version.

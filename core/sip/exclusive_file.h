@@ -1,20 +1,19 @@
-#ifndef _exclusive_file_h_
-#define _exclusive_file_h_
+#ifndef _EXCLUSIVE_FILE_H_
+#define _EXCLUSIVE_FILE_H_
 
-#include "AmThread.h"
 #include "async_file.h"
 
 #include <string>
+
 using std::string;
 
 class _excl_file_reg;
 
-class exclusive_file
-  : public async_file
+class exclusive_file : public async_file
 {
-  string   name;
-  int      fd;
-  
+  string name;
+  int    fd;
+
   exclusive_file(const string& name);
   ~exclusive_file();
 
@@ -29,11 +28,11 @@ class exclusive_file
 
   friend class _excl_file_reg;
 
-public:
+ public:
   static int open(const char* filename, exclusive_file*& excl_fp, bool& is_new);
   static void close(const exclusive_file* excl_fp);
 
-  int write(const void *buf, int len);
+  int write(const void* buf, int len);
   int writev(const struct iovec* iov, int iovcnt);
 };
 
