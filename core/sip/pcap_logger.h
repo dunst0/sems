@@ -3,9 +3,10 @@
 
 #include "msg_logger.h"
 
+#include "cstring.h"
+
 #include <netinet/in.h>
 #include <stdio.h>
-#include <string>
 #include <sys/socket.h>
 
 /** class for logging sent/received data in PCAP format */

@@ -8,8 +8,6 @@
 #include <string.h>
 #include <sys/time.h>
 
-//using namespace std;
-
 // FIXME: currently for little endian only!
 
 // see http://wiki.wireshark.org/Development/LibpcapFileFormat
