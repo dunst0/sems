@@ -39,7 +39,6 @@
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
 #include <string.h>
-#include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 #ifndef __USE_BSD

@@ -29,6 +29,8 @@
 #ifndef _RAW_SOCK_H_
 #define _RAW_SOCK_H_
 
+#include <sys/socket.h>
+
 int raw_udp_socket(int iphdr_incl);
 
 int raw_udp4_send(int rsock, char* buf, unsigned int len,
