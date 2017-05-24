@@ -22,8 +22,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -39,13 +39,13 @@
 
 #include "AmUtils.h"
 
-#include <sys/socket.h> 
+#include <sys/socket.h>
 #include <netdb.h>
 #include <string.h>
 #include <assert.h>
 #include <resolv.h>
 #include <arpa/inet.h>
-#include <arpa/nameser.h> 
+#include <arpa/nameser.h>
 
 #include <list>
 #include <utility>
@@ -90,19 +90,19 @@ int dns_ip_entry::next_ip(dns_handle* h, sockaddr_storage* sa)
 	inc_ref(this);
 	h->ip_n = 0;
     }
-    
+
     int& index = h->ip_n;
     if((index < 0) || (index >= (int)ip_vec.size()))
 	return -1;
-    
+
     //copy address
     ((ip_entry*)ip_vec[index++])->to_sa(sa);
-    
+
     // reached the end?
-    if(index >= (int)ip_vec.size()) { 
+    if(index >= (int)ip_vec.size()) {
 	index = -1;
     }
-    
+
     return 0;
 }
 
@@ -113,7 +113,7 @@ int dns_ip_entry::fill_ip_list(const list<sip_destination>& ip_list)
     ip_port_entry e;
 
     for(list<sip_destination>::const_iterator it = ip_list.begin();
-	it != ip_list.end(); ++it) {
+	it != ip_list.end(); it++) {
 
 	e.port = it->port;
 	ip = c2stlstr(it->host);
@@ -128,7 +128,7 @@ int dns_ip_entry::fill_ip_list(const list<sip_destination>& ip_list)
 	    DBG("inet_pton(AF_INET6,%s,...): %s\n",
 		ip.c_str(), strerror(errno));
 	}
-	
+
 	res = inet_pton(AF_INET,ip.c_str(),&e.addr);
 	if(res < 0){
 	    DBG("inet_pton(AF_INET,%s,...): %s\n",
@@ -194,47 +194,47 @@ public:
 	if((index < 0) ||
 	   (index >= (int)ip_vec.size()))
 	    return -1;
-	
+
 	// reset IP record
 	if(h->ip_e){
 	    dec_ref(h->ip_e);
 	    h->ip_e = NULL;
 	    h->ip_n = 0;
 	}
-	
+
 	list<pair<unsigned int,int> > srv_lst;
 	int i = index;
-	
+
 	// fetch current priority
 	unsigned short p = ((srv_entry*)ip_vec[i])->p;
 	unsigned int w_sum = 0;
-	
+
 	// and fetch records with same priority
 	// which have not been chosen yet
 	int srv_lst_size=0;
 	unsigned int used_mask=(1<<i);
 	while( p==((srv_entry*)ip_vec[i])->p ){
-	    
+
 	    if(!(used_mask & h->srv_used)){
 		w_sum += ((srv_entry*)ip_vec[i])->w;
 		srv_lst.push_back(std::make_pair(w_sum,i));
 		srv_lst_size++;
 	    }
-	    
+
 	    if((++i >= (int)ip_vec.size()) ||
 	       (i >= (int)MAX_SRV_RR)){
 		break;
 	    }
-	    
+
 	    used_mask = used_mask << 1;
 	}
-	
+
 	srv_entry* e=NULL;
 	if((srv_lst_size > 1) && w_sum){
 	    // multiple records: apply weigthed load balancing
 	    // - remember the entries which have already been used
 	    unsigned int r = random() % (w_sum+1);
-	    
+
 	    list<pair<unsigned int,int> >::iterator srv_lst_it = srv_lst.begin();
 	    while(srv_lst_it != srv_lst.end()){
 		if(srv_lst_it->first >= r){
@@ -244,7 +244,7 @@ public:
 		}
 		++srv_lst_it;
 	    }
-	    
+
 	    // will only happen if the algorithm
 	    // is broken
 	    if(!e)
@@ -253,7 +253,7 @@ public:
 	else {
 	    // single record or all weights == 0
 	    e = (srv_entry*)ip_vec[srv_lst.begin()->second];
-	    
+
 	    if( (i<(int)ip_vec.size()) && (i<(int)MAX_SRV_RR)){
 		index = i;
 	    }
@@ -264,7 +264,7 @@ public:
 		index = -1;
 	    }
 	}
-	
+
 	//TODO: find a solution for IPv6
 	h->port = htons(e->port);
 	if(h->port) {
@@ -295,7 +295,7 @@ dns_entry::~dns_entry()
 {
     DBG("dns_entry::~dns_entry(): %s",to_str().c_str());
     for(vector<dns_base_entry*>::iterator it = ip_vec.begin();
-	it != ip_vec.end(); ++it) {
+	it != ip_vec.end(); it++) {
 
 	delete *it;
     }
@@ -334,7 +334,7 @@ string dns_entry::to_str()
 
     for(vector<dns_base_entry*>::iterator it = ip_vec.begin();
 	it != ip_vec.end(); it++) {
-	
+
 	if(it != ip_vec.begin())
 	    res += ", ";
 
@@ -344,8 +344,8 @@ string dns_entry::to_str()
     return "[" + res + "]";
 }
 
-dns_bucket::dns_bucket(unsigned long id) 
-  : dns_bucket_base(id) 
+dns_bucket::dns_bucket(unsigned long id)
+  : dns_bucket_base(id)
 {
 }
 
@@ -371,13 +371,13 @@ bool dns_bucket::remove(const string& name)
     lock();
     value_map::iterator it = elmts.find(name);
     if(it != elmts.end()){
-	
+
 	dns_entry* e = it->second;
 	elmts.erase(it);
 
 	dec_ref(e);
 	unlock();
-	
+
 	return true;
     }
 
@@ -452,9 +452,9 @@ string ip_entry::to_str()
 {
     if(type == IPv4) {
 	u_char* cp = (u_char*)&addr;
-	return int2str(cp[0]) + 
-	    "." + int2str(cp[1]) + 
-	    "." + int2str(cp[2]) + 
+	return int2str(cp[0]) +
+	    "." + int2str(cp[1]) +
+	    "." + int2str(cp[2]) +
 	    "." + int2str(cp[3]);
     }
     else {
@@ -508,7 +508,7 @@ dns_base_entry* dns_ip_entry::get_rr(dns_record* rr, u_char* begin, u_char* end)
 	ns_rr_rdata(*rr)[1],
 	ns_rr_rdata(*rr)[2],
 	ns_rr_rdata(*rr)[3]);
-    
+
     ip_entry* new_ip = new ip_entry();
     new_ip->type = IPv4;
     memcpy(&(new_ip->addr), ns_rr_rdata(*rr), sizeof(in_addr));
@@ -523,18 +523,18 @@ dns_base_entry* dns_srv_entry::get_rr(dns_record* rr, u_char* begin, u_char* end
 
     u_char name_buf[NS_MAXDNAME];
     const u_char * rdata = ns_rr_rdata(*rr);
-	
+
     /* Expand the target's name */
     u_char* p = (u_char*)rdata+6;
     if (dns_expand_name(&p,begin,end,
     			   name_buf,         /* Result                */
     			   NS_MAXDNAME)      /* Size of result buffer */
     	< 0) {    /* Negative: error       */
-	
+
     	ERROR("dns_expand_name failed\n");
     	return NULL;
     }
-    
+
     DBG("SRV:\tTTL=%i\t%s\tP=<%i> W=<%i> P=<%i> T=<%s>\n",
     	ns_rr_ttl(*rr),
     	ns_rr_name(*rr),
@@ -542,7 +542,7 @@ dns_base_entry* dns_srv_entry::get_rr(dns_record* rr, u_char* begin, u_char* end
     	dns_get_16(rdata+2),
     	dns_get_16(rdata+4),
     	name_buf);
-    
+
     srv_entry* srv_r = new srv_entry();
     srv_r->p = dns_get_16(rdata);
     srv_r->w = dns_get_16(rdata+2);
@@ -598,8 +598,8 @@ int rr_to_dns_entry(dns_record* rr, dns_section_type t,
     return 0;
 }
 
-dns_handle::dns_handle() 
-  : srv_e(0), srv_n(0), ip_e(0), ip_n(0) 
+dns_handle::dns_handle()
+  : srv_e(0), srv_n(0), ip_e(0), ip_n(0)
 {}
 
 dns_handle::dns_handle(const dns_handle& h)
@@ -607,22 +607,22 @@ dns_handle::dns_handle(const dns_handle& h)
     *this = h;
 }
 
-dns_handle::~dns_handle() 
-{ 
-    if(ip_e) 
-	dec_ref(ip_e); 
+dns_handle::~dns_handle()
+{
+    if(ip_e)
+	dec_ref(ip_e);
 
-    if(srv_e) 
-	dec_ref(srv_e); 
+    if(srv_e)
+	dec_ref(srv_e);
 }
 
-bool dns_handle::valid() 
-{ 
+bool dns_handle::valid()
+{
     return (ip_e);
 }
 
-bool dns_handle::eoip()  
-{ 
+bool dns_handle::eoip()
+{
     if(srv_e)
 	return (srv_n == -1) && (ip_n == -1);
     else
@@ -642,13 +642,13 @@ int dns_handle::next_ip(sockaddr_storage* sa)
 const dns_handle& dns_handle::operator = (const dns_handle& rh)
 {
     memcpy(this,(const void*)&rh,sizeof(dns_handle));
-    
+
     if(srv_e)
 	inc_ref(srv_e);
-    
+
     if(ip_e)
 	inc_ref(ip_e);
-    
+
     return *this;
 }
 
@@ -809,7 +809,7 @@ dns_entry_map::dns_entry_map()
 
 dns_entry_map::~dns_entry_map()
 {
-    for(iterator it = begin(); it != end(); ++it) {
+    for(iterator it = begin(); it != end(); it++) {
 	dec_ref(it->second);
     }
 }
@@ -851,7 +851,7 @@ _resolver::_resolver()
 
 _resolver::~_resolver()
 {
-    
+
 }
 
 int _resolver::query_dns(const char* name, dns_entry_map& entry_map, dns_rr_type t)
@@ -917,7 +917,7 @@ int _resolver::resolve_name(const char* name,
 	    return 0; // 'name' is an IP address
 	}
     }
-    
+
     // name is NOT an IP address -> try a cache look up
     dns_bucket* b = cache.get_bucket(hashlittle(name,strlen(name),0));
     dns_entry* e = b->find(name);
@@ -976,7 +976,7 @@ int _resolver::str2ip(const char* name,
 	    return ret;
 	}
     }
-    
+
     if(types & IPv6){
 	int ret = inet_pton(AF_INET6,name,&((sockaddr_in6*)sa)->sin6_addr);
 	if(ret==1) {
@@ -1006,7 +1006,7 @@ int _resolver::set_destination_ip(const cstring& next_hop,
     if (am_inet_pton(nh.c_str(), remote_ip) != 1) {
 
 	// nh does NOT contain a valid IP address
-    
+
 	if(!next_port) {
 	    // no explicit port specified,
 	    // try SRV first
@@ -1061,7 +1061,7 @@ int _resolver::set_destination_ip(const cstring& next_hop,
 
     DBG("set destination to %s:%u\n",
 	nh.c_str(), am_get_port(remote_ip));
-    
+
     return 0;
 }
 
@@ -1070,7 +1070,7 @@ int _resolver::resolve_targets(const list<sip_destination>& dest_list,
 {
     for(list<sip_destination>::const_iterator it = dest_list.begin();
 	it != dest_list.end(); it++) {
-	
+
 	sip_target t;
 	dns_handle h_dns;
 
@@ -1114,9 +1114,9 @@ void _resolver::run()
 	dns_bucket* bucket = cache.get_bucket(i);
 
 	bucket->lock();
-	    
+
 	for(dns_bucket::value_map::iterator it = bucket->elmts.begin();
-	    it != bucket->elmts.end(); ++it){
+	    it != bucket->elmts.end(); it++){
 
 	    dns_entry* dns_e = (dns_entry*)it->second;
 	    if(now >= it->second->expire){

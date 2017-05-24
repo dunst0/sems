@@ -120,7 +120,7 @@ sip_trans* trans_bucket::match_request(sip_msg* msg, unsigned int ttype)
 	int   len = msg->via_p1->branch.len - MAGIC_BRANCH_LEN;
 
 	trans_list::iterator it = elmts.begin();
-	for(;it!=elmts.end();++it) {
+	for(;it!=elmts.end();it++) {
 
 	    if( ((*it)->msg->type != SIP_REQUEST) ||
 		((*it)->type != ttype)){
@@ -168,7 +168,7 @@ sip_trans* trans_bucket::match_request(sip_msg* msg, unsigned int ttype)
 	assert(from && to && cseq);
 
 	trans_list::iterator it = elmts.begin();
-	for(;it!=elmts.end();++it) {
+	for(;it!=elmts.end();it++) {
 
 
 	    //Request matching:
@@ -284,7 +284,7 @@ sip_trans* trans_bucket::match_reply(sip_msg* msg)
     assert(get_cseq(msg));
 
     trans_list::iterator it = elmts.begin();
-    for(;it!=elmts.end();++it) {
+    for(;it!=elmts.end();it++) {
 
 	if((*it)->type != TT_UAC){
 	    continue;
@@ -364,7 +364,7 @@ sip_trans* trans_bucket::match_1xx_prack(sip_msg* msg)
 	return NULL;
 
     trans_list::iterator it = elmts.begin();
-    for(;it!=elmts.end();++it) {
+    for(;it!=elmts.end();it++) {
 
 	if( (*it)->msg->type != SIP_REQUEST ){
 	    continue;
@@ -423,7 +423,7 @@ sip_trans* trans_bucket::find_uac_trans(const cstring& dialog_id,
 	return NULL;
 
     trans_list::reverse_iterator it = elmts.rbegin();
-    for(;it!=elmts.rend();++it) {
+    for(;it!=elmts.rend();it++) {
 
 	sip_trans* t = *it;
 	if( t->type != TT_UAC ||

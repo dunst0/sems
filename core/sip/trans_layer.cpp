@@ -315,7 +315,7 @@ int _trans_layer::send_reply(sip_msg* msg, const trans_ticket* tt,
 
     // copy necessary headers
     for(list<sip_header*>::iterator it = req->hdrs.begin();
-	it != req->hdrs.end(); ++it) {
+	it != req->hdrs.end(); it++) {
 
 	assert((*it));
 	switch((*it)->type){
@@ -415,7 +415,7 @@ int _trans_layer::send_reply(sip_msg* msg, const trans_ticket* tt,
     status_line_wr(&c,reply_code,msg->u.reply->reason);
 
     for(list<sip_header*>::iterator it = req->hdrs.begin();
-	it != req->hdrs.end(); ++it) {
+	it != req->hdrs.end(); it++) {
 
 	switch((*it)->type){
 
@@ -702,7 +702,7 @@ int _trans_layer::send_sl_reply(sip_msg* req, int reply_code,
     int  reply_len   = status_line_len(reason);
 
     for(list<sip_header*>::iterator it = req->hdrs.begin();
-	it != req->hdrs.end(); ++it) {
+	it != req->hdrs.end(); it++) {
 
 	assert(*it);
 	switch((*it)->type){
@@ -749,7 +749,7 @@ int _trans_layer::send_sl_reply(sip_msg* req, int reply_code,
     status_line_wr(&c,reply_code,reason);
 
     for(list<sip_header*>::iterator it = req->hdrs.begin();
-	it != req->hdrs.end(); ++it) {
+	it != req->hdrs.end(); it++) {
 
 	switch((*it)->type){
 

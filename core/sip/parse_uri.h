@@ -22,52 +22,47 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _parse_uri_h
-#define _parse_uri_h
+#ifndef _PARSE_URI_H_
+#define _PARSE_URI_H_
 
 #include "cstring.h"
 
 #include <list>
+
 using std::list;
 
 struct sip_avp;
 
 struct sip_uri
 {
-    enum uri_scheme {
-	UNKNOWN=0,
-	SIP,
-	SIPS
-    };
+  enum uri_scheme
+  {
+    UNKNOWN = 0,
+    SIP,
+    SIPS
+  };
 
-    uri_scheme scheme;
-    cstring    user;
-    cstring    passwd;
-    cstring    host;
+  uri_scheme scheme;
+  cstring    user;
+  cstring    passwd;
+  cstring    host;
 
-    cstring    port_str;
-    short unsigned int  port;
+  cstring        port_str;
+  unsigned short port;
 
-    list<sip_avp*> params;
-    list<sip_avp*> hdrs;
-    sip_avp*       trsp;
+  list<sip_avp*> params;
+  list<sip_avp*> hdrs;
+  sip_avp*       trsp;
 
-    sip_uri();
-    ~sip_uri();
+  sip_uri();
+  ~sip_uri();
 };
 
 int parse_uri(sip_uri* uri, const char* beg, int len);
 
 #endif
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 4
- * End:
- */

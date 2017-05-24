@@ -103,7 +103,7 @@ sip_msg::~sip_msg()
 
     list<sip_header*>::iterator it;
     for(it = hdrs.begin();
-	it != hdrs.end(); ++it) {
+	it != hdrs.end(); it++) {
 
 	//DBG("delete 0x%p\n",*it);
 	delete *it;
@@ -465,7 +465,7 @@ int parse_headers(sip_msg* msg, char** c, char* end)
     int err = parse_headers(hdrs,c,end);
     if(!err) {
 	for(list<sip_header*>::iterator it = hdrs.begin();
-	    it != hdrs.end(); ++it) {
+	    it != hdrs.end(); it++) {
 
 	    sip_header* hdr = *it;
 	    switch(hdr->type) {

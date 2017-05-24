@@ -52,7 +52,7 @@ int parse_from_to(sip_from_to* ft, const char* beg, int len)
 
   if (!ft->nameaddr.params.empty()) {
     list<sip_avp*>::iterator it = ft->nameaddr.params.begin();
-    for (; it != ft->nameaddr.params.end(); ++it) {
+    for (; it != ft->nameaddr.params.end(); it++) {
       const char* c   = (*it)->name.s;
       const char* end = c + (*it)->name.len;
       int         st  = FTP_BEG;

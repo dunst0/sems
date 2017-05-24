@@ -42,7 +42,7 @@ int dns_msg_parse(u_char* msg, int len, dns_parse_fct fct, void* data)
   }
 
   dns_record rr;
-  for (int s = (int) dns_s_an; s < (int) __dns_max_sections; ++s) {
+  for (int s = (int) dns_s_an; s < (int) __dns_max_sections; s++) {
     for (int i = 0; i < dns_msg_count(begin, (dns_section_type) s); i++) {
       // expand name
       if (dns_expand_name(&p, begin, end, (u_char*) rr.name, NS_MAXDNAME) < 0)

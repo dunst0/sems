@@ -22,74 +22,68 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _parse_via_h
-#define _parse_via_h
+#ifndef _PARSE_VIA_H_
+#define _PARSE_VIA_H_
 
 #include "parse_header.h"
+
+#define MAGIC_BRANCH_COOKIE "z9hG4bK"
+#define MAGIC_BRANCH_LEN 7
 
 struct sip_avp;
 
 struct sip_transport
 {
-    enum {
-	UNPARSED=0,
-	UDP,
-	TCP,
-	TLS,
-	SCTP,
-	OTHER
-    };
+  enum
+  {
+    UNPARSED = 0,
+    UDP,
+    TCP,
+    TLS,
+    SCTP,
+    OTHER
+  };
 
-    int     type;
-    cstring val;
+  int     type;
+  cstring val;
 };
 
 struct sip_via_parm
 {
-    const char* eop;
+  const char* eop;
 
-    list<sip_avp*> params;
+  list<sip_avp*> params;
 
-    sip_transport  trans;
-    cstring        host;
-    cstring        port;
-    unsigned int   port_i;
+  sip_transport trans;
+  cstring       host;
+  cstring       port;
+  unsigned int  port_i;
 
-    cstring        branch;
+  cstring branch;
 
-    cstring        recved;
+  cstring recved;
 
-    bool           has_rport;
-    cstring        rport;
-    unsigned int   rport_i;    
+  bool         has_rport;
+  cstring      rport;
+  unsigned int rport_i;
 
-    sip_via_parm();
-    sip_via_parm(const sip_via_parm& p);
-    ~sip_via_parm();
+  sip_via_parm();
+  sip_via_parm(const sip_via_parm& p);
+  ~sip_via_parm();
 };
 
-struct sip_via: public sip_parsed_hdr
+struct sip_via : public sip_parsed_hdr
 {
-    list<sip_via_parm*> parms;
+  list<sip_via_parm*> parms;
 
-    ~sip_via();
+  ~sip_via();
 };
 
 int parse_via(sip_via* via, const char* beg, int len);
 
-#define MAGIC_BRANCH_COOKIE "z9hG4bK"
-#define MAGIC_BRANCH_LEN    7
-
 #endif
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 4
- * End:
- */
