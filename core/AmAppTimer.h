@@ -28,7 +28,7 @@
 #ifndef _AMAPPTIMER_H_
 #define _AMAPPTIMER_H_
 
-#include "wheeltimer.h"
+#include "sip/wheeltimer.h"
 
 #include <map>
 #include <string>
