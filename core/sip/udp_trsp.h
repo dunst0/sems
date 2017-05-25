@@ -22,76 +22,64 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _udp_trsp_h_
-#define _udp_trsp_h_
+#ifndef _UDP_TRSP_H_
+#define _UDP_TRSP_H_
 
 #include "transport.h"
 
-/**
- * Maximum message length for UDP
- * not including terminating '\0'
- */
-#define MAX_UDP_MSGLEN 65535
-
+#include <string>
 #include <sys/socket.h>
 
-#include <string>
 using std::string;
 
-class udp_trsp_socket: public trsp_socket
+class udp_trsp_socket : public trsp_socket
 {
-    int sendto(const sockaddr_storage* sa, const char* msg, const int msg_len);
-    int sendmsg(const sockaddr_storage* sa, const char* msg, const int msg_len);
+  int sendto(const sockaddr_storage* sa, const char* msg, const int msg_len);
+  int sendmsg(const sockaddr_storage* sa, const char* msg, const int msg_len);
 
-public:
-    udp_trsp_socket(unsigned short if_num, unsigned int opts,
-		    unsigned int sys_if_idx = 0)
-	: trsp_socket(if_num,opts,sys_if_idx) {}
+ public:
+  udp_trsp_socket(unsigned short if_num, unsigned int opts,
+                  unsigned int sys_if_idx = 0)
+      : trsp_socket(if_num, opts, sys_if_idx)
+  {
+  }
 
-    ~udp_trsp_socket() {}
+  ~udp_trsp_socket() {}
 
-    /**
-     * Binds the transport socket to an address
-     * @return -1 if error(s) occured.
-     */
-    virtual int bind(const string& address, unsigned short port);
+  /**
+   * Binds the transport socket to an address
+   * @return -1 if error(s) occured.
+   */
+  virtual int bind(const string& address, unsigned short port);
 
-    const char* get_transport() const
-    { return "udp"; }
+  const char* get_transport() const { return "udp"; }
 
-    int set_recvbuf_size(int rcvbuf_size);
+  int set_recvbuf_size(int rcvbuf_size);
 
-    /**
-     * Sends a message.
-     * @return -1 if error(s) occured.
-     */
-    int send(const sockaddr_storage* sa, const char* msg,
-	     const int msg_len, unsigned int flags);
+  /**
+   * Sends a message.
+   * @return -1 if error(s) occured.
+   */
+  int send(const sockaddr_storage* sa, const char* msg, const int msg_len,
+           unsigned int flags);
 };
 
-class udp_trsp: public transport
+class udp_trsp : public transport
 {
-protected:
-    /** @see AmThread */
-    void run();
-    /** @see AmThread */
-    void on_stop();
-    
-public:
-    /** @see transport */
-    udp_trsp(udp_trsp_socket* sock);
-    ~udp_trsp();
+ protected:
+  /** @see AmThread */
+  void run();
+  /** @see AmThread */
+  void on_stop();
+
+ public:
+  /** @see transport */
+  udp_trsp(udp_trsp_socket* sock);
+  ~udp_trsp();
 };
 
 #endif
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 4
- * End:
- */
