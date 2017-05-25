@@ -37,7 +37,7 @@
 #include <deque>
 #include <sys/types.h>
 
-using std : deque;
+using std::deque;
 
 #define BITS_PER_WHEEL 8
 #define ELMTS_PER_WHEEL (1 << BITS_PER_WHEEL)
