@@ -25,17 +25,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <net/if.h>
-#include <netdb.h>
-#include <ifaddrs.h>
-#include <stdio.h>
-
 #include "AmConfig.h"
+
 #include "sems.h"
 #include "log.h"
 #include "AmConfigReader.h"
@@ -47,6 +38,16 @@
 #include "sip/ip_util.h"
 #include "sip/sip_timers.h"
 #include "sip/raw_sender.h"
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <net/if.h>
+#include <netdb.h>
+#include <ifaddrs.h>
+#include <stdio.h>
 
 #include <cctype>
 #include <algorithm>
@@ -1001,6 +1002,7 @@ static bool fillSysIntfList()
       intf_it->flags = p_if->ifa_flags;
 
       struct ifreq ifr;
+      memset(&ifr, 0, sizeof ifr);
       strncpy(ifr.ifr_name,p_if->ifa_name,IFNAMSIZ);
 
       if (ioctl(fd, SIOCGIFMTU, &ifr) < 0 ) {

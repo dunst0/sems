@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -69,7 +69,7 @@ EventQueueWorker* AmEventQueueProcessor::getWorker()
   return res;
 }
 
-int AmEventQueueProcessor::startEventQueue(AmEventQueue* q) 
+int AmEventQueueProcessor::startEventQueue(AmEventQueue* q)
 {
   EventQueueWorker* worker = getWorker();
   if(!worker) return -1;
@@ -78,7 +78,7 @@ int AmEventQueueProcessor::startEventQueue(AmEventQueue* q)
   return 0;
 }
 
-void AmEventQueueProcessor::addThreads(unsigned int num_threads) 
+void AmEventQueueProcessor::addThreads(unsigned int num_threads)
 {
   DBG("starting %u session processor threads\n", num_threads);
   threads_mut.lock();
@@ -92,7 +92,7 @@ void AmEventQueueProcessor::addThreads(unsigned int num_threads)
 }
 
 
-EventQueueWorker::EventQueueWorker() 
+EventQueueWorker::EventQueueWorker()
   : runcond(false)
 {
 }
@@ -100,7 +100,7 @@ EventQueueWorker::EventQueueWorker()
 EventQueueWorker::~EventQueueWorker() {
 }
 
-void EventQueueWorker::notify(AmEventQueue* sender) 
+void EventQueueWorker::notify(AmEventQueue* sender)
 {
   process_queues_mut.lock();
   process_queues.push_back(sender);
@@ -111,7 +111,7 @@ void EventQueueWorker::notify(AmEventQueue* sender)
 
 void EventQueueWorker::run()
 {
-  stop_requested = false;
+  stop_requested.set(false);
   while(!stop_requested.get()){
 
     runcond.wait_for();
@@ -139,14 +139,14 @@ void EventQueueWorker::run()
   }
 }
 
-void EventQueueWorker::on_stop() 
+void EventQueueWorker::on_stop()
 {
   INFO("requesting worker to stop.\n");
   stop_requested.set(true);
   runcond.set(true);
 }
 
-void EventQueueWorker::startEventQueue(AmEventQueue* q) 
+void EventQueueWorker::startEventQueue(AmEventQueue* q)
 {
   if(q->startup())
     // register us to be notified if some event comes to the session

@@ -231,11 +231,12 @@ void AmMediaProcessorThread::on_stop()
 
 void AmMediaProcessorThread::run()
 {
-  stop_requested = false;
   struct timeval now,next_tick,diff,tick;
 
   // wallclock time
   unsigned long long ts = 0;//4294417296;
+
+  stop_requested.set(false);
 
   tick.tv_sec  = 0;
   tick.tv_usec = 1000*WC_INC_MS;
