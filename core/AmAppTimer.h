@@ -20,20 +20,21 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _AmAppTimer_h_
-#define _AmAppTimer_h_
+#ifndef _AMAPPTIMER_H_
+#define _AMAPPTIMER_H_
 
-#include "sip/wheeltimer.h"
-#include <string>
-using std::string;
+#include "wheeltimer.h"
 
 #include <map>
-#include <set>
+#include <string>
+
+using std::map;
+using std::string;
 
 #define TICKS_PER_SEC (1000000 / TIMER_RESOLUTION)
 
@@ -42,27 +43,27 @@ class direct_app_timer;
 
 class DirectAppTimer
 {
-public:
+ public:
   virtual ~DirectAppTimer() {}
-  virtual void fire()=0;
+  virtual void fire() = 0;
 };
 
-class _AmAppTimer 
-  : public _wheeltimer 
+class _AmAppTimer : public _wheeltimer
 {
-  typedef std::map<int, app_timer*>   AppTimers;
-  typedef std::map<string, AppTimers> TimerQueues;
-  typedef std::map<DirectAppTimer*,direct_app_timer*> DirectTimers;
+  typedef map<int, app_timer*>                    AppTimers;
+  typedef map<string, AppTimers>                  TimerQueues;
+  typedef map<DirectAppTimer*, direct_app_timer*> DirectTimers;
 
-  AmMutex user_timers_mut;
+  AmMutex     user_timers_mut;
   TimerQueues user_timers;
 
-  AmMutex direct_timers_mut;
+  AmMutex      direct_timers_mut;
   DirectTimers direct_timers;
 
   /** creates timer object and inserts it into our container */
   app_timer* create_timer(const string& q_id, int id, unsigned int expires);
-  /** erases timer - does not delete timer object @return timer object pointer, if found */
+  /** erases timer - does not delete timer object @return timer object pointer,
+   * if found */
   app_timer* erase_timer(const string& q_id, int id);
 
   /* callback used by app_timer */
@@ -77,7 +78,8 @@ class _AmAppTimer
   _AmAppTimer();
   ~_AmAppTimer();
 
-  /** set a timer for event queue eventqueue_name with id timer_id and timeout (s) */
+  /** set a timer for event queue eventqueue_name with id timer_id and timeout
+   * (s) */
   void setTimer(const string& eventqueue_name, int timer_id, double timeout);
   /** remove timer for event queue eventqueue_name with id timer_id */
   void removeTimer(const string& eventqueue_name, int timer_id);

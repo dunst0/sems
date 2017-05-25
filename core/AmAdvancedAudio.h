@@ -33,7 +33,7 @@
 #include "AmPlaylist.h"
 #include "AmThread.h"
 #include "SampleArray.h"
-#include "amci/codecs.h"
+#include "codecs.h"
 
 #include <list>
 

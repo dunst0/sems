@@ -21,15 +21,16 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "AmApi.h"
-#include "log.h"
+
+#include "AmB2BMedia.h"
 #include "AmSession.h"
-#include "AmB2BMedia.h" // just because of statistics in reply to OPTIONS
+#include "log.h"
 
 AmDynInvoke::AmDynInvoke() {}
 AmDynInvoke::~AmDynInvoke() {}
@@ -40,99 +41,104 @@ void AmDynInvoke::invoke(const string& method, const AmArg& args, AmArg& ret)
 }
 
 AmDynInvokeFactory::AmDynInvokeFactory(const string& name)
-  : AmPluginFactory(name) 
+    : AmPluginFactory(name)
 {
 }
 
 AmSessionFactory::AmSessionFactory(const string& name)
-  : AmPluginFactory(name)
+    : AmPluginFactory(name)
 {
 }
 
-AmSession* AmSessionFactory::onInvite(const AmSipRequest& req, const string& app_name,
-				      AmArg& session_params) {
-  WARN(" discarding session parameters to new session.\n");
-  map<string,string> app_params;
-  return onInvite(req,app_name,app_params);
-}
-
-AmSession* AmSessionFactory::onRefer(const AmSipRequest& req, const string& app_name, const map<string,string>& app_params)
-{
-  throw AmSession::Exception(488,"Not accepted here");
-}
-
-AmSession* AmSessionFactory::onRefer(const AmSipRequest& req, const string& app_name,
-				     AmArg& session_params)
+AmSession* AmSessionFactory::onInvite(const AmSipRequest& req,
+                                      const string&       app_name,
+                                      AmArg&              session_params)
 {
   WARN(" discarding session parameters to new session.\n");
-  map<string,string> app_params;
-  return onRefer(req,app_name,app_params);
+  map<string, string> app_params;
+  return onInvite(req, app_name, app_params);
 }
 
-int AmSessionFactory::configureModule(AmConfigReader& cfg) {
-  return 0;//mod_conf.readFromConfig(cfg);
+AmSession* AmSessionFactory::onRefer(const AmSipRequest& req,
+                                     const string&       app_name,
+                                     const map<string, string>& app_params)
+{
+  throw AmSession::Exception(488, "Not accepted here");
 }
 
-void AmSessionFactory::configureSession(AmSession* sess) {
-  //SessionTimer::sess->configureSessionTimer(mod_conf);
+AmSession* AmSessionFactory::onRefer(const AmSipRequest& req,
+                                     const string&       app_name,
+                                     AmArg&              session_params)
+{
+  WARN(" discarding session parameters to new session.\n");
+  map<string, string> app_params;
+  return onRefer(req, app_name, app_params);
+}
+
+int AmSessionFactory::configureModule(AmConfigReader& cfg)
+{
+  return 0; // mod_conf.readFromConfig(cfg);
+}
+
+void AmSessionFactory::configureSession(AmSession* sess)
+{
+  // SessionTimer::sess->configureSessionTimer(mod_conf);
 }
 
 void AmSessionFactory::onOoDRequest(const AmSipRequest& req)
 {
-
   if (req.method == SIP_METH_OPTIONS) {
     replyOptions(req);
     return;
   }
 
   INFO("sorry, we don't support beginning a new session with "
-       "a '%s' message\n", req.method.c_str());
+       "a '%s' message\n",
+       req.method.c_str());
 
-  AmSipDialog::reply_error(req,501,"Not Implemented");
+  AmSipDialog::reply_error(req, 501, "Not Implemented");
   return;
 }
 
-void AmSessionFactory::replyOptions(const AmSipRequest& req) {
-    string hdrs;
-    if (!AmConfig::OptionsTranscoderInStatsHdr.empty()) {
-      string usage;
-      B2BMediaStatistics::instance()->reportCodecReadUsage(usage);
+void AmSessionFactory::replyOptions(const AmSipRequest& req)
+{
+  string hdrs;
 
-      hdrs += AmConfig::OptionsTranscoderInStatsHdr + ": ";
-      hdrs += usage;
-      hdrs += CRLF;
-    }
-    if (!AmConfig::OptionsTranscoderOutStatsHdr.empty()) {
-      string usage;
-      B2BMediaStatistics::instance()->reportCodecWriteUsage(usage);
+  if (!AmConfig::OptionsTranscoderInStatsHdr.empty()) {
+    string usage;
+    B2BMediaStatistics::instance()->reportCodecReadUsage(usage);
 
-      hdrs += AmConfig::OptionsTranscoderOutStatsHdr + ": ";
-      hdrs += usage;
-      hdrs += CRLF;
-    }
+    hdrs += AmConfig::OptionsTranscoderInStatsHdr + ": ";
+    hdrs += usage;
+    hdrs += CRLF;
+  }
 
-    // Basic OPTIONS support
-    if (AmConfig::OptionsSessionLimit &&
-	(AmSession::getSessionNum() >= AmConfig::OptionsSessionLimit)) {
-      // return error code if near to overload
-      AmSipDialog::reply_error(req,
-          AmConfig::OptionsSessionLimitErrCode, 
-          AmConfig::OptionsSessionLimitErrReason,
-          hdrs);
-      return;
-    }
+  if (!AmConfig::OptionsTranscoderOutStatsHdr.empty()) {
+    string usage;
+    B2BMediaStatistics::instance()->reportCodecWriteUsage(usage);
 
-    if (AmConfig::ShutdownMode) {
-      // return error code if in shutdown mode
-      AmSipDialog::reply_error(req,
-          AmConfig::ShutdownModeErrCode,
-          AmConfig::ShutdownModeErrReason,
-          hdrs);
-      return;
-    }
+    hdrs += AmConfig::OptionsTranscoderOutStatsHdr + ": ";
+    hdrs += usage;
+    hdrs += CRLF;
+  }
 
-    AmSipDialog::reply_error(req, 200, "OK", hdrs);
+  // Basic OPTIONS support
+  if (AmConfig::OptionsSessionLimit
+      && (AmSession::getSessionNum() >= AmConfig::OptionsSessionLimit)) {
+    // return error code if near to overload
+    AmSipDialog::reply_error(req, AmConfig::OptionsSessionLimitErrCode,
+                             AmConfig::OptionsSessionLimitErrReason, hdrs);
+    return;
+  }
 
+  if (AmConfig::ShutdownMode) {
+    // return error code if in shutdown mode
+    AmSipDialog::reply_error(req, AmConfig::ShutdownModeErrCode,
+                             AmConfig::ShutdownModeErrReason, hdrs);
+    return;
+  }
+
+  AmSipDialog::reply_error(req, 200, "OK", hdrs);
 }
 
 // void AmSessionFactory::postEvent(AmEvent* ev) {
@@ -141,19 +147,19 @@ void AmSessionFactory::replyOptions(const AmSipRequest& req) {
 // }
 
 AmSessionEventHandlerFactory::AmSessionEventHandlerFactory(const string& name)
-  : AmPluginFactory(name) 
+    : AmPluginFactory(name)
 {
 }
 
-bool AmSessionEventHandlerFactory::onInvite(const AmSipRequest& req, 
-					    AmArg& session_params,
-					    AmConfigReader& cfg) {
+bool AmSessionEventHandlerFactory::onInvite(const AmSipRequest& req,
+                                            AmArg&              session_params,
+                                            AmConfigReader&     cfg)
+{
   WARN("discarding session parameters for new session.\n");
   return onInvite(req, cfg);
 }
 
-
-AmLoggingFacility::AmLoggingFacility(const string& name) 
-  : AmPluginFactory(name) 
+AmLoggingFacility::AmLoggingFacility(const string& name)
+    : AmPluginFactory(name)
 {
 }
