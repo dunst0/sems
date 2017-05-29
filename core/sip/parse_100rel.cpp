@@ -3,7 +3,6 @@
 #include "AmSipHeaders.h"
 #include "log.h"
 #include "parse_common.h"
-#include "sip_parser.h"
 
 #include <limits.h>
 
