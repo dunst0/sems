@@ -34,6 +34,17 @@
 #include "cstring.h"
 #include "parse_next_hop.h"
 #include "singleton.h"
+#include "trans_table.h"
+#include "sip_trans.h"
+#include "sip_parser.h"
+#include "parse_uri.h"
+#include "parse_header.h"
+#include "resolver.h"
+#include "transport.h"
+#include "sip_ua.h"
+#include "msg_logger.h"
+
+#include <sys/socket.h>
 
 #include <list>
 #include <map>
@@ -50,22 +61,7 @@ using std::map;
 // disable blacklist
 #define TR_FLAG_DISABLE_BL 2
 
-struct sip_msg;
-struct sip_uri;
-class sip_trans;
-struct sip_header;
-struct sockaddr_storage;
-struct dns_handle;
-struct sip_target_set;
-
 class trans_ticket;
-class trans_bucket;
-class trans_timer;
-class trsp_socket;
-class sip_ua;
-
-// draft msg logging
-class msg_logger;
 
 /* Each counter has a method for incrementing to allow changing implementation
  * of the stats class later without touching the code using it. (One possible

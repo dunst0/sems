@@ -7,7 +7,6 @@
 #include "trans_layer.h"
 #include "AmUtils.h"
 
-#include <event2/event.h>
 #include <fcntl.h>
 #include <netdb.h>
 #include <string.h>

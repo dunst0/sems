@@ -4,12 +4,13 @@
 #include "sip_parser_async.h"
 #include "transport.h"
 
-#include <deque>
 #include <event2/event.h>
-#include <map>
-#include <string>
 #include <sys/socket.h>
+
+#include <string>
 #include <vector>
+#include <map>
+#include <deque>
 
 using std::vector;
 using std::map;

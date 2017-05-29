@@ -36,20 +36,13 @@
 #include "log.h"
 #include "msg_fline.h"
 #include "msg_hdrs.h"
-#include "msg_logger.h"
 #include "parse_100rel.h"
 #include "parse_cseq.h"
 #include "parse_extensions.h"
 #include "parse_from_to.h"
-#include "parse_next_hop.h"
 #include "parse_route.h"
-#include "resolver.h"
-#include "sip_parser.h"
 #include "sip_timers.h"
-#include "sip_trans.h"
-#include "sip_ua.h"
 #include "tr_blacklist.h"
-#include "trans_table.h"
 #include "udp_trsp.h"
 #include "wheeltimer.h"
 
@@ -58,7 +51,6 @@
 #include <assert.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <sys/socket.h>
 
 #define DEFAULT_BL_TTL 60000 /* 60s */
 
