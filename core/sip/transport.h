@@ -26,14 +26,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef _TRANSPORT_H_
 #define _TRANSPORT_H_
 
 #include "AmThread.h"
 #include "atomic_types.h"
 
-#include <string>
 #include <sys/socket.h>
+
+#include <string>
 
 using std::string;
 

@@ -8,9 +8,10 @@
 #include "AmUtils.h"
 #include "AmPlugIn.h"
 #include "AmSession.h"
-
 #include "amci/amci.h"
 #include "log.h"
+#include "sip/parse_common.h"
+#include "sip/defs.h"
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -28,10 +29,6 @@ using std::map;
 #if !defined (__SVR4) && !defined (__sun)
 #include "strings.h"
 #endif
-
-#define CR   '\r'
-#define LF   '\n'
-#define CRLF "\r\n"
 
 static void parse_session_attr(AmSdp* sdp_msg, char* s, char** next);
 static bool parse_sdp_line_ex(AmSdp* sdp_msg, char*& s);

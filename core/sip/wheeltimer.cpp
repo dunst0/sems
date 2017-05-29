@@ -28,8 +28,6 @@
  */
 
 #include "wheeltimer.h"
-
-#include "AmThread.h"
 #include "log.h"
 
 #include <stdio.h>

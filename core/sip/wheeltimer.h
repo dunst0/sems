@@ -34,8 +34,9 @@
 #include "atomic_types.h"
 #include "singleton.h"
 
-#include <deque>
 #include <sys/types.h>
+
+#include <deque>
 
 using std::deque;
 
