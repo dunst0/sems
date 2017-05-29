@@ -38,6 +38,7 @@
 using std::vector;
 using std::string;
 using std::map;
+using std::istream;
 
 #include "log.h"
 
