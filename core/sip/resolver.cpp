@@ -39,16 +39,17 @@
 #include "trans_layer.h"
 #include "wheeltimer.h"
 
-#include <algorithm>
 #include <arpa/inet.h>
 #include <arpa/nameser.h>
 #include <assert.h>
-#include <list>
 #include <netdb.h>
 #include <resolv.h>
 #include <string.h>
 #include <sys/socket.h>
+
 #include <utility>
+#include <algorithm>
+#include <list>
 
 using std::make_pair;
 using std::list;

@@ -29,9 +29,8 @@
 #define _PARSE_ROUTE_H_
 
 #include "parse_header.h"
-
-struct sip_nameaddr;
-struct sip_uri;
+#include "parse_nameaddr.h"
+#include "parse_uri.h"
 
 struct route_elmt
 {

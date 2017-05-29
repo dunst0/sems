@@ -31,11 +31,10 @@
 #define _PARSE_VIA_H_
 
 #include "parse_header.h"
+#include "parse_common.h"
 
 #define MAGIC_BRANCH_COOKIE "z9hG4bK"
 #define MAGIC_BRANCH_LEN 7
-
-struct sip_avp;
 
 struct sip_transport
 {

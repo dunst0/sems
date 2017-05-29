@@ -32,6 +32,15 @@
 #include "log.h"
 #include "parse_common.h"
 
+#define case_FT_PARAM(st1, ch1, ch2, st2)                                      \
+  case st1:                                                                    \
+    switch (*c) {                                                              \
+      case ch1:                                                                \
+      case ch2: st = st2; break;                                               \
+      default: st  = FTP_OTHER;                                                \
+    }                                                                          \
+    break
+
 int parse_from_to(sip_from_to* ft, const char* beg, int len)
 {
   enum
@@ -58,15 +67,6 @@ int parse_from_to(sip_from_to* ft, const char* beg, int len)
       int         st  = FTP_BEG;
 
       for (; c != end; c++) {
-#define case_FT_PARAM(st1, ch1, ch2, st2)                                      \
-  case st1:                                                                    \
-    switch (*c) {                                                              \
-      case ch1:                                                                \
-      case ch2: st = st2; break;                                               \
-      default: st  = FTP_OTHER;                                                \
-    }                                                                          \
-    break
-
         switch (st) {
           case_FT_PARAM(FTP_BEG, 't', 'T', FTP_TAG1);
           case_FT_PARAM(FTP_TAG1, 'a', 'A', FTP_TAG2);

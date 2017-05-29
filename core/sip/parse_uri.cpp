@@ -30,7 +30,6 @@
 #include "parse_uri.h"
 
 #include "log.h"
-#include "parse_common.h"
 
 sip_uri::sip_uri()
     : scheme(UNKNOWN)

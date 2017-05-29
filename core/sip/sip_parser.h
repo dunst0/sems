@@ -33,19 +33,16 @@
 #include "cstring.h"
 #include "parse_uri.h"
 #include "resolver.h"
+#include "parse_header.h"
+#include "parse_via.h"
+#include "transport.h"
 
-#include <list>
 #include <netinet/in.h>
 #include <sys/socket.h>
 
-using std::list;
+#include <list>
 
-struct sip_request;
-struct sip_reply;
-struct sip_header;
-struct sip_via_parm;
-struct dns_handle;
-class trsp_socket;
+using std::list;
 
 //
 // SIP message types:

@@ -26,6 +26,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef _RESOLVER_H_
 #define _RESOLVER_H_
 
@@ -35,11 +36,12 @@
 #include "parse_next_hop.h"
 #include "singleton.h"
 
-#include <map>
 #include <netinet/in.h>
 #include <stdlib.h>
+
 #include <string>
 #include <vector>
+#include <map>
 
 using std::string;
 using std::vector;

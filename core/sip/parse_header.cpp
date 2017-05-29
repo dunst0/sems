@@ -31,7 +31,6 @@
 
 #include "defs.h"
 #include "parse_common.h"
-
 #include "log.h"
 
 #include <memory>

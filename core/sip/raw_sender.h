@@ -1,7 +1,7 @@
 #ifndef _RAW_SENDER_H_
 #define _RAW_SENDER_H_
 
-struct sockaddr_storage;
+#include <sys/socket.h>
 
 class raw_sender
 {
