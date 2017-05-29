@@ -54,7 +54,6 @@
 
 using std::make_pair;
 using std::transform;
-using std::tolower;
 
 string AmConfig::ConfigurationFile = CONFIG_FILE;
 string AmConfig::ModConfigPath     = MOD_CFG_PATH;
@@ -220,7 +219,7 @@ int AmConfig::setLogLevel(const string& level, bool apply)
   }
   else {
     string s(level);
-    transform(s.begin(), s.end(), s.begin(), tolower);
+    transform(s.begin(), s.end(), s.begin(), ::tolower);
 
     if (s == "error" || s == "err") {
       n = L_ERR;
