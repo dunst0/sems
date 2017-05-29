@@ -33,6 +33,7 @@
 #include "AmSipEvent.h"
 #include "sip_parser.h"
 #include "sip_trans.h"
+#include "trans_layer.h"
 
 class sip_ua
 {
