@@ -2,7 +2,6 @@
 #define _ASYNC_FILE_H_
 
 #include "fifo_buffer.h"
-
 #include "AmThread.h"
 
 #include <event2/event.h>

@@ -54,7 +54,7 @@ int Resample::put_samples(signed short* samples, unsigned int num_samples)
     current = filter_delay;
   }
 
-  for (unsigned int i = 0; i < num_samples; ++i) {
+  for (unsigned int i = 0; i < num_samples; i++) {
     this->samples.push_back((float) samples[i]);
   }
 
@@ -98,8 +98,8 @@ void ResampleSincMono::init_sinc()
   int i, k;
 
   // calculate sinc table
-  for (i = 0; i < 15; ++i) {
-    for (k = 0; k < 256; ++k) {
+  for (i = 0; i < 15; i++) {
+    for (k = 0; k < 256; k++) {
       if (i == 7 && k == 0) {
         sinc[i][k] = 1.0;
       }
@@ -110,8 +110,8 @@ void ResampleSincMono::init_sinc()
   }
 
   // apply hamming window
-  for (i = 0; i < 15; ++i) {
-    for (k = 0; k < 256; ++k) {
+  for (i = 0; i < 15; i++) {
+    for (k = 0; k < 256; k++) {
       sinc[i][k] *= (0.54 + 0.46 * cos(2.0 * PI * (i + k / 256.0 - 7) / 16));
     }
   }
@@ -302,7 +302,7 @@ int ResampleSincMono::resample(signed short* dst, float rate,
       return 0;
     }
 
-    for (unsigned int i = 0; i < pad_samples; ++i) {
+    for (unsigned int i = 0; i < pad_samples; i++) {
       *dst = 0;
       dst++;
     }
@@ -608,7 +608,7 @@ int ResampleSincStereo::resample(signed short* dst, float rate,
       return 0;
     }
 
-    for (unsigned int i = 0; i < pad_samples; ++i) {
+    for (unsigned int i = 0; i < pad_samples; i++) {
       *dst = 0;
       dst++;
       *dst = 0;
@@ -783,7 +783,7 @@ int ResampleLinMono::resample(signed short* dst, float rate,
       return 0;
     }
 
-    for (unsigned int i = 0; i < pad_samples; ++i) {
+    for (unsigned int i = 0; i < pad_samples; i++) {
       *dst = 0;
       dst++;
     }
@@ -922,7 +922,7 @@ int ResampleLinStereo::resample(signed short* dst, float rate,
       return 0;
     }
 
-    for (unsigned int i = 0; i < pad_samples; ++i) {
+    for (unsigned int i = 0; i < pad_samples; i++) {
       *dst = 0;
       dst++;
       *dst = 0;

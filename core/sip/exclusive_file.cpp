@@ -1,8 +1,6 @@
 #include "exclusive_file.h"
-
 #include "log.h"
 #include "singleton.h"
-
 #include "AmThread.h"
 
 #include <errno.h>
