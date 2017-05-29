@@ -89,8 +89,8 @@ int AmRtpPacket::parse()
     //  skip the extension header
     //#endif
     if (b_size >= data_offset + 4) {
-      data_offset +=
-	ntohs(((rtp_xhdr_t*) (buffer + data_offset))->len)*4;
+      rtp_xhdr_t* tmp = (rtp_xhdr_t*) (buffer + data_offset);
+      data_offset += ntohs(tmp->len)*4;
     }
     // #ifndef WITH_ZRTP
     //   } else {
