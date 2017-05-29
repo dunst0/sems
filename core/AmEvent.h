@@ -20,11 +20,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmEvent.h */
+
 #ifndef AmEvent_h
 #define AmEvent_h
 
@@ -53,8 +54,8 @@ struct AmEvent
   virtual AmEvent* clone();
 };
 
-/** 
- * \brief named event for inter-plugin-API 
+/**
+ * \brief named event for inter-plugin-API
  *
  * Optionally the AmPluginEvent also holds a dynamic argument array.
  */
@@ -84,9 +85,9 @@ class AmTimeoutEvent : public AmPluginEvent
 };
 
 /**
- * \brief named event for system events (e.g. server stopped) 
+ * \brief named event for system events (e.g. server stopped)
  */
-struct AmSystemEvent : public AmEvent 
+struct AmSystemEvent : public AmEvent
 {
   enum EvType {
     ServerShutdown = 0,

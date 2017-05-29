@@ -41,7 +41,6 @@
 #include "parse_header.h"
 #include "resolver.h"
 #include "transport.h"
-#include "sip_ua.h"
 #include "msg_logger.h"
 
 #include <sys/socket.h>
@@ -62,6 +61,7 @@ using std::map;
 #define TR_FLAG_DISABLE_BL 2
 
 class trans_ticket;
+class sip_ua;
 
 /* Each counter has a method for incrementing to allow changing implementation
  * of the stats class later without touching the code using it. (One possible
