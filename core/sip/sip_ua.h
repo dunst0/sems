@@ -31,10 +31,8 @@
 #define _SIP_UA_H_
 
 #include "AmSipEvent.h"
+#include "sip_parser.h"
 #include "sip_trans.h"
-
-class trans_ticket;
-struct sip_msg;
 
 class sip_ua
 {

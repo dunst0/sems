@@ -31,13 +31,9 @@
 
 #include "ip_util.h"
 #include "log.h"
-#include "msg_logger.h"
-#include "sip_parser.h"
 #include "sip_timers.h"
 #include "trans_layer.h"
 #include "trans_table.h"
-#include "transport.h"
-#include "wheeltimer.h"
 
 #include <assert.h>
 

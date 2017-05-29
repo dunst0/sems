@@ -32,17 +32,16 @@
 
 #include "cstring.h"
 #include "wheeltimer.h"
+#include "sip_parser.h"
+#include "transport.h"
+#include "msg_logger.h"
+#include "resolver.h"
 
-#include <list>
 #include <sys/socket.h>
 
+#include <list>
+
 using std::list;
-
-struct sip_msg;
-struct sip_target_set;
-
-class trsp_socket;
-class msg_logger;
 
 /**
  * Transaction types
