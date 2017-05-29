@@ -31,7 +31,6 @@
 #define _PARSE_CSEQ_H_
 
 #include "parse_header.h"
-#include "sip_parser.h"
 
 struct sip_cseq : public sip_parsed_hdr
 {

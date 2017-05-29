@@ -24,10 +24,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef _IP_UTIL_H_
 #define _IP_UTIL_H_
 
-#include <ctype.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 

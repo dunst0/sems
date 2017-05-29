@@ -32,6 +32,7 @@
 #include "log.h"
 
 #include <string.h>
+
 #include <memory>
 
 using std::unique_ptr;

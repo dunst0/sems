@@ -3,7 +3,6 @@
 
 #include "cstring.h"
 #include "parse_header.h"
-#include "sip_parser.h"
 
 #include <assert.h>
 
