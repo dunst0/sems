@@ -34,6 +34,10 @@
 #include "parse_header.h"
 #include "parse_via.h"
 
+#include <list>
+
+using std::list;
+
 inline int copy_hdr_len(sip_header* hdr)
 {
   return hdr->name.len + hdr->value.len + 4; /* ': ' + CRLF */
@@ -169,9 +173,6 @@ inline void content_type_wr(char** c, const cstring& len)
   *((*c)++) = CR;
   *((*c)++) = LF;
 }
-
-#include <list>
-using std::list;
 
 int copy_hdrs_len(const list<sip_header*>& hdrs);
 int copy_hdrs_len_no_via_contact(const list<sip_header*>& hdrs);

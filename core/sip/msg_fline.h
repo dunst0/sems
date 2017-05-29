@@ -33,8 +33,6 @@
 #include "cstring.h"
 #include "parse_common.h"
 
-struct sip_msg;
-
 //
 // Request-line builder
 //
