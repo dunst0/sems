@@ -41,6 +41,7 @@ using std::string;
 using std::vector;
 using std::map;
 using std::multimap;
+using std::set;
 
 class AmPluginFactory;
 class AmSessionFactory;
