@@ -40,6 +40,7 @@
 using std::string;
 using std::vector;
 using std::map;
+using std::multimap;
 
 class AmPluginFactory;
 class AmSessionFactory;
