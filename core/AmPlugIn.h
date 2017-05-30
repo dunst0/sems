@@ -21,24 +21,25 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmPlugIn.h */
-#ifndef _AmPlugIn_h_
-#define _AmPlugIn_h_
+
+#ifndef _AMPLUGIN_H_
+#define _AMPLUGIN_H_
 
 #include "AmThread.h"
 
-#include <string>
 #include <map>
-#include <vector>
 #include <set>
-#include <list>
+#include <string>
+#include <vector>
+
 using std::string;
 using std::vector;
-using std::list;
+using std::map;
 
 class AmPluginFactory;
 class AmSessionFactory;
@@ -55,25 +56,27 @@ struct amci_inoutfmt_t;
 struct amci_subtype_t;
 
 /** Interface that a payload provider needs to implement */
-class AmPayloadProvider {
- public: 
-  AmPayloadProvider() { }
-  virtual ~AmPayloadProvider() { }
-  
-  /** 
+class AmPayloadProvider
+{
+ public:
+  AmPayloadProvider() {}
+  virtual ~AmPayloadProvider() {}
+
+  /**
    * Payload lookup function.
    * @param payload_id Payload ID.
    * @return NULL if failed .
    */
-  virtual amci_payload_t*  payload(int payload_id) const = 0;
+  virtual amci_payload_t* payload(int payload_id) const = 0;
 
-  /** 
+  /**
    * Payload lookup function by name & rate
    * @param name Payload ID.
    * @return -1 if failed, else the internal payload id.
    */
-  virtual int getDynPayload(const string& name, int rate, int encoding_param) const = 0;
-  
+  virtual int getDynPayload(const string& name, int rate,
+                            int encoding_param) const = 0;
+
   /**
    * List all the payloads available for a media type
    */
@@ -88,34 +91,35 @@ class AmPlugIn : public AmPayloadProvider
  private:
   static AmPlugIn* _instance;
 
-  std::set<string>                  rtld_global_plugins;
+  set<string>   rtld_global_plugins;
   vector<void*> dlls;
 
-  std::map<int,amci_codec_t*>       codecs;
-  std::map<int,amci_payload_t*>     payloads;
-  std::multimap<int,int>            payload_order;
-  std::map<string,amci_inoutfmt_t*> file_formats;
+  map<int, amci_codec_t*>       codecs;
+  map<int, amci_payload_t*>     payloads;
+  multimap<int, int>            payload_order;
+  map<string, amci_inoutfmt_t*> file_formats;
 
-  std::map<string,AmSessionFactory*>             name2app;
+  map<string, AmSessionFactory*> name2app;
   AmMutex name2app_mut;
 
-  std::map<string,AmSessionEventHandlerFactory*> name2seh;
-  std::map<string,AmPluginFactory*>              name2base;
-  std::map<string,AmDynInvokeFactory*>           name2di;
-  std::map<string,AmLoggingFacility*>            name2logfac;
+  map<string, AmSessionEventHandlerFactory*> name2seh;
+  map<string, AmPluginFactory*>              name2base;
+  map<string, AmDynInvokeFactory*>           name2di;
+  map<string, AmLoggingFacility*>            name2logfac;
 
-  std::map<string,AmPluginFactory*>             module_objects;
+  map<string, AmPluginFactory*> module_objects;
 
-  //AmCtrlInterfaceFactory *ctrlIface;
+  // AmCtrlInterfaceFactory *ctrlIface;
 
-  int dynamic_pl; // range: 96->127, see RFC 1890
-  std::set<string> excluded_payloads;  // don't load these payloads (named)
-    
+  int         dynamic_pl;        // range: 96->127, see RFC 1890
+  set<string> excluded_payloads; // don't load these payloads (named)
+
   AmPlugIn();
   virtual ~AmPlugIn();
 
   /** @return -1 if failed, else 0. */
-  int loadPlugIn(const string& file, const string& plugin_name, vector<AmPluginFactory*>& plugins);
+  int loadPlugIn(const string& file, const string& plugin_name,
+                 vector<AmPluginFactory*>& plugins);
 
   int loadAudioPlugIn(amci_exports_t* exports);
   int loadAppPlugIn(AmPluginFactory* cb);
@@ -125,8 +129,8 @@ class AmPlugIn : public AmPayloadProvider
   int loadLogFacPlugIn(AmPluginFactory* f);
 
   int initLoggingModules();
- public:
 
+ public:
   int addCodec(amci_codec_t* c);
   int addPayload(amci_payload_t* p);
   int addFileFormat(amci_inoutfmt_t* f);
@@ -134,12 +138,12 @@ class AmPlugIn : public AmPayloadProvider
   void set_load_rtld_global(const string& plugin_name);
 
   static AmPlugIn* instance();
-  static void dispose();
+  static void      dispose();
 
   void init();
 
-  /** 
-   * Loads all plug-ins from the directory given as parameter. 
+  /**
+   * Loads all plug-ins from the directory given as parameter.
    * @return -1 if failed, else 0.
    */
   int load(const string& directory, const string& plugins);
@@ -147,14 +151,14 @@ class AmPlugIn : public AmPayloadProvider
   /** register logging plugins to receive logging messages */
   void registerLoggingPlugins();
 
-  /** 
+  /**
    * Payload lookup function.
    * @param payload_id Payload ID.
    * @return NULL if failed .
    */
-  amci_payload_t*  payload(int payload_id) const;
+  amci_payload_t* payload(int payload_id) const;
 
-  /** 
+  /**
    * Payload lookup function by name & rate
    * @param name Payload ID.
    * @return -1 if failed, else the internal payload id.
@@ -168,8 +172,8 @@ class AmPlugIn : public AmPayloadProvider
 
   /** @return the order of payloads. */
 
-  /** 
-   * File format lookup according to the 
+  /**
+   * File format lookup according to the
    * format name and/or file extension.
    * @param fmt_name Format name.
    * @param ext File extension.
@@ -177,38 +181,37 @@ class AmPlugIn : public AmPayloadProvider
    */
   amci_inoutfmt_t* fileFormat(const string& fmt_name, const string& ext = "");
 
-  /** 
+  /**
    * File format's subtype lookup function.
    * @param iofmt The file format.
    * @param subtype Subtype ID (see plug-in declaration for values).
    * @return NULL if failed.
    */
-  amci_subtype_t*  subtype(amci_inoutfmt_t* iofmt, int subtype);
+  amci_subtype_t* subtype(amci_inoutfmt_t* iofmt, int subtype);
 
-  /** 
+  /**
    * File subtype lookup function.
    * @param subtype_name The subtype's name (e.g. Pcm16).
    * @return NULL if failed.
    */
   amci_subtype_t* subtype(amci_inoutfmt_t* iofmt, const string& subtype_name);
 
-  /** 
+  /**
    * Codec lookup function.
    * @param id Codec ID (see amci/codecs.h).
    * @return NULL if failed.
    */
-  amci_codec_t*    codec(int id);
+  amci_codec_t* codec(int id);
 
-  /** 
+  /**
    * get codec format parameters
    * @param id Codec ID (see amci/codecs.h).
    * @param is_offer for an offer?
    * @param fmt_params_in input parameters for an answer
    * @return fmt parameters for SDP (offer or answer)
    */
-  string getSdpFormatParameters(int codec_id, bool is_offer, const string& fmt_params_in);
-
-
+  string getSdpFormatParameters(int codec_id, bool is_offer,
+                                const string& fmt_params_in);
 
   /**
    * Application lookup function
@@ -229,8 +232,8 @@ class AmPlugIn : public AmPayloadProvider
       note: unprotected, use only at server startup (onLoad)
       @return true on success
    */
-  static bool registerSIPEventHandler(const string& seh_name,
-				      AmSessionEventHandlerFactory* f);
+  static bool registerSIPEventHandler(const string&                 seh_name,
+                                      AmSessionEventHandlerFactory* f);
   /** register a DI Interface module
       note: unprotected, use only at server startup (onLoad)
       @return true on success
@@ -241,13 +244,15 @@ class AmPlugIn : public AmPayloadProvider
       note: unprotected, use only at server startup (onLoad)
       @return true on success
    */
-  static bool registerLoggingFacility(const string& lf_name, AmLoggingFacility* f);
+  static bool registerLoggingFacility(const string&      lf_name,
+                                      AmLoggingFacility* f);
 
   /**
    * Find the proper SessionFactory
    * for the given request.
    */
-  AmSessionFactory* findSessionFactory(const AmSipRequest& req, string& app_name);
+  AmSessionFactory* findSessionFactory(const AmSipRequest& req,
+                                       string&             app_name);
 
   /**
    * Session event handler lookup function
@@ -267,7 +272,6 @@ class AmPlugIn : public AmPayloadProvider
    * @return NULL if failed (-> handler not found).
    */
   AmLoggingFacility* getFactory4LogFaclty(const string& name);
-
 };
 
 #endif

@@ -22,18 +22,19 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef _SipCtrlInterface_h_
 #define _SipCtrlInterface_h_
 
-#include "sip/sip_ua.h"
 #include "AmThread.h"
+#include "sip/sip_ua.h"
 
-#include <string>
 #include <list>
+#include <string>
 using std::string;
 using std::list;
 
@@ -44,94 +45,92 @@ struct sip_msg;
 struct sip_header;
 class trans_ticket;
 
-
 class udp_trsp_socket;
 class udp_trsp;
 
 class tcp_server_socket;
 class tcp_trsp;
 
-class _SipCtrlInterface:
-    public sip_ua
+class _SipCtrlInterface : public sip_ua
 {
-    bool sip_msg2am_request(const sip_msg *msg, const trans_ticket& tt, AmSipRequest &request);
-    bool sip_msg2am_reply(sip_msg *msg, AmSipReply &reply);
-    
-    void prepare_routes_uac(const list<sip_header*>& routes, string& route_field);
-    void prepare_routes_uas(const list<sip_header*>& routes, string& route_field);
+  bool sip_msg2am_request(const sip_msg* msg, const trans_ticket& tt,
+                          AmSipRequest& request);
+  bool sip_msg2am_reply(sip_msg* msg, AmSipReply& reply);
 
-    friend class udp_trsp;
+  void prepare_routes_uac(const list<sip_header*>& routes, string& route_field);
+  void prepare_routes_uas(const list<sip_header*>& routes, string& route_field);
 
-    AmCondition<bool> stopped;
-    
-    unsigned short    nr_udp_sockets;
-    udp_trsp_socket** udp_sockets;
+  friend class udp_trsp;
 
-    unsigned short    nr_udp_servers;
-    udp_trsp**        udp_servers;
+  AmCondition<bool> stopped;
 
-    unsigned short    nr_tcp_sockets;
-    tcp_server_socket** tcp_sockets;
+  unsigned short    nr_udp_sockets;
+  udp_trsp_socket** udp_sockets;
 
-    unsigned short    nr_tcp_servers;
-    tcp_trsp**        tcp_servers;
+  unsigned short nr_udp_servers;
+  udp_trsp**     udp_servers;
 
-    int alloc_udp_structs();
-    int init_udp_servers(int if_num);
+  unsigned short      nr_tcp_sockets;
+  tcp_server_socket** tcp_sockets;
 
-    int alloc_tcp_structs();
-    int init_tcp_servers(int if_num);
+  unsigned short nr_tcp_servers;
+  tcp_trsp**     tcp_servers;
 
-public:
+  int alloc_udp_structs();
+  int init_udp_servers(int if_num);
 
-    static string outbound_host;
-    static unsigned int outbound_port;
-    static bool log_parsed_messages;
-    static int udp_rcvbuf;
+  int alloc_tcp_structs();
+  int init_tcp_servers(int if_num);
 
-    _SipCtrlInterface();
-    ~_SipCtrlInterface(){}
+ public:
+  static string       outbound_host;
+  static unsigned int outbound_port;
+  static bool         log_parsed_messages;
+  static int          udp_rcvbuf;
 
-    int load();
+  _SipCtrlInterface();
+  ~_SipCtrlInterface() {}
 
-    int run();
-    void stop();
-    void cleanup();
+  int load();
 
-    /**
-     * Sends a SIP request.
-     *
-     * @param req The request to send. If the request creates a transaction, 
-     *            its ticket is written into req.tt.
-     */
-    static int send(AmSipRequest &req, const string& dialog_id,
-		    const string& next_hop = "", int outbound_interface = -1,
-		    unsigned int flags = 0, msg_logger* logger = NULL);
+  int  run();
+  void stop();
+  void cleanup();
 
-    /**
-     * Sends a SIP reply. 
-     *
-     * @param rep The reply to be sent. 'rep.tt' should be set to transaction 
-     *            ticket included in the SIP request.
-     */
-    static int send(const AmSipReply &rep, const string& dialog_id,
-		    msg_logger* logger = NULL);
+  /**
+   * Sends a SIP request.
+   *
+   * @param req The request to send. If the request creates a transaction,
+   *            its ticket is written into req.tt.
+   */
+  static int send(AmSipRequest& req, const string& dialog_id,
+                  const string& next_hop = "", int outbound_interface = -1,
+                  unsigned int flags = 0, msg_logger* logger = NULL);
 
-    /**
-     * CANCELs an INVITE transaction.
-     *
-     * @param tt transaction ticket of the request to cancel.
-     */
-    static int cancel(trans_ticket* tt, const string& dialog_id,
-		      unsigned int inv_cseq, const string& hdrs);
+  /**
+   * Sends a SIP reply.
+   *
+   * @param rep The reply to be sent. 'rep.tt' should be set to transaction
+   *            ticket included in the SIP request.
+   */
+  static int send(const AmSipReply& rep, const string& dialog_id,
+                  msg_logger* logger = NULL);
 
-    /**
-     * From sip_ua
-     */
-    void handle_sip_request(const trans_ticket& tt, sip_msg* msg);
-    void handle_sip_reply(const string& dialog_id, sip_msg* msg);
-    void handle_reply_timeout(AmSipTimeoutEvent::EvType evt,
-        sip_trans *tr, trans_bucket *buk=0);
+  /**
+   * CANCELs an INVITE transaction.
+   *
+   * @param tt transaction ticket of the request to cancel.
+   */
+  static int cancel(trans_ticket* tt, const string& dialog_id,
+                    unsigned int inv_cseq, const string& hdrs);
+
+  /**
+   * From sip_ua
+   */
+  void handle_sip_request(const trans_ticket& tt, sip_msg* msg);
+  void handle_sip_reply(const string& dialog_id, sip_msg* msg);
+  void handle_reply_timeout(AmSipTimeoutEvent::EvType evt, sip_trans* tr,
+                            trans_bucket* buk = 0);
 };
 
 typedef singleton<_SipCtrlInterface> SipCtrlInterface;
