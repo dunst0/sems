@@ -24,25 +24,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
-#ifndef _AMCI_H_
-#define _AMCI_H_
-
-/** AUDIO_BUFFER_SIZE must be a power of 2 */
-#define AUDIO_BUFFER_SIZE (1 << 13) /* 4 KB samples */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifdef __linux
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-#endif
-
-#include <stdio.h>
-
 /**
  * @file amci.h
  * @brief Definition of the codec interface.
@@ -67,6 +48,24 @@ extern "C" {
  *   than using directly the structures.<br>
  * \example plug-in/wav/wav.c
  */
+
+#ifndef _AMCI_H_
+#define _AMCI_H_
+
+/** AUDIO_BUFFER_SIZE must be a power of 2 */
+#define AUDIO_BUFFER_SIZE (1 << 13) /* 4 KB samples */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __linux
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#endif
+
+#include <stdio.h>
 
 /** @def AMCI_RDONLY Read only mode. */
 #define AMCI_RDONLY 1
@@ -128,7 +127,7 @@ struct amci_file_desc_t
  */
 typedef int (*amci_converter_t)(unsigned char* out, unsigned char* in,
                                 unsigned int size, unsigned int channels,
-                                unsigned int rate, long h_codec);
+                                unsigned int rate, long int h_codec);
 
 /**
  * \brief Codec specific packet loss concealment function pointer.
@@ -146,7 +145,7 @@ typedef int (*amci_converter_t)(unsigned char* out, unsigned char* in,
  */
 typedef int (*amci_plc_t)(unsigned char* out, unsigned int size,
                           unsigned int channels, unsigned int rate,
-                          long h_codec);
+                          long int h_codec);
 
 /**
  * \brief File format handler's open function
@@ -158,7 +157,7 @@ typedef int (*amci_plc_t)(unsigned char* out, unsigned int size,
  * @see amci_inoutfmt_t::open
  */
 typedef int (*amci_file_open_t)(FILE* fptr, struct amci_file_desc_t* fmt_desc,
-                                int options, long h_codec);
+                                int options, long int h_codec);
 
 /**
  * File format handler's close function
@@ -171,7 +170,7 @@ typedef int (*amci_file_open_t)(FILE* fptr, struct amci_file_desc_t* fmt_desc,
  * @see amci_inoutfmt_t::on_close
  */
 typedef int (*amci_file_close_t)(FILE* fptr, struct amci_file_desc_t* fmt_desc,
-                                 int options, long h_codec,
+                                 int options, long int h_codec,
                                  struct amci_codec_t* codec);
 
 /**
@@ -185,10 +184,10 @@ typedef int (*amci_file_close_t)(FILE* fptr, struct amci_file_desc_t* fmt_desc,
  * @return if failure -1, else 0.
  * @see amci_inoutfmt_t::open
  */
-typedef int (*amci_file_mem_open_t)(unsigned char* mptr, unsigned long size,
-                                    unsigned long*           pos,
+typedef int (*amci_file_mem_open_t)(unsigned char* mptr, unsigned long int size,
+                                    unsigned long int*       pos,
                                     struct amci_file_desc_t* fmt_desc,
-                                    int options, long h_codec);
+                                    int options, long int h_codec);
 
 /**
  * File format handler's mem close function (usually no-op)
@@ -201,9 +200,10 @@ typedef int (*amci_file_mem_open_t)(unsigned char* mptr, unsigned long size,
  * @return if failure -1, else 0.
  * @see amci_inoutfmt_t::on_close
  */
-typedef int (*amci_file_mem_close_t)(unsigned char* mptr, unsigned long* pos,
+typedef int (*amci_file_mem_close_t)(unsigned char*           mptr,
+                                     unsigned long int*       pos,
                                      struct amci_file_desc_t* fmt_desc,
-                                     int options, long h_codec,
+                                     int options, long int h_codec,
                                      struct amci_codec_t* codec);
 
 /**
@@ -241,26 +241,26 @@ typedef struct
   int value;
 } amci_codec_fmt_info_t;
 
-typedef long (*amci_codec_init_t)(const char*             format_parameters,
-                                  const char**            format_parameters_out,
-                                  amci_codec_fmt_info_t** fmt_info);
+typedef long int (*amci_codec_init_t)(const char*  format_parameters,
+                                      const char** format_parameters_out,
+                                      amci_codec_fmt_info_t** fmt_info);
 
 /**
  * \brief Codec's destroy function pointer.
  * @param h_codec Codec handle (from init function).
  */
-typedef void (*amci_codec_destroy_t)(long h_codec);
+typedef void (*amci_codec_destroy_t)(long int h_codec);
 
 /**
  * \brief Codec's function for calculating the number of samples from bytes
  */
-typedef unsigned int (*amci_codec_bytes2samples_t)(long         h_codec,
+typedef unsigned int (*amci_codec_bytes2samples_t)(long int     h_codec,
                                                    unsigned int num_bytes);
 
 /**
  * \brief Codec's function for calculating the number of bytes from samples
  */
-typedef unsigned int (*amci_codec_samples2bytes_t)(long         h_codec,
+typedef unsigned int (*amci_codec_samples2bytes_t)(long int     h_codec,
                                                    unsigned int num_samples);
 
 /**

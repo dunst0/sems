@@ -18,81 +18,81 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "AmApi.h"
-#include "AmSession.h"
-#include "AmConfig.h"
-#include "AmAudio.h"
-#include "AmConfigReader.h"
-#include "log.h"
-
 #include "Echo.h"
+
+#include "AmApi.h"
+#include "AmAudio.h"
 #include "AmAudioEcho.h"
-
+#include "AmConfig.h"
+#include "AmConfigReader.h"
 #include "AmPlugIn.h"
-
-EXPORT_SESSION_FACTORY(EchoFactory,"echo");
+#include "AmSession.h"
+#include "log.h"
 
 #define STAR_SWITCHES_PLAYOUTBUFFER
 
+EXPORT_SESSION_FACTORY(EchoFactory, "echo");
+
 EchoFactory::EchoFactory(const string& _app_name)
-  : AmSessionFactory(_app_name),
-    session_timer_f(NULL)
-{}
+    : AmSessionFactory(_app_name)
+    , session_timer_f(NULL)
+{
+}
 
 int EchoFactory::onLoad()
 {
   bool useSessionTimer = false;
-    
-  if(conf.loadFile(AmConfig::ModConfigPath + string(MODULE_NAME)+ ".conf")){
+
+  if (conf.loadFile(AmConfig::ModConfigPath + string(MODULE_NAME) + ".conf")) {
     WARN("Could not open " MODULE_NAME ".conf\n");
     WARN("assuming that default values are fine\n");
   }
   else {
-    if(conf.hasParameter("enable_session_timer") &&
-       (conf.getParameter("enable_session_timer") == string("yes")) ){
-      
+    if (conf.hasParameter("enable_session_timer")
+        && (conf.getParameter("enable_session_timer") == string("yes"))) {
       useSessionTimer = true;
     }
   }
-  
-  if(useSessionTimer){
+
+  if (useSessionTimer) {
     session_timer_f = AmPlugIn::instance()->getFactory4Seh("session_timer");
-    if(session_timer_f == NULL){
+    if (session_timer_f == NULL) {
       ERROR("Could not load the session_timer module: "
-	    "disabling session timers.\n");
-      //return -1;
+            "disabling session timers.\n");
+      // UNUSED
+      // return -1;
+      // UNUSED_END
     }
   }
-  
+
   return 0;
 }
 
-AmSession* EchoFactory::onInvite(const AmSipRequest& req, const string& app_name,
-				 const map<string,string>& app_params)
+AmSession* EchoFactory::onInvite(const AmSipRequest& req,
+                                 const string&       app_name,
+                                 const map<string, string>& app_params)
 {
   if (NULL != session_timer_f) {
-    if (!session_timer_f->onInvite(req, conf))
-      return NULL;
+    if (!session_timer_f->onInvite(req, conf)) return NULL;
   }
 
   AmSession* s = new EchoDialog();
-  
-  if (NULL != session_timer_f) {
 
+  if (NULL != session_timer_f) {
     AmSessionEventHandler* h = session_timer_f->getHandler(s);
-    if (NULL == h)
-      return NULL;
-    
-    if(h->configure(conf)){
+    if (NULL == h) return NULL;
+
+    if (h->configure(conf)) {
       ERROR("Could not configure the session timer: "
-	    "disabling session timers.\n");
+            "disabling session timers.\n");
       delete h;
-    } else {
+    }
+    else {
       s->addHandler(h);
     }
   }
@@ -100,22 +100,19 @@ AmSession* EchoFactory::onInvite(const AmSipRequest& req, const string& app_name
   return s;
 }
 
-EchoDialog::EchoDialog() 
-  : playout_type(ADAPTIVE_PLAYOUT)
+EchoDialog::EchoDialog()
+    : playout_type(ADAPTIVE_PLAYOUT)
 {
-	
 }
 
-EchoDialog::~EchoDialog()
-{
-}
+EchoDialog::~EchoDialog() {}
 
 void EchoDialog::onSessionStart()
 {
   DBG("EchoDialog::onSessionStart\n");
 
   RTPStream()->setPlayoutType(playout_type);
-  setInOut(&echo,&echo);
+  setInOut(&echo, &echo);
 
   AmSession::onSessionStart();
 }
@@ -129,18 +126,23 @@ void EchoDialog::onBye(const AmSipRequest& req)
 void EchoDialog::onDtmf(int event, int duration)
 {
 #ifdef STAR_SWITCHES_PLAYOUTBUFFER
-  if (event == 10) {   
+  if (event == 10) {
     const char* pt = "simple (fifo) playout buffer";
+
     if (playout_type == SIMPLE_PLAYOUT) {
       playout_type = ADAPTIVE_PLAYOUT;
-      pt = "adaptive playout buffer";
-    } else if (playout_type == ADAPTIVE_PLAYOUT) {
-      pt = "adaptive jitter buffer";
+      pt           = "adaptive playout buffer";
+    }
+    else if (playout_type == ADAPTIVE_PLAYOUT) {
+      pt           = "adaptive jitter buffer";
       playout_type = JB_PLAYOUT;
-    } else
+    }
+    else {
       playout_type = SIMPLE_PLAYOUT;
+    }
+
     DBG("received *. set playout technique to %s.\n", pt);
-		
+
     RTPStream()->setPlayoutType(playout_type);
   }
 #endif

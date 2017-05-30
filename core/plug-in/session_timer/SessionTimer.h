@@ -25,45 +25,44 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef SessionTimer_h
-#define SessionTimer_h
+#ifndef _SESSIONTIMER_H
+#define _SESSIONTIMER_H
 
 #include "AmApi.h"
+#include "AmEvent.h"
 #include "AmSession.h"
 
-#ifndef MOD_NAME
 #define MOD_NAME "session_timer"
-#endif
 
-#define TIMER_OPTION_TAG  "timer"
+#define TIMER_OPTION_TAG "timer"
 
-/* Session Timer: -ssa */
-class AmTimeoutEvent;
 // these are the timer IDs for session timer
 // Caution: do not use these for other purposes
 #define ID_SESSION_TIMER_TIMERS_START -2
-#define ID_SESSION_TIMER_TIMERS_END   -1
+#define ID_SESSION_TIMER_TIMERS_END -1
 
 #define ID_SESSION_INTERVAL_TIMER -1
-#define ID_SESSION_REFRESH_TIMER  -2
+#define ID_SESSION_REFRESH_TIMER -2
 
 /* Session Timer default configuration: */
 #define DEFAULT_ENABLE_SESSION_TIMER 1
-#define SESSION_EXPIRES              120  // seconds
-#define MINIMUM_TIMER                90   // seconds
+#define SESSION_EXPIRES 120 // seconds
+#define MINIMUM_TIMER 90    // seconds
 
-#define MAXIMUM_TIMER                900   // seconds - 15 min
+#define MAXIMUM_TIMER 900 // seconds - 15 min
 
 /** \brief Factory of the session timer event handler */
-class SessionTimerFactory: public AmSessionEventHandlerFactory
+class SessionTimerFactory : public AmSessionEventHandlerFactory
 {
   bool checkSessionExpires(const AmSipRequest& req, AmConfigReader& cfg);
 
  public:
   SessionTimerFactory(const string& name)
-    : AmSessionEventHandlerFactory(name) {}
+      : AmSessionEventHandlerFactory(name)
+  {
+  }
 
-  int onLoad();
+  int  onLoad();
   bool onInvite(const AmSipRequest& req, AmConfigReader& cfg);
 
   AmSessionEventHandler* getHandler(AmSession* s);
@@ -72,7 +71,6 @@ class SessionTimerFactory: public AmSessionEventHandlerFactory
 /** \brief config for the session timer */
 class AmSessionTimerConfig
 {
-
   /** Session Timer: enable? */
   int EnableSessionTimer;
   /** Session Timer: Desired Session-Expires */
@@ -82,10 +80,9 @@ class AmSessionTimerConfig
 
   unsigned int MaximumTimer;
 
-public:
+ public:
   AmSessionTimerConfig();
   ~AmSessionTimerConfig();
-
 
   /** Session Timer: Enable Session Timer?
       returns 0 on invalid value */
@@ -97,12 +94,12 @@ public:
       returns 0 on invalid value */
   int setMinimumTimer(const string& minse);
 
-  void setEnableSessionTimer(bool enable)  { EnableSessionTimer = enable; }
-  void setSessionExpires(unsigned int se)  { SessionExpires = se; }
+  void setEnableSessionTimer(bool enable) { EnableSessionTimer = enable; }
+  void setSessionExpires(unsigned int se) { SessionExpires = se; }
   void setMinimumTimer(unsigned int minse) { MinimumTimer = minse; }
   void setMaximumTimer(unsigned int maxse) { MaximumTimer = maxse; }
 
-  bool getEnableSessionTimer() const { return EnableSessionTimer; }
+  bool         getEnableSessionTimer() const { return EnableSessionTimer; }
   unsigned int getSessionExpires() const { return SessionExpires; }
   unsigned int getMinimumTimer() const { return MinimumTimer; }
   unsigned int getMaximumTimer() const { return MaximumTimer; }
@@ -112,21 +109,24 @@ public:
 
 struct SIPRequestInfo;
 
-/** \brief SessionEventHandler for implementing session timer logic for a session */
-class SessionTimer: public AmSessionEventHandler
+/** \brief SessionEventHandler for implementing session timer logic for a
+ * session */
+class SessionTimer : public AmSessionEventHandler
 {
-protected:
+ protected:
   AmSessionTimerConfig session_timer_conf;
-  AmSession* s;
+  AmSession*           s;
 
   // map to save sent requests, so we can resent in case of 422
-  //std::map<unsigned int, SIPRequestInfo> sent_requests;
+  // std::map<unsigned int, SIPRequestInfo> sent_requests;
 
-  enum SessionRefresher {
+  enum SessionRefresher
+  {
     refresh_local,
     refresh_remote
   };
-  enum SessionRefresherRole {
+  enum SessionRefresherRole
+  {
     UAC,
     UAS
   };
@@ -138,8 +138,8 @@ protected:
   SessionRefresherRole session_refresher_role;
   bool                 accept_501_reply;
 
-  void updateTimer(AmSession* s,const AmSipRequest& req);
-  void updateTimer(AmSession* s,const AmSipReply& reply);
+  void updateTimer(AmSession* s, const AmSipRequest& req);
+  void updateTimer(AmSession* s, const AmSipReply& reply);
 
   virtual void setTimers(AmSession* s);
   void retryRefreshTimer(AmSession* s);
@@ -159,34 +159,34 @@ protected:
   virtual ~SessionTimer();
 
   /* @see AmSessionEventHandler */
-  virtual int  configure(AmConfigReader& conf);
+  virtual int configure(AmConfigReader& conf);
   virtual bool process(AmEvent*);
 
   virtual bool onSipRequest(const AmSipRequest&);
   virtual bool onSipReply(const AmSipRequest&, const AmSipReply&,
-			  AmBasicSipDialog::Status old_dlg_status);
+                          AmBasicSipDialog::Status old_dlg_status);
 
   virtual bool onSendRequest(AmSipRequest& req, int& flags);
-  virtual bool onSendReply(const AmSipRequest& req, AmSipReply& reply, int& flags);
+  virtual bool onSendReply(const AmSipRequest& req, AmSipReply& reply,
+                           int& flags);
 };
 
-
 /** \brief contains necessary information for UAC auth of a SIP request */
-struct SIPRequestInfo {
-  string method;
+struct SIPRequestInfo
+{
+  string     method;
   AmMimeBody body;
-  string hdrs;
+  string     hdrs;
 
-  SIPRequestInfo(const string& method,
-		 const AmMimeBody* body,
-		 const string& hdrs)
-    : method(method), hdrs(hdrs)
+  SIPRequestInfo(const string& method, const AmMimeBody* body,
+                 const string& hdrs)
+      : method(method)
+      , hdrs(hdrs)
   {
-    if(body) this->body = *body;
+    if (body) this->body = *body;
   }
 
   SIPRequestInfo() {}
-
 };
 
 #endif
