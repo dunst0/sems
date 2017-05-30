@@ -18,29 +18,34 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _Statistics_h_
-#define _Statistics_h_
+#ifndef _STATISTICS_H_
+#define _STATISTICS_H_
 
 #include "AmApi.h"
+
+#include <string>
+
+using std::string;
 
 #define MOD_NAME "stats"
 
 /** \brief starts the stats UDP server */
-class StatsFactory: public AmPluginFactory
+class StatsFactory : public AmPluginFactory
 {
-public:
-  StatsFactory(const std::string& _app_name);
-    
+ public:
+  StatsFactory(const string& _app_name);
+
   // AmPluginFactory interface
   int onLoad();
 };
 
-// template<class T> 
+// UNUSED
+// template<class T>
 // class SharedVarInc: public AmSharedVar<T>
 // {
 // public:
@@ -62,6 +67,6 @@ public:
 //     void onSessionStart(AmRequest* req);
 //     void onBye();
 // };
-
+// UNUSED_END
 
 #endif
