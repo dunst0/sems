@@ -7,10 +7,10 @@
 #include <event2/event.h>
 #include <sys/socket.h>
 
+#include <deque>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-#include <deque>
 
 using std::vector;
 using std::map;

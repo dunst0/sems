@@ -46,7 +46,7 @@ Resample::Resample()
 {
 }
 
-int Resample::put_samples(signed short* samples, unsigned int num_samples)
+int Resample::put_samples(signed short int* samples, unsigned int num_samples)
 {
   if (current >= MOVE_THRESH) {
     this->samples.erase(this->samples.begin(),
@@ -192,14 +192,14 @@ inline float ResampleSincMono::upsample(float* src, unsigned int current,
 }
 
 inline float ResampleSincMono::downsample(float* src, unsigned int current,
-                                          unsigned int       curfrc,
-                                          unsigned long long sinc_increment,
-                                          float              scale)
+                                          unsigned int           curfrc,
+                                          unsigned long long int sinc_increment,
+                                          float                  scale)
 {
-  long long sinc_current;
-  float     samp;
+  long long int sinc_current;
+  float         samp;
 
-  sinc_current = ((sinc_increment * curfrc) >> 32) + ((long long) 7 << 32);
+  sinc_current = ((sinc_increment * curfrc) >> 32) + ((long long int) 7 << 32);
   sinc_current -= sinc_increment * 7;
 
   // todo: linear interpolation between sinc values
@@ -283,18 +283,19 @@ inline float ResampleSincMono::downsample(float* src, unsigned int current,
   return samp;
 }
 
-int ResampleSincMono::resample(signed short* dst, float rate,
+int ResampleSincMono::resample(signed short int* dst, float rate,
                                unsigned int num_samples)
 {
   float samp;
 
-  unsigned long long current_fixed;
-  long long          increment_fixed;
-  int                done = 0;
+  unsigned long long int current_fixed;
+  long long int          increment_fixed;
+  int                    done = 0;
 
   increment_fixed = (1.0 / rate) * 4294967296.0;
-  current_fixed = (((unsigned long long) current << 32) & 0xFFFFFFFF00000000LL)
-                  | (curfrc & 0xffffffff);
+  current_fixed =
+      (((unsigned long long int) current << 32) & 0xFFFFFFFF00000000LL)
+      | (curfrc & 0xffffffff);
 
   if (pad_samples) {
     if (num_samples < pad_samples) {
@@ -316,7 +317,7 @@ int ResampleSincMono::resample(signed short* dst, float rate,
     // calculate sinc increment
     // todo: with all tis crap here, a floating point increment
     //       (for the resampling as well) may be better (and faster)
-    unsigned long long sinc_increment = rate * 4294967296.0;
+    unsigned long long int sinc_increment = rate * 4294967296.0;
 
     // this code stretches the sinc to fit the new cut-off frequency
     // (at 1/2 of our new fs, which is lower than 1/2 of the sample fs)
@@ -342,7 +343,7 @@ int ResampleSincMono::resample(signed short* dst, float rate,
         samp = -32768.0;
       }
 
-      *dst = (short) samp;
+      *dst = (short int) samp;
       dst++;
 
       current_fixed += increment_fixed;
@@ -368,7 +369,7 @@ int ResampleSincMono::resample(signed short* dst, float rate,
         samp = -32768.0;
       }
 
-      *dst = (short) samp;
+      *dst = (short int) samp;
       dst++;
 
       current_fixed += increment_fixed;
@@ -384,7 +385,7 @@ int ResampleSincMono::resample(signed short* dst, float rate,
     while (num_samples > 0) {
       if (current >= samples.size() - filter_delay) break;
 
-      *dst = (short) samples[current];
+      *dst = (short int) samples[current];
       dst++;
 
       current++;
@@ -394,7 +395,7 @@ int ResampleSincMono::resample(signed short* dst, float rate,
     }
 
     current_fixed =
-        (((unsigned long long) current << 32) & 0xFFFFFFFF00000000LL);
+        (((unsigned long long int) current << 32) & 0xFFFFFFFF00000000LL);
   }
 
   this->current = (current_fixed >> 32) & 0xffffffff;
@@ -496,15 +497,14 @@ inline float ResampleSincStereo::upsample(float* src, unsigned int current,
   return samp;
 }
 
-inline float ResampleSincStereo::downsample(float* src, unsigned int current,
-                                            unsigned int       curfrc,
-                                            unsigned long long sinc_increment,
-                                            float              scale)
+inline float ResampleSincStereo::downsample(
+    float* src, unsigned int current, unsigned int curfrc,
+    unsigned long long int sinc_increment, float scale)
 {
-  long long sinc_current;
-  float     samp;
+  long long int sinc_current;
+  float         samp;
 
-  sinc_current = ((sinc_increment * curfrc) >> 32) + ((long long) 7 << 32);
+  sinc_current = ((sinc_increment * curfrc) >> 32) + ((long long int) 7 << 32);
   sinc_current -= sinc_increment * 7;
 
   // todo: linear interpolation between sinc values
@@ -588,19 +588,20 @@ inline float ResampleSincStereo::downsample(float* src, unsigned int current,
   return samp;
 }
 
-int ResampleSincStereo::resample(signed short* dst, float rate,
+int ResampleSincStereo::resample(signed short int* dst, float rate,
                                  unsigned int num_samples)
 {
   float samp_l;
   float samp_r;
 
-  unsigned long long current_fixed;
-  long long          increment_fixed;
-  int                done = 0;
+  unsigned long long int current_fixed;
+  long long int          increment_fixed;
+  int                    done = 0;
 
   increment_fixed = (1.0 / rate) * 4294967296.0;
-  current_fixed = (((unsigned long long) current << 32) & 0xFFFFFFFF00000000LL)
-                  | (curfrc & 0xffffffff);
+  current_fixed =
+      (((unsigned long long int) current << 32) & 0xFFFFFFFF00000000LL)
+      | (curfrc & 0xffffffff);
 
   if (pad_samples) {
     if (num_samples < pad_samples) {
@@ -624,7 +625,7 @@ int ResampleSincStereo::resample(signed short* dst, float rate,
     // calculate sinc increment
     // todo: with all tis crap here, a floating point increment
     //       (for the resampling as well) may be better (and faster)
-    unsigned long long sinc_increment = rate * 4294967296.0;
+    unsigned long long int sinc_increment = rate * 4294967296.0;
 
     // this code stretches the sinc to fit the new cut-off frequency
     // (at 1/2 of our new fs, which is lower than 1/2 of the sample fs)
@@ -659,9 +660,9 @@ int ResampleSincStereo::resample(signed short* dst, float rate,
         samp_r = -32768.0;
       }
 
-      *dst = (short) samp_l;
+      *dst = (short int) samp_l;
       dst++;
-      *dst = (short) samp_r;
+      *dst = (short int) samp_r;
       dst++;
 
       current_fixed += increment_fixed;
@@ -695,9 +696,9 @@ int ResampleSincStereo::resample(signed short* dst, float rate,
         samp_r = -32768.0;
       }
 
-      *dst = (short) samp_l;
+      *dst = (short int) samp_l;
       dst++;
-      *dst = (short) samp_r;
+      *dst = (short int) samp_r;
       dst++;
 
       current_fixed += increment_fixed;
@@ -713,9 +714,9 @@ int ResampleSincStereo::resample(signed short* dst, float rate,
     while (num_samples > 0) {
       if ((current * 2) >= samples.size() - filter_delay - 1) break;
 
-      *dst = (short) samples[current * 2];
+      *dst = (short int) samples[current * 2];
       dst++;
-      *dst = (short) samples[current * 2 + 1];
+      *dst = (short int) samples[current * 2 + 1];
       dst++;
 
       current++;
@@ -725,7 +726,7 @@ int ResampleSincStereo::resample(signed short* dst, float rate,
     }
 
     current_fixed =
-        (((unsigned long long) current << 32) & 0xFFFFFFFF00000000LL);
+        (((unsigned long long int) current << 32) & 0xFFFFFFFF00000000LL);
   }
 
   this->current = (current_fixed >> 32) & 0xffffffff;
@@ -764,18 +765,19 @@ inline float ResampleLinMono::updownsample(float* src, unsigned int current,
   return samp;
 }
 
-int ResampleLinMono::resample(signed short* dst, float rate,
+int ResampleLinMono::resample(signed short int* dst, float rate,
                               unsigned int num_samples)
 {
   float samp;
 
-  unsigned long long current_fixed;
-  long long          increment_fixed;
-  int                done = 0;
+  unsigned long long int current_fixed;
+  long long int          increment_fixed;
+  int                    done = 0;
 
   increment_fixed = (1.0 / rate) * 4294967296.0;
-  current_fixed = (((unsigned long long) current << 32) & 0xFFFFFFFF00000000LL)
-                  | (curfrc & 0xffffffff);
+  current_fixed =
+      (((unsigned long long int) current << 32) & 0xFFFFFFFF00000000LL)
+      | (curfrc & 0xffffffff);
 
   if (pad_samples) {
     if (num_samples < pad_samples) {
@@ -810,7 +812,7 @@ int ResampleLinMono::resample(signed short* dst, float rate,
         samp = -32768.0;
       }
 
-      *dst = (short) samp;
+      *dst = (short int) samp;
       dst++;
 
       current_fixed += increment_fixed;
@@ -836,7 +838,7 @@ int ResampleLinMono::resample(signed short* dst, float rate,
         samp = -32768.0;
       }
 
-      *dst = (short) samp;
+      *dst = (short int) samp;
       dst++;
 
       current_fixed += increment_fixed;
@@ -853,7 +855,7 @@ int ResampleLinMono::resample(signed short* dst, float rate,
     while (num_samples > 0) {
       if (current >= samples.size() - filter_delay) break;
 
-      *dst = (short) samples[current];
+      *dst = (short int) samples[current];
       dst++;
 
       current++;
@@ -863,7 +865,7 @@ int ResampleLinMono::resample(signed short* dst, float rate,
     }
 
     current_fixed =
-        (((unsigned long long) current << 32) & 0xFFFFFFFF00000000LL);
+        (((unsigned long long int) current << 32) & 0xFFFFFFFF00000000LL);
   }
 
   this->current = (current_fixed >> 32) & 0xffffffff;
@@ -902,19 +904,20 @@ inline float ResampleLinStereo::updownsample(float* src, unsigned int current,
   return samp;
 }
 
-int ResampleLinStereo::resample(signed short* dst, float rate,
+int ResampleLinStereo::resample(signed short int* dst, float rate,
                                 unsigned int num_samples)
 {
   float samp_l;
   float samp_r;
 
-  unsigned long long current_fixed;
-  long long          increment_fixed;
-  int                done = 0;
+  unsigned long long int current_fixed;
+  long long int          increment_fixed;
+  int                    done = 0;
 
   increment_fixed = (1.0 / rate) * 4294967296.0;
-  current_fixed = (((unsigned long long) current << 32) & 0xFFFFFFFF00000000LL)
-                  | (curfrc & 0xffffffff);
+  current_fixed =
+      (((unsigned long long int) current << 32) & 0xFFFFFFFF00000000LL)
+      | (curfrc & 0xffffffff);
 
   if (pad_samples) {
     if (num_samples < pad_samples) {
@@ -959,9 +962,9 @@ int ResampleLinStereo::resample(signed short* dst, float rate,
         samp_r = -32768.0;
       }
 
-      *dst = (short) samp_l;
+      *dst = (short int) samp_l;
       dst++;
-      *dst = (short) samp_r;
+      *dst = (short int) samp_r;
       dst++;
 
       current_fixed += increment_fixed;
@@ -994,9 +997,9 @@ int ResampleLinStereo::resample(signed short* dst, float rate,
         samp_r = -32768.0;
       }
 
-      *dst = (short) samp_l;
+      *dst = (short int) samp_l;
       dst++;
-      *dst = (short) samp_r;
+      *dst = (short int) samp_r;
       dst++;
 
       current_fixed += increment_fixed;
@@ -1012,9 +1015,9 @@ int ResampleLinStereo::resample(signed short* dst, float rate,
     while (num_samples > 0) {
       if ((current * 2) >= samples.size() - filter_delay - 1) break;
 
-      *dst = (short) samples[current * 2];
+      *dst = (short int) samples[current * 2];
       dst++;
-      *dst = (short) samples[current * 2 + 1];
+      *dst = (short int) samples[current * 2 + 1];
       dst++;
 
       current++;
@@ -1024,7 +1027,7 @@ int ResampleLinStereo::resample(signed short* dst, float rate,
     }
 
     current_fixed =
-        (((unsigned long long) current << 32) & 0xFFFFFFFF00000000LL);
+        (((unsigned long long int) current << 32) & 0xFFFFFFFF00000000LL);
   }
 
   this->current = (current_fixed >> 32) & 0xffffffff;

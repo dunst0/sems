@@ -36,8 +36,8 @@
  * The type definitions below are valid for 32-bit architectures and
  * may have to be adjusted for 16- or 64-bit architectures.
  */
-typedef unsigned short u_int16;
-typedef unsigned int   u_int32;
+typedef unsigned short int u_int16;
+typedef unsigned int       u_int32;
 
 /*
  * Current protocol version.

@@ -256,7 +256,7 @@ void hashword2(const uint32_t* k, /* the key, an array of uint32_t values */
     case 0: /* case 0: nothing left to add */ break;
   }
   /*------------------------------------------------------ report the result */
-  
+
   *pc = c;
   *pb = b;
 }

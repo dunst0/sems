@@ -47,9 +47,9 @@
 #include <string.h>
 #include <sys/socket.h>
 
-#include <utility>
 #include <algorithm>
 #include <list>
+#include <utility>
 
 using std::make_pair;
 using std::list;

@@ -30,8 +30,8 @@
 #ifndef _PARSE_URI_H_
 #define _PARSE_URI_H_
 
-#include "parse_common.h"
 #include "cstring.h"
+#include "parse_common.h"
 
 #include <list>
 

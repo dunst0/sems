@@ -30,8 +30,8 @@
 #include "parse_header.h"
 
 #include "defs.h"
-#include "parse_common.h"
 #include "log.h"
+#include "parse_common.h"
 
 #include <memory>
 

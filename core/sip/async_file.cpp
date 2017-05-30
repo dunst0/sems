@@ -117,7 +117,8 @@ void async_file::write_cycle()
   if (closed) {
     if (error || !fifo_buffer::get_buffered_bytes()) {
       on_flushed();
-    } else {
+    }
+    else {
       event_active(ev_write, 0, 0);
     }
   }

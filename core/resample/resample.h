@@ -22,7 +22,7 @@ class Resample
    * returns -1 on error (must be a realloc, memory error)
    * number of samples put into state (currently always = num_samples) otherwise
    */
-  virtual int put_samples(signed short* samples, unsigned int num_samples);
+  virtual int put_samples(signed short int* samples, unsigned int num_samples);
 
   /*
    * resample by rate
@@ -34,7 +34,7 @@ class Resample
    *
    * returns number of samples actually put into dst
    */
-  virtual int resample(signed short* dst, float rate,
+  virtual int resample(signed short int* dst, float rate,
                        unsigned int num_samples) = 0;
 };
 
@@ -49,15 +49,16 @@ class ResampleSincMono : public Resample
   static inline float upsample(float* src, unsigned int current,
                                unsigned int curfrc);
   static inline float downsample(float* src, unsigned int current,
-                                 unsigned int       curfrc,
-                                 unsigned long long sinc_increment,
-                                 float              scale);
+                                 unsigned int           curfrc,
+                                 unsigned long long int sinc_increment,
+                                 float                  scale);
 
  public:
   ResampleSincMono();
   ResampleSincMono(bool do_pad, float max_rate);
   virtual ~ResampleSincMono(){};
-  virtual int resample(signed short* dst, float rate, unsigned int num_samples);
+  virtual int resample(signed short int* dst, float rate,
+                       unsigned int num_samples);
 };
 
 class ResampleSincStereo : public ResampleSincMono
@@ -66,15 +67,16 @@ class ResampleSincStereo : public ResampleSincMono
   static inline float upsample(float* src, unsigned int current,
                                unsigned int curfrc);
   static inline float downsample(float* src, unsigned int current,
-                                 unsigned int       curfrc,
-                                 unsigned long long sinc_increment,
-                                 float              scale);
+                                 unsigned int           curfrc,
+                                 unsigned long long int sinc_increment,
+                                 float                  scale);
 
  public:
   ResampleSincStereo();
   ResampleSincStereo(bool do_pad, float max_rate);
   virtual ~ResampleSincStereo(){};
-  virtual int resample(signed short* dst, float rate, unsigned int num_samples);
+  virtual int resample(signed short int* dst, float rate,
+                       unsigned int num_samples);
 };
 
 class ResampleLinMono : public Resample
@@ -87,7 +89,8 @@ class ResampleLinMono : public Resample
   ResampleLinMono();
   ResampleLinMono(bool do_pad, float max_rate);
   virtual ~ResampleLinMono(){};
-  virtual int resample(signed short* dst, float rate, unsigned int num_samples);
+  virtual int resample(signed short int* dst, float rate,
+                       unsigned int num_samples);
 };
 
 class ResampleLinStereo : public Resample
@@ -100,7 +103,8 @@ class ResampleLinStereo : public Resample
   ResampleLinStereo();
   ResampleLinStereo(bool do_pad, float max_rate);
   virtual ~ResampleLinStereo(){};
-  virtual int resample(signed short* dst, float rate, unsigned int num_samples);
+  virtual int resample(signed short int* dst, float rate,
+                       unsigned int num_samples);
 };
 
 class ResampleFactory

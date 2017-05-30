@@ -30,8 +30,8 @@
 #ifndef _PARSE_VIA_H_
 #define _PARSE_VIA_H_
 
-#include "parse_header.h"
 #include "parse_common.h"
+#include "parse_header.h"
 
 #define MAGIC_BRANCH_COOKIE "z9hG4bK"
 #define MAGIC_BRANCH_LEN 7

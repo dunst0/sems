@@ -2,10 +2,10 @@
 
 #include "log.h"
 
-#include <errno.h>
-#include <string.h>
 #include <arpa/inet.h>
+#include <errno.h>
 #include <netdb.h>
+#include <string.h>
 
 int am_inet_pton(const char* src, struct sockaddr_storage* dst)
 {

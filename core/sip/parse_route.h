@@ -38,20 +38,23 @@ struct route_elmt
   cstring       route;
 
   route_elmt()
-    : addr(NULL), route()
-  {}
+      : addr(NULL)
+      , route()
+  {
+  }
 
   ~route_elmt();
 };
 
-struct sip_route: public sip_parsed_hdr
+struct sip_route : public sip_parsed_hdr
 {
   list<route_elmt*> elmts;
 
   sip_route()
-    : sip_parsed_hdr(),
-      elmts()
-  {}
+      : sip_parsed_hdr()
+      , elmts()
+  {
+  }
 
   ~sip_route();
 };

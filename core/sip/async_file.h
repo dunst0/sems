@@ -1,8 +1,8 @@
 #ifndef _ASYNC_FILE_H_
 #define _ASYNC_FILE_H_
 
-#include "fifo_buffer.h"
 #include "AmThread.h"
+#include "fifo_buffer.h"
 
 #include <event2/event.h>
 

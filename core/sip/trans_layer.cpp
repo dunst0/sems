@@ -42,10 +42,10 @@
 #include "parse_from_to.h"
 #include "parse_route.h"
 #include "sip_timers.h"
+#include "sip_ua.h"
 #include "tr_blacklist.h"
 #include "udp_trsp.h"
 #include "wheeltimer.h"
-#include "sip_ua.h"
 
 #include <algorithm>
 #include <arpa/inet.h>

@@ -40,9 +40,9 @@ using std::unique_ptr;
 int parse_sip_version(const char* beg, int len)
 {
   const char* c = beg;
-  //UNUSED
+  // UNUSED
   // char* end = c+len;
-  //UNUSED_END
+  // UNUSED_END
 
   if (len != SIPVER_len) {
     DBG("SIP-Version string length != SIPVER_len\n");

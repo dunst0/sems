@@ -1,6 +1,6 @@
 #include "msg_logger.h"
-#include "exclusive_file.h"
 #include "AmUtils.h"
+#include "exclusive_file.h"
 
 #include <arpa/inet.h>
 #include <fcntl.h>

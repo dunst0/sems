@@ -1,7 +1,7 @@
 #include "exclusive_file.h"
+#include "AmThread.h"
 #include "log.h"
 #include "singleton.h"
-#include "AmThread.h"
 
 #include <errno.h>
 #include <fcntl.h>

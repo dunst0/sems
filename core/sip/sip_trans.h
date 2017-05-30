@@ -31,11 +31,11 @@
 #define _SIP_TRANS_H_
 
 #include "cstring.h"
-#include "wheeltimer.h"
-#include "sip_parser.h"
-#include "transport.h"
 #include "msg_logger.h"
 #include "resolver.h"
+#include "sip_parser.h"
+#include "transport.h"
+#include "wheeltimer.h"
 
 #include <sys/socket.h>
 

@@ -1,11 +1,11 @@
 #include "tcp_trsp.h"
 
+#include "AmUtils.h"
 #include "hash.h"
 #include "ip_util.h"
 #include "parse_common.h"
 #include "sip_parser.h"
 #include "trans_layer.h"
-#include "AmUtils.h"
 
 #include <fcntl.h>
 #include <netdb.h>

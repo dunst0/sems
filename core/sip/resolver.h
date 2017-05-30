@@ -39,9 +39,9 @@
 #include <netinet/in.h>
 #include <stdlib.h>
 
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 using std::string;
 using std::vector;

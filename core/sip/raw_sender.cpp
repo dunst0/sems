@@ -1,8 +1,8 @@
 #include "raw_sender.h"
 
 #include "AmConfig.h"
-#include "raw_sock.h"
 #include "log.h"
+#include "raw_sock.h"
 
 #include <errno.h>
 #include <string.h>

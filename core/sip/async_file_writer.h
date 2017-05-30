@@ -20,7 +20,7 @@ class _async_file_writer : public AmThread
   void        run();
 
  public:
-  void start();
+  void        start();
   event_base* get_evbase() const { return evbase; }
 };
 

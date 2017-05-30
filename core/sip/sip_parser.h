@@ -31,10 +31,10 @@
 #define _SIP_PARSER_H_
 
 #include "cstring.h"
-#include "parse_uri.h"
-#include "resolver.h"
 #include "parse_header.h"
+#include "parse_uri.h"
 #include "parse_via.h"
+#include "resolver.h"
 #include "transport.h"
 
 #include <netinet/in.h>

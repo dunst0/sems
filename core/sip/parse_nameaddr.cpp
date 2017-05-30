@@ -55,9 +55,9 @@ int parse_nameaddr(sip_nameaddr* na, const char** c, int len)
   const char* uri_end = 0;
 
   int saved_st = 0, st = NA_SWS;
-  //UNUSED
+  // UNUSED
   // int ret=0;
-  //UNUSED_END
+  // UNUSED_END
 
   for (; *c != end; (*c)++) {
     switch (st) {

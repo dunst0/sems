@@ -32,16 +32,16 @@
 
 #include "atomic_types.h"
 #include "cstring.h"
-#include "parse_next_hop.h"
-#include "singleton.h"
-#include "trans_table.h"
-#include "sip_trans.h"
-#include "sip_parser.h"
-#include "parse_uri.h"
-#include "parse_header.h"
-#include "resolver.h"
-#include "transport.h"
 #include "msg_logger.h"
+#include "parse_header.h"
+#include "parse_next_hop.h"
+#include "parse_uri.h"
+#include "resolver.h"
+#include "singleton.h"
+#include "sip_parser.h"
+#include "sip_trans.h"
+#include "trans_table.h"
+#include "transport.h"
 
 #include <sys/socket.h>
 
