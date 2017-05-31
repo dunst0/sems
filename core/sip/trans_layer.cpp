@@ -1180,7 +1180,7 @@ int _trans_layer::send_request(sip_msg* msg, trans_ticket* tt,
     dest_list.push_back(dest);
   }
 
-  unique_ptr<sip_target_set> targets(new sip_target_set());
+  std::unique_ptr<sip_target_set> targets(new sip_target_set());
   res = resolver::instance()->resolve_targets(dest_list, targets.get());
   if (res < 0) {
     DBG("resolve_targets failed\n");
@@ -2525,9 +2525,9 @@ try_next_dest:
   }
 
   if (use_new_trans) {
-    string                n_uri;
-    cstring               old_uri;
-    unique_ptr<sip_trans> n_tr(copy_uac_trans(tr));
+    string                     n_uri;
+    cstring                    old_uri;
+    std::unique_ptr<sip_trans> n_tr(copy_uac_trans(tr));
 
     // Warning: no deep copy!!!
     //  -> do not forget to release() before it's too late!
