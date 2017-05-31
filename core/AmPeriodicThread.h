@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmPeriodicThread.h */
@@ -30,9 +30,9 @@
 
 #include "AmThread.h"
 
-class AmPeriodicThread: public AmThread
+class AmPeriodicThread : public AmThread
 {
-protected:
+ protected:
   AmPeriodicThread() {}
   virtual ~AmPeriodicThread() {}
 
@@ -47,16 +47,15 @@ protected:
    * @param max_ticks_behind maximum forward clock drift in ticks.
    * @param usr_data   pointer that will be passed to looping_step().
    */
-  void infinite_loop(struct timeval* tick,
-		     unsigned int max_ticks_behind,
-		     void* usr_data);
+  void infinite_loop(struct timeval* tick, unsigned int max_ticks_behind,
+                     void* usr_data);
 
   /*
    * This method is executed periodically by
    * infinite loop.
    * @return true to continue the loop, false to stop it.
    */
-  virtual bool looping_step(void* usr_data)=0;
+  virtual bool looping_step(void* usr_data) = 0;
 };
 
 #endif

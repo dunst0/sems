@@ -36,7 +36,7 @@
 // moved to soft-state map, where they are held until
 // queried to a maximum of WATCHER_SOFT_EXPIRE_SECONDS
 
-#define WATCHER_SOFT_EXPIRE_SECONDS  5
+#define WATCHER_SOFT_EXPIRE_SECONDS 5
 
 #include <string>
 using std::string;
@@ -46,8 +46,8 @@ using std::string;
 #include <utility>
 using std::pair;
 
-#include "AmEventQueue.h"
 #include "AmEvent.h"
+#include "AmEventQueue.h"
 #include "AmThread.h"
 
 class CallStatus;
@@ -55,33 +55,37 @@ class CallStatus;
 /**
  * \brief event that carries out call status update
  */
-class CallStatusUpdateEvent : public AmEvent {
+class CallStatusUpdateEvent : public AmEvent
+{
   string call_id;
 
   CallStatus* init_status;
 
  public:
-  enum UpdateType {
+  enum UpdateType
+  {
     Initialize = 0,
     Update,
     Obsolete
   };
 
   CallStatusUpdateEvent(UpdateType t, const string& call_id)
-    : AmEvent(t),
-      call_id(call_id)
-  {}
+      : AmEvent(t)
+      , call_id(call_id)
+  {
+  }
 
   // implicit: initialize
   CallStatusUpdateEvent(const string& call_id, CallStatus* init_status)
-    : AmEvent(Initialize),
-      call_id(call_id),
-      init_status(init_status)
-  {}
+      : AmEvent(Initialize)
+      , call_id(call_id)
+      , init_status(init_status)
+  {
+  }
 
   ~CallStatusUpdateEvent() {}
 
-  string get_call_id() { return call_id; }
+  string      get_call_id() { return call_id; }
   CallStatus* get_init_status() { return init_status; }
 };
 
@@ -99,7 +103,7 @@ class CallStatus
 
   /** get a copy of self with relevant data */
   virtual CallStatus* copy() = 0;
-  virtual void dump() {}
+  virtual void        dump() {}
 };
 
 class AmCallWatcherGarbageCollector;
@@ -112,21 +116,20 @@ class AmCallWatcherGarbageCollector;
  * reporting the status change.
  */
 class AmCallWatcher
-: public AmThread,
-  public AmEventQueue,
-  public AmEventHandler
+    : public AmThread
+    , public AmEventQueue
+    , public AmEventHandler
 {
  public:
   typedef std::map<string, CallStatus*> CallStatusMap;
-  typedef std::map<string, pair<CallStatus*, time_t> > CallStatusTimedMap;
+  typedef std::map<string, pair<CallStatus*, time_t>> CallStatusTimedMap;
 
  private:
   CallStatusMap states;
   AmMutex       states_mut;
 
-
-  CallStatusTimedMap soft_states;
-  AmMutex            soft_states_mut;
+  CallStatusTimedMap             soft_states;
+  AmMutex                        soft_states_mut;
   AmCallWatcherGarbageCollector* garbage_collector;
 
  public:
@@ -153,20 +156,21 @@ class AmCallWatcher
  * A bit inefficient with two threads, but AmCallWatcher
  * shouldn't be blocked by event.
  */
-class AmCallWatcherGarbageCollector
-: public AmThread
+class AmCallWatcherGarbageCollector : public AmThread
 {
-  AmMutex& mut;
+  AmMutex&                           mut;
   AmCallWatcher::CallStatusTimedMap& garbage;
+
  public:
-  AmCallWatcherGarbageCollector(AmMutex& mut,
+  AmCallWatcherGarbageCollector(AmMutex&                           mut,
                                 AmCallWatcher::CallStatusTimedMap& garbage)
-    : mut(mut),
-      garbage(garbage)
-  {}
+      : mut(mut)
+      , garbage(garbage)
+  {
+  }
 
   void run();
-  void on_stop() { }
+  void on_stop() {}
 };
 
 #endif

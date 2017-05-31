@@ -18,8 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmCachedAudioFile.h */
@@ -31,23 +31,23 @@
 #include <string>
 
 /**
- * \brief memory cache for AmAudioFile 
- * 
- * The AmFileCache class loads a file once into memory 
+ * \brief memory cache for AmAudioFile
+ *
+ * The AmFileCache class loads a file once into memory
  * to be used e.g. by AmCachedAudioFile.
  */
-class AmFileCache 
+class AmFileCache
 {
-  void* data;
-  size_t data_size;
+  void*       data;
+  size_t      data_size;
   std::string name;
 
  public:
   AmFileCache();
   ~AmFileCache();
 
-  /** load filename into memory 
-   * @return 0 if everything's OK 
+  /** load filename into memory
+   * @return 0 if everything's OK
    */
   int load(const std::string& filename);
   /** get the size of the file */
@@ -62,19 +62,18 @@ class AmFileCache
 
 /**
  * \brief AmAudio implementation for cached file
- *  
- *  This uses an AmFileCache instance to read the data 
- *  rather than a file. 
+ *
+ *  This uses an AmFileCache instance to read the data
+ *  rather than a file.
  */
-class AmCachedAudioFile 
-: public AmAudio
+class AmCachedAudioFile : public AmAudio
 {
   AmFileCache* cache;
   /** current position */
   size_t fpos;
   /** beginning of data in file */
-  size_t begin; 
-  bool good;
+  size_t begin;
+  bool   good;
 
   /** @see AmAudio::read */
   int read(unsigned int user_ts, unsigned int size);
@@ -103,7 +102,7 @@ class AmCachedAudioFile
   /** Closes the file. */
   void close();
 
-  /** everything ok? */	
+  /** everything ok? */
   bool is_good() { return good; }
 };
 #endif //_AMFILECACHE_H

@@ -19,8 +19,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmPromptCollection.h */
@@ -30,23 +30,23 @@
 /**
  *
  * Example how to use:
- * 
+ *
  *  AM_PROMPT_START;
  *  AM_PROMPT_ADD("enter_pin", "path/to/default/enter_pin.wav");
  *  AM_PROMPT_ADD("ok", "path/to/default/ok.wav");
  *  AM_PROMPT_END(prompts, cfg, APP_NAME);
  */
 
-#define AM_PROMPT_START \
-{   \
-  std::vector<std::pair<string, string> > _prompt_names
+#define AM_PROMPT_START                                                        \
+  {                                                                            \
+    std::vector<std::pair<string, string>> _prompt_names
 
-#define AM_PROMPT_ADD(_name, _default_file) \
- _prompt_names.push_back(std::make_pair(_name, _default_file))
+#define AM_PROMPT_ADD(_name, _default_file)                                    \
+  _prompt_names.push_back(std::make_pair(_name, _default_file))
 
-#define AM_PROMPT_END(_prompts, _cfg, _MOD_NAME) \
-  _prompts.configureModule(_cfg, _prompt_names, _MOD_NAME); \
- }
+#define AM_PROMPT_END(_prompts, _cfg, _MOD_NAME)                               \
+  _prompts.configureModule(_cfg, _prompt_names, _MOD_NAME);                    \
+  }
 
 #include <map>
 #include <string>
@@ -54,42 +54,41 @@
 using std::string;
 
 #include "AmCachedAudioFile.h"
-#include "AmPlaylist.h"
 #include "AmConfigReader.h"
+#include "AmPlaylist.h"
 
 class AudioFileEntry;
 
 /**
  * \brief manages AmAudioFiles with name for a session.
  */
-class AmPromptCollection {
-
+class AmPromptCollection
+{
   // loaded files
   std::map<string, AudioFileEntry*> store;
 
   // opened objects
-  std::map<long, vector<AmCachedAudioFile*> > items;
+  std::map<long, vector<AmCachedAudioFile*>> items;
   // mutex for the above
   AmMutex items_mut;
 
  public:
   AmPromptCollection();
   ~AmPromptCollection();
-  
+
   /**
    * get configuration for announcements from cfg,
    * check for file existence
    * @param announcements : name, default file for announcement
    */
-  int configureModule(AmConfigReader& cfg, 
-		      vector<std::pair<string, string> >& announcements,
-		      const char* mod_name); 
+  int configureModule(AmConfigReader& cfg,
+                      vector<std::pair<string, string>>& announcements,
+                      const char* mod_name);
   /**
    * add a prompt with explicit filename
    */
-  int setPrompt(const string& name, 
-		const string& filename,
-		const char* mod_name);
+  int setPrompt(const string& name, const string& filename,
+                const char* mod_name);
 
   /**
    * check whether prompt exists
@@ -97,30 +96,30 @@ class AmPromptCollection {
   bool hasPrompt(const string& name);
 
   /**
-   * add the announcement identified with  @param name 
+   * add the announcement identified with  @param name
    * to the playlist @list
    */
-  int addToPlaylist(const string& name, long sess_id, 
-		    AmPlaylist& list, bool front=false, 
-		    bool loop=false);
+  int addToPlaylist(const string& name, long sess_id, AmPlaylist& list,
+                    bool front = false, bool loop = false);
   /**
    * cleanup allocated object of sess_id
    */
   void cleanup(long sess_id);
 };
 
-/** 
- *  \brief AmAudioFile with filename and open flag 
+/**
+ *  \brief AmAudioFile with filename and open flag
  */
 
-class AudioFileEntry : public AmAudioFile {
+class AudioFileEntry : public AmAudioFile
+{
   AmFileCache cache;
-  bool isopen;
+  bool        isopen;
 
-public:
+ public:
   AudioFileEntry();
   ~AudioFileEntry();
-  
+
   int load(const std::string& filename);
   bool isOpen() { return isopen; }
 

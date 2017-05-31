@@ -26,10 +26,9 @@
 #ifndef _AmEventProcessingThread_h_
 #define _AmEventProcessingThread_h_
 
-#include "AmThread.h"
-#include "AmEventQueue.h"
 #include "AmEvent.h"
-
+#include "AmEventQueue.h"
+#include "AmThread.h"
 
 /**
    AmEventProcessingThread processes events posted
@@ -45,11 +44,10 @@
  */
 
 class AmEventProcessingThread
-: public AmThread,
-  public AmEventQueue,
-  public AmEventHandler
+    : public AmThread
+    , public AmEventQueue
+    , public AmEventHandler
 {
-  
   bool processing_events;
 
   void process(AmEvent* ev);
@@ -58,7 +56,7 @@ class AmEventProcessingThread
   void run();
   void on_stop();
 
-  virtual void onEvent(AmEvent* ev) { }
+  virtual void onEvent(AmEvent* ev) {}
 
   virtual bool police_event(AmEvent* ev);
 
@@ -69,7 +67,6 @@ class AmEventProcessingThread
   void postEvent(AmEvent* ev);
 
   void stop_processing();
-
 };
 
 #endif

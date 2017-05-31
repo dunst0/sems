@@ -28,6 +28,8 @@
 #ifndef _AMARG_H_
 #define _AMARG_H_
 
+#include "log.h"
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,8 +42,6 @@ using std::vector;
 using std::string;
 using std::map;
 using std::istream;
-
-#include "log.h"
 
 /** base for Objects as @see AmArg parameter, not owned by AmArg (!) */
 class AmObject

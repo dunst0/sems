@@ -1,8 +1,10 @@
 #ifndef _AM100REL_H_
 #define _AM100REL_H_
 
-#include "AmSipDialog.h"
 #include "AmSipMsg.h"
+
+class AmSipDialog;
+class AmSipDialogEventHandler;
 
 class Am100rel
 {

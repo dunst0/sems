@@ -34,9 +34,9 @@
 #include "amci/amci.h"
 #include "amci/codecs.h"
 
-#include <stdio.h>
 #include <map>
 #include <memory>
+#include <stdio.h>
 #include <string>
 
 using std::unique_ptr;

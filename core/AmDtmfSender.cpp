@@ -32,8 +32,9 @@
 #include "rtp/telephone_event.h"
 
 AmDtmfSender::AmDtmfSender()
-  : sending_state(DTMF_SEND_NONE)
-{ }
+    : sending_state(DTMF_SEND_NONE)
+{
+}
 
 /** Add a DTMF event to the send queue */
 void AmDtmfSender::queueEvent(int event, unsigned int duration_ms,
@@ -50,74 +51,80 @@ void AmDtmfSender::sendPacket(unsigned int ts, unsigned int remote_pt,
                               AmRtpStream* stream)
 {
   while (true) {
-    switch(sending_state) {
-    case DTMF_SEND_NONE: {
-      send_queue_mut.lock();
-      if (send_queue.empty()) {
-	send_queue_mut.unlock();
-	return;
-      }
-      current_send_dtmf = send_queue.front();
-      current_send_dtmf_ts = ts;
-      send_queue.pop();
-      send_queue_mut.unlock();
-      sending_state = DTMF_SEND_SENDING;
-      current_send_dtmf_ts = ts;
-      DBG("starting to send DTMF\n");
-    } break;
+    switch (sending_state) {
+      case DTMF_SEND_NONE: {
+        send_queue_mut.lock();
+        if (send_queue.empty()) {
+          send_queue_mut.unlock();
+          return;
+        }
+        current_send_dtmf    = send_queue.front();
+        current_send_dtmf_ts = ts;
+        send_queue.pop();
+        send_queue_mut.unlock();
+        sending_state        = DTMF_SEND_SENDING;
+        current_send_dtmf_ts = ts;
+        DBG("starting to send DTMF\n");
+      } break;
 
-    case DTMF_SEND_SENDING: {
-      if (ts_less()(ts, current_send_dtmf_ts + current_send_dtmf.second)) {
-	// send packet
-	//if (!remote_telephone_event_pt.get())
-	//return;
+      case DTMF_SEND_SENDING: {
+        if (ts_less()(ts, current_send_dtmf_ts + current_send_dtmf.second)) {
+          // send packet
+          // if (!remote_telephone_event_pt.get())
+          // return;
 
-	dtmf_payload_t dtmf;
-	dtmf.event = current_send_dtmf.first;
-	dtmf.e = dtmf.r = 0;
-	dtmf.duration = htons(ts - current_send_dtmf_ts);
-	dtmf.volume = 20;
+          dtmf_payload_t dtmf;
+          dtmf.event = current_send_dtmf.first;
+          dtmf.e = dtmf.r = 0;
+          dtmf.duration   = htons(ts - current_send_dtmf_ts);
+          dtmf.volume     = 20;
 
-	DBG("sending DTMF: event=%i; e=%i; r=%i; volume=%i; duration=%i; ts=%u\n",
-	    dtmf.event,dtmf.e,dtmf.r,dtmf.volume,ntohs(dtmf.duration),current_send_dtmf_ts);
+          DBG("sending DTMF: event=%i; e=%i; r=%i; volume=%i; duration=%i; "
+              "ts=%u\n",
+              dtmf.event, dtmf.e, dtmf.r, dtmf.volume, ntohs(dtmf.duration),
+              current_send_dtmf_ts);
 
-	stream->compile_and_send(remote_pt, dtmf.duration == 0,
-				 current_send_dtmf_ts,
-				 (unsigned char*)&dtmf, sizeof(dtmf_payload_t));
-	return;
+          stream->compile_and_send(remote_pt, dtmf.duration == 0,
+                                   current_send_dtmf_ts, (unsigned char*) &dtmf,
+                                   sizeof(dtmf_payload_t));
+          return;
+        }
+        else {
+          DBG("ending DTMF\n");
+          sending_state        = DTMF_SEND_ENDING;
+          send_dtmf_end_repeat = 0;
+        }
+      } break;
 
-      } else {
-	DBG("ending DTMF\n");
-	sending_state = DTMF_SEND_ENDING;
-	send_dtmf_end_repeat = 0;
-      }
-    } break;
+      case DTMF_SEND_ENDING: {
+        if (send_dtmf_end_repeat >= 3) {
+          DBG("DTMF send complete\n");
+          sending_state = DTMF_SEND_NONE;
+        }
+        else {
+          send_dtmf_end_repeat++;
+          // send packet with end bit set, duration = event duration
+          // if (!remote_telephone_event_pt.get())
+          // return;
 
-    case DTMF_SEND_ENDING:  {
-      if (send_dtmf_end_repeat >= 3) {
-	DBG("DTMF send complete\n");
-	sending_state = DTMF_SEND_NONE;
-      } else {
-	send_dtmf_end_repeat++;
-	// send packet with end bit set, duration = event duration
-	//if (!remote_telephone_event_pt.get())
-	//return;
+          dtmf_payload_t dtmf;
+          dtmf.event    = current_send_dtmf.first;
+          dtmf.e        = 1;
+          dtmf.r        = 0;
+          dtmf.duration = htons(current_send_dtmf.second);
+          dtmf.volume   = 20;
 
-	dtmf_payload_t dtmf;
-	dtmf.event = current_send_dtmf.first;
-	dtmf.e = 1;
-	dtmf.r = 0;
-	dtmf.duration = htons(current_send_dtmf.second);
-	dtmf.volume = 20;
+          DBG("sending DTMF: event=%i; e=%i; r=%i; volume=%i; duration=%i; "
+              "ts=%u\n",
+              dtmf.event, dtmf.e, dtmf.r, dtmf.volume, ntohs(dtmf.duration),
+              current_send_dtmf_ts);
 
-	DBG("sending DTMF: event=%i; e=%i; r=%i; volume=%i; duration=%i; ts=%u\n",
-	    dtmf.event,dtmf.e,dtmf.r,dtmf.volume,ntohs(dtmf.duration),current_send_dtmf_ts);
-
-	stream->compile_and_send(remote_pt, false, current_send_dtmf_ts,
-				 (unsigned char*)&dtmf, sizeof(dtmf_payload_t));
-	return;
-      }
-    } break;
+          stream->compile_and_send(remote_pt, false, current_send_dtmf_ts,
+                                   (unsigned char*) &dtmf,
+                                   sizeof(dtmf_payload_t));
+          return;
+        }
+      } break;
     };
   }
 }

@@ -20,42 +20,42 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmRtpPacket.h */
 #ifndef _AmRtpPacket_h_
 #define _AmRtpPacket_h_
 
+#include <netinet/in.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <netinet/in.h>
 
 class AmRtpPacketTracer;
 class msg_logger;
 
 /** \brief RTP packet implementation */
-class AmRtpPacket {
+class AmRtpPacket
+{
+  unsigned char buffer[4096];
+  unsigned int  b_size;
 
-  unsigned char  buffer[4096];
-  unsigned int   b_size;
-
-  unsigned int   data_offset;
-  unsigned int   d_size;
+  unsigned int data_offset;
+  unsigned int d_size;
 
   int sendto(int sd);
   int sendmsg(int sd, unsigned int sys_if_idx);
 
-public:
+ public:
   unsigned char  payload;
   bool           marker;
-  unsigned short sequence;    
-  unsigned int   timestamp;   
+  unsigned short sequence;
+  unsigned int   timestamp;
   unsigned int   ssrc;
   unsigned char  version;
 
-  struct timeval recv_time;
+  struct timeval          recv_time;
   struct sockaddr_storage addr;
 
   AmRtpPacket();
@@ -81,10 +81,8 @@ public:
   unsigned char* getBuffer();
   void setBufferSize(unsigned int b) { b_size = b; }
 
-  void logReceived(msg_logger *logger, struct sockaddr_storage *laddr);
-  void logSent(msg_logger *logger, struct sockaddr_storage *laddr);
+  void logReceived(msg_logger* logger, struct sockaddr_storage* laddr);
+  void logSent(msg_logger* logger, struct sockaddr_storage* laddr);
 };
 
 #endif
-
-

@@ -32,16 +32,17 @@
 
 #include "AmCallWatcher.h"
 
-
 AmCallWatcher::AmCallWatcher()
-  : AmEventQueue(this),
-    garbage_collector(new AmCallWatcherGarbageCollector(soft_states_mut, soft_states))
-{ }
+    : AmEventQueue(this)
+    , garbage_collector(
+          new AmCallWatcherGarbageCollector(soft_states_mut, soft_states))
+{
+}
 
-AmCallWatcher::~AmCallWatcher()
-{ }
+AmCallWatcher::~AmCallWatcher() {}
 
-void AmCallWatcher::run() {
+void AmCallWatcher::run()
+{
   DBG("starting call watcher.\n");
   garbage_collector->start();
   while (true) {
@@ -50,103 +51,106 @@ void AmCallWatcher::run() {
   }
 }
 
-void AmCallWatcher::on_stop() {
+void AmCallWatcher::on_stop()
+{
   ERROR("The call watcher cannot be stopped.\n");
 }
 
-void AmCallWatcher::process(AmEvent* ev) {
+void AmCallWatcher::process(AmEvent* ev)
+{
   CallStatusUpdateEvent* csu = dynamic_cast<CallStatusUpdateEvent*>(ev);
   if (NULL == csu) {
     ERROR("received invalid event!\n");
     return;
   }
 
-
   switch (csu->event_id) {
-  case CallStatusUpdateEvent::Initialize: {
-    states_mut.lock();
-    DBG("adding  call state '%s'\n",
-	csu->get_call_id().c_str());
+    case CallStatusUpdateEvent::Initialize: {
+      states_mut.lock();
+      DBG("adding  call state '%s'\n", csu->get_call_id().c_str());
 
-    // check whether already there
-    CallStatusMap::iterator it = states.find(csu->get_call_id());
-    if (it != states.end()) {
-      WARN("implementation error: state '%s' already in list!\n",
-	   csu->get_call_id().c_str());
-      // avoid leak - delete the old state
-      delete it->second;
-    }
-
-    // insert the new one
-    states[csu->get_call_id()] = csu->get_init_status();
-    states_mut.unlock();
-  } break;
-
-  case CallStatusUpdateEvent::Update: {
-    states_mut.lock();
-    CallStatusMap::iterator it = states.find(csu->get_call_id());
-    if (it != states.end()) {
-      it->second->update(csu);
-      it->second->dump();
-      states_mut.unlock();
-    } else {
-      states_mut.unlock();
-
-      soft_states_mut.lock();
-      CallStatusTimedMap::iterator it =
-	soft_states.find(csu->get_call_id());
-      if (it != soft_states.end()) {
-	it->second.first->update(csu);
-	it->second.first->dump();
-      } else {
-	DBG("received update event for inexistent call '%s'\n",
-	    csu->get_call_id().c_str());
+      // check whether already there
+      CallStatusMap::iterator it = states.find(csu->get_call_id());
+      if (it != states.end()) {
+        WARN("implementation error: state '%s' already in list!\n",
+             csu->get_call_id().c_str());
+        // avoid leak - delete the old state
+        delete it->second;
       }
-      soft_states_mut.unlock();
-    }
-  } break;
 
-  case CallStatusUpdateEvent::Obsolete: {
-    states_mut.lock();
-    CallStatusMap::iterator it = states.find(csu->get_call_id());
-    if (it != states.end()) {
-
-      CallStatus* cs = it->second;
-      states.erase(it);
-      size_t s_size = states.size();
+      // insert the new one
+      states[csu->get_call_id()] = csu->get_init_status();
       states_mut.unlock();
+    } break;
 
-      struct timeval now;
-      gettimeofday(&now, NULL);
+    case CallStatusUpdateEvent::Update: {
+      states_mut.lock();
+      CallStatusMap::iterator it = states.find(csu->get_call_id());
+      if (it != states.end()) {
+        it->second->update(csu);
+        it->second->dump();
+        states_mut.unlock();
+      }
+      else {
+        states_mut.unlock();
 
-      soft_states_mut.lock();
-      soft_states[csu->get_call_id()] =
-	std::make_pair(cs, now.tv_sec + WATCHER_SOFT_EXPIRE_SECONDS);
-      size_t soft_size = soft_states.size();
-      soft_states_mut.unlock();
+        soft_states_mut.lock();
+        CallStatusTimedMap::iterator it = soft_states.find(csu->get_call_id());
+        if (it != soft_states.end()) {
+          it->second.first->update(csu);
+          it->second.first->dump();
+        }
+        else {
+          DBG("received update event for inexistent call '%s'\n",
+              csu->get_call_id().c_str());
+        }
+        soft_states_mut.unlock();
+      }
+    } break;
 
-      DBG("moved call state '%s' to soft-state map (%u states, %u soft-states)\n",
-	  csu->get_call_id().c_str(), (unsigned int) s_size, (unsigned int)soft_size);
+    case CallStatusUpdateEvent::Obsolete: {
+      states_mut.lock();
+      CallStatusMap::iterator it = states.find(csu->get_call_id());
+      if (it != states.end()) {
+        CallStatus* cs = it->second;
+        states.erase(it);
+        size_t s_size = states.size();
+        states_mut.unlock();
 
-    } else {
-      DBG("received obsolete event for inexistent call '%s'\n",
-	  csu->get_call_id().c_str());
-      states_mut.unlock();
-    }
-  }break;
+        struct timeval now;
+        gettimeofday(&now, NULL);
+
+        soft_states_mut.lock();
+        soft_states[csu->get_call_id()] =
+            std::make_pair(cs, now.tv_sec + WATCHER_SOFT_EXPIRE_SECONDS);
+        size_t soft_size = soft_states.size();
+        soft_states_mut.unlock();
+
+        DBG("moved call state '%s' to soft-state map (%u states, %u "
+            "soft-states)\n",
+            csu->get_call_id().c_str(), (unsigned int) s_size,
+            (unsigned int) soft_size);
+      }
+      else {
+        DBG("received obsolete event for inexistent call '%s'\n",
+            csu->get_call_id().c_str());
+        states_mut.unlock();
+      }
+    } break;
   }
 }
 
-void AmCallWatcher::dump() {
+void AmCallWatcher::dump()
+{
   states_mut.lock();
-  for (CallStatusMap::iterator it = states.begin();
-       it != states.end(); it++) {
+  for (CallStatusMap::iterator it = states.begin(); it != states.end(); it++) {
     it->second->dump();
   }
   states_mut.unlock();
 }
 
-CallStatus* AmCallWatcher::getStatus(const string& call_id) {
+CallStatus* AmCallWatcher::getStatus(const string& call_id)
+{
   CallStatus* res = NULL;
 
   states_mut.lock();
@@ -155,29 +159,30 @@ CallStatus* AmCallWatcher::getStatus(const string& call_id) {
   if (it != states.end()) {
     res = it->second->copy();
     states_mut.unlock();
-  } else {
+  }
+  else {
     states_mut.unlock();
 
     // check obsolete states
     soft_states_mut.lock();
-    CallStatusTimedMap::iterator it =
-      soft_states.find(call_id);
+    CallStatusTimedMap::iterator it = soft_states.find(call_id);
     if (it != soft_states.end()) {
       // got it. return and remove from map
       res = it->second.first;
       soft_states.erase(it);
-      DBG("erased call state '%s' (%u in list).\n",
-	  call_id.c_str(), (unsigned int)soft_states.size());
-    } else {
-      DBG("state for call '%s' not found.\n",
-	  call_id.c_str());
+      DBG("erased call state '%s' (%u in list).\n", call_id.c_str(),
+          (unsigned int) soft_states.size());
+    }
+    else {
+      DBG("state for call '%s' not found.\n", call_id.c_str());
     }
     soft_states_mut.unlock();
   }
   return res;
 }
 
-void AmCallWatcherGarbageCollector::run() {
+void AmCallWatcherGarbageCollector::run()
+{
   DBG("AmCallWatcherGarbageCollector started.\n");
   while (true) {
     sleep(2);
@@ -190,18 +195,19 @@ void AmCallWatcherGarbageCollector::run() {
     AmCallWatcher::CallStatusTimedMap::iterator it = garbage.begin();
     while (it != garbage.end()) {
       if (it->second.second < now.tv_sec) {
-	AmCallWatcher::CallStatusTimedMap::iterator d_it = it;
-	it++;
-	delete (d_it->second.first);
-	garbage.erase(d_it);
-	erased = true;
-      } else {
-	it++;
+        AmCallWatcher::CallStatusTimedMap::iterator d_it = it;
+        it++;
+        delete (d_it->second.first);
+        garbage.erase(d_it);
+        erased = true;
+      }
+      else {
+        it++;
       }
     }
-    if (erased){
+    if (erased) {
       DBG("cleared old soft-states (%u soft-states remaining)\n",
-	  (unsigned int)garbage.size());
+          (unsigned int) garbage.size());
     }
     mut.unlock();
   }

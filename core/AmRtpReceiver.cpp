@@ -26,31 +26,28 @@
  */
 
 #include "AmRtpReceiver.h"
-#include "AmRtpStream.h"
-#include "AmRtpPacket.h"
-#include "log.h"
 #include "AmConfig.h"
+#include "AmRtpPacket.h"
+#include "AmRtpStream.h"
+#include "log.h"
 
 #include <errno.h>
 
 // Not on Solaris!
-#if !defined (__SVR4) && !defined (__sun)
+#if !defined(__SVR4) && !defined(__sun)
 #include <strings.h>
 #endif
 
 _AmRtpReceiver::_AmRtpReceiver()
 {
   n_receivers = AmConfig::RTPReceiverThreads;
-  receivers = new AmRtpReceiverThread[n_receivers];
+  receivers   = new AmRtpReceiverThread[n_receivers];
 }
 
-_AmRtpReceiver::~_AmRtpReceiver()
-{
-  delete [] receivers;
-}
+_AmRtpReceiver::~_AmRtpReceiver() { delete[] receivers; }
 
 AmRtpReceiverThread::AmRtpReceiverThread()
-  : stop_requested(false)
+    : stop_requested(false)
 {
   // libevent event base
   ev_base = event_base_new();
@@ -70,17 +67,16 @@ void AmRtpReceiverThread::on_stop()
 
 void AmRtpReceiverThread::stop_and_wait()
 {
-  if(!is_stopped()) {
+  if (!is_stopped()) {
     stop();
 
-    while(!is_stopped())
-      usleep(10000);
+    while (!is_stopped()) usleep(10000);
   }
 }
 
 void _AmRtpReceiver::dispose()
 {
-  for(unsigned int i=0; i<n_receivers; i++){
+  for (unsigned int i = 0; i < n_receivers; i++) {
     receivers[i].stop_and_wait();
   }
 }
@@ -88,12 +84,13 @@ void _AmRtpReceiver::dispose()
 void AmRtpReceiverThread::run()
 {
   // fake event to prevent the event loop from exiting
-  int fake_fds[2];
+  int           fake_fds[2];
   struct event* ev_default = NULL;
 
   pipe(fake_fds);
 
-  ev_default = event_new(ev_base, fake_fds[0], EV_READ|EV_PERSIST, NULL, NULL);
+  ev_default =
+      event_new(ev_base, fake_fds[0], EV_READ | EV_PERSIST, NULL, NULL);
   event_add(ev_default, NULL);
 
   // run the event loop
@@ -105,14 +102,14 @@ void AmRtpReceiverThread::run()
   close(fake_fds[1]);
 }
 
-void AmRtpReceiverThread::_rtp_receiver_read_cb(evutil_socket_t sd,
-						short what, void* arg)
+void AmRtpReceiverThread::_rtp_receiver_read_cb(evutil_socket_t sd, short what,
+                                                void* arg)
 {
   AmRtpReceiverThread::StreamInfo* p_si =
-    static_cast<AmRtpReceiverThread::StreamInfo*>(arg);
+      static_cast<AmRtpReceiverThread::StreamInfo*>(arg);
 
   p_si->thread->streams_mut.lock();
-  if(!p_si->stream) {
+  if (!p_si->stream) {
     // we are about to get removed...
     p_si->thread->streams_mut.unlock();
     return;
@@ -124,44 +121,43 @@ void AmRtpReceiverThread::_rtp_receiver_read_cb(evutil_socket_t sd,
 void AmRtpReceiverThread::addStream(int sd, AmRtpStream* stream)
 {
   streams_mut.lock();
-  if(streams.find(sd) != streams.end()) {
-    ERROR("trying to insert existing stream [%p] with sd=%i\n",
-	  stream,sd);
+  if (streams.find(sd) != streams.end()) {
+    ERROR("trying to insert existing stream [%p] with sd=%i\n", stream, sd);
     streams_mut.unlock();
     return;
   }
 
   StreamInfo& si = streams[sd];
-  si.stream = stream;
-  event* ev_read = event_new(ev_base,sd,EV_READ|EV_PERSIST,
-			     AmRtpReceiverThread::_rtp_receiver_read_cb,&si);
+  si.stream      = stream;
+  event* ev_read = event_new(ev_base, sd, EV_READ | EV_PERSIST,
+                             AmRtpReceiverThread::_rtp_receiver_read_cb, &si);
   si.ev_read = ev_read;
-  si.thread = this;
+  si.thread  = this;
   streams_mut.unlock();
 
   // This must be done when
   // streams_mut is NOT locked
-  event_add(ev_read,NULL);
+  event_add(ev_read, NULL);
 }
 
 void AmRtpReceiverThread::removeStream(int sd)
 {
   streams_mut.lock();
   Streams::iterator sit = streams.find(sd);
-  if(sit == streams.end()) {
+  if (sit == streams.end()) {
     streams_mut.unlock();
     return;
   }
 
   StreamInfo& si = sit->second;
-  if(!si.stream || !si.ev_read){
+  if (!si.stream || !si.ev_read) {
     streams_mut.unlock();
     return;
   }
 
-  si.stream = NULL;
+  si.stream      = NULL;
   event* ev_read = si.ev_read;
-  si.ev_read = NULL;
+  si.ev_read     = NULL;
 
   streams_mut.unlock();
 
@@ -180,14 +176,13 @@ void AmRtpReceiverThread::removeStream(int sd)
 
 void _AmRtpReceiver::start()
 {
-  for(unsigned int i=0; i<n_receivers; i++)
-    receivers[i].start();
+  for (unsigned int i = 0; i < n_receivers; i++) receivers[i].start();
 }
 
 void _AmRtpReceiver::addStream(int sd, AmRtpStream* stream)
 {
   unsigned int i = sd % n_receivers;
-  receivers[i].addStream(sd,stream);
+  receivers[i].addStream(sd, stream);
 }
 
 void _AmRtpReceiver::removeStream(int sd)

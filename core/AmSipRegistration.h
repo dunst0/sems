@@ -31,10 +31,10 @@
 #include <string>
 using std::string;
 
+#include "AmSessionEventHandler.h"
+#include "AmUriParser.h"
 #include "ampi/SIPRegistrarClientAPI.h"
 #include "ampi/UACAuthAPI.h"
-#include "AmUriParser.h"
-#include "AmSessionEventHandler.h"
 
 #define REGISTER_SEND_TIMEOUT 60
 
@@ -52,24 +52,24 @@ struct SIPRegistrationInfo
                       const string& name, const string& auth_user,
                       const string& pwd, const string& proxy,
                       const string& contact)
-    : domain(domain),
-      user(user),
-      name(name),
-      auth_user(auth_user),
-      pwd(pwd),
-      proxy(proxy),
-      contact(contact)
-  { }
+      : domain(domain)
+      , user(user)
+      , name(name)
+      , auth_user(auth_user)
+      , pwd(pwd)
+      , proxy(proxy)
+      , contact(contact)
+  {
+  }
 };
 
 class AmSIPRegistration
-  : public AmBasicSipEventHandler,
-    public DialogControl,
-    public CredentialHolder
+    : public AmBasicSipEventHandler
+    , public DialogControl
+    , public CredentialHolder
 {
-
   AmBasicSipDialog dlg;
-  UACAuthCred cred;
+  UACAuthCred      cred;
 
   SIPRegistrationInfo info;
 
@@ -83,16 +83,15 @@ class AmSIPRegistration
   AmUriParser server_contact;
   AmUriParser local_contact;
 
-  time_t reg_begin;
+  time_t       reg_begin;
   unsigned int reg_expires;
-  time_t reg_send_begin;
+  time_t       reg_send_begin;
 
   unsigned int expires_interval;
 
  public:
-  AmSIPRegistration(const string& handle,
-		    const SIPRegistrationInfo& info,
-		    const string& sess_link);
+  AmSIPRegistration(const string& handle, const SIPRegistrationInfo& info,
+                    const string& sess_link);
   ~AmSIPRegistration();
 
   void setRegistrationInfo(const SIPRegistrationInfo& _info);
@@ -119,9 +118,8 @@ class AmSIPRegistration
   // CredentialHolder
   UACAuthCred* getCredentials() { return &cred; }
 
-  void onSipReply(const AmSipRequest& req,
-		  const AmSipReply& reply,
-		  AmBasicSipDialog::Status old_dlg_status);
+  void onSipReply(const AmSipRequest& req, const AmSipReply& reply,
+                  AmBasicSipDialog::Status old_dlg_status);
 
   /** is this registration registered? */
   bool active;
@@ -132,7 +130,8 @@ class AmSIPRegistration
   /** are we unregistering? */
   bool unregistering;
 
-  enum RegistrationState {
+  enum RegistrationState
+  {
     RegisterPending = 0,
     RegisterActive,
     RegisterExpired
@@ -147,10 +146,8 @@ class AmSIPRegistration
   bool getUnregistering();
 
   SIPRegistrationInfo& getInfo() { return info; }
-  const string& getEventSink() { return sess_link; }
-  const string& getHandle() { return req.from_tag; }
+  const string&        getEventSink() { return sess_link; }
+  const string&        getHandle() { return req.from_tag; }
 };
-
-
 
 #endif

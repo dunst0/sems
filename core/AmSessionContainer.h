@@ -20,22 +20,22 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmSessionContainer.h */
 #ifndef AmSessionContainer_h
 #define AmSessionContainer_h
 
-#include "AmThread.h"
 #include "AmSession.h"
+#include "AmThread.h"
 
 #include "ampi/MonitoringAPI.h"
 
-#include <string>
-#include <queue>
 #include <map>
+#include <queue>
+#include <string>
 
 using std::string;
 
@@ -43,20 +43,20 @@ using std::string;
  * \brief Centralized session container.
  *
  * This is the register for all active and dead sessions.
- * If has a deamon which wakes up only if it has work. 
- * Then, it kills all dead sessions and try to go to bed 
+ * If has a deamon which wakes up only if it has work.
+ * Then, it kills all dead sessions and try to go to bed
  * (it cannot sleep if one or more sessions are still alive).
  */
 class AmSessionContainer : public AmThread
 {
   static AmSessionContainer* _instance;
 
-  typedef std::queue<AmSession*>      SessionQueue;
+  typedef std::queue<AmSession*> SessionQueue;
 
   /** Container for dead sessions */
   SessionQueue d_sessions;
   /** Mutex to protect the dead session container */
-  AmMutex      ds_mut;
+  AmMutex ds_mut;
 
   /** is container closed for new sessions? */
   AmCondition<bool> _container_closed;
@@ -66,7 +66,6 @@ class AmSessionContainer : public AmThread
 
   /** We are a Singleton ! Avoid people to have their own instance. */
   AmSessionContainer();
-
 
   bool enable_unclean_shutdown;
 
@@ -89,9 +88,12 @@ class AmSessionContainer : public AmThread
   /** Maximum cps since the lasd getMaxCPS()*/
   unsigned int max_cps;
   /** Mutex to protect the cps container */
-  AmMutex      cps_mut;
+  AmMutex cps_mut;
 
-  enum { CPS_SAMPLERATE = 5 };
+  enum
+  {
+    CPS_SAMPLERATE = 5
+  };
 
   unsigned int CPSLimit;
   unsigned int CPSHardLimit;
@@ -103,7 +105,8 @@ class AmSessionContainer : public AmThread
 
   static void dispose();
 
-  enum AddSessionStatus {
+  enum AddSessionStatus
+  {
     ShutDown,
     Inserted,
     AlreadyExist
@@ -114,40 +117,35 @@ class AmSessionContainer : public AmThread
    * @param req local request
    * @return a new session or NULL on error.
    */
-  AmSession* createSession(const AmSipRequest& req, 
-			   string& app_name,
-			   AmArg* session_params = NULL);
+  AmSession* createSession(const AmSipRequest& req, string& app_name,
+                           AmArg* session_params = NULL);
 
   /**
    * Adds a session to the container (UAS only).
    * @return true if the session is new within the container.
    */
-  AddSessionStatus addSession(const string& callid,
-			      const string& remote_tag,
-			      const string& local_tag,
-			      const string& via_branch,
-			      AmSession* session);
+  AddSessionStatus addSession(const string& callid, const string& remote_tag,
+                              const string& local_tag, const string& via_branch,
+                              AmSession* session);
 
   /**
    * Adds a session to the container.
    * @return true if the session is new within the container.
    */
-  AddSessionStatus addSession(const string& local_tag,
-			      AmSession* session);
+  AddSessionStatus addSession(const string& local_tag, AmSession* session);
 
-  /** 
-   * Constructs a new session and adds it to the active session container. 
+  /**
+   * Constructs a new session and adds it to the active session container.
    * @param req client's request
    */
   void startSessionUAS(AmSipRequest& req);
 
-  /** 
-   * Constructs a new session and adds it to the active session container. 
+  /**
+   * Constructs a new session and adds it to the active session container.
    * @param req client's request
    */
-  string startSessionUAC(const AmSipRequest& req, 
-			 string& app_name,
-			 AmArg* session_params = NULL);
+  string startSessionUAC(const AmSipRequest& req, string& app_name,
+                         AmArg* session_params = NULL);
 
   /**
    * Detroys a session.
@@ -156,27 +154,25 @@ class AmSessionContainer : public AmThread
 
   /**
    * post an event into the event queue of the identified dialog.
-   * @return false if session doesn't exist 
+   * @return false if session doesn't exist
    */
-  bool postEvent(const string& callid, 
-		 const string& remote_tag,
-		 const string& via_branch,
-		 AmEvent* event);
+  bool postEvent(const string& callid, const string& remote_tag,
+                 const string& via_branch, AmEvent* event);
 
   /**
    * post a generic event into the event queue of the identified dialog.
    * sess_key is local_tag (to_tag)
-   * note: if hash_str is known, use 
+   * note: if hash_str is known, use
    *          postGenericEvent(hash_str,sess_key,event);
    *       for better performance.
-   * @return false if session doesn't exist 
+   * @return false if session doesn't exist
    */
   bool postEvent(const string& local_tag, AmEvent* event);
 
-  /** 
+  /**
    * broadcasts a server shutdown system event to all sessions
    */
-  void  broadcastShutdown();
+  void broadcastShutdown();
 
   /** enable unclean shutdown (will not broadcastShutdown event) */
   void enableUncleanShutdown();
@@ -184,9 +180,9 @@ class AmSessionContainer : public AmThread
   /** Set the maximum number of calls per second to be accepted */
   void setCPSLimit(unsigned int limit);
 
-  /** Set the maximum number of calls per second to be accepted as a percent 
-   * of the current CPS. Intented to be used by the components. 0 means turning off
-   * the soft limit.
+  /** Set the maximum number of calls per second to be accepted as a percent
+   * of the current CPS. Intented to be used by the components. 0 means turning
+   * off the soft limit.
    */
   void setCPSSoftLimit(unsigned int percent);
 
@@ -194,7 +190,8 @@ class AmSessionContainer : public AmThread
   pair<unsigned int, unsigned int> getCPSLimit();
 
   /**
-   * Gets the timeaverage of calls per second in the last CPS_SAMPLERATE sec window
+   * Gets the timeaverage of calls per second in the last CPS_SAMPLERATE sec
+   * window
    */
   unsigned int getAvgCPS();
   /**
@@ -205,7 +202,6 @@ class AmSessionContainer : public AmThread
   void initMonitoring();
 
   _MONITORING_DEFINE_INTERFACE;
-
 };
 
 #endif

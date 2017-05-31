@@ -22,8 +22,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -32,47 +32,49 @@
 #ifndef _AmSessionProcessor_h_
 #define _AmSessionProcessor_h_
 
-#include "AmThread.h"
 #include "AmEventQueue.h"
+#include "AmThread.h"
 
-#include <vector>
 #include <list>
 #include <set>
+#include <vector>
 class AmSessionProcessorThread;
 class AmSession;
 
-class AmSessionProcessor {
-  static vector<AmSessionProcessorThread*> threads;
-  static AmMutex threads_mut;
-  static vector<AmSessionProcessorThread*>::iterator 
-    threads_it;
+class AmSessionProcessor
+{
+  static vector<AmSessionProcessorThread*>           threads;
+  static AmMutex                                     threads_mut;
+  static vector<AmSessionProcessorThread*>::iterator threads_it;
 
- public: 
+ public:
   static AmSessionProcessorThread* getProcessorThread();
   static void addThreads(unsigned int num_threads);
 };
 
-struct AmSessionProcessorThreadAddEvent 
-  : AmEvent
+struct AmSessionProcessorThreadAddEvent : AmEvent
 {
   AmSession* s;
   AmSessionProcessorThreadAddEvent(AmSession* s)
-    : s(s), AmEvent(120) { }
+      : s(s)
+      , AmEvent(120)
+  {
+  }
 };
 
-class AmSessionProcessorThread 
-: public AmThread,
-  public AmEventHandler,
-  public AmEventNotificationSink
+class AmSessionProcessorThread
+    : public AmThread
+    , public AmEventHandler
+    , public AmEventNotificationSink
 {
-  AmEventQueue    events;
-  std::list<AmSession*> sessions;
+  AmEventQueue            events;
+  std::list<AmSession*>   sessions;
   std::vector<AmSession*> startup_sessions;
-  AmSharedVar<bool> stop_requested;
+  AmSharedVar<bool>       stop_requested;
 
-  AmCondition<bool> runcond;
+  AmCondition<bool>       runcond;
   std::set<AmEventQueue*> process_sessions;
-  AmMutex process_sessions_mut;
+  AmMutex                 process_sessions_mut;
 
   // AmEventHandler interface
   void process(AmEvent* e);

@@ -20,16 +20,16 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmEventQueue.h */
 #ifndef _AMEVENTQUEUE_H_
 #define _AMEVENTQUEUE_H_
 
-#include "AmThread.h"
 #include "AmEvent.h"
+#include "AmThread.h"
 #include "atomic_types.h"
 
 #include <queue>
@@ -38,42 +38,42 @@ class AmEventQueueInterface
 {
  public:
   virtual ~AmEventQueueInterface() {}
-  virtual void postEvent(AmEvent*)=0;
+  virtual void postEvent(AmEvent*) = 0;
 };
 
 class AmEventQueue;
-/** a receiver for notifications about 
+/** a receiver for notifications about
     the fact that events are pending */
 class AmEventNotificationSink
 {
  public:
-  virtual ~AmEventNotificationSink() { }
+  virtual ~AmEventNotificationSink() {}
   virtual void notify(AmEventQueue* sender) = 0;
 };
 
-/** 
- * \brief Asynchronous event queue implementation 
- * 
+/**
+ * \brief Asynchronous event queue implementation
+ *
  * This class implements an event queue; a queue into which
- * \ref AmEvent can safely be posted at any time from any 
+ * \ref AmEvent can safely be posted at any time from any
  * thread, which are then processed by the registered event
  *  handler.
  */
 class AmEventQueue
-  : public AmEventQueueInterface,
-    public atomic_ref_cnt
+    : public AmEventQueueInterface
+    , public atomic_ref_cnt
 {
-protected:
-  AmEventHandler*           handler;
-  AmEventNotificationSink*  wakeup_handler;
+ protected:
+  AmEventHandler*          handler;
+  AmEventNotificationSink* wakeup_handler;
 
-  std::queue<AmEvent*>      ev_queue;
-  AmMutex                   m_queue;
-  AmCondition<bool>         ev_pending;
+  std::queue<AmEvent*> ev_queue;
+  AmMutex              m_queue;
+  AmCondition<bool>    ev_pending;
 
   bool finalized;
 
-public:
+ public:
   AmEventQueue(AmEventHandler* handler);
   virtual ~AmEventQueue();
 
@@ -89,9 +89,12 @@ public:
 
   // return true to continue processing
   virtual bool startup() { return true; }
-  virtual bool processingCycle() { processEvents(); return true; }
+  virtual bool processingCycle()
+  {
+    processEvents();
+    return true;
+  }
   virtual void finalize() { finalized = true; }
 };
 
 #endif
-

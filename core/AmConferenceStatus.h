@@ -26,10 +26,10 @@
 #ifndef _ConferenceStatus_h_
 #define _ConferenceStatus_h_
 
-#include "AmThread.h"
-#include "AmRtpStream.h"
-#include "AmMultiPartyMixer.h"
 #include "AmEventQueue.h"
+#include "AmMultiPartyMixer.h"
+#include "AmRtpStream.h"
+#include "AmThread.h"
 
 #include <map>
 #include <string>
@@ -37,11 +37,14 @@ using std::string;
 
 class AmConferenceChannel;
 
-enum { ConfNewParticipant = 1,
-       ConfParticipantLeft };
+enum
+{
+  ConfNewParticipant = 1,
+  ConfParticipantLeft
+};
 
 /** \brief event in a conference*/
-struct ConferenceEvent: public AmEvent
+struct ConferenceEvent : public AmEvent
 {
   unsigned int participants;
   string       conf_id;
@@ -49,11 +52,12 @@ struct ConferenceEvent: public AmEvent
 
   ConferenceEvent(int event_id, unsigned int participants,
                   const string& conf_id, const string& sess_id)
-    : AmEvent(event_id),
-      participants(participants),
-      conf_id(conf_id),
-      sess_id(sess_id)
-  {}
+      : AmEvent(event_id)
+      , participants(participants)
+      , conf_id(conf_id)
+      , sess_id(sess_id)
+  {
+  }
 };
 
 /**
@@ -63,22 +67,23 @@ struct ConferenceEvent: public AmEvent
  */
 class AmConferenceStatus
 {
-  static std::map<string,AmConferenceStatus*> cid2status;
+  static std::map<string, AmConferenceStatus*> cid2status;
   static AmMutex cid2s_mut;
 
-  struct SessInfo {
-
+  struct SessInfo
+  {
     string       sess_id;
     unsigned int ch_id;
 
-    SessInfo(const string& local_tag, unsigned int  ch_id)
-      : sess_id(local_tag),
-        ch_id(ch_id)
-    {}
+    SessInfo(const string& local_tag, unsigned int ch_id)
+        : sess_id(local_tag)
+        , ch_id(ch_id)
+    {
+    }
   };
 
-  string                 conf_id;
-  AmMultiPartyMixer      mixer;
+  string            conf_id;
+  AmMultiPartyMixer mixer;
 
   // sess_id -> ch_id
   std::map<string, unsigned int> sessions;
@@ -86,7 +91,7 @@ class AmConferenceStatus
   // ch_id -> sess_id
   std::map<unsigned int, SessInfo*> channels;
 
-  AmMutex                      sessions_mut;
+  AmMutex sessions_mut;
 
   AmConferenceStatus(const string& conference_id);
   ~AmConferenceStatus();
@@ -97,18 +102,17 @@ class AmConferenceStatus
 
   void postConferenceEvent(int event_id, const string& sess_id);
 
-public:
+ public:
   const string&      getConfID() { return conf_id; }
-  AmMultiPartyMixer* getMixer()  { return &mixer; }
+  AmMultiPartyMixer* getMixer() { return &mixer; }
 
-  static AmConferenceChannel* getChannel(const string& cid,
-					 const string& local_tag,
-                                         int input_sample_rate);
+  static AmConferenceChannel*
+  getChannel(const string& cid, const string& local_tag, int input_sample_rate);
 
   static void releaseChannel(const string& cid, unsigned int ch_id);
 
   static void postConferenceEvent(const string& cid, int event_id,
-				  const string& sess_id);
+                                  const string& sess_id);
 
   static size_t getConferenceSize(const string& cid);
 };

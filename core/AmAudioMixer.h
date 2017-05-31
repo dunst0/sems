@@ -41,11 +41,12 @@ class AmAudioMixerConnector;
  *
  * AmAudio that mixes some sources' audio and writes into a set of sinks.
  *
- * Can probably do lots of things together with AmAudioQueue and/or AmAudioMixIn.
+ * Can probably do lots of things together with AmAudioQueue and/or
+ * AmAudioMixIn.
  *
- * Attention: Sources (in fact AmAudioMixerConnector) are owned by the AmAudioMixer,
- *            i.e. deleted on releaseSink/destructor.
- *            Sinks are not owned by the AmAudioMixer.
+ * Attention: Sources (in fact AmAudioMixerConnector) are owned by the
+ * AmAudioMixer, i.e. deleted on releaseSink/destructor. Sinks are not owned by
+ * the AmAudioMixer.
  */
 class AmAudioMixer
 {
@@ -54,9 +55,9 @@ class AmAudioMixer
   AmMutex srcsink_mut;
   std::map<AmAudioMixerConnector*, unsigned int> sources;
 
-  unsigned int sink_channel;
+  unsigned int           sink_channel;
   AmAudioMixerConnector* sink_connector;
-  std::set<AmAudio*> sinks;
+  std::set<AmAudio*>     sinks;
 
  public:
   AmAudioMixer(int external_sample_rate);
@@ -69,13 +70,13 @@ class AmAudioMixer
   void releaseSink(AmAudio* s);
 };
 
-class AmAudioMixerConnector
-: public AmAudio {
-  AmMultiPartyMixer& mixer;
-  unsigned int channel;
-  AmMutex* audio_mut;
+class AmAudioMixerConnector : public AmAudio
+{
+  AmMultiPartyMixer&  mixer;
+  unsigned int        channel;
+  AmMutex*            audio_mut;
   std::set<AmAudio*>* sinks;
-  AmAudio* mix_channel;
+  AmAudio*            mix_channel;
 
  protected:
   int get(unsigned long long system_ts, unsigned char* buffer,
@@ -91,15 +92,15 @@ class AmAudioMixerConnector
   AmAudioMixerConnector(AmMultiPartyMixer& mixer, unsigned int channel,
                         AmAudio* mix_channel, AmMutex* audio_mut = NULL,
                         std::set<AmAudio*>* sinks = NULL)
-  : mixer(mixer),
-    channel(channel),
-    audio_mut(audio_mut),
-    sinks(sinks),
-    mix_channel(mix_channel)
-  { }
+      : mixer(mixer)
+      , channel(channel)
+      , audio_mut(audio_mut)
+      , sinks(sinks)
+      , mix_channel(mix_channel)
+  {
+  }
 
-  ~AmAudioMixerConnector() { }
-
+  ~AmAudioMixerConnector() {}
 };
 
 #endif

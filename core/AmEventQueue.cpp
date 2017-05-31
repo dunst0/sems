@@ -20,28 +20,28 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "AmEventQueue.h"
-#include "log.h"
 #include "AmConfig.h"
+#include "log.h"
 
 #include <typeinfo>
 AmEventQueue::AmEventQueue(AmEventHandler* handler)
-  : handler(handler),
-    wakeup_handler(NULL),
-    ev_pending(false),
-    finalized(false)
+    : handler(handler)
+    , wakeup_handler(NULL)
+    , ev_pending(false)
+    , finalized(false)
 {
 }
 
 AmEventQueue::~AmEventQueue()
 {
   m_queue.lock();
-  while(!ev_queue.empty()){
+  while (!ev_queue.empty()) {
     delete ev_queue.front();
     ev_queue.pop();
   }
@@ -50,94 +50,81 @@ AmEventQueue::~AmEventQueue()
 
 void AmEventQueue::postEvent(AmEvent* event)
 {
-  if (AmConfig::LogEvents) 
-    DBG("AmEventQueue: trying to post event\n");
+  if (AmConfig::LogEvents) DBG("AmEventQueue: trying to post event\n");
 
   m_queue.lock();
 
-  if(event)
-    ev_queue.push(event);
+  if (event) ev_queue.push(event);
 
-  if(!ev_pending.get()) {
+  if (!ev_pending.get()) {
     ev_pending.set(true);
-    if (NULL != wakeup_handler)
-      wakeup_handler->notify(this);
+    if (NULL != wakeup_handler) wakeup_handler->notify(this);
   }
 
   m_queue.unlock();
 
-  if (AmConfig::LogEvents) 
-    DBG("AmEventQueue: event posted\n");
+  if (AmConfig::LogEvents) DBG("AmEventQueue: event posted\n");
 }
 
 void AmEventQueue::processEvents()
 {
   m_queue.lock();
 
-  while(!ev_queue.empty()) {
-	
+  while (!ev_queue.empty()) {
     AmEvent* event = ev_queue.front();
     ev_queue.pop();
     m_queue.unlock();
 
-    if (AmConfig::LogEvents) 
-      DBG("before processing event (%s)\n",
-	  typeid(*event).name());
+    if (AmConfig::LogEvents)
+      DBG("before processing event (%s)\n", typeid(*event).name());
     handler->process(event);
-    if (AmConfig::LogEvents) 
-      DBG("event processed (%s)\n",
-	  typeid(*event).name());
+    if (AmConfig::LogEvents)
+      DBG("event processed (%s)\n", typeid(*event).name());
     delete event;
     m_queue.lock();
   }
-    
+
   ev_pending.set(false);
   m_queue.unlock();
 }
 
-void AmEventQueue::waitForEvent()
-{
-  ev_pending.wait_for();
-}
+void AmEventQueue::waitForEvent() { ev_pending.wait_for(); }
 
 void AmEventQueue::processSingleEvent()
 {
   m_queue.lock();
 
   if (!ev_queue.empty()) {
-
     AmEvent* event = ev_queue.front();
     ev_queue.pop();
     m_queue.unlock();
 
-    if (AmConfig::LogEvents) 
-      DBG("before processing event\n");
+    if (AmConfig::LogEvents) DBG("before processing event\n");
     handler->process(event);
-    if (AmConfig::LogEvents) 
-      DBG("event processed\n");
+    if (AmConfig::LogEvents) DBG("event processed\n");
     delete event;
 
     m_queue.lock();
-    if (ev_queue.empty())
-      ev_pending.set(false);
+    if (ev_queue.empty()) ev_pending.set(false);
   }
 
   m_queue.unlock();
 }
 
-bool AmEventQueue::eventPending() {
+bool AmEventQueue::eventPending()
+{
   m_queue.lock();
   bool res = !ev_queue.empty();
   m_queue.unlock();
   return res;
 }
 
-void AmEventQueue::setEventNotificationSink(AmEventNotificationSink* 
-					    _wakeup_handler) {
-  // locking actually not necessary - if replacing pointer is atomic 
-  m_queue.lock(); 
+void AmEventQueue::setEventNotificationSink(
+    AmEventNotificationSink* _wakeup_handler)
+{
+  // locking actually not necessary - if replacing pointer is atomic
+  m_queue.lock();
   wakeup_handler = _wakeup_handler;
-  if(wakeup_handler && ev_pending.get())
-    wakeup_handler->notify(this);
+  if (wakeup_handler && ev_pending.get()) wakeup_handler->notify(this);
   m_queue.unlock();
 }

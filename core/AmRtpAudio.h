@@ -33,19 +33,18 @@
 #include "LowcFE.h"
 
 #ifdef USE_SPANDSP_PLC
-#include <math.h>
 #include "spandsp/plc.h"
+#include <math.h>
 #endif
 
 class AmPlayoutBuffer;
 
-enum PlayoutType {
+enum PlayoutType
+{
   ADAPTIVE_PLAYOUT,
   JB_PLAYOUT,
   SIMPLE_PLAYOUT
 };
-
-
 
 /**
  * \brief interface for PLC buffer
@@ -54,24 +53,19 @@ enum PlayoutType {
 class AmPLCBuffer
 {
  public:
-
-  virtual void add_to_history(int16_t *buffer, unsigned int size) = 0;
+  virtual void add_to_history(int16_t* buffer, unsigned int size) = 0;
 
   // Conceals packet loss into the out_buffer
   // @return length in bytes of the recivered segment
-  virtual unsigned int conceal_loss(unsigned int ts_diff,
-                                    unsigned char *out_buffer) = 0;
-  AmPLCBuffer()
-  { }
+  virtual unsigned int conceal_loss(unsigned int   ts_diff,
+                                    unsigned char* out_buffer) = 0;
+  AmPLCBuffer() {}
 
-  virtual ~AmPLCBuffer()
-  { }
+  virtual ~AmPLCBuffer() {}
 };
 
-
 /** \brief RTP audio format */
-class AmAudioRtpFormat
-  : public AmAudioFormat
+class AmAudioRtpFormat : public AmAudioFormat
 {
   /** Sampling rate as advertized in SDP (differs from actual rate for G722) **/
   unsigned int advertized_rate;
@@ -97,22 +91,21 @@ class AmAudioRtpFormat
   int setCurrentPayload(Payload pl);
 };
 
-
 /**
  * \brief binds together a \ref AmRtpStream and an \ref AmAudio for a session
  */
 class AmRtpAudio
-  : public AmRtpStream,
-    public AmAudio,
-    public AmPLCBuffer
+    : public AmRtpStream
+    , public AmAudio
+    , public AmPLCBuffer
 {
-  PlayoutType m_playout_type;
+  PlayoutType                      m_playout_type;
   std::unique_ptr<AmPlayoutBuffer> playout_buffer;
 
 #ifdef USE_SPANDSP_PLC
-    plc_state_t* plc_state;
+  plc_state_t* plc_state;
 #else
-    std::unique_ptr<LowcFE>       fec;
+  std::unique_ptr<LowcFE> fec;
 #endif
 
   bool use_default_plc;
@@ -147,29 +140,29 @@ class AmRtpAudio
 
   // AmAudio interface
   int get(unsigned long long system_ts, unsigned char* buffer,
-	  int output_sample_rate, unsigned int nb_samples);
+          int output_sample_rate, unsigned int nb_samples);
 
   int put(unsigned long long system_ts, unsigned char* buffer,
-	  int input_sample_rate, unsigned int size);
+          int input_sample_rate, unsigned int size);
 
   unsigned int bytes2samples(unsigned int) const;
 
   // AmRtpStream interface
   void getSdpOffer(unsigned int index, SdpMedia& offer);
-  void getSdpAnswer(unsigned int index, const SdpMedia& offer, SdpMedia& answer);
+  void getSdpAnswer(unsigned int index, const SdpMedia& offer,
+                    SdpMedia& answer);
 
-  int init(const AmSdp& local,
-	   const AmSdp& remote, bool force_symmetric_rtp = false);
+  int init(const AmSdp& local, const AmSdp& remote,
+           bool force_symmetric_rtp = false);
 
   void setPlayoutType(PlayoutType type);
 
-
   // AmPLCBuffer interface
-  void add_to_history(int16_t *buffer, unsigned int size);
+  void add_to_history(int16_t* buffer, unsigned int size);
 
   // Conceals packet loss into the out_buffer
   // @return length in bytes of the recivered segment
-  unsigned int conceal_loss(unsigned int ts_diff, unsigned char *out_buffer);
+  unsigned int conceal_loss(unsigned int ts_diff, unsigned char* out_buffer);
 
  protected:
   int read(unsigned int user_ts, unsigned int size) { return 0; }

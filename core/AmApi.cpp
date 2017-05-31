@@ -141,10 +141,12 @@ void AmSessionFactory::replyOptions(const AmSipRequest& req)
   AmSipDialog::reply_error(req, 200, "OK", hdrs);
 }
 
+// UNUSED
 // void AmSessionFactory::postEvent(AmEvent* ev) {
 //   ERROR("unhandled Event in %s module\n", getName().c_str());
 //   delete ev;
 // }
+// UNUSED_END
 
 AmSessionEventHandlerFactory::AmSessionEventHandlerFactory(const string& name)
     : AmPluginFactory(name)

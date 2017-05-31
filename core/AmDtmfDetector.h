@@ -31,8 +31,8 @@
 #include "AmEventQueue.h"
 #include "rtp/telephone_event.h"
 
-#include <string>
 #include <memory>
+#include <string>
 
 #ifdef USE_SPANDSP
 #include <math.h>
@@ -42,7 +42,6 @@
 #include "spandsp/tone_detect.h"
 #endif
 #endif
-
 
 //
 // Forward declarations
@@ -54,9 +53,19 @@ class AmRequest;
 
 namespace Dtmf
 {
-  enum EventSource { SOURCE_RTP, SOURCE_SIP, SOURCE_INBAND, SOURCE_DETECTOR };
+enum EventSource
+{
+  SOURCE_RTP,
+  SOURCE_SIP,
+  SOURCE_INBAND,
+  SOURCE_DETECTOR
+};
 
-  enum InbandDetectorType { SEMSInternal, SpanDSP };
+enum InbandDetectorType
+{
+  SEMSInternal,
+  SpanDSP
+};
 };
 /**
  * \brief sink for audio to be processed by the inband DTMF detector
@@ -66,15 +75,16 @@ namespace Dtmf
 class AmDtmfEventQueue : public AmEventQueue
 {
  private:
-  AmDtmfDetector *m_detector;
+  AmDtmfDetector* m_detector;
 
  public:
-  AmDtmfEventQueue(AmDtmfDetector *);
+  AmDtmfEventQueue(AmDtmfDetector*);
   /**
    * Reimplemented abstract method from AmEventQueue
    */
   void processEvents();
-  void putDtmfAudio(const unsigned char *, int size, unsigned long long system_ts);
+  void putDtmfAudio(const unsigned char*, int size,
+                    unsigned long long system_ts);
 };
 
 /**
@@ -96,15 +106,17 @@ class AmDtmfEvent : public AmEvent
    * Constructor
    */
   AmDtmfEvent(int id)
-    : AmEvent(id)
-  {}
+      : AmEvent(id)
+  {
+  }
 
  public:
   AmDtmfEvent(int event, int duration)
-    : AmEvent(Dtmf::SOURCE_DETECTOR),
-      m_event(event),
-      m_duration_msec(duration)
-  {}
+      : AmEvent(Dtmf::SOURCE_DETECTOR)
+      , m_event(event)
+      , m_duration_msec(duration)
+  {
+  }
   /**
    * Code of the key
    */
@@ -117,13 +129,12 @@ class AmDtmfEvent : public AmEvent
 /**
  * \brief Interface for a sink for KeyPresses.
  */
-class AmKeyPressSink {
+class AmKeyPressSink
+{
  public:
-  AmKeyPressSink()
-  { }
+  AmKeyPressSink() {}
 
-  virtual ~AmKeyPressSink()
-  { }
+  virtual ~AmKeyPressSink() {}
 
   /**
    * Through this method the AmDtmfDetector receives events that was
@@ -136,8 +147,10 @@ class AmKeyPressSink {
    * @param event_id id of the event
    */
   virtual void registerKeyReleased(int event, Dtmf::EventSource source,
-				   const struct timeval& start, const struct timeval& stop,
-				   bool has_eventid = false, unsigned int event_id = 0) = 0;
+                                   const struct timeval& start,
+                                   const struct timeval& stop,
+                                   bool                  has_eventid = false,
+                                   unsigned int          event_id = 0) = 0;
   /**
    * Through this method the AmDtmfDetector receives events that was
    * detected by specific detectors.
@@ -147,7 +160,7 @@ class AmKeyPressSink {
    * @param event_id id of the event
    */
   virtual void registerKeyPressed(int event, Dtmf::EventSource source,
-                                  bool has_eventid = false,
+                                  bool         has_eventid = false,
                                   unsigned int event_id = 0) = 0;
   /**
    *   Flush (report to session) any pending key if ti matches the event id
@@ -182,7 +195,8 @@ class AmRtpDtmfEvent : public AmDtmfEvent
    * @param payload data from rtp packet of payload type telephone-event
    * @param sample_rate sampling rate (from SDP payload description)
    */
-  AmRtpDtmfEvent(const dtmf_payload_t *payload, int sample_rate, unsigned int ts);
+  AmRtpDtmfEvent(const dtmf_payload_t* payload, int sample_rate,
+                 unsigned int ts);
 
   /**
    * Volume value from RTP packet
@@ -223,15 +237,16 @@ class AmInbandDtmfDetector
 {
  protected:
   /** here key presses are reported to */
-  AmKeyPressSink *m_keysink;
+  AmKeyPressSink* m_keysink;
 
  public:
-  AmInbandDtmfDetector(AmKeyPressSink *keysink);
-  virtual ~AmInbandDtmfDetector() { }
+  AmInbandDtmfDetector(AmKeyPressSink* keysink);
+  virtual ~AmInbandDtmfDetector() {}
   /**
    * Entry point for audio stream
    */
-  virtual int streamPut(const unsigned char* samples, unsigned int size, unsigned long long system_ts) = 0;
+  virtual int streamPut(const unsigned char* samples, unsigned int size,
+                        unsigned long long system_ts) = 0;
 };
 
 /**
@@ -239,8 +254,7 @@ class AmInbandDtmfDetector
  *
  * This class implements detection of DTMF from audio stream
  */
-class AmSemsInbandDtmfDetector
-  : public AmInbandDtmfDetector
+class AmSemsInbandDtmfDetector : public AmInbandDtmfDetector
 {
  private:
   /**
@@ -248,8 +262,9 @@ class AmSemsInbandDtmfDetector
    */
   struct timeval m_startTime;
 
-  static const int REL_DTMF_NPOINTS = 205;    /* Number of samples for DTMF recognition */
-  static const int REL_NCOEFF = 8;            /* number of frequencies to be analyzed   */
+  static const int REL_DTMF_NPOINTS =
+      205;                         /* Number of samples for DTMF recognition */
+  static const int REL_NCOEFF = 8; /* number of frequencies to be analyzed   */
 
   const int SAMPLERATE;
   /**
@@ -263,12 +278,13 @@ class AmSemsInbandDtmfDetector
    */
   int rel_cos2pik[REL_NCOEFF];
 
-  int m_buf[REL_DTMF_NPOINTS];
+  int  m_buf[REL_DTMF_NPOINTS];
   char m_last;
-  int m_idx;
-  int m_result[16];
-  int m_lastCode;
-  int m_last_ts;	// timestamp representative for the currently analysed filter block
+  int  m_idx;
+  int  m_result[16];
+  int  m_lastCode;
+  int  m_last_ts; // timestamp representative for the currently analysed filter
+                  // block
 
   int m_count;
 
@@ -277,46 +293,47 @@ class AmSemsInbandDtmfDetector
   void isdn_audio_calc_dtmf(const signed short* buf, int len, unsigned int ts);
 
  public:
-  AmSemsInbandDtmfDetector(AmKeyPressSink *keysink, int sample_rate);
+  AmSemsInbandDtmfDetector(AmKeyPressSink* keysink, int sample_rate);
   ~AmSemsInbandDtmfDetector();
   /**
    * Entry point for audio stream
    */
-  int streamPut(const unsigned char* samples, unsigned int size, unsigned long long system_ts);
+  int streamPut(const unsigned char* samples, unsigned int size,
+                unsigned long long system_ts);
 };
-
 
 #ifdef USE_SPANDSP
 
-class AmSpanDSPInbandDtmfDetector
-: public AmInbandDtmfDetector  {
-
-  struct timeval key_start;
-  int m_lastCode;
+class AmSpanDSPInbandDtmfDetector : public AmInbandDtmfDetector
+{
+  struct timeval   key_start;
+  int              m_lastCode;
   dtmf_rx_state_t* rx_state;
 
-  static void tone_report_func(void *user_data, int code
+  static void tone_report_func(void* user_data, int code
 #ifndef HAVE_OLD_SPANDSP_CALLBACK
-			       , int level, int delay
+                               ,
+                               int level, int delay
 #endif
-			       );
+                               );
 
   void tone_report_f(int code, int level, int delay);
   int char2int(char code);
-/*   static void dtmf_rx_callback(void* user_data, const char* digits, int len);  */
-/*   void dtmf_rx_f(const char* digits, int len); */
+  /*   static void dtmf_rx_callback(void* user_data, const char* digits, int
+   * len);  */
+  /*   void dtmf_rx_f(const char* digits, int len); */
 
  public:
-  AmSpanDSPInbandDtmfDetector(AmKeyPressSink *keysink, int sample_rate);
+  AmSpanDSPInbandDtmfDetector(AmKeyPressSink* keysink, int sample_rate);
   ~AmSpanDSPInbandDtmfDetector();
 
   /**
    * Entry point for audio stream
    */
-  int streamPut(const unsigned char* samples, unsigned int size, unsigned long long system_ts);
+  int streamPut(const unsigned char* samples, unsigned int size,
+                unsigned long long system_ts);
 };
 #endif // USE_SPANDSP
-
 
 /**
  * \brief SIP INFO DTMF detector
@@ -326,11 +343,11 @@ class AmSpanDSPInbandDtmfDetector
 class AmSipDtmfDetector
 {
  private:
-  AmKeyPressSink *m_keysink;
+  AmKeyPressSink* m_keysink;
 
  public:
-  AmSipDtmfDetector(AmKeyPressSink *keysink);
-  void process(AmSipDtmfEvent *event);
+  AmSipDtmfDetector(AmKeyPressSink* keysink);
+  void process(AmSipDtmfEvent* event);
 };
 
 /**
@@ -344,18 +361,18 @@ class AmRtpDtmfDetector
   /**
    *  sink for detected keys
    */
-  AmKeyPressSink *m_keysink;
+  AmKeyPressSink* m_keysink;
   /**
    * Is there event pending?
    */
-  bool m_eventPending;
-  int m_currentEvent;
+  bool         m_eventPending;
+  int          m_currentEvent;
   unsigned int m_currentTS;
-  bool m_currentTS_i;
-  int m_packetCount;
+  bool         m_currentTS_i;
+  int          m_packetCount;
 
   unsigned int m_lastTS;
-  bool m_lastTS_i;
+  bool         m_lastTS_i;
 
   // after MAX_PACKET_WAIT packets with no RTP DTMF packets received,
   // a RTP DTMF event is sent out to the aggregating detector
@@ -375,11 +392,11 @@ class AmRtpDtmfDetector
    * Constructor
    * @param keysink is the sink for detected keys
    */
-  AmRtpDtmfDetector(AmKeyPressSink *keysink);
+  AmRtpDtmfDetector(AmKeyPressSink* keysink);
   /**
    * Process RTP DTMF event
    */
-  void process(AmRtpDtmfEvent *event);
+  void process(AmRtpDtmfEvent* event);
   void checkTimeout();
 };
 
@@ -391,9 +408,9 @@ class AmRtpDtmfDetector
  */
 class AmDtmfSink
 {
-public:
-  virtual void postDtmfEvent(AmDtmfEvent *) = 0;
-  virtual ~AmDtmfSink() { }
+ public:
+  virtual void postDtmfEvent(AmDtmfEvent*) = 0;
+  virtual ~AmDtmfSink() {}
 };
 
 /**
@@ -405,28 +422,28 @@ public:
  * DialogState::onDtmf() call.
  */
 class AmDtmfDetector
-: public AmEventHandler,
-  public AmKeyPressSink
+    : public AmEventHandler
+    , public AmKeyPressSink
 {
  private:
   static const int WAIT_TIMEOUT = 200; // miliseconds
   /**
    * Session this class belongs to.
    */
-  AmDtmfSink *m_dtmfSink;
-  AmRtpDtmfDetector m_rtpDetector;
-  AmSipDtmfDetector m_sipDetector;
+  AmDtmfSink*                           m_dtmfSink;
+  AmRtpDtmfDetector                     m_rtpDetector;
+  AmSipDtmfDetector                     m_sipDetector;
   std::unique_ptr<AmInbandDtmfDetector> m_inbandDetector;
-  //UNUSED
+  // UNUSED
   // Dtmf::InbandDetectorType m_inband_type;
-  //UNUSED_END
+  // UNUSED_END
 
   struct timeval m_startTime;
   struct timeval m_lastReportTime;
-  int m_currentEvent;
-  bool m_eventPending;
+  int            m_currentEvent;
+  bool           m_eventPending;
 
-  bool m_current_eventid_i;
+  bool         m_current_eventid_i;
   unsigned int m_current_eventid;
 
   bool m_sipEventReceived;
@@ -440,7 +457,7 @@ class AmDtmfDetector
    * Processes events from AmMediaProcessor.
    * @see AmEventHandler
    */
-  virtual void process(AmEvent *);
+  virtual void process(AmEvent*);
 
   void reportEvent();
 
@@ -453,15 +470,17 @@ class AmDtmfDetector
    * @param stop time when key was released
    */
   void registerKeyReleased(int event, Dtmf::EventSource source,
-			   const struct timeval& start, const struct timeval& stop,
-			   bool has_eventid = false, unsigned int event_id = 0);
+                           const struct timeval& start,
+                           const struct timeval& stop, bool has_eventid = false,
+                           unsigned int event_id = 0);
   /**
    * Through this method the AmDtmfDetector receives events that was
    * detected by specific detectors.
    * @param event code of key released
    * @param source which detector posted this event
    */
-  void registerKeyPressed(int event, Dtmf::EventSource source, bool has_eventid=false, unsigned int event_id=0);
+  void registerKeyPressed(int event, Dtmf::EventSource source,
+                          bool has_eventid = false, unsigned int event_id = 0);
 
   void flushKey(unsigned int event_id);
 
@@ -470,11 +489,12 @@ class AmDtmfDetector
    * Constructor
    * @param session is the owner of this class instance
    */
-  AmDtmfDetector(AmDtmfSink *dtmf_sink);
+  AmDtmfDetector(AmDtmfSink* dtmf_sink);
   virtual ~AmDtmfDetector() {}
 
   void checkTimeout();
-  void putDtmfAudio(const unsigned char *, int size, unsigned long long system_ts);
+  void putDtmfAudio(const unsigned char*, int size,
+                    unsigned long long system_ts);
 
   void setInbandDetector(Dtmf::InbandDetectorType t, int sample_rate);
   friend class AmSipDtmfDetector;

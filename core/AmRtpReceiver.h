@@ -47,31 +47,31 @@ class _AmRtpReceiver;
  * that are registered to it. It places the received packets in
  * the stream's buffer.
  */
-class AmRtpReceiverThread
-  : public AmThread
+class AmRtpReceiverThread : public AmThread
 {
   struct StreamInfo
   {
-    AmRtpStream* stream;
-    struct event* ev_read;
+    AmRtpStream*         stream;
+    struct event*        ev_read;
     AmRtpReceiverThread* thread;
 
     StreamInfo()
-      : stream(NULL),
-        ev_read(NULL),
-        thread(NULL)
-    { }
+        : stream(NULL)
+        , ev_read(NULL)
+        , thread(NULL)
+    {
+    }
   };
 
   typedef std::map<int, StreamInfo> Streams;
 
   struct event_base* ev_base;
-  //UNUSED
+  // UNUSED
   // struct event*      ev_default;
-  //UNUSED_END
+  // UNUSED_END
 
-  Streams  streams;
-  AmMutex  streams_mut;
+  Streams streams;
+  AmMutex streams_mut;
 
   AmSharedVar<bool> stop_requested;
 

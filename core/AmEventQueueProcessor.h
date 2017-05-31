@@ -20,31 +20,31 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef _AmEventQueueProcessor_h_
 #define _AmEventQueueProcessor_h_
 
-#include "AmThread.h"
 #include "AmEventQueue.h"
+#include "AmThread.h"
 
 #include <deque>
 #include <vector>
 using std::deque;
 using std::vector;
 
-class EventQueueWorker 
-: public AmThread,
-  public AmEventNotificationSink
+class EventQueueWorker
+    : public AmThread
+    , public AmEventNotificationSink
 {
   AmSharedVar<bool> stop_requested;
 
-  AmCondition<bool> runcond;
+  AmCondition<bool>         runcond;
   std::deque<AmEventQueue*> process_queues;
-  AmMutex process_queues_mut;
+  AmMutex                   process_queues_mut;
 
  public:
   EventQueueWorker();
@@ -70,12 +70,12 @@ class EventQueueWorker
  * during or after finalize(), so that the queue
  * gets disposed correctly.
  */
-class AmEventQueueProcessor {
-
+class AmEventQueueProcessor
+{
   typedef vector<EventQueueWorker*> Workers;
 
-  Workers threads;
-  AmMutex threads_mut;
+  Workers           threads;
+  AmMutex           threads_mut;
   Workers::iterator threads_it;
 
  public:

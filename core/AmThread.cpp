@@ -20,22 +20,22 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "AmThread.h"
 #include "log.h"
 
-#include <unistd.h>
 #include "errno.h"
 #include <string>
+#include <unistd.h>
 using std::string;
 
 AmMutex::AmMutex(bool recursive)
 {
-  if(recursive) {
+  if (recursive) {
     pthread_mutexattr_t attr;
 
     pthread_mutexattr_init(&attr);
@@ -43,40 +43,31 @@ AmMutex::AmMutex(bool recursive)
     pthread_mutex_init(&m, &attr);
   }
   else {
-    pthread_mutex_init(&m,NULL);
+    pthread_mutex_init(&m, NULL);
   }
 }
 
-AmMutex::~AmMutex()
-{
-  pthread_mutex_destroy(&m);
-}
+AmMutex::~AmMutex() { pthread_mutex_destroy(&m); }
 
-void AmMutex::lock() 
-{
-  pthread_mutex_lock(&m);
-}
+void AmMutex::lock() { pthread_mutex_lock(&m); }
 
-void AmMutex::unlock() 
-{
-  pthread_mutex_unlock(&m);
-}
+void AmMutex::unlock() { pthread_mutex_unlock(&m); }
 
 AmThread::AmThread()
-  : _stopped(true)
+    : _stopped(true)
 {
 }
 
-void * AmThread::_start(void * _t)
+void* AmThread::_start(void* _t)
 {
-  AmThread* _this = (AmThread*)_t;
-  _this->_pid = (unsigned long) _this->_td;
+  AmThread* _this = (AmThread*) _t;
+  _this->_pid     = (unsigned long) _this->_td;
   DBG("Thread %lu is starting.\n", (unsigned long) _this->_pid);
   _this->run();
 
   DBG("Thread %lu is ending.\n", (unsigned long) _this->_pid);
   _this->_stopped.set(true);
-    
+
   return NULL;
 }
 
@@ -84,7 +75,7 @@ void AmThread::start()
 {
   pthread_attr_t attr;
   pthread_attr_init(&attr);
-  pthread_attr_setstacksize(&attr,1024*1024);// 1 MB
+  pthread_attr_setstacksize(&attr, 1024 * 1024); // 1 MB
 
   int res;
   _pid = 0;
@@ -92,7 +83,7 @@ void AmThread::start()
   // unless placed here, a call seq like run(); join(); will not wait to join
   // b/c creating the thread can take too long
   this->_stopped.lock();
-  if(!(this->_stopped.unsafe_get())){
+  if (!(this->_stopped.unsafe_get())) {
     this->_stopped.unlock();
     ERROR("thread already running\n");
     return;
@@ -100,55 +91,66 @@ void AmThread::start()
   this->_stopped.unsafe_set(false);
   this->_stopped.unlock();
 
-  res = pthread_create(&_td,&attr,_start,this);
+  res = pthread_create(&_td, &attr, _start, this);
   pthread_attr_destroy(&attr);
   if (res != 0) {
     ERROR("pthread create failed with code %i\n", res);
     throw string("thread could not be started");
-  }	
-  //DBG("Thread %lu is just created.\n", (unsigned long int) _pid);
+  }
+  // DBG("Thread %lu is just created.\n", (unsigned long int) _pid);
 }
 
 void AmThread::stop()
 {
   _m_td.lock();
 
-  if(is_stopped()){
+  if (is_stopped()) {
     _m_td.unlock();
     return;
   }
 
   // gives the thread a chance to clean up
-  DBG("Thread %lu (%lu) calling on_stop, give it a chance to clean up.\n", 
+  DBG("Thread %lu (%lu) calling on_stop, give it a chance to clean up.\n",
       (unsigned long int) _pid, (unsigned long int) _td);
 
-  try { on_stop(); } catch(...) {}
+  try {
+    on_stop();
+  }
+  catch (...) {
+  }
 
   int res;
   if ((res = pthread_detach(_td)) != 0) {
     if (res == EINVAL) {
-      WARN("pthread_detach failed with code EINVAL: thread already in detached state.\n");
-    } else if (res == ESRCH) {
-      WARN("pthread_detach failed with code ESRCH: thread could not be found.\n");
-    } else {
+      WARN("pthread_detach failed with code EINVAL: thread already in detached "
+           "state.\n");
+    }
+    else if (res == ESRCH) {
+      WARN("pthread_detach failed with code ESRCH: thread could not be "
+           "found.\n");
+    }
+    else {
       WARN("pthread_detach failed with code %i\n", res);
     }
   }
 
-  DBG("Thread %lu (%lu) finished detach.\n", (unsigned long int) _pid, (unsigned long int) _td);
+  DBG("Thread %lu (%lu) finished detach.\n", (unsigned long int) _pid,
+      (unsigned long int) _td);
 
-  //pthread_cancel(_td);
+  // pthread_cancel(_td);
 
   _m_td.unlock();
 }
 
-void AmThread::cancel() {
+void AmThread::cancel()
+{
   _m_td.lock();
 
   int res;
   if ((res = pthread_cancel(_td)) != 0) {
     ERROR("pthread_cancel failed with code %i\n", res);
-  } else {
+  }
+  else {
     DBG("Thread %lu is canceled.\n", (unsigned long int) _pid);
     _stopped.set(true);
   }
@@ -158,12 +160,11 @@ void AmThread::cancel() {
 
 void AmThread::join()
 {
-  if(!is_stopped())
-    pthread_join(_td,NULL);
+  if (!is_stopped()) pthread_join(_td, NULL);
 }
 
-
-int AmThread::setRealtime() {
+int AmThread::setRealtime()
+{
   // set process realtime
   //     int policy;
   //     struct sched_param rt_param;
@@ -175,33 +176,33 @@ int AmThread::setRealtime() {
   //     }
 
   //     policy = sched_getscheduler(0);
-    
+
   //     std::string str_policy = "unknown";
   //     switch(policy) {
   // 	case SCHED_OTHER: str_policy = "SCHED_OTHER"; break;
   // 	case SCHED_RR: str_policy = "SCHED_RR"; break;
   // 	case SCHED_FIFO: str_policy = "SCHED_FIFO"; break;
   //     }
- 
-  //     DBG("Thread has now policy '%s' - priority 80 (from %d to %d).\n", str_policy.c_str(), 
+
+  //     DBG("Thread has now policy '%s' - priority 80 (from %d to %d).\n",
+  //     str_policy.c_str(),
   // 	sched_get_priority_min(policy), sched_get_priority_max(policy));
   //     return 0;
   return 0;
 }
 
-
-AmThreadWatcher* AmThreadWatcher::_instance=0;
-AmMutex AmThreadWatcher::_inst_mut;
+AmThreadWatcher* AmThreadWatcher::_instance = 0;
+AmMutex          AmThreadWatcher::_inst_mut;
 
 AmThreadWatcher::AmThreadWatcher()
-  : _run_cond(false)
+    : _run_cond(false)
 {
 }
 
 AmThreadWatcher* AmThreadWatcher::instance()
 {
   _inst_mut.lock();
-  if(!_instance){
+  if (!_instance) {
     _instance = new AmThreadWatcher();
     _instance->start();
   }
@@ -212,7 +213,8 @@ AmThreadWatcher* AmThreadWatcher::instance()
 
 void AmThreadWatcher::add(AmThread* t)
 {
-  DBG("trying to add thread %lu to thread watcher.\n", (unsigned long int) t->_pid);
+  DBG("trying to add thread %lu to thread watcher.\n",
+      (unsigned long int) t->_pid);
   q_mut.lock();
   thread_queue.push(t);
   _run_cond.set(true);
@@ -220,16 +222,13 @@ void AmThreadWatcher::add(AmThread* t)
   DBG("added thread %lu to thread watcher.\n", (unsigned long int) t->_pid);
 }
 
-void AmThreadWatcher::on_stop()
-{
-}
+void AmThreadWatcher::on_stop() {}
 
 void AmThreadWatcher::run()
 {
-  for(;;){
-
+  for (;;) {
     _run_cond.wait_for();
-    // Let some time for to threads 
+    // Let some time for to threads
     // to stop by themselves
     sleep(10);
 
@@ -239,28 +238,30 @@ void AmThreadWatcher::run()
     try {
       std::queue<AmThread*> n_thread_queue;
 
-      while(!thread_queue.empty()){
+      while (!thread_queue.empty()) {
+        AmThread* cur_thread = thread_queue.front();
+        thread_queue.pop();
 
-	AmThread* cur_thread = thread_queue.front();
-	thread_queue.pop();
+        q_mut.unlock();
+        DBG("thread %lu is to be processed in thread watcher.\n",
+            (unsigned long int) cur_thread->_pid);
+        if (cur_thread->is_stopped()) {
+          DBG("thread %lu has been destroyed.\n",
+              (unsigned long int) cur_thread->_pid);
+          delete cur_thread;
+        }
+        else {
+          DBG("thread %lu still running.\n",
+              (unsigned long int) cur_thread->_pid);
+          n_thread_queue.push(cur_thread);
+        }
 
-	q_mut.unlock();
-	DBG("thread %lu is to be processed in thread watcher.\n", (unsigned long int) cur_thread->_pid);
-	if(cur_thread->is_stopped()){
-	  DBG("thread %lu has been destroyed.\n", (unsigned long int) cur_thread->_pid);
-	  delete cur_thread;
-	}
-	else {
-	  DBG("thread %lu still running.\n", (unsigned long int) cur_thread->_pid);
-	  n_thread_queue.push(cur_thread);
-	}
-
-	q_mut.lock();
+        q_mut.lock();
       }
 
-      swap(thread_queue,n_thread_queue);
-
-    }catch(...){
+      swap(thread_queue, n_thread_queue);
+    }
+    catch (...) {
       /* this one is IMHO very important, as lock is called in try block! */
       ERROR("unexpected exception, state may be invalid!\n");
     }
@@ -269,8 +270,6 @@ void AmThreadWatcher::run()
     q_mut.unlock();
 
     DBG("Thread watcher finished\n");
-    if(!more)
-      _run_cond.set(false);
+    if (!more) _run_cond.set(false);
   }
 }
-

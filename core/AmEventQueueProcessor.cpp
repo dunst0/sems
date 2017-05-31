@@ -31,16 +31,13 @@
 #include <deque>
 using std::deque;
 
-AmEventQueueProcessor::AmEventQueueProcessor()
-{
-  threads_it = threads.begin();
-}
+AmEventQueueProcessor::AmEventQueueProcessor() { threads_it = threads.begin(); }
 
 AmEventQueueProcessor::~AmEventQueueProcessor()
 {
   threads_mut.lock();
   threads_it = threads.begin();
-  while(threads_it != threads.end()) {
+  while (threads_it != threads.end()) {
     (*threads_it)->stop();
     (*threads_it)->join();
     delete (*threads_it);
@@ -59,8 +56,7 @@ EventQueueWorker* AmEventQueueProcessor::getWorker()
   }
 
   // round robin
-  if (threads_it == threads.end())
-    threads_it = threads.begin();
+  if (threads_it == threads.end()) threads_it = threads.begin();
 
   EventQueueWorker* res = *threads_it;
   threads_it++;
@@ -72,7 +68,7 @@ EventQueueWorker* AmEventQueueProcessor::getWorker()
 int AmEventQueueProcessor::startEventQueue(AmEventQueue* q)
 {
   EventQueueWorker* worker = getWorker();
-  if(!worker) return -1;
+  if (!worker) return -1;
 
   worker->startEventQueue(q);
   return 0;
@@ -82,23 +78,21 @@ void AmEventQueueProcessor::addThreads(unsigned int num_threads)
 {
   DBG("starting %u session processor threads\n", num_threads);
   threads_mut.lock();
-  for (unsigned int i=0; i < num_threads;i++) {
+  for (unsigned int i = 0; i < num_threads; i++) {
     threads.push_back(new EventQueueWorker());
     threads.back()->start();
   }
   threads_it = threads.begin();
-  DBG("now %zd session processor threads running\n",  threads.size());
+  DBG("now %zd session processor threads running\n", threads.size());
   threads_mut.unlock();
 }
 
-
 EventQueueWorker::EventQueueWorker()
-  : runcond(false)
+    : runcond(false)
 {
 }
 
-EventQueueWorker::~EventQueueWorker() {
-}
+EventQueueWorker::~EventQueueWorker() {}
 
 void EventQueueWorker::notify(AmEventQueue* sender)
 {
@@ -112,22 +106,19 @@ void EventQueueWorker::notify(AmEventQueue* sender)
 void EventQueueWorker::run()
 {
   stop_requested.set(false);
-  while(!stop_requested.get()){
-
+  while (!stop_requested.get()) {
     runcond.wait_for();
 
     DBG("running processing loop\n");
     process_queues_mut.lock();
-    while(!process_queues.empty()) {
-
+    while (!process_queues.empty()) {
       AmEventQueue* ev_q = process_queues.front();
       process_queues.pop_front();
       process_queues_mut.unlock();
 
-      if(!ev_q->processingCycle()) {
-	ev_q->setEventNotificationSink(NULL);
-	if(!ev_q->is_finalized())
-	  ev_q->finalize();
+      if (!ev_q->processingCycle()) {
+        ev_q->setEventNotificationSink(NULL);
+        if (!ev_q->is_finalized()) ev_q->finalize();
       }
       dec_ref(ev_q);
 
@@ -148,7 +139,7 @@ void EventQueueWorker::on_stop()
 
 void EventQueueWorker::startEventQueue(AmEventQueue* q)
 {
-  if(q->startup())
+  if (q->startup())
     // register us to be notified if some event comes to the session
     q->setEventNotificationSink(this);
 }

@@ -21,8 +21,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -42,10 +42,11 @@ class AmDtmfSender
   // event, duration
   typedef pair<int, unsigned int> Dtmf;
 
-  enum sending_state_t {
-    DTMF_SEND_NONE,      // not sending event
-    DTMF_SEND_SENDING,   // sending event
-    DTMF_SEND_ENDING     // sending end of event
+  enum sending_state_t
+  {
+    DTMF_SEND_NONE,    // not sending event
+    DTMF_SEND_SENDING, // sending event
+    DTMF_SEND_ENDING   // sending end of event
   } sending_state;
 
   queue<Dtmf> send_queue;
@@ -55,11 +56,12 @@ class AmDtmfSender
   unsigned int current_send_dtmf_ts;
   int          send_dtmf_end_repeat;
 
-public:
+ public:
   AmDtmfSender();
 
   /** Add a DTMF event to the send queue */
-  void queueEvent(int event, unsigned int duration_ms, unsigned int sample_rate);
+  void queueEvent(int event, unsigned int duration_ms,
+                  unsigned int sample_rate);
 
   /** Processes the send queue according to the timestamp */
   void sendPacket(unsigned int ts, unsigned int remote_pt, AmRtpStream* stream);

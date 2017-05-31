@@ -27,33 +27,37 @@
 #include "log.h"
 
 AmEventProcessingThread::AmEventProcessingThread()
-  : AmEventQueue(this),
-    processing_events(true)
+    : AmEventQueue(this)
+    , processing_events(true)
 {
 }
 
-AmEventProcessingThread::~AmEventProcessingThread() {
-}
+AmEventProcessingThread::~AmEventProcessingThread() {}
 
-bool AmEventProcessingThread::police_event(AmEvent* ev) {
+bool AmEventProcessingThread::police_event(AmEvent* ev)
+{
   // default: accept all events
   return true;
 }
 
-void AmEventProcessingThread::postEvent(AmEvent* ev) {
+void AmEventProcessingThread::postEvent(AmEvent* ev)
+{
   if (police_event(ev)) {
     AmEventQueue::postEvent(ev);
-  } else {
+  }
+  else {
     DBG("dropping event [%p] due to policing\n", ev);
     delete ev;
   }
 }
 
-void AmEventProcessingThread::on_stop() {
+void AmEventProcessingThread::on_stop()
+{
   DBG("AmEventProcessingThread::on_stop\n");
 }
 
-void AmEventProcessingThread::run() {
+void AmEventProcessingThread::run()
+{
   DBG("AmEventProcessingThread running...\n");
 
   while (processing_events) {
@@ -64,25 +68,26 @@ void AmEventProcessingThread::run() {
   DBG("AmEventProcessingThread stopping.\n");
 }
 
-void AmEventProcessingThread::stop_processing() {
+void AmEventProcessingThread::stop_processing()
+{
   DBG("stop of event processing requested.\n");
   processing_events = false;
 }
 
-void AmEventProcessingThread::process(AmEvent* ev) {
-
+void AmEventProcessingThread::process(AmEvent* ev)
+{
   // check for shutdown
   if (ev->event_id == E_SYSTEM) {
     AmSystemEvent* sys_ev = dynamic_cast<AmSystemEvent*>(ev);
-    if(sys_ev){	
+    if (sys_ev) {
       DBG("received system Event\n");
       if (sys_ev->sys_event == AmSystemEvent::ServerShutdown) {
-	DBG("received system Event: ServerShutdown. Stopping event processing.\n");
-	processing_events = false;
+        DBG("received system Event: ServerShutdown. Stopping event "
+            "processing.\n");
+        processing_events = false;
       }
     }
   }
 
   onEvent(ev);
 }
-

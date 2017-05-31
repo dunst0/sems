@@ -34,16 +34,15 @@
 #include <string>
 using std::string;
 
-#define E_PLUGIN           100
-#define E_SYSTEM           101
+#define E_PLUGIN 100
+#define E_SYSTEM 101
 #define E_SIP_SUBSCRIPTION 102
-#define E_B2B_APP          103
-
+#define E_B2B_APP 103
 
 /** \brief base event class */
 struct AmEvent
 {
-  int event_id;
+  int  event_id;
   bool processed;
 
   AmEvent(int event_id);
@@ -59,10 +58,10 @@ struct AmEvent
  *
  * Optionally the AmPluginEvent also holds a dynamic argument array.
  */
-struct AmPluginEvent: public AmEvent
+struct AmPluginEvent : public AmEvent
 {
-  string      name;
-  AmArg       data;
+  string name;
+  AmArg  data;
 
   AmPluginEvent(const string& n);
 
@@ -89,7 +88,8 @@ class AmTimeoutEvent : public AmPluginEvent
  */
 struct AmSystemEvent : public AmEvent
 {
-  enum EvType {
+  enum EvType
+  {
     ServerShutdown = 0,
     User1,
     User2
@@ -104,15 +104,14 @@ struct AmSystemEvent : public AmEvent
   AmEvent* clone();
 
   static const char* getDescription(EvType t);
-
 };
 
 /** \brief event handler interface */
 class AmEventHandler
 {
  public:
-  virtual void process(AmEvent*)=0;
-  virtual ~AmEventHandler() { };
+  virtual void process(AmEvent*) = 0;
+  virtual ~AmEventHandler(){};
 };
 
 #endif

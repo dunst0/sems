@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmAudioFile.h */
@@ -32,21 +32,21 @@
 #include "AmBufferedAudio.h"
 
 /** \brief \ref AmAudioFormat for file */
-class AmAudioFileFormat: public AmAudioFormat
+class AmAudioFileFormat : public AmAudioFormat
 {
   /** == "" if not yet initialized. */
-  string          name;
-    
+  string name;
+
   /** == -1 if not yet initialized. */
-  int             subtype;
+  int subtype;
 
   /** ==  0 if not yet initialized. */
   amci_subtype_t* p_subtype;
 
-protected:
+ protected:
   int getCodecId();
 
-public:
+ public:
   /**
    * Constructor for file based formats.
    * All information are taken from the plug-in description.
@@ -58,16 +58,16 @@ public:
 
   AmAudioFileFormat(const string& name, int subtype, amci_subtype_t* p_subtype);
 
-  virtual ~AmAudioFileFormat()  { }
+  virtual ~AmAudioFileFormat() {}
 
   virtual amci_codec_t* getCodec();
 
   /** @return Format name. */
-  string        getName() { return name; }
+  string getName() { return name; }
   /** @return Format subtype. */
-  int           getSubtypeId() { return subtype; }
+  int getSubtypeId() { return subtype; }
   /** @return Subtype pointer. */
-  virtual amci_subtype_t*  getSubtype();
+  virtual amci_subtype_t* getSubtype();
 
   void setSubtypeId(int subtype_id);
 };
@@ -75,16 +75,20 @@ public:
 /**
  * \brief AmAudio implementation for file access
  */
-class AmAudioFile: public AmBufferedAudio
+class AmAudioFile : public AmBufferedAudio
 {
-public:
+ public:
   /** Open mode. */
-  enum OpenMode { Read=1, Write=2 };
+  enum OpenMode
+  {
+    Read  = 1,
+    Write = 2
+  };
 
-protected:
+ protected:
   /** Pointer to the file opened as last. */
   FILE* fp;
-  long begin;
+  long  begin;
 
   /** Format of that file. @see fp, open(). */
   amci_inoutfmt_t* iofmt;
@@ -104,15 +108,17 @@ protected:
   int write(unsigned int user_ts, unsigned int size);
 
   /** @return a file format from file name. (ex: '1234.wav') */
-  virtual AmAudioFileFormat* fileName2Fmt(const string& name, const string& subtype);
+  virtual AmAudioFileFormat* fileName2Fmt(const string& name,
+                                          const string& subtype);
 
   /** @return subtype ID and trim filename if subtype embedded */
   string getSubtype(string& filename);
 
   /** internal function for opening the file */
-  int fpopen_int(const string& filename, OpenMode mode, FILE* n_fp, const string& subtype);
+  int fpopen_int(const string& filename, OpenMode mode, FILE* n_fp,
+                 const string& subtype);
 
-public:
+ public:
   AmSharedVar<bool> loop;
   AmSharedVar<bool> autorewind;
 
@@ -124,8 +130,8 @@ public:
    * <ul>
    * <li>In read mode: sets input format.
    * <li>In write mode: <ol>
-   *                    <li>needs output format set. 
-   *                    <li>If file name already exists, 
+   *                    <li>needs output format set.
+   *                    <li>If file name already exists,
    *                        the file will be overwritten.
    *                    </ol>
    * </ul>
@@ -134,8 +140,7 @@ public:
    * @return 0 if everything's OK
    * @see OpenMode
    */
-  int open(const string& filename, OpenMode mode, 
-	   bool is_tmp=false);
+  int open(const string& filename, OpenMode mode, bool is_tmp = false);
 
   int fpopen(const string& filename, OpenMode mode, FILE* n_fp);
 
@@ -146,7 +151,7 @@ public:
   void rewind(unsigned int msec);
 
   /** skip forward some milliseconds. */
-  void forward(unsigned int msec); 
+  void forward(unsigned int msec);
 
   /** Closes the file. */
   void close();
@@ -154,10 +159,10 @@ public:
   /** Executes the handler's on_close. */
   void on_close();
 
-  /** be carefull with this one ;-) */ 
+  /** be carefull with this one ;-) */
   FILE* getfp() { return fp; }
 
-  OpenMode getMode() { return (OpenMode)open_mode; }
+  OpenMode getMode() { return (OpenMode) open_mode; }
 
   /** Gets data size in the current file */
   int getDataSize() { return data_size; }
@@ -170,9 +175,7 @@ public:
    */
   string getMimeType();
 
-  void setCloseOnDestroy(bool cod){
-    close_on_exit = cod;
-  }
+  void setCloseOnDestroy(bool cod) { close_on_exit = cod; }
 };
 
 #endif

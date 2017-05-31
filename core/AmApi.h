@@ -39,9 +39,12 @@
 #include "atomic_types.h"
 
 #include <stdarg.h>
+
+#include <map>
 #include <string>
 
 using std::string;
+using std::map;
 
 /**
  * \brief interface of the DynInvoke API

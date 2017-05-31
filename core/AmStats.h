@@ -28,9 +28,9 @@
 #ifndef _AmStats_h_
 #define _AmStats_h_
 
-#include <sys/types.h>
 #include <math.h>
 #include <string.h>
+#include <sys/types.h>
 /**
  * \brief math mean implementation
  *
@@ -44,19 +44,22 @@ class MeanValue
 
  public:
   MeanValue()
-    : cum_val(0.0),
-      n_val(0)
-  { }
+      : cum_val(0.0)
+      , n_val(0)
+  {
+  }
 
-  virtual ~MeanValue() { }
+  virtual ~MeanValue() {}
 
-  void push(double val){
+  void push(double val)
+  {
     cum_val += val;
     n_val++;
   }
 
-  double mean(){
-    if(!n_val) return 0.0;
+  double mean()
+  {
+    if (!n_val) return 0.0;
     return cum_val / float(n_val);
   }
 };
@@ -76,21 +79,24 @@ class StddevValue
 
  public:
   StddevValue()
-    : cum_val(0.0),
-    sq_cum_val(0.0),
-    n_val(0)
-    {}
+      : cum_val(0.0)
+      , sq_cum_val(0.0)
+      , n_val(0)
+  {
+  }
 
-  void push(double val){
-
+  void push(double val)
+  {
     cum_val += val;
-    sq_cum_val += val*val;
+    sq_cum_val += val * val;
     n_val++;
   }
 
-  double stddev(){
-    if(!n_val) return 0.0;
-    return sqrt((n_val*sq_cum_val - cum_val*cum_val)/(n_val*(n_val-1)));
+  double stddev()
+  {
+    if (!n_val) return 0.0;
+    return sqrt((n_val * sq_cum_val - cum_val * cum_val)
+                / (n_val * (n_val - 1)));
   }
 };
 
@@ -99,26 +105,24 @@ class StddevValue
  *
  * The mean of n previously stored values is calculated
  */
-class MeanArray: public MeanValue
+class MeanArray : public MeanValue
 {
-  double *buffer;
+  double* buffer;
   size_t  buf_size;
 
  public:
   MeanArray(size_t size)
-    : MeanValue(),
-      buf_size(size)
+      : MeanValue()
+      , buf_size(size)
   {
     buffer = new double[size];
-    memset(buffer, 0, sizeof(buffer[0])*size);
+    memset(buffer, 0, sizeof(buffer[0]) * size);
   }
 
-  ~MeanArray(){
-    delete [] buffer;
-  }
+  ~MeanArray() { delete[] buffer; }
 
-  void push(double val){
-
+  void push(double val)
+  {
     cum_val -= buffer[n_val % buf_size];
     buffer[n_val % buf_size] = val;
 
@@ -126,8 +130,9 @@ class MeanArray: public MeanValue
     n_val++;
   }
 
-  double mean(){
-    if(!n_val) return 0.0;
+  double mean()
+  {
+    if (!n_val) return 0.0;
     return cum_val / double(n_val > buf_size ? buf_size : n_val);
   }
 };

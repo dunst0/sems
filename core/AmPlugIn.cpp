@@ -30,8 +30,8 @@
 
 #include "AmApi.h"
 #include "AmConfig.h"
-#include "AmUtils.h"
 #include "AmSipDispatcher.h"
+#include "AmUtils.h"
 #include "amci/amci.h"
 #include "amci/codecs.h"
 #include "log.h"

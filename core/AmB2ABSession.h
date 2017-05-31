@@ -25,9 +25,9 @@
 #ifndef _AM_B2ABSession_H
 #define _AM_B2ABSession_H
 
+#include "AmAdvancedAudio.h"
 #include "AmSession.h"
 #include "AmSipDialog.h"
-#include "AmAdvancedAudio.h"
 #include "SampleArray.h"
 #include <string>
 using std::string;
@@ -36,48 +36,54 @@ using std::string;
 
 class AmSessionAudioConnector;
 
-enum { B2ABTerminateLeg,
-       B2ABConnectLeg,
-       B2ABConnectEarlyAudio,
-       B2ABConnectAudio,
-       B2ABConnectOtherLegFailed,
-       B2ABConnectOtherLegException,
-       B2ABOtherLegRinging
+enum
+{
+  B2ABTerminateLeg,
+  B2ABConnectLeg,
+  B2ABConnectEarlyAudio,
+  B2ABConnectAudio,
+  B2ABConnectOtherLegFailed,
+  B2ABConnectOtherLegException,
+  B2ABOtherLegRinging
 };
 
 /** \brief base class for event in B2AB session */
-struct B2ABEvent: public AmEvent
+struct B2ABEvent : public AmEvent
 {
   B2ABEvent(int ev_id)
-    : AmEvent(ev_id)
-  {}
+      : AmEvent(ev_id)
+  {
+  }
 };
 
-struct B2ABOtherLegRingingEvent: public B2ABEvent
+struct B2ABOtherLegRingingEvent : public B2ABEvent
 {
   B2ABOtherLegRingingEvent()
-    : B2ABEvent(B2ABOtherLegRinging)
-  {}
+      : B2ABEvent(B2ABOtherLegRinging)
+  {
+  }
 };
 
 /** \brief trigger connecting the audio in B2AB session */
-struct B2ABConnectAudioEvent: public B2ABEvent
+struct B2ABConnectAudioEvent : public B2ABEvent
 {
- B2ABConnectAudioEvent()
-    : B2ABEvent(B2ABConnectAudio)
-  {}
+  B2ABConnectAudioEvent()
+      : B2ABEvent(B2ABConnectAudio)
+  {
+  }
 };
 
 /** \brief trigger connecting the audio in B2AB session */
-struct B2ABConnectEarlyAudioEvent: public B2ABEvent
+struct B2ABConnectEarlyAudioEvent : public B2ABEvent
 {
- B2ABConnectEarlyAudioEvent()
-    : B2ABEvent(B2ABConnectEarlyAudio)
-  {}
+  B2ABConnectEarlyAudioEvent()
+      : B2ABEvent(B2ABConnectEarlyAudio)
+  {
+  }
 };
 
 /** \brief trigger connecting the callee leg in B2AB session */
-struct B2ABConnectLegEvent: public B2ABEvent
+struct B2ABConnectLegEvent : public B2ABEvent
 {
   string remote_party;
   string remote_uri;
@@ -89,40 +95,43 @@ struct B2ABConnectLegEvent: public B2ABEvent
   B2ABConnectLegEvent(const string& remote_party, const string& remote_uri,
                       const string& local_party, const string& local_uri,
                       const string& callgroup, const string& headers = "")
-    : B2ABEvent(B2ABConnectLeg),
-      remote_party(remote_party),
-      remote_uri(remote_uri),
-      local_party(local_party),
-      local_uri(local_uri),
-      callgroup(callgroup),
-      headers(headers)
-  {}
+      : B2ABEvent(B2ABConnectLeg)
+      , remote_party(remote_party)
+      , remote_uri(remote_uri)
+      , local_party(local_party)
+      , local_uri(local_uri)
+      , callgroup(callgroup)
+      , headers(headers)
+  {
+  }
 };
 
 /** \brief event fired if an exception occured while creating B leg */
-struct B2ABConnectOtherLegExceptionEvent: public B2ABEvent {
-
+struct B2ABConnectOtherLegExceptionEvent : public B2ABEvent
+{
   unsigned int code;
-  string reason;
+  string       reason;
 
   B2ABConnectOtherLegExceptionEvent(unsigned int code, const string& reason)
-    : B2ABEvent(B2ABConnectOtherLegException),
-      code(code),
-      reason(reason)
-  {}
+      : B2ABEvent(B2ABConnectOtherLegException)
+      , code(code)
+      , reason(reason)
+  {
+  }
 };
 
 /** \brief event fired if the B leg could not be connected (e.g. busy) */
-struct B2ABConnectOtherLegFailedEvent: public B2ABEvent {
-
+struct B2ABConnectOtherLegFailedEvent : public B2ABEvent
+{
   unsigned int code;
-  string reason;
+  string       reason;
 
   B2ABConnectOtherLegFailedEvent(unsigned int code, const string& reason)
-    : B2ABEvent(B2ABConnectOtherLegFailed),
-      code(code),
-      reason(reason)
-  {}
+      : B2ABEvent(B2ABConnectOtherLegFailed)
+      , code(code)
+      , reason(reason)
+  {
+  }
 };
 
 /**
@@ -130,11 +139,9 @@ struct B2ABConnectOtherLegFailedEvent: public B2ABEvent {
  *
  * It has two legs: Callee- and caller-leg.
  */
-class AmB2ABSession: public AmSession
+class AmB2ABSession : public AmSession
 {
-
  protected:
-
   /** local tag of the other leg */
   string other_id;
 
@@ -142,7 +149,7 @@ class AmB2ABSession: public AmSession
   AmSessionAudioConnector* connector;
 
   /** Requests received for relaying */
-  std::map<int,AmSipRequest> recvd_req;
+  std::map<int, AmSipRequest> recvd_req;
 
   void clear_other();
 
@@ -154,7 +161,6 @@ class AmB2ABSession: public AmSession
 
   /** Terminate the other leg and forget it.*/
   virtual void terminateOtherLeg();
-
 
   /** B2ABEvent handler */
   virtual void onB2ABEvent(B2ABEvent* ev);
@@ -169,7 +175,6 @@ class AmB2ABSession: public AmSession
   void process(AmEvent* event);
 
  public:
-
   AmB2ABSession();
   AmB2ABSession(const string& other_local_tag);
   virtual ~AmB2ABSession();
@@ -181,17 +186,17 @@ class AmB2ABSession: public AmSession
 
   /** reverse operation of connectSession */
   void disconnectSession();
-
 };
 
 class AmB2ABCalleeSession;
 
 /** \brief Caller leg of a B2AB session */
-class AmB2ABCallerSession: public AmB2ABSession
+class AmB2ABCallerSession : public AmB2ABSession
 {
  public:
-  enum CalleeStatus {
-    None=0,
+  enum CalleeStatus
+  {
+    None = 0,
     NoReply,
     Early,
     Ringing,
@@ -203,10 +208,9 @@ class AmB2ABCallerSession: public AmB2ABSession
   CalleeStatus callee_status;
 
   virtual void setupCalleeSession(AmB2ABCalleeSession* callee_session,
-				  B2ABConnectLegEvent* ev);
+                                  B2ABConnectLegEvent* ev);
 
  protected:
-
   virtual AmB2ABCalleeSession* createCalleeSession();
   void relayEvent(AmEvent* ev);
 
@@ -216,11 +220,9 @@ class AmB2ABCallerSession: public AmB2ABSession
 
   CalleeStatus getCalleeStatus() { return callee_status; }
 
-  void connectCallee(const string& remote_party,
-		     const string& remote_uri,
-		     const string& local_party,
-		     const string& local_uri,
-		     const string& headers = "");
+  void connectCallee(const string& remote_party, const string& remote_uri,
+                     const string& local_party, const string& local_uri,
+                     const string& headers = "");
 
   // @see AmB2ABSession
   void terminateOtherLeg();
@@ -231,46 +233,46 @@ class AmB2ABCallerSession: public AmB2ABSession
 };
 
 /** \brief Callee leg of a B2AB session */
-class AmB2ABCalleeSession: public AmB2ABSession
+class AmB2ABCalleeSession : public AmB2ABSession
 {
   bool is_connected;
 
  public:
-  AmB2ABCalleeSession(const string& other_local_tag,
-		      AmSessionAudioConnector* callers_connector);
+  AmB2ABCalleeSession(const string&            other_local_tag,
+                      AmSessionAudioConnector* callers_connector);
   ~AmB2ABCalleeSession();
 
   void onEarlySessionStart();
   void onSessionStart();
   void onSipReply(const AmSipRequest& req, const AmSipReply& rep,
-		  AmSipDialog::Status old_dlg_status);
+                  AmSipDialog::Status old_dlg_status);
 
  protected:
   void onB2ABEvent(B2ABEvent* ev);
-  void onBeforeDestroy();
+  void               onBeforeDestroy();
   AmCondition<bool>* released;
 };
 
 /** BRIDGE_DELAY is needed because of possible different packet sizes */
-#define BRIDGE_DELAY (30.0/1000.0) // 30ms
+#define BRIDGE_DELAY (30.0 / 1000.0) // 30ms
 
 /**
  * \brief connects the audio of two sessions together
  */
-class AmSessionAudioConnector {
-
+class AmSessionAudioConnector
+{
  private:
   AmAudioDelay audio_connectors[2];
-  string tag_sess[2];
-  bool connected[2];
-  AmMutex tag_mut;
+  string       tag_sess[2];
+  bool         connected[2];
+  AmMutex      tag_mut;
 
   AmCondition<bool> released;
 
  public:
   /** create a connector, connect audio to sess */
   AmSessionAudioConnector()
-    : released(true)
+      : released(true)
   {
     connected[0] = false;
     connected[1] = false;

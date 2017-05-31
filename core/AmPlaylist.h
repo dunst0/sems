@@ -29,8 +29,8 @@
 #define AmPlaylist_h
 
 #include "AmAudio.h"
-#include "AmThread.h"
 #include "AmEventQueue.h"
+#include "AmThread.h"
 
 #include <deque>
 using std::deque;
@@ -38,15 +38,16 @@ using std::deque;
 /** \brief entry in an \ref AmPlaylist */
 struct AmPlaylistItem
 {
-
   AmAudio* play;
   AmAudio* record;
 
-  AmPlaylistItem(AmAudio* play,
-		 AmAudio* record)
-    : play(play), record(record) {}
+  AmPlaylistItem(AmAudio* play, AmAudio* record)
+      : play(play)
+      , record(record)
+  {
+  }
 
-  virtual ~AmPlaylistItem() { }
+  virtual ~AmPlaylistItem() {}
 };
 
 /**
@@ -57,31 +58,30 @@ struct AmPlaylistItem
  * and the current entry is played until it is finished,
  * then the next entry is played.
  */
-class AmPlaylist: public AmAudio
+class AmPlaylist : public AmAudio
 {
-
   AmMutex                items_mut;
   deque<AmPlaylistItem*> items;
 
-  AmMutex                cur_mut;
-  AmPlaylistItem*        cur_item;
+  AmMutex         cur_mut;
+  AmPlaylistItem* cur_item;
 
-  AmEventQueue*          ev_q;
+  AmEventQueue* ev_q;
 
   void updateCurrentItem();
   void gotoNextItem(bool notify);
 
  protected:
   /** Fake implement AmAudio's pure virtual methods */
-  int read(unsigned int user_ts, unsigned int size){ return -1; }
-  int write(unsigned int user_ts, unsigned int size){ return -1; }
+  int read(unsigned int user_ts, unsigned int size) { return -1; }
+  int write(unsigned int user_ts, unsigned int size) { return -1; }
 
   /** override AmAudio */
   int get(unsigned long long system_ts, unsigned char* buffer,
-	  int output_sample_rate, unsigned int nb_samples);
+          int output_sample_rate, unsigned int nb_samples);
 
   int put(unsigned long long system_ts, unsigned char* buffer,
-	  int input_sample_rate, unsigned int size);
+          int input_sample_rate, unsigned int size);
 
   /** from AmAudio */
   void close();
@@ -101,11 +101,13 @@ class AmPlaylist: public AmAudio
 /**
  * \brief event fired by the AmPlaylistSeparator
  */
-class AmPlaylistSeparatorEvent :
-  public AmEvent {
-public:
+class AmPlaylistSeparatorEvent : public AmEvent
+{
+ public:
   AmPlaylistSeparatorEvent(int id)
-    : AmEvent(id) { }
+      : AmEvent(id)
+  {
+  }
 };
 
 /**
@@ -115,28 +117,31 @@ public:
  * playlist is reached. It fies a AmPlaylistSeparatorEvent if it is
  * read or written.
  */
-class AmPlaylistSeparator
-  : public AmAudio {
-  bool notified;
+class AmPlaylistSeparator : public AmAudio
+{
+  bool          notified;
   AmEventQueue* ev_q;
-  int id;
-public:
-  AmPlaylistSeparator(AmEventQueue* q, int id)
-    : notified(false), ev_q(q), id(id) { }
-  ~AmPlaylistSeparator() { }
+  int           id;
 
-  int read(unsigned int user_ts, unsigned int size){
-    if (!notified)
-      ev_q->postEvent(new AmPlaylistSeparatorEvent(id));
+ public:
+  AmPlaylistSeparator(AmEventQueue* q, int id)
+      : notified(false)
+      , ev_q(q)
+      , id(id)
+  {
+  }
+  ~AmPlaylistSeparator() {}
+
+  int read(unsigned int user_ts, unsigned int size)
+  {
+    if (!notified) ev_q->postEvent(new AmPlaylistSeparatorEvent(id));
     notified = true;
     return 0;
   }
-  int write(unsigned int user_ts, unsigned int size){
+  int write(unsigned int user_ts, unsigned int size)
+  {
     return read(user_ts, size);
   }
 };
-
-
-
 
 #endif

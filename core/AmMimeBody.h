@@ -3,9 +3,9 @@
 
 #include "AmArg.h"
 
-#include <string>
 #include <list>
 #include <map>
+#include <string>
 
 using std::string;
 using std::list;
@@ -15,9 +15,9 @@ struct AmContentType
 {
   struct Param
   {
-
-    enum Type {
-      UNPARSED=0,
+    enum Type
+    {
+      UNPARSED = 0,
       BOUNDARY,
       OTHER
     };
@@ -27,7 +27,11 @@ struct AmContentType
     string value;
 
     Param(const string& name, const string& value)
-      : type(UNPARSED), name(name), value(value) {}
+        : type(UNPARSED)
+        , name(name)
+        , value(value)
+    {
+    }
 
     int parseType();
   };
@@ -43,10 +47,10 @@ struct AmContentType
   AmContentType(const AmContentType& ct);
   ~AmContentType();
 
-  const AmContentType& operator = (const AmContentType& r_ct);
+  const AmContentType& operator=(const AmContentType& r_ct);
 
-  int  parse(const string& ct);
-  int  parseParams(const char* c, const char* end);
+  int parse(const string& ct);
+  int parseParams(const char* c, const char* end);
 
   void setType(const string& t);
   void setSubType(const string& st);
@@ -68,18 +72,17 @@ struct AmContentType
   void resetBoundary();
 };
 
-class AmMimeBody
-: public AmObject
+class AmMimeBody : public AmObject
 {
-public:
-  typedef list<AmMimeBody*>  Parts;
+ public:
+  typedef list<AmMimeBody*> Parts;
 
-private:
+ private:
   AmContentType  ct;
   string         hdrs;
   unsigned int   content_len;
   unsigned char* payload;
-  
+
   Parts parts;
 
   void clearParts();
@@ -93,7 +96,7 @@ private:
   void convertToMultipart();
   void convertToSinglepart();
 
-public:
+ public:
   /** Empty constructor */
   AmMimeBody();
 
@@ -104,12 +107,11 @@ public:
   ~AmMimeBody();
 
   /** Deep copy operator */
-  const AmMimeBody& operator = (const AmMimeBody& r_body);
+  const AmMimeBody& operator=(const AmMimeBody& r_body);
 
   /** Parse a body (single & multi-part) */
-  int  parse(const string& content_type, 
-	     const unsigned char* buf, 
-	     unsigned int len);
+  int parse(const string& content_type, const unsigned char* buf,
+            unsigned int len);
 
   /** Set the payload of this body */
   void setPayload(const unsigned char* buf, unsigned int len);
@@ -117,14 +119,14 @@ public:
   /** Set part headers (intended for sub-parts)*/
   void setHeaders(const string& hdrs);
 
-  /** 
+  /**
    * Add a new part to this body, possibly
    * converting to multi-part if necessary.
    * @return a pointer to the new empty part.
    */
   AmMimeBody* addPart(const string& content_type);
 
-  /** 
+  /**
    * Delete a body part, converting resulting body to single-part if necessary.
    */
   int deletePart(const string& content_type);
@@ -134,7 +136,7 @@ public:
 
   /** Get content-type with parameters */
   string getCTHdr() const { return ct.getHdr(); }
-  
+
   /** @return the list of sub-parts */
   const Parts& getParts() const { return parts; }
 
@@ -151,7 +153,7 @@ public:
    * @return the payload length of this part.
    *         in case of multi-part, 0 is returned.
    */
-  unsigned int   getLen() const { return content_len; }
+  unsigned int getLen() const { return content_len; }
 
   /** @return true if no payload assigned and no sub-parts available */
   bool empty() const;
@@ -159,15 +161,15 @@ public:
   /** @return true if this part has the provided content-type */
   bool isContentType(const string& content_type) const;
 
-  /** 
-   * @return a pointer to a part of the coresponding 
+  /**
+   * @return a pointer to a part of the coresponding
    *         content-type (if available).
    *         This could be a pointer to this body.
    */
   AmMimeBody* hasContentType(const string& content_type);
 
-  /** 
-   * @return a const pointer to a part of the coresponding 
+  /**
+   * @return a const pointer to a part of the coresponding
    *         content-type (if available).
    *         This could be a pointer to this body.
    */
@@ -179,9 +181,12 @@ public:
    */
   void print(string& buf) const;
 
-  const AmContentType &getContentType() { return ct; }
-  void setContentType(const AmContentType &_ct) { ct = _ct; }
-  void addPart(const AmMimeBody &part) { parts.push_back(new AmMimeBody(part)); }
+  const AmContentType& getContentType() { return ct; }
+  void setContentType(const AmContentType& _ct) { ct = _ct; }
+  void addPart(const AmMimeBody& part)
+  {
+    parts.push_back(new AmMimeBody(part));
+  }
 };
 
 #endif

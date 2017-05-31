@@ -427,10 +427,12 @@ void AmSession::stop()
 {
   DBG("AmSession::stop()\n");
 
-  if (!isDetached()){
-    AmMediaProcessor::instance()->clearSession(this);}
-  else{
-    clearAudio();}
+  if (!isDetached()) {
+    AmMediaProcessor::instance()->clearSession(this);
+  }
+  else {
+    clearAudio();
+  }
 }
 
 void AmSession::setStopped(bool wakeup)
@@ -440,8 +442,9 @@ void AmSession::setStopped(bool wakeup)
     onStop();
   }
 
-  if (wakeup){
-    AmSessionContainer::instance()->postEvent(getLocalTag(), new AmEvent(0));}
+  if (wakeup) {
+    AmSessionContainer::instance()->postEvent(getLocalTag(), new AmEvent(0));
+  }
 }
 
 string AmSession::getAppParam(const string& param_name) const
@@ -449,10 +452,12 @@ string AmSession::getAppParam(const string& param_name) const
   map<string, string>::const_iterator param_it;
   param_it = app_params.find(param_name);
 
-  if (param_it != app_params.end()){
-    return param_it->second;}
-  else{
-    return "";}
+  if (param_it != app_params.end()) {
+    return param_it->second;
+  }
+  else {
+    return "";
+  }
 }
 
 void AmSession::destroy()
@@ -494,7 +499,9 @@ void AmSession::session_started()
   session_count++;
 
   // maximum session number
-  if (session_num > max_session_num) {max_session_num = session_num;}
+  if (session_num > max_session_num) {
+    max_session_num = session_num;
+  }
 
   session_num_mut.unlock();
 }
@@ -970,7 +977,7 @@ int AmSession::onSdpCompleted(const AmSdp& local_sdp, const AmSdp& remote_sdp)
     return -1;
   }
 
-  //UNUSED
+  // UNUSED
   // bool set_on_hold = false;
   // if (!remote_sdp.media.empty()) {
   //   vector<SdpAttribute>::const_iterator pos = std::find(
@@ -978,7 +985,7 @@ int AmSession::onSdpCompleted(const AmSdp& local_sdp, const AmSdp& remote_sdp)
   //       remote_sdp.media[0].attributes.end(), SdpAttribute("sendonly"));
   //   set_on_hold = pos != remote_sdp.media[0].attributes.end();
   // }
-  //UNUSED_END
+  // UNUSED_END
 
   lockAudio();
 
