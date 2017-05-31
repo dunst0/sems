@@ -26,6 +26,7 @@
  */
 
 #include "AmAudioFile.h"
+
 #include "AmPlugIn.h"
 #include "AmUtils.h"
 
@@ -290,7 +291,7 @@ void AmAudioFile::rewind()
 
 void AmAudioFile::rewind(unsigned int msec)
 {
-  long     fpos = ftell(fp);
+  long int fpos = ftell(fp);
   long int k    = fmt->calcBytesToRead(((getSampleRate() / 100) * msec) / 10);
 
   if (fpos > begin + k) {
@@ -306,7 +307,7 @@ void AmAudioFile::rewind(unsigned int msec)
 
 void AmAudioFile::forward(unsigned int msec)
 {
-  long     fpos = ftell(fp);
+  long int fpos = ftell(fp);
   long int k    = fmt->calcBytesToRead(((getSampleRate() / 100) * msec) / 10);
 
   if (fpos <= (data_size - k)) {
@@ -382,7 +383,7 @@ int AmAudioFile::read(unsigned int user_ts, unsigned int size)
   int s = size;
 
 read_block:
-  long fpos = ftell(fp);
+  long int fpos = ftell(fp);
   if (data_size < 0 || fpos - begin < data_size) {
     if ((data_size > 0) && (fpos - begin + (int) size > data_size)) {
       // last block to read

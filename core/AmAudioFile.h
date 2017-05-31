@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmAudioFile.h */
-#ifndef _AmAudioFile_h_
-#define _AmAudioFile_h_
+
+#ifndef _AMAUDIOFILE_H_
+#define _AMAUDIOFILE_H_
 
 #include "AmAudio.h"
 #include "AmBufferedAudio.h"
@@ -179,7 +180,3 @@ class AmAudioFile : public AmBufferedAudio
 };
 
 #endif
-
-// Local Variables:
-// mode:C++
-// End:

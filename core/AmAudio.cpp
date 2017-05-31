@@ -26,6 +26,7 @@
  */
 
 #include "AmAudio.h"
+
 #include "AmConfig.h"
 #include "AmPlugIn.h"
 #include "AmRtpStream.h"
@@ -48,7 +49,7 @@ struct CodecContainer
   int           frame_size;
   int           frame_length;
   int           frame_encoded_size;
-  long          h_codec;
+  long int      h_codec;
 };
 
 AmAudioFormat::AmAudioFormat(int codec_id, unsigned int rate)
@@ -67,9 +68,10 @@ void AmAudioFormat::setRate(unsigned int sample_rate) { rate = sample_rate; }
 
 unsigned int AmAudioFormat::calcBytesToRead(unsigned int needed_samples) const
 {
-  if (codec && codec->samples2bytes)
-    return codec->samples2bytes(h_codec, needed_samples)
-           * channels; // FIXME: channels
+  if (codec && codec->samples2bytes) {
+    // FIXME: channels
+    return codec->samples2bytes(h_codec, needed_samples) * channels;
+  }
 
   WARN("Cannot convert samples to bytes\n");
   return needed_samples * channels;
@@ -77,8 +79,9 @@ unsigned int AmAudioFormat::calcBytesToRead(unsigned int needed_samples) const
 
 unsigned int AmAudioFormat::bytes2samples(unsigned int bytes) const
 {
-  if (codec && codec->bytes2samples)
+  if (codec && codec->bytes2samples) {
     return codec->bytes2samples(h_codec, bytes) / channels;
+  }
   WARN("Cannot convert bytes to samples\n");
   return bytes / channels;
 }
@@ -139,7 +142,7 @@ amci_codec_t* AmAudioFormat::getCodec()
   return codec;
 }
 
-long AmAudioFormat::getHCodec()
+long int AmAudioFormat::getHCodec()
 {
   if (!codec) getCodec();
   return h_codec;
@@ -187,7 +190,7 @@ unsigned int AmLibSamplerateResamplingState::resample(unsigned char* samples,
            (resample_out_buf_samples + (size_t)((PCM16_B2S(s) * ratio)) + 20));
     }
     else {
-      signed short* samples_s = (signed short*) samples;
+      signed short int* samples_s = (signed short int*) samples;
       src_short_to_float_array(samples_s, &resample_in[resample_buf_samples],
                                PCM16_B2S(s));
       resample_buf_samples += PCM16_B2S(s);
@@ -206,7 +209,8 @@ unsigned int AmLibSamplerateResamplingState::resample(unsigned char* samples,
       DBG("resample error: '%s'\n", src_strerror(src_err));
     }
     else {
-      signed short* samples_s = (signed short*) (unsigned char*) samples;
+      signed short int* samples_s =
+          (signed short int*) (unsigned char*) samples;
       resample_out_buf_samples += src_data.output_frames_gen;
       s *= ratio;
       src_float_to_short_array(resample_out, samples_s, PCM16_B2S(s));
@@ -255,8 +259,9 @@ unsigned int AmInternalResamplerState::resample(unsigned char* samples,
 
   // DBG("Resampling with ration %f", ratio);
   // DBG("Putting %d samples in the buffer", PCM16_B2S(s));
-  rstate->put_samples((signed short*) samples, PCM16_B2S(s));
-  s = rstate->resample((signed short*) samples, ratio, PCM16_B2S(s) * ratio);
+  rstate->put_samples((signed short int*) samples, PCM16_B2S(s));
+  s = rstate->resample((signed short int*) samples, ratio,
+                       PCM16_B2S(s) * ratio);
   // DBG("Returning %d samples", s);
   return PCM16_S2B(s);
 }
@@ -291,7 +296,7 @@ void AmAudio::setFormat(AmAudioFormat* new_fmt)
 void AmAudio::close() {}
 
 // returns bytes read, else -1 if error (0 is OK)
-int AmAudio::get(unsigned long long system_ts, unsigned char* buffer,
+int AmAudio::get(unsigned long long int system_ts, unsigned char* buffer,
                  int output_sample_rate, unsigned int nb_samples)
 {
   int size = calcBytesToRead((int) ((float) nb_samples * (float) getSampleRate()
@@ -320,7 +325,7 @@ int AmAudio::get(unsigned long long system_ts, unsigned char* buffer,
 }
 
 // returns bytes written, else -1 if error (0 is OK)
-int AmAudio::put(unsigned long long system_ts, unsigned char* buffer,
+int AmAudio::put(unsigned long long int system_ts, unsigned char* buffer,
                  int input_sample_rate, unsigned int size)
 {
   if (!size) {
@@ -349,9 +354,9 @@ int AmAudio::put(unsigned long long system_ts, unsigned char* buffer,
 void AmAudio::stereo2mono(unsigned char* out_buf, unsigned char* in_buf,
                           unsigned int& size)
 {
-  short* in  = (short*) in_buf;
-  short* end = (short*) (in_buf + size);
-  short* out = (short*) out_buf;
+  short int* in  = (short int*) in_buf;
+  short int* end = (short int*) (in_buf + size);
+  short int* out = (short int*) out_buf;
 
   while (in != end) {
     *(out++) = (*in + *(in + 1)) / 2;
@@ -371,7 +376,7 @@ int AmAudio::decode(unsigned int size)
   }
 
   amci_codec_t* codec   = fmt->getCodec();
-  long          h_codec = fmt->getHCodec();
+  long int      h_codec = fmt->getHCodec();
 
   if (!codec) {
     ERROR("audio format set, but no codec has been loaded\n");
@@ -393,7 +398,7 @@ int AmAudio::encode(unsigned int size)
   int s = size;
 
   amci_codec_t* codec   = fmt->getCodec();
-  long          h_codec = fmt->getHCodec();
+  long int      h_codec = fmt->getHCodec();
 
   assert(codec);
   if (codec->encode) {
@@ -497,14 +502,14 @@ int AmAudio::getSampleRate()
   return fmt->getRate();
 }
 
-unsigned int AmAudio::scaleSystemTS(unsigned long long system_ts)
+unsigned int AmAudio::scaleSystemTS(unsigned long long int system_ts)
 {
   // pre-division by 100 is important
   // so that the first multiplication
   // does not overflow the 64bit int
-  unsigned long long user_ts = system_ts
-                               * ((unsigned long long) getSampleRate() / 100)
-                               / (WALLCLOCK_RATE / 100);
+  unsigned long long int user_ts =
+      system_ts * ((unsigned long long int) getSampleRate() / 100)
+      / (WALLCLOCK_RATE / 100);
 
   return (unsigned int) user_ts;
 }

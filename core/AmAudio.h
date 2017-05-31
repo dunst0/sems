@@ -34,9 +34,9 @@
 #include "amci/amci.h"
 #include "amci/codecs.h"
 
-#include <map>
-#include <memory>
 #include <stdio.h>
+
+#include <memory>
 #include <string>
 
 using std::unique_ptr;
@@ -182,7 +182,7 @@ class AmAudioFormat
   /** ==0 if not yet initialized. */
   amci_codec_t* codec;
   /** ==0 if not yet initialized. */
-  long h_codec;
+  long int h_codec;
 
   /** Calls amci_codec_t::destroy() */
   void destroyCodec();
@@ -352,7 +352,7 @@ class AmAudio : public AmObject
   /**
    * Scale a system timestamp down dependent on the sample rate.
    */
-  unsigned int scaleSystemTS(unsigned long long system_ts);
+  unsigned int scaleSystemTS(unsigned long long int system_ts);
 
  public:
   /** Destructor */
@@ -370,7 +370,7 @@ class AmAudio : public AmObject
    * reference one.
    * @return # bytes read, else -1 if error (0 is OK)
    */
-  virtual int get(unsigned long long system_ts, unsigned char* buffer,
+  virtual int get(unsigned long long int system_ts, unsigned char* buffer,
                   int output_sample_rate, unsigned int nb_samples);
 
   /**
@@ -382,7 +382,7 @@ class AmAudio : public AmObject
    * reference one.
    * @return # bytes written, else -1 if error (0 is OK)
    */
-  virtual int put(unsigned long long system_ts, unsigned char* buffer,
+  virtual int put(unsigned long long int system_ts, unsigned char* buffer,
                   int input_sample_rate, unsigned int size);
 
   int getSampleRate();
@@ -396,7 +396,3 @@ class AmAudio : public AmObject
 };
 
 #endif
-
-// Local Variables:
-// mode:C++
-// End:
