@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <stdexcept>
 
+using std::exception;
+
 #define TRACE DBG
 #define UNDEFINED_PAYLOAD (-1)
 
