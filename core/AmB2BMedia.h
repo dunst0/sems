@@ -1,5 +1,5 @@
-#ifndef __B2BMEDIA_H
-#define __B2BMEDIA_H
+#ifndef _AMB2BMEDIA_H_
+#define _AMB2BMEDIA_H_
 
 #include "AmAudio.h"
 #include "AmDtmfDetector.h"
@@ -8,14 +8,20 @@
 #include "AmRtpStream.h"
 
 #include <map>
+#include <string>
+#include <vector>
+
+using std::map;
+using std::string;
+using std::vector;
 
 class AmB2BSession;
 
 class B2BMediaStatistics
 {
  private:
-  std::map<string, int> codec_write_usage;
-  std::map<string, int> codec_read_usage;
+  map<string, int> codec_write_usage;
+  map<string, int> codec_read_usage;
   AmMutex mutex;
 
  public:
@@ -91,7 +97,7 @@ class AudioStreamData
 
   PayloadMask relay_mask;
   bool        relay_enabled;
-  std::string relay_address;
+  string      relay_address;
   int         relay_port;
 
   /** RTP relay (temporarily) paused?
@@ -184,7 +190,7 @@ class AudioStreamData
    *
    * Buffer is just space used to read data before writing them,
    * AmMediaProcessor buffer should be propagated here (see AmMediaSession) */
-  int writeStream(unsigned long long ts, unsigned char* buffer,
+  int writeStream(unsigned long long int ts, unsigned char* buffer,
                   AudioStreamData& src);
 
   // --- helper methods propagating our private member to outside world ---
@@ -196,18 +202,22 @@ class AudioStreamData
 
   int getLocalPort()
   {
-    if (stream)
+    if (stream) {
       return stream->getLocalPort();
-    else
+    }
+    else {
       return 0;
+    }
   }
 
   int getLocalRtcpPort()
   {
-    if (stream)
+    if (stream) {
       return stream->getLocalRtcpPort();
-    else
+    }
+    else {
       return 0;
+    }
   }
 
   void setLocalIP(const string& ip)
@@ -348,9 +358,9 @@ class AmB2BMedia : public AmMediaSession
     }
   };
 
-  typedef std::vector<AudioStreamPair>::iterator  AudioStreamIterator;
-  typedef std::vector<RelayStreamPair*>::iterator RelayStreamIterator;
-  typedef std::vector<SdpMedia>::iterator         SdpMediaIterator;
+  typedef vector<AudioStreamPair>::iterator  AudioStreamIterator;
+  typedef vector<RelayStreamPair*>::iterator RelayStreamIterator;
+  typedef vector<SdpMedia>::iterator         SdpMediaIterator;
 
   /** Callgroup reqired by AmMediaProcessor to distinguish
    * AmMediaProcessorThread which should take care about media session.
@@ -378,9 +388,9 @@ class AmB2BMedia : public AmMediaSession
   PlayoutType playout_type;
 
   /** audio relay/processing streams */
-  std::vector<AudioStreamPair> audio;
+  vector<AudioStreamPair> audio;
   /** raw relay streams */
-  std::vector<RelayStreamPair*> relay_streams;
+  vector<RelayStreamPair*> relay_streams;
 
   bool a_leg_muted, b_leg_muted;
   // UNUSED
@@ -477,14 +487,14 @@ class AmB2BMedia : public AmMediaSession
    * Because processing is driven by destination stream (i.e. we don't read
    * anything unless the destination stream is ready to send something - see
    * sendIntReached()) all processing is done in writeStreams */
-  virtual int readStreams(unsigned long long ts, unsigned char* buffer)
+  virtual int readStreams(unsigned long long int ts, unsigned char* buffer)
   {
     return 0;
   }
 
   /** Read and write all RTP streams if data are to be written (see
    * readStreams()). */
-  virtual int writeStreams(unsigned long long ts, unsigned char* buffer);
+  virtual int writeStreams(unsigned long long int ts, unsigned char* buffer);
 
   /** Calls processDtmfEvent on both AmB2BSessions for which this AmB2BMedia
    * instance manages media. */
@@ -522,10 +532,12 @@ class AmB2BMedia : public AmMediaSession
   void unmute(bool a_leg) { setMuteFlag(a_leg, false); }
   bool isMuted(bool a_leg)
   {
-    if (a_leg)
+    if (a_leg) {
       return a_leg_muted;
-    else
+    }
+    else {
       return b_leg_muted;
+    }
   }
 
   void setFirstStreamInput(bool a_leg, AmAudio* in);

@@ -37,8 +37,7 @@ AmAudioMixer::AmAudioMixer(int external_sample_rate)
 AmAudioMixer::~AmAudioMixer()
 {
   mixer.removeChannel(sink_channel);
-  for (std::map<AmAudioMixerConnector*, unsigned int>::iterator it =
-           sources.begin();
+  for (map<AmAudioMixerConnector*, unsigned int>::iterator it = sources.begin();
        it != sources.end(); it++) {
     mixer.removeChannel(it->second);
     delete it->first;
@@ -61,7 +60,7 @@ AmAudio* AmAudioMixer::addSource(int external_sample_rate)
 void AmAudioMixer::releaseSource(AmAudio* s)
 {
   srcsink_mut.lock();
-  std::map<AmAudioMixerConnector*, unsigned int>::iterator it =
+  map<AmAudioMixerConnector*, unsigned int>::iterator it =
       sources.find((AmAudioMixerConnector*) s);
   if (it == sources.end()) {
     srcsink_mut.unlock();
@@ -88,7 +87,7 @@ void AmAudioMixer::releaseSink(AmAudio* s)
   srcsink_mut.unlock();
 }
 
-int AmAudioMixerConnector::get(unsigned long long system_ts,
+int AmAudioMixerConnector::get(unsigned long long int system_ts,
                                unsigned char* buffer, int output_sample_rate,
                                unsigned int nb_samples)
 {
@@ -100,7 +99,7 @@ int AmAudioMixerConnector::get(unsigned long long system_ts,
   if ((audio_mut != NULL) && (sinks != NULL)) {
     audio_mut->lock();
     // write to all sinks
-    for (std::set<AmAudio*>::iterator it = sinks->begin(); it != sinks->end();
+    for (set<AmAudio*>::iterator it = sinks->begin(); it != sinks->end();
          it++) {
       (*it)->put(system_ts, buffer, output_sample_rate, nb_samples);
     }
@@ -110,7 +109,7 @@ int AmAudioMixerConnector::get(unsigned long long system_ts,
   return nb_samples;
 }
 
-int AmAudioMixerConnector::put(unsigned long long system_ts,
+int AmAudioMixerConnector::put(unsigned long long int system_ts,
                                unsigned char* buffer, int input_sample_rate,
                                unsigned int size)
 {

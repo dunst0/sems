@@ -25,14 +25,17 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _AmAudioMixer_h_
-#define _AmAudioMixer_h_
+#ifndef _AMAUDIOMIXER_H_
+#define _AMAUDIOMIXER_H_
 
 #include "AmMultiPartyMixer.h"
 #include "AmThread.h"
 
 #include <map>
 #include <set>
+
+using std::map;
+using std::set;
 
 class AmAudioMixerConnector;
 
@@ -53,11 +56,11 @@ class AmAudioMixer
   AmMultiPartyMixer mixer;
 
   AmMutex srcsink_mut;
-  std::map<AmAudioMixerConnector*, unsigned int> sources;
+  map<AmAudioMixerConnector*, unsigned int> sources;
 
   unsigned int           sink_channel;
   AmAudioMixerConnector* sink_connector;
-  std::set<AmAudio*>     sinks;
+  set<AmAudio*>          sinks;
 
  public:
   AmAudioMixer(int external_sample_rate);
@@ -72,16 +75,16 @@ class AmAudioMixer
 
 class AmAudioMixerConnector : public AmAudio
 {
-  AmMultiPartyMixer&  mixer;
-  unsigned int        channel;
-  AmMutex*            audio_mut;
-  std::set<AmAudio*>* sinks;
-  AmAudio*            mix_channel;
+  AmMultiPartyMixer& mixer;
+  unsigned int       channel;
+  AmMutex*           audio_mut;
+  set<AmAudio*>*     sinks;
+  AmAudio*           mix_channel;
 
  protected:
-  int get(unsigned long long system_ts, unsigned char* buffer,
+  int get(unsigned long long int system_ts, unsigned char* buffer,
           int output_sample_rate, unsigned int nb_samples);
-  int put(unsigned long long system_ts, unsigned char* buffer,
+  int put(unsigned long long int system_ts, unsigned char* buffer,
           int input_sample_rate, unsigned int size);
 
   // dummies for AmAudio's pure virtual methods
@@ -91,7 +94,7 @@ class AmAudioMixerConnector : public AmAudio
  public:
   AmAudioMixerConnector(AmMultiPartyMixer& mixer, unsigned int channel,
                         AmAudio* mix_channel, AmMutex* audio_mut = NULL,
-                        std::set<AmAudio*>* sinks = NULL)
+                        set<AmAudio*>* sinks = NULL)
       : mixer(mixer)
       , channel(channel)
       , audio_mut(audio_mut)

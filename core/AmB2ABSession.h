@@ -22,17 +22,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _AM_B2ABSession_H
-#define _AM_B2ABSession_H
+
+#ifndef _AMB2ABSESSION_H_
+#define _AMB2ABSESSION_H_
 
 #include "AmAdvancedAudio.h"
 #include "AmSession.h"
 #include "AmSipDialog.h"
 #include "SampleArray.h"
-#include <string>
-using std::string;
 
+#include <string>
 #include <map>
+
+using std::string;
+using std::map;
+
+/** BRIDGE_DELAY is needed because of possible different packet sizes */
+#define BRIDGE_DELAY (30.0 / 1000.0) // 30ms
 
 class AmSessionAudioConnector;
 
@@ -149,7 +155,7 @@ class AmB2ABSession : public AmSession
   AmSessionAudioConnector* connector;
 
   /** Requests received for relaying */
-  std::map<int, AmSipRequest> recvd_req;
+  map<int, AmSipRequest> recvd_req;
 
   void clear_other();
 
@@ -253,9 +259,6 @@ class AmB2ABCalleeSession : public AmB2ABSession
   AmCondition<bool>* released;
 };
 
-/** BRIDGE_DELAY is needed because of possible different packet sizes */
-#define BRIDGE_DELAY (30.0 / 1000.0) // 30ms
-
 /**
  * \brief connects the audio of two sessions together
  */
@@ -301,7 +304,3 @@ class AmSessionAudioConnector
 };
 
 #endif
-
-// Local Variables:
-// mode:C++
-// End:

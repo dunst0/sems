@@ -23,8 +23,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmAudioMixIn.h */
-#ifndef _AM_AUDIO_MIX_IN_H
-#define _AM_AUDIO_MIX_IN_H
+
+#ifndef _AMAUDIOMIXIN_H_
+#define _AMAUDIOMIXIN_H_
 
 #include "AmAudio.h"
 #include "AmAudioFile.h"
@@ -32,6 +33,13 @@
 #define MAX_PACKETLENGTH_MS 80
 #define MAX_BUF_SAMPLES SYSTEM_SAMPLECLOCK_RATE* MAX_PACKETLENGTH_MS / 1000
 #define DEFAULT_SAMPLE_RATE SYSTEM_SAMPLECLOCK_RATE // eh...
+
+/* when A ends while mixing in B, end playback only after B has ended */
+#define AUDIO_MIXIN_FINISH_B_MIX 1
+/* only mix in once */
+#define AUDIO_MIXIN_ONCE 1 << 1
+/* start mixing in immediately, or wait s seconds before */
+#define AUDIO_MIXIN_IMMEDIATE_START 1 << 2
 
 /**
  * \brief \ref AmAudio to mix in every n seconds a file
@@ -45,12 +53,6 @@
  * playback of B started.
  *
  */
-#define AUDIO_MIXIN_FINISH_B_MIX                                               \
-  1 /* when A ends while mixing in B, end playback only after B has ended */
-#define AUDIO_MIXIN_ONCE 1 << 1 /* only mix in once */
-#define AUDIO_MIXIN_IMMEDIATE_START                                            \
-  1 << 2 /* start mixing in immediately, or wait s seconds before */
-
 class AmAudioMixIn : public AmAudio
 {
   AmAudio*     A;
@@ -63,10 +65,10 @@ class AmAudioMixIn : public AmAudio
 
   AmMutex B_mut;
 
-  unsigned long long next_start_ts;
-  bool               next_start_ts_i;
+  unsigned long long int next_start_ts;
+  bool                   next_start_ts_i;
 
-  short mix_buf[MAX_BUF_SAMPLES]; // 240
+  short int mix_buf[MAX_BUF_SAMPLES]; // 240
 
  public:
   AmAudioMixIn(AmAudio* A, AmAudio* B, unsigned int s, double l,
@@ -81,11 +83,11 @@ class AmAudioMixIn : public AmAudio
   int write(unsigned int user_ts, unsigned int size) { return -1; }
 
   // override AmAudio
-  int get(unsigned long long system_ts, unsigned char* buffer,
+  int get(unsigned long long int system_ts, unsigned char* buffer,
           int output_sample_rate, unsigned int nb_samples);
 
-  int put(unsigned long long system_ts, unsigned char* buffer,
+  int put(unsigned long long int system_ts, unsigned char* buffer,
           int input_sample_rate, unsigned int size);
 };
 
-#endif // _AM_AUDIO_MIX_IN_H
+#endif

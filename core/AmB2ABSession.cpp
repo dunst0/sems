@@ -24,6 +24,7 @@
  */
 
 #include "AmB2ABSession.h"
+
 #include "AmConfig.h"
 #include "AmMediaProcessor.h"
 #include "AmSessionContainer.h"
@@ -172,8 +173,8 @@ void AmB2ABCallerSession::onB2ABEvent(B2ABEvent* ev)
 
     case B2ABConnectOtherLegException:
     case B2ABConnectOtherLegFailed: {
-      WARN(
-          "looks like callee leg could not be created. terminating our leg.\n");
+      WARN("looks like callee leg could not be created."
+            " terminating our leg.\n");
       terminateLeg();
       callee_status = None;
       return;
@@ -227,7 +228,6 @@ void AmB2ABCallerSession::setupCalleeSession(
   if (NULL == callee_session) return;
 
   other_id = AmSession::getNewId();
-  //  return;
   assert(callee_session);
 
   AmSipDialog* callee_dlg = callee_session->dlg;

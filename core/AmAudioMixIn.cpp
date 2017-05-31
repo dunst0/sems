@@ -24,6 +24,7 @@
  */
 
 #include "AmAudioMixIn.h"
+
 #include "SampleArray.h"
 
 #define IS_FINISH_B_MIX (flags & AUDIO_MIXIN_FINISH_B_MIX)
@@ -44,7 +45,7 @@ AmAudioMixIn::AmAudioMixIn(AmAudio* A, AmAudio* B, unsigned int s, double l,
 
 AmAudioMixIn::~AmAudioMixIn() {}
 
-int AmAudioMixIn::get(unsigned long long system_ts, unsigned char* buffer,
+int AmAudioMixIn::get(unsigned long long int system_ts, unsigned char* buffer,
                       int output_sample_rate, unsigned int nb_samples)
 {
   if (!mixing) {
@@ -53,6 +54,7 @@ int AmAudioMixIn::get(unsigned long long system_ts, unsigned char* buffer,
       next_start_ts =
           IS_IMMEDIATE_START ? system_ts : system_ts + s * WALLCLOCK_RATE;
     }
+
     if (!sys_ts_less()(system_ts, next_start_ts)) {
       DBG("starting mix-in\n");
       mixing        = true;
@@ -89,8 +91,8 @@ int AmAudioMixIn::get(unsigned long long system_ts, unsigned char* buffer,
       return res;
     }
     else { // mix the two
-      int    res   = 0;
-      short* pdest = (short*) buffer;
+      int        res   = 0;
+      short int* pdest = (short int*) buffer;
       // get audio from A
       int len = A->get(system_ts, (unsigned char*) mix_buf, output_sample_rate,
                        nb_samples);
@@ -100,7 +102,7 @@ int AmAudioMixIn::get(unsigned long long system_ts, unsigned char* buffer,
         return len;
       }
       for (int i = 0; i < (PCM16_B2S(len)); i++) {
-        pdest[i] = (short) (((double) mix_buf[i]) * (1.0 - l));
+        pdest[i] = (short int) (((double) mix_buf[i]) * (1.0 - l));
       }
 
       res = len;
@@ -109,9 +111,10 @@ int AmAudioMixIn::get(unsigned long long system_ts, unsigned char* buffer,
       unsigned int len_from_a = 0;
       if (res > 0) len_from_a = (unsigned int) res;
 
-      if (PCM16_S2B(nb_samples) != len_from_a)
+      if (PCM16_S2B(nb_samples) != len_from_a) {
         memset((void*) &pdest[len_from_a >> 1], 0,
                (nb_samples << 1) - len_from_a);
+      }
 
       // add audio from B
       len = B->get(system_ts, (unsigned char*) mix_buf, output_sample_rate,
@@ -131,7 +134,7 @@ int AmAudioMixIn::get(unsigned long long system_ts, unsigned char* buffer,
       }
       else {
         for (int i = 0; i < (PCM16_B2S(len)); i++) {
-          pdest[i] += (short) (((double) mix_buf[i]) * l);
+          pdest[i] += (short int) (((double) mix_buf[i]) * l);
         }
         if (len > res) // audio from B is longer than from A
           res = len;
@@ -143,7 +146,7 @@ int AmAudioMixIn::get(unsigned long long system_ts, unsigned char* buffer,
   }
 }
 
-int AmAudioMixIn::put(unsigned long long system_ts, unsigned char* buffer,
+int AmAudioMixIn::put(unsigned long long int system_ts, unsigned char* buffer,
                       int input_sample_rate, unsigned int size)
 {
   ERROR("writing not supported\n");
