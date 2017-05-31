@@ -45,15 +45,19 @@ AmBufferedAudio::~AmBufferedAudio() { releaseBuffer(); }
 
 void AmBufferedAudio::allocateBuffer()
 {
-  if (output_buffer_size != 0)
+  if (output_buffer_size != 0) {
     output_buffer = new unsigned char[output_buffer_size];
-  else
+  }
+  else {
     output_buffer = NULL;
+  }
 }
 
 void AmBufferedAudio::releaseBuffer()
 {
-  if (output_buffer) delete[] output_buffer;
+  if (output_buffer) {
+    delete[] output_buffer;
+  }
 }
 
 // WARNING: do not call this while device is in use! buffer is not locked!
@@ -81,11 +85,13 @@ void AmBufferedAudio::clearBufferEOF()
   err_code = 0;
 }
 
-int AmBufferedAudio::get(unsigned long long system_ts, unsigned char* buffer,
-                         int output_sample_rate, unsigned int nb_samples)
+int AmBufferedAudio::get(unsigned long long int system_ts,
+                         unsigned char* buffer, int output_sample_rate,
+                         unsigned int nb_samples)
 {
-  if (!output_buffer_size)
+  if (!output_buffer_size) {
     return AmAudio::get(system_ts, buffer, output_sample_rate, nb_samples);
+  }
 
   if (w - r < low_buffer_thresh && !eof) {
     input_get_audio(system_ts);
@@ -119,13 +125,14 @@ void AmBufferedAudio::input_get_audio(unsigned int user_ts)
     w -= r;
     r = 0;
   }
+
   while (w < full_buffer_thresh) {
     int size = calcBytesToRead(PCM16_B2S(output_buffer_size - w));
 
     //     DBG("calc %d bytes to read\n", size);
 
-    // resync might be delayed until buffer empty     // (but output resync
-    // never happens)
+    // resync might be delayed until buffer empty
+    // (but output resync never happens)
     size = read(user_ts + PCM16_B2S(w - r), size);
     //     DBG("read returned size = %d\n",size);
     if (size <= 0) {

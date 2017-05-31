@@ -25,10 +25,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _AmBufferedAudio_H
-#define _AmBufferedAudio_H
+#ifndef _AMBUFFEREDAUDIO_H_
+#define _AMBUFFEREDAUDIO_H_
 
 #include "AmAudio.h"
+
 /**
  * AmAudio with buffered output
  */
@@ -55,11 +56,8 @@ class AmBufferedAudio : public AmAudio
                      size_t _full_buffer_thresh);
 
  public:
-  virtual int get(unsigned long long system_ts, unsigned char* buffer,
+  virtual int get(unsigned long long int system_ts, unsigned char* buffer,
                   int output_sample_rate, unsigned int nb_samples);
 };
-#endif
 
-// Local Variables:
-// mode:C++
-// End:
+#endif

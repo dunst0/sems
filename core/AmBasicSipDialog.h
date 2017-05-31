@@ -24,36 +24,40 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _AmBasicSipDialog_h_
-#define _AmBasicSipDialog_h_
+
+#ifndef _AMBASICSIPDIALOG_H_
+#define _AMBASICSIPDIALOG_H_
 
 #include "AmSipMsg.h"
 #include "AmUriParser.h"
 
 #include <map>
 #include <string>
-#include <vector>
-using std::string;
 
 // flags which may be used when sending request/reply
-#define SIP_FLAGS_VERBATIM 1 // send request verbatim,
-                             // i.e. modify as little as possible
+// send request verbatim, i.e. modify as little as possible
+#define SIP_FLAGS_VERBATIM 1
+// don't add authentication header
+#define SIP_FLAGS_NOAUTH 1 << 1
+// don't add contact
+#define SIP_FLAGS_NOCONTACT 1 << 2
+// don't add to-tag in reply
+#define SIP_FLAGS_NOTAG 1 << 3
+// do not use destination blacklist
+#define SIP_FLAGS_NOBL 1 << 4
 
-#define SIP_FLAGS_NOAUTH 1 << 1    // don't add authentication header
-#define SIP_FLAGS_NOCONTACT 1 << 2 // don't add contact
+class AmBasicSipEventHandler;
 
-#define SIP_FLAGS_NOTAG 1 << 3 // don't add to-tag in reply
-
-#define SIP_FLAGS_NOBL 1 << 4 // do not use destination blacklist
+class msg_logger;
 
 /** \brief SIP transaction representation */
 struct AmSipTransaction
 {
-  string       method;
+  std::string       method;
   unsigned int cseq;
   trans_ticket tt;
 
-  AmSipTransaction(const string& method, unsigned int cseq,
+  AmSipTransaction(const std::string& method, unsigned int cseq,
                    const trans_ticket& tt)
       : method(method)
       , cseq(cseq)
@@ -65,10 +69,6 @@ struct AmSipTransaction
 };
 
 typedef std::map<int, AmSipRequest> TransMap;
-
-class AmBasicSipEventHandler;
-
-class msg_logger;
 
 class AmBasicSipDialog : public AmObject
 {
@@ -91,31 +91,31 @@ class AmBasicSipDialog : public AmObject
  protected:
   Status status;
 
-  string callid;
+  std::string callid;
 
-  string local_tag;
-  string ext_local_tag;
+  std::string local_tag;
+  std::string ext_local_tag;
 
-  string remote_tag;
-  string first_branch;
+  std::string remote_tag;
+  std::string first_branch;
 
-  string      contact_params; // params in Contact-HF
+  std::string      contact_params; // params in Contact-HF
   AmUriParser contact;
 
-  string user;   // local user
-  string domain; // local domain
+  std::string user;   // local user
+  std::string domain; // local domain
 
-  string local_uri;  // local uri
-  string remote_uri; // remote uri
+  std::string local_uri;  // local uri
+  std::string remote_uri; // remote uri
 
-  string remote_party; // To/From
-  string local_party;  // To/From
+  std::string remote_party; // To/From
+  std::string local_party;  // To/From
 
-  string remote_ua; // User-Agent/Server
+  std::string remote_ua; // User-Agent/Server
 
-  string route;
+  std::string route;
 
-  string next_hop;
+  std::string next_hop;
   bool   next_hop_1st_req;
   bool   patch_ruri_next_hop;
   bool   next_hop_fixed;
@@ -206,7 +206,7 @@ class AmBasicSipDialog : public AmObject
   virtual void termUacTrans();
 
  public:
-  string outbound_proxy;
+  std::string outbound_proxy;
   bool   force_outbound_proxy;
 
   bool nat_handling;
@@ -227,7 +227,7 @@ class AmBasicSipDialog : public AmObject
   AmSipRequest* getUASTrans(unsigned int t_cseq);
 
   /** @return the method of the corresponding uac request */
-  string getUACTransMethod(unsigned int t_cseq);
+  std::string getUACTransMethod(unsigned int t_cseq);
 
   /** @return whether UAC transaction is pending */
   bool getUACTransPending();
@@ -245,26 +245,26 @@ class AmBasicSipDialog : public AmObject
   void         incUsages() { usages++; }
   void         decUsages() { usages--; }
 
-  const string& getCallid() const { return callid; }
-  virtual void setCallid(const string& n_callid) { callid = n_callid; }
+  const std::string& getCallid() const { return callid; }
+  virtual void setCallid(const std::string& n_callid) { callid = n_callid; }
 
-  const string& getLocalTag() const { return local_tag; }
-  virtual void setLocalTag(const string& n_tag) { local_tag = n_tag; }
+  const std::string& getLocalTag() const { return local_tag; }
+  virtual void setLocalTag(const std::string& n_tag) { local_tag = n_tag; }
 
-  const string& getRemoteTag() const { return remote_tag; }
-  virtual void setRemoteTag(const string& n_tag);
+  const std::string& getRemoteTag() const { return remote_tag; }
+  virtual void setRemoteTag(const std::string& n_tag);
 
-  const string& get1stBranch() const { return first_branch; }
-  virtual void set1stBranch(const string& n_branch) { first_branch = n_branch; }
+  const std::string& get1stBranch() const { return first_branch; }
+  virtual void set1stBranch(const std::string& n_branch) { first_branch = n_branch; }
 
-  const string& getExtLocalTag() const { return ext_local_tag; }
-  virtual void setExtLocalTag(const string& new_ext_tag)
+  const std::string& getExtLocalTag() const { return ext_local_tag; }
+  virtual void setExtLocalTag(const std::string& new_ext_tag)
   {
     ext_local_tag = new_ext_tag;
   }
 
-  const string& getContactParams() const { return contact_params; }
-  virtual void setContactParams(const string& new_contact_params)
+  const std::string& getContactParams() const { return contact_params; }
+  virtual void setContactParams(const std::string& new_contact_params)
   {
     contact_params = new_contact_params;
   }
@@ -275,47 +275,47 @@ class AmBasicSipDialog : public AmObject
     contact = new_contact;
   }
 
-  const string& getUser() const { return user; }
-  virtual void setUser(const string& new_user) { user = new_user; }
+  const std::string& getUser() const { return user; }
+  virtual void setUser(const std::string& new_user) { user = new_user; }
 
-  const string& getDomain() const { return domain; }
-  virtual void setDomain(const string& new_domain) { domain = new_domain; }
+  const std::string& getDomain() const { return domain; }
+  virtual void setDomain(const std::string& new_domain) { domain = new_domain; }
 
-  const string& getLocalUri() const { return local_uri; }
-  virtual void setLocalUri(const string& new_local_uri)
+  const std::string& getLocalUri() const { return local_uri; }
+  virtual void setLocalUri(const std::string& new_local_uri)
   {
     local_uri = new_local_uri;
   }
 
-  const string& getRemoteUri() const { return remote_uri; }
-  virtual void setRemoteUri(const string& new_remote_uri)
+  const std::string& getRemoteUri() const { return remote_uri; }
+  virtual void setRemoteUri(const std::string& new_remote_uri)
   {
     remote_uri = new_remote_uri;
   }
 
-  const string& getLocalParty() const { return local_party; }
-  virtual void setLocalParty(const string& new_local_party)
+  const std::string& getLocalParty() const { return local_party; }
+  virtual void setLocalParty(const std::string& new_local_party)
   {
     local_party = new_local_party;
   }
 
-  const string& getRemoteParty() const { return remote_party; }
-  virtual void setRemoteParty(const string& new_remote_party)
+  const std::string& getRemoteParty() const { return remote_party; }
+  virtual void setRemoteParty(const std::string& new_remote_party)
   {
     remote_party = new_remote_party;
   }
 
-  const string& getRemoteUA() const { return remote_ua; }
-  virtual void setRemoteUA(const string& new_remote_ua)
+  const std::string& getRemoteUA() const { return remote_ua; }
+  virtual void setRemoteUA(const std::string& new_remote_ua)
   {
     remote_ua = new_remote_ua;
   }
 
-  const string& getRouteSet() const { return route; }
-  virtual void setRouteSet(const string& new_rs) { route = new_rs; }
+  const std::string& getRouteSet() const { return route; }
+  virtual void setRouteSet(const std::string& new_rs) { route = new_rs; }
 
-  const string& getNextHop() const { return next_hop; }
-  virtual void setNextHop(const string& new_nh) { next_hop = new_nh; }
+  const std::string& getNextHop() const { return next_hop; }
+  virtual void setNextHop(const std::string& new_nh) { next_hop = new_nh; }
 
   bool         getNextHop1stReq() const { return next_hop_1st_req; }
   virtual void setNextHop1stReq(bool nh_1st_req)
@@ -335,17 +335,17 @@ class AmBasicSipDialog : public AmObject
   /**
    * Compute the Contact-HF for the next request
    */
-  string getContactHdr();
+  std::string getContactHdr();
 
   /**
    * Compute the Contact URI for the next request
    */
-  string getContactUri();
+  std::string getContactUri();
 
   /**
    * Compute the Route-HF for the next request
    */
-  string getRoute();
+  std::string getRoute();
 
   /**
    * Set outbound_interface to specific value (-1 = default).
@@ -392,12 +392,12 @@ class AmBasicSipDialog : public AmObject
 
   /** @return 0 on success */
   virtual int reply(const AmSipRequest& req, unsigned int code,
-                    const string& reason, const AmMimeBody* body = NULL,
-                    const string& hdrs = "", int flags = 0);
+                    const std::string& reason, const AmMimeBody* body = NULL,
+                    const std::string& hdrs = "", int flags = 0);
 
   /** @return 0 on success */
-  virtual int sendRequest(const string& method, const AmMimeBody* body = NULL,
-                          const string& hdrs = "", int flags = 0);
+  virtual int sendRequest(const std::string& method, const AmMimeBody* body = NULL,
+                          const std::string& hdrs = "", int flags = 0);
 
   /**
    * Terminates pending UAS/UAC transactions
@@ -419,7 +419,7 @@ class AmBasicSipDialog : public AmObject
    * as replied, thus leaving it in the pending state forever.
    */
   static int reply_error(const AmSipRequest& req, unsigned int code,
-                         const string& reason, const string& hdrs = "",
+                         const std::string& reason, const std::string& hdrs = "",
                          msg_logger* logger = NULL);
 
   /* dump transaction information (DBG) */

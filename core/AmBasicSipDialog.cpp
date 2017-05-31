@@ -58,12 +58,12 @@ AmSipRequest* AmBasicSipDialog::getUASTrans(unsigned int t_cseq)
   return &(it->second);
 }
 
-string AmBasicSipDialog::getUACTransMethod(unsigned int t_cseq)
+std::string AmBasicSipDialog::getUACTransMethod(unsigned int t_cseq)
 {
   AmSipRequest* req = getUACTrans(t_cseq);
   if (req != NULL) return req->method;
 
-  return string();
+  return std::string();
 }
 
 bool AmBasicSipDialog::getUACTransPending() { return !uac_trans.empty(); }
@@ -78,15 +78,17 @@ void AmBasicSipDialog::setStatus(Status new_status)
 
 const char* AmBasicSipDialog::getStatusStr(AmBasicSipDialog::Status st)
 {
-  if ((st < 0) || (st >= __max_Status))
+  if ((st < 0) || (st >= __max_Status)) {
     return "Invalid";
-  else
+  }
+  else {
     return status2str[st];
+  }
 }
 
 const char* AmBasicSipDialog::getStatusStr() { return getStatusStr(status); }
 
-string AmBasicSipDialog::getContactHdr()
+std::string AmBasicSipDialog::getContactHdr()
 {
   AmUriParser tmp_contact = contact;
   if (tmp_contact.uri_host.empty()) {
@@ -101,7 +103,7 @@ string AmBasicSipDialog::getContactHdr()
     tmp_contact.uri_user = local_tag;
   }
 
-  string contact_str = tmp_contact.print();
+  std::string contact_str = tmp_contact.print();
 
   DBG("[%s] resulting Contact header: %s", local_tag.c_str(),
       contact_str.c_str());
@@ -109,9 +111,9 @@ string AmBasicSipDialog::getContactHdr()
   return SIP_HDR_COLSP(SIP_HDR_CONTACT) + contact_str += CRLF;
 }
 
-string AmBasicSipDialog::getContactUri()
+std::string AmBasicSipDialog::getContactUri()
 {
-  string contact_uri = "sip:";
+  std::string contact_uri = "sip:";
 
   if (!ext_local_tag.empty()) {
     contact_uri += local_tag + "@";
@@ -131,9 +133,9 @@ string AmBasicSipDialog::getContactUri()
   return contact_uri;
 }
 
-string AmBasicSipDialog::getRoute()
+std::string AmBasicSipDialog::getRoute()
 {
-  string res;
+  std::string res;
 
   if (!outbound_proxy.empty() && (force_outbound_proxy || remote_tag.empty())) {
     res += "<" + outbound_proxy + ";lr>";
@@ -176,10 +178,10 @@ int AmBasicSipDialog::getOutboundIf()
   // 3. first route
   // 4. remote URI
 
-  string dest_uri;
-  string dest_ip;
-  string local_ip;
-  multimap<string, unsigned short>::iterator if_it;
+  std::string dest_uri;
+  std::string dest_ip;
+  std::string local_ip;
+  std::multimap<std::string, unsigned short int>::iterator if_it;
 
   list<sip_destination> ip_list;
   if (!next_hop.empty() && !parse_next_hop(stl2cstr(next_hop), ip_list)
@@ -282,7 +284,7 @@ bool AmBasicSipDialog::onRxReqSanity(const AmSipRequest& req)
       if (!AmConfig::IgnoreNotifyLowerCSeq) {
         // clever trick to not break subscription dialog usage
         // for implementations which follow 3265 instead of 5057
-        string hdrs = SIP_HDR_COLSP(SIP_HDR_RETRY_AFTER) "0" CRLF;
+        std::string hdrs = SIP_HDR_COLSP(SIP_HDR_RETRY_AFTER) "0" CRLF;
 
         INFO("remote cseq lower than previous ones - refusing request\n");
         // see 12.2.2
@@ -328,14 +330,14 @@ void AmBasicSipDialog::onRxRequest(const AmSipRequest& req)
     if (remote_uri != req.from_uri) {
       setRemoteUri(req.from_uri);
       if (nat_handling && req.first_hop) {
-        string nh =
+        std::string nh =
             req.remote_ip + ":" + int2str(req.remote_port) + "/" + req.trsp;
         setNextHop(nh);
         setNextHop1stReq(false);
       }
     }
 
-    string ua = getHeader(req.hdrs, "User-Agent");
+    std::string ua = getHeader(req.hdrs, "User-Agent");
     setRemoteUA(ua);
   }
 
@@ -354,7 +356,9 @@ void AmBasicSipDialog::onRxRequest(const AmSipRequest& req)
     setOutboundInterface(req.local_if);
   }
 
-  if (onRxReqStatus(req) && hdl) hdl->onSipRequest(req);
+  if (onRxReqStatus(req) && hdl) {
+    hdl->onSipRequest(req);
+  }
 }
 
 bool AmBasicSipDialog::onRxReplyStatus(const AmSipReply& reply)
@@ -427,15 +431,13 @@ bool AmBasicSipDialog::onRxReplySanity(const AmSipReply& reply)
     if (reply.from_tag != local_tag) {
       ERROR("received reply with wrong From-tag ('%s' vs. '%s')",
             reply.from_tag.c_str(), local_tag.c_str());
-      throw string("reply has wrong from-tag");
-      // return;
+      throw std::string("reply has wrong from-tag");
     }
   }
   else if (reply.from_tag != ext_local_tag) {
     ERROR("received reply with wrong From-tag ('%s' vs. '%s')",
           reply.from_tag.c_str(), ext_local_tag.c_str());
-    throw string("reply has wrong from-tag");
-    // return;
+    throw std::string("reply has wrong from-tag");
   }
 
   return true;
@@ -464,9 +466,9 @@ void AmBasicSipDialog::onRxReply(const AmSipReply& reply)
     hdl->onSipReply(orig_req, reply, saved_status);
   }
 
-  if ((reply.code >= 200) && // final reply
-                             // but not for 2xx INV reply (wait for 200 ACK)
-      ((reply.cseq_method != SIP_METH_INVITE) || (reply.code >= 300))) {
+  // final reply but not for 2xx INV reply (wait for 200 ACK)
+  if ((reply.code >= 200)
+      && ((reply.cseq_method != SIP_METH_INVITE) || (reply.code >= 300))) {
     uac_trans.erase(reply.cseq);
     if (hdl) hdl->onTransFinished();
   }
@@ -484,17 +486,17 @@ void AmBasicSipDialog::updateDialogTarget(const AmSipReply& reply)
           || (reply.cseq_method == SIP_METH_SUBSCRIBE))) {
     setRemoteUri(reply.to_uri);
     if (!getNextHop().empty()) {
-      string nh =
+      std::string nh =
           reply.remote_ip + ":" + int2str(reply.remote_port) + "/" + reply.trsp;
       setNextHop(nh);
     }
 
-    string ua = getHeader(reply.hdrs, "Server");
+    std::string ua = getHeader(reply.hdrs, "Server");
     setRemoteUA(ua);
   }
 }
 
-void AmBasicSipDialog::setRemoteTag(const string& new_rt)
+void AmBasicSipDialog::setRemoteTag(const std::string& new_rt)
 {
   if (new_rt != remote_tag) {
     remote_tag = new_rt;
@@ -565,8 +567,8 @@ void AmBasicSipDialog::onRequestTxed(const AmSipRequest& req)
 }
 
 int AmBasicSipDialog::reply(const AmSipRequest& req, unsigned int code,
-                            const string& reason, const AmMimeBody* body,
-                            const string& hdrs, int flags)
+                            const std::string& reason, const AmMimeBody* body,
+                            const std::string& hdrs, int flags)
 {
   TransMap::const_iterator t_it = uas_trans.find(req.cseq);
   if (t_it == uas_trans.end()) {
@@ -585,8 +587,9 @@ int AmBasicSipDialog::reply(const AmSipRequest& req, unsigned int code,
   reply.code   = code;
   reply.reason = reason;
   reply.tt     = req.tt;
-  if ((code > 100) && !(flags & SIP_FLAGS_NOTAG))
-    reply.to_tag    = ext_local_tag.empty() ? local_tag : ext_local_tag;
+  if ((code > 100) && !(flags & SIP_FLAGS_NOTAG)) {
+    reply.to_tag = ext_local_tag.empty() ? local_tag : ext_local_tag;
+  }
   reply.hdrs        = hdrs;
   reply.cseq        = req.cseq;
   reply.cseq_method = req.method;
@@ -627,7 +630,7 @@ int AmBasicSipDialog::reply(const AmSipRequest& req, unsigned int code,
 
 /* static */
 int AmBasicSipDialog::reply_error(const AmSipRequest& req, unsigned int code,
-                                  const string& reason, const string& hdrs,
+                                  const std::string& reason, const std::string& hdrs,
                                   msg_logger* logger)
 {
   AmSipReply reply;
@@ -641,10 +644,12 @@ int AmBasicSipDialog::reply_error(const AmSipRequest& req, unsigned int code,
   if (AmConfig::Signature.length())
     reply.hdrs += SIP_HDR_COLSP(SIP_HDR_SERVER) + AmConfig::Signature + CRLF;
 
+  // UNUSED
   // add transcoder statistics into reply headers
   // addTranscoderStats(reply.hdrs);
+  // UNUSED_END
 
-  int ret = SipCtrlInterface::send(reply, string(""), logger);
+  int ret = SipCtrlInterface::send(reply, std::string(""), logger);
   if (ret) {
     ERROR("Could not send reply: code=%i; reason='%s';"
           " method=%s; call-id=%s; cseq=%i\n",
@@ -655,8 +660,8 @@ int AmBasicSipDialog::reply_error(const AmSipRequest& req, unsigned int code,
   return ret;
 }
 
-int AmBasicSipDialog::sendRequest(const string& method, const AmMimeBody* body,
-                                  const string& hdrs, int flags)
+int AmBasicSipDialog::sendRequest(const std::string& method, const AmMimeBody* body,
+                                  const std::string& hdrs, int flags)
 {
   AmSipRequest req;
 
@@ -664,13 +669,17 @@ int AmBasicSipDialog::sendRequest(const string& method, const AmMimeBody* body,
   req.r_uri  = remote_uri;
 
   req.from = SIP_HDR_COLSP(SIP_HDR_FROM) + local_party;
-  if (!ext_local_tag.empty())
+  if (!ext_local_tag.empty()) {
     req.from += ";tag=" + ext_local_tag;
-  else if (!local_tag.empty())
+  }
+  else if (!local_tag.empty()) {
     req.from += ";tag=" + local_tag;
+  }
 
   req.to = SIP_HDR_COLSP(SIP_HDR_TO) + remote_party;
-  if (!remote_tag.empty()) req.to += ";tag=" + remote_tag;
+  if (!remote_tag.empty()) {
+    req.to += ";tag=" + remote_tag;
+  }
 
   req.cseq   = cseq;
   req.callid = callid;
@@ -691,9 +700,10 @@ int AmBasicSipDialog::sendRequest(const string& method, const AmMimeBody* body,
 
   if (!(flags & SIP_FLAGS_VERBATIM)) {
     // add Signature
-    if (AmConfig::Signature.length())
+    if (AmConfig::Signature.length()) {
       req.hdrs +=
           SIP_HDR_COLSP(SIP_HDR_USER_AGENT) + AmConfig::Signature + CRLF;
+    }
   }
 
   int send_flags = 0;

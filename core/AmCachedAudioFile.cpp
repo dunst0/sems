@@ -24,6 +24,7 @@
  */
 
 #include "AmCachedAudioFile.h"
+
 #include "AmPlugIn.h"
 #include "AmUtils.h"
 #include "log.h"
@@ -33,8 +34,6 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-
-using std::string;
 
 AmFileCache::AmFileCache()
     : data(NULL)
@@ -84,19 +83,22 @@ int AmFileCache::read(void* buf, size_t* pos, size_t size)
 {
   if (*pos >= data_size) return -1; // eof
 
-  size_t r_size                       = size;
-  if (*pos + size > data_size) r_size = data_size - *pos;
+  size_t r_size = size;
+  if (*pos + size > data_size) {
+    r_size = data_size - *pos;
+  }
 
   if (r_size > 0) {
     memcpy(buf, (unsigned char*) data + *pos, r_size);
     *pos += r_size;
   }
+
   return r_size;
 }
 
 inline size_t AmFileCache::getSize() { return data_size; }
 
-inline const string& AmFileCache::getFilename() { return name; }
+inline const std::string& AmFileCache::getFilename() { return name; }
 
 AmCachedAudioFile::AmCachedAudioFile(AmFileCache* cache)
     : cache(cache)
@@ -138,10 +140,13 @@ AmCachedAudioFile::AmCachedAudioFile(AmFileCache* cache)
     begin = fpos = ofpos;
   }
   else {
-    if (!iofmt->mem_open)
+    if (!iofmt->mem_open) {
       ERROR("no mem_open function\n");
-    else
+    }
+    else {
       ERROR("mem_open returned %d\n", ret);
+    }
+
     close();
     return;
   }
@@ -153,9 +158,10 @@ AmCachedAudioFile::AmCachedAudioFile(AmFileCache* cache)
 
 AmCachedAudioFile::~AmCachedAudioFile() {}
 
-AmAudioFileFormat* AmCachedAudioFile::fileName2Fmt(const string& name)
+AmAudioFileFormat* AmCachedAudioFile::fileName2Fmt(const std::string& name)
 {
-  string ext = file_extension(name);
+  std::string ext = file_extension(name);
+
   if (ext == "") {
     ERROR("fileName2Fmt: file name has no extension (%s)", name.c_str());
     return NULL;

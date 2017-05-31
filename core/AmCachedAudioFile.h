@@ -23,8 +23,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmCachedAudioFile.h */
-#ifndef _AMFILECACHE_H
-#define _AMFILECACHE_H
+
+#ifndef _AMCACHEDAUDIOFILE_H_
+#define _AMCACHEDAUDIOFILE_H_
 
 #include "AmAudioFile.h"
 
@@ -55,7 +56,7 @@ class AmFileCache
   /** read size bytes from pos into buf */
   int read(void* buf, size_t* pos, size_t size);
   /** get the filename */
-  const string& getFilename();
+  const std::string& getFilename();
   /** get a pointer to the file's data - use with caution! */
   void* getData() { return data; }
 };
@@ -82,7 +83,7 @@ class AmCachedAudioFile : public AmAudio
   int write(unsigned int user_ts, unsigned int size);
 
   /** get the file format from the file name */
-  AmAudioFileFormat* fileName2Fmt(const string& name);
+  AmAudioFileFormat* fileName2Fmt(const std::string& name);
 
   /** Format of that file. @see fp, open(). */
   amci_inoutfmt_t* iofmt;
@@ -105,4 +106,5 @@ class AmCachedAudioFile : public AmAudio
   /** everything ok? */
   bool is_good() { return good; }
 };
-#endif //_AMFILECACHE_H
+
+#endif
