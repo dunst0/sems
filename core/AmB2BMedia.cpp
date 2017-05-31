@@ -492,8 +492,8 @@ void AudioStreamData::updateRecvStats(AmRtpStream* s)
   }
 }
 
-int AudioStreamData::writeStream(unsigned long long ts, unsigned char* buffer,
-                                 AudioStreamData& src)
+int AudioStreamData::writeStream(unsigned long long int ts,
+                                 unsigned char* buffer, AudioStreamData& src)
 {
   if (!initialized) return 0;
   if (stream->getOnHold()) return 0; // ignore hold streams?
@@ -693,7 +693,7 @@ void AmB2BMedia::changeSessionUnsafe(bool a_leg, AmB2BSession* new_session)
   TRACE("session changed\n");
 }
 
-int AmB2BMedia::writeStreams(unsigned long long ts, unsigned char* buffer)
+int AmB2BMedia::writeStreams(unsigned long long int ts, unsigned char* buffer)
 {
   int    res = 0;
   AmLock lock(mutex);

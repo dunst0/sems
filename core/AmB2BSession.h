@@ -25,14 +25,23 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmB2BSession.h */
-#ifndef AmB2BSession_h
-#define AmB2BSession_h
+
+#ifndef _AMB2BSESSION_H_
+#define _AMB2BSESSION_H_
 
 #include "AmB2BMedia.h"
 #include "AmSession.h"
 #include "AmSipDialog.h"
 #include "AmSipSubscription.h"
 #include "sip/hash.h"
+
+#include <map>
+#include <string>
+#include <vector>
+
+using std::map;
+using std::string;
+using std::vector;
 
 #define MAX_RELAY_STREAMS 3 // voice, video, rtt
 
@@ -220,9 +229,9 @@ class AmB2BSession
   int relaySip(const AmSipRequest& orig, const AmSipReply& reply);
 
  public:
-  void relayError(const string& method, unsigned cseq, bool forward,
+  void relayError(const string& method, unsigned int cseq, bool forward,
                   int sip_code, const char* reason);
-  void relayError(const string& method, unsigned cseq, bool forward,
+  void relayError(const string& method, unsigned int cseq, bool forward,
                   int err_code);
 
  protected:
