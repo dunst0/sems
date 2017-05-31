@@ -53,7 +53,7 @@ class msg_logger;
 /** \brief SIP transaction representation */
 struct AmSipTransaction
 {
-  std::string       method;
+  std::string  method;
   unsigned int cseq;
   trans_ticket tt;
 
@@ -99,7 +99,7 @@ class AmBasicSipDialog : public AmObject
   std::string remote_tag;
   std::string first_branch;
 
-  std::string      contact_params; // params in Contact-HF
+  std::string contact_params; // params in Contact-HF
   AmUriParser contact;
 
   std::string user;   // local user
@@ -116,9 +116,9 @@ class AmBasicSipDialog : public AmObject
   std::string route;
 
   std::string next_hop;
-  bool   next_hop_1st_req;
-  bool   patch_ruri_next_hop;
-  bool   next_hop_fixed;
+  bool        next_hop_1st_req;
+  bool        patch_ruri_next_hop;
+  bool        next_hop_fixed;
 
   int outbound_interface;
 
@@ -207,7 +207,7 @@ class AmBasicSipDialog : public AmObject
 
  public:
   std::string outbound_proxy;
-  bool   force_outbound_proxy;
+  bool        force_outbound_proxy;
 
   bool nat_handling;
 
@@ -255,7 +255,10 @@ class AmBasicSipDialog : public AmObject
   virtual void setRemoteTag(const std::string& n_tag);
 
   const std::string& get1stBranch() const { return first_branch; }
-  virtual void set1stBranch(const std::string& n_branch) { first_branch = n_branch; }
+  virtual void set1stBranch(const std::string& n_branch)
+  {
+    first_branch = n_branch;
+  }
 
   const std::string& getExtLocalTag() const { return ext_local_tag; }
   virtual void setExtLocalTag(const std::string& new_ext_tag)
@@ -396,7 +399,8 @@ class AmBasicSipDialog : public AmObject
                     const std::string& hdrs = "", int flags = 0);
 
   /** @return 0 on success */
-  virtual int sendRequest(const std::string& method, const AmMimeBody* body = NULL,
+  virtual int sendRequest(const std::string& method,
+                          const AmMimeBody*  body = NULL,
                           const std::string& hdrs = "", int flags = 0);
 
   /**
@@ -419,8 +423,9 @@ class AmBasicSipDialog : public AmObject
    * as replied, thus leaving it in the pending state forever.
    */
   static int reply_error(const AmSipRequest& req, unsigned int code,
-                         const std::string& reason, const std::string& hdrs = "",
-                         msg_logger* logger = NULL);
+                         const std::string& reason,
+                         const std::string& hdrs   = "",
+                         msg_logger*        logger = NULL);
 
   /* dump transaction information (DBG) */
   void dump();

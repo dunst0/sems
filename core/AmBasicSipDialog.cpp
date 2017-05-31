@@ -630,8 +630,8 @@ int AmBasicSipDialog::reply(const AmSipRequest& req, unsigned int code,
 
 /* static */
 int AmBasicSipDialog::reply_error(const AmSipRequest& req, unsigned int code,
-                                  const std::string& reason, const std::string& hdrs,
-                                  msg_logger* logger)
+                                  const std::string& reason,
+                                  const std::string& hdrs, msg_logger* logger)
 {
   AmSipReply reply;
 
@@ -660,7 +660,8 @@ int AmBasicSipDialog::reply_error(const AmSipRequest& req, unsigned int code,
   return ret;
 }
 
-int AmBasicSipDialog::sendRequest(const std::string& method, const AmMimeBody* body,
+int AmBasicSipDialog::sendRequest(const std::string& method,
+                                  const AmMimeBody*  body,
                                   const std::string& hdrs, int flags)
 {
   AmSipRequest req;

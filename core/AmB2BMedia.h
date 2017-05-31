@@ -11,29 +11,25 @@
 #include <string>
 #include <vector>
 
-using std::map;
-using std::string;
-using std::vector;
-
 class AmB2BSession;
 
 class B2BMediaStatistics
 {
  private:
-  map<string, int> codec_write_usage;
-  map<string, int> codec_read_usage;
+  std::map<std::string, int> codec_write_usage;
+  std::map<std::string, int> codec_read_usage;
   AmMutex mutex;
 
  public:
-  void reportCodecWriteUsage(string& dst);
-  void reportCodecReadUsage(string& dst);
+  void reportCodecWriteUsage(std::string& dst);
+  void reportCodecReadUsage(std::string& dst);
   void getReport(const AmArg& args, AmArg& ret);
 
   static B2BMediaStatistics* instance();
-  void incCodecWriteUsage(const string& codec_name);
-  void decCodecWriteUsage(const string& codec_name);
-  void incCodecReadUsage(const string& codec_name);
-  void decCodecReadUsage(const string& codec_name);
+  void incCodecWriteUsage(const std::string& codec_name);
+  void decCodecWriteUsage(const std::string& codec_name);
+  void incCodecReadUsage(const std::string& codec_name);
+  void decCodecReadUsage(const std::string& codec_name);
 };
 
 /** \brief Class for computing mask of payloads to relay
@@ -83,7 +79,7 @@ class AudioStreamData
   bool enable_dtmf_rtp_detection;
 
   /** Low fidelity payloads for which inband DTMF transcoding should be used */
-  vector<SdpPayload> lowfi_payloads;
+  std::vector<SdpPayload> lowfi_payloads;
 
   /** DTMF detector used by dtmf_queue */
   AmDtmfDetector* dtmf_detector;
@@ -97,7 +93,7 @@ class AudioStreamData
 
   PayloadMask relay_mask;
   bool        relay_enabled;
-  string      relay_address;
+  std::string relay_address;
   int         relay_port;
 
   /** RTP relay (temporarily) paused?
@@ -109,11 +105,11 @@ class AudioStreamData
   bool receiving;
 
   // for performance monitoring
-  int    outgoing_payload;
-  int    incoming_payload;
-  string outgoing_payload_name;
-  string incoming_payload_name;
-  void   updateSendStats();
+  int         outgoing_payload;
+  int         incoming_payload;
+  std::string outgoing_payload_name;
+  std::string incoming_payload_name;
+  void        updateSendStats();
   void updateRecvStats(AmRtpStream* s);
   void resetStats();
 
@@ -163,7 +159,7 @@ class AudioStreamData
    * other remote end directly) */
   void setRelayPayloads(const SdpMedia& m, RelayController* ctrl);
 
-  void setRelayDestination(const string& connection_address, int port);
+  void setRelayDestination(const std::string& connection_address, int port);
 
   /** set relay temporarily to paused (stream relation may still be up) */
   void setRelayPaused(bool paused);
@@ -220,7 +216,7 @@ class AudioStreamData
     }
   }
 
-  void setLocalIP(const string& ip)
+  void setLocalIP(const std::string& ip)
   {
     // set the address only if it is not used already
     if (stream && !stream->hasLocalSocket()) stream->setLocalIP(ip);
@@ -358,9 +354,9 @@ class AmB2BMedia : public AmMediaSession
     }
   };
 
-  typedef vector<AudioStreamPair>::iterator  AudioStreamIterator;
-  typedef vector<RelayStreamPair*>::iterator RelayStreamIterator;
-  typedef vector<SdpMedia>::iterator         SdpMediaIterator;
+  typedef std::vector<AudioStreamPair>::iterator  AudioStreamIterator;
+  typedef std::vector<RelayStreamPair*>::iterator RelayStreamIterator;
+  typedef std::vector<SdpMedia>::iterator         SdpMediaIterator;
 
   /** Callgroup reqired by AmMediaProcessor to distinguish
    * AmMediaProcessorThread which should take care about media session.
@@ -368,7 +364,7 @@ class AmB2BMedia : public AmMediaSession
    * It might be handy to use own generated callgroup independent on caller's
    * and callee's one. (FIXME: not sure if it is worth consumed additional
    * resources). */
-  string callgroup;
+  std::string callgroup;
 
   // needed for updating relayed payloads
   AmSdp a_leg_local_sdp, a_leg_remote_sdp;
@@ -388,9 +384,9 @@ class AmB2BMedia : public AmMediaSession
   PlayoutType playout_type;
 
   /** audio relay/processing streams */
-  vector<AudioStreamPair> audio;
+  std::vector<AudioStreamPair> audio;
   /** raw relay streams */
-  vector<RelayStreamPair*> relay_streams;
+  std::vector<RelayStreamPair*> relay_streams;
 
   bool a_leg_muted, b_leg_muted;
   // UNUSED
@@ -403,8 +399,8 @@ class AmB2BMedia : public AmMediaSession
   void updateStreamPair(AudioStreamPair& pair);
   void updateAudioStreams();
   void updateRelayStream(AmRtpStream* stream, AmB2BSession* session,
-                         const string& connection_address, const SdpMedia& m,
-                         AmRtpStream* relay_to);
+                         const std::string& connection_address,
+                         const SdpMedia& m, AmRtpStream* relay_to);
 
   void setMuteFlag(bool a_leg, bool set);
   void changeSessionUnsafe(bool a_leg, AmB2BSession* new_session);
@@ -461,10 +457,10 @@ class AmB2BMedia : public AmMediaSession
 
   /** Replace connection address and ports within SDP.
    *
-   * Throws an exception (string) in case of error. (FIXME?) */
+   * Throws an exception (std::string) in case of error. (FIXME?) */
   void replaceConnectionAddress(AmSdp& parser_sdp, bool a_leg,
-                                const string& relay_address,
-                                const string& relay_public_address);
+                                const std::string& relay_address,
+                                const std::string& relay_public_address);
 
   /** replace offer inside given SDP with locally generated one (media streams
    * etc must be initialised like in case replaceConnectionAddress) */

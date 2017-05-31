@@ -38,7 +38,7 @@ AmB2ABSession::AmB2ABSession()
 {
 }
 
-AmB2ABSession::AmB2ABSession(const string& other_local_tag)
+AmB2ABSession::AmB2ABSession(const std::string& other_local_tag)
     : AmSession()
     , other_id(other_local_tag)
 {
@@ -49,7 +49,7 @@ AmB2ABSession::~AmB2ABSession() {}
 void AmB2ABSession::clear_other()
 {
 #if __GNUC__ < 3
-  string cleared("");
+  std::string cleared("");
   other_id.assign(cleared, 0, 0);
 #else
   other_id.clear();
@@ -174,7 +174,7 @@ void AmB2ABCallerSession::onB2ABEvent(B2ABEvent* ev)
     case B2ABConnectOtherLegException:
     case B2ABConnectOtherLegFailed: {
       WARN("looks like callee leg could not be created."
-            " terminating our leg.\n");
+           " terminating our leg.\n");
       terminateLeg();
       callee_status = None;
       return;
@@ -190,11 +190,11 @@ void AmB2ABCallerSession::onB2ABEvent(B2ABEvent* ev)
   AmB2ABSession::onB2ABEvent(ev);
 }
 
-void AmB2ABCallerSession::connectCallee(const string& remote_party,
-                                        const string& remote_uri,
-                                        const string& local_party,
-                                        const string& local_uri,
-                                        const string& headers)
+void AmB2ABCallerSession::connectCallee(const std::string& remote_party,
+                                        const std::string& remote_uri,
+                                        const std::string& local_party,
+                                        const std::string& local_uri,
+                                        const std::string& headers)
 {
   if (callee_status != None) terminateOtherLeg();
 
@@ -249,7 +249,8 @@ AmB2ABCalleeSession* AmB2ABCallerSession::createCalleeSession()
 }
 
 AmB2ABCalleeSession::AmB2ABCalleeSession(
-    const string& other_local_tag, AmSessionAudioConnector* callers_connector)
+    const std::string&       other_local_tag,
+    AmSessionAudioConnector* callers_connector)
     : AmB2ABSession(other_local_tag)
     , is_connected(false)
 {
@@ -288,7 +289,7 @@ void AmB2ABCalleeSession::onB2ABEvent(B2ABEvent* ev)
 
       // setNegotiateOnReply(true);
       if (sendInvite(co_ev->headers)) {
-        throw string("INVITE could not be sent\n");
+        throw std::string("INVITE could not be sent\n");
       }
 
       return;
@@ -298,7 +299,7 @@ void AmB2ABCalleeSession::onB2ABEvent(B2ABEvent* ev)
       relayEvent(new B2ABConnectOtherLegExceptionEvent(e.code, e.reason));
       setStopped();
     }
-    catch (const string& err) {
+    catch (const std::string& err) {
       ERROR("startSession: %s\n", err.c_str());
       relayEvent(new B2ABConnectOtherLegExceptionEvent(500, err));
       setStopped();
@@ -358,7 +359,7 @@ void AmB2ABCalleeSession::onSipReply(const AmSipRequest&      req,
 
 void AmSessionAudioConnector::connectSession(AmSession* sess)
 {
-  const string& tag = sess->getLocalTag();
+  const std::string& tag = sess->getLocalTag();
 
   tag_mut.lock();
 
@@ -395,7 +396,7 @@ bool AmSessionAudioConnector::disconnectSession(AmSession* sess)
 {
   bool res = true;
 
-  const string& tag = sess->getLocalTag();
+  const std::string& tag = sess->getLocalTag();
 
   tag_mut.lock();
   if (connected[0] && (tag_sess[0] == tag)) {

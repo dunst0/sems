@@ -36,7 +36,7 @@
 class AmAudioFileFormat : public AmAudioFormat
 {
   /** == "" if not yet initialized. */
-  string name;
+  std::string name;
 
   /** == -1 if not yet initialized. */
   int subtype;
@@ -54,17 +54,18 @@ class AmAudioFileFormat : public AmAudioFormat
    * @param name The file format name (ex. "Wav").
    * @param subtype Subtype for the file format (see amci.h).
    */
-  AmAudioFileFormat(const string& name, int subtype = -1);
+  AmAudioFileFormat(const std::string& name, int subtype = -1);
   /** format with rate & channels, not taken from subtype */
 
-  AmAudioFileFormat(const string& name, int subtype, amci_subtype_t* p_subtype);
+  AmAudioFileFormat(const std::string& name, int subtype,
+                    amci_subtype_t* p_subtype);
 
   virtual ~AmAudioFileFormat() {}
 
   virtual amci_codec_t* getCodec();
 
   /** @return Format name. */
-  string getName() { return name; }
+  std::string getName() { return name; }
   /** @return Format subtype. */
   int getSubtypeId() { return subtype; }
   /** @return Subtype pointer. */
@@ -109,15 +110,15 @@ class AmAudioFile : public AmBufferedAudio
   int write(unsigned int user_ts, unsigned int size);
 
   /** @return a file format from file name. (ex: '1234.wav') */
-  virtual AmAudioFileFormat* fileName2Fmt(const string& name,
-                                          const string& subtype);
+  virtual AmAudioFileFormat* fileName2Fmt(const std::string& name,
+                                          const std::string& subtype);
 
   /** @return subtype ID and trim filename if subtype embedded */
-  string getSubtype(string& filename);
+  std::string getSubtype(std::string& filename);
 
   /** internal function for opening the file */
-  int fpopen_int(const string& filename, OpenMode mode, FILE* n_fp,
-                 const string& subtype);
+  int fpopen_int(const std::string& filename, OpenMode mode, FILE* n_fp,
+                 const std::string& subtype);
 
  public:
   AmSharedVar<bool> loop;
@@ -141,9 +142,9 @@ class AmAudioFile : public AmBufferedAudio
    * @return 0 if everything's OK
    * @see OpenMode
    */
-  int open(const string& filename, OpenMode mode, bool is_tmp = false);
+  int open(const std::string& filename, OpenMode mode, bool is_tmp = false);
 
-  int fpopen(const string& filename, OpenMode mode, FILE* n_fp);
+  int fpopen(const std::string& filename, OpenMode mode, FILE* n_fp);
 
   /** Rewind the file to beginning. */
   void rewind();
@@ -174,7 +175,7 @@ class AmAudioFile : public AmBufferedAudio
   /**
    * @return MIME type corresponding to the audio file.
    */
-  string getMimeType();
+  std::string getMimeType();
 
   void setCloseOnDestroy(bool cod) { close_on_exit = cod; }
 };

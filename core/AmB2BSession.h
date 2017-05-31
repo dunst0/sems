@@ -39,10 +39,6 @@
 #include <string>
 #include <vector>
 
-using std::map;
-using std::string;
-using std::vector;
-
 #define MAX_RELAY_STREAMS 3 // voice, video, rtt
 
 enum
@@ -63,7 +59,7 @@ struct B2BEvent : public AmEvent
     B2BApplication,
   } ev_type;
 
-  map<string, string> params;
+  std::map<std::string, std::string> params;
 
   B2BEvent(int ev_id)
       : AmEvent(ev_id)
@@ -77,7 +73,8 @@ struct B2BEvent : public AmEvent
   {
   }
 
-  B2BEvent(int ev_id, B2BEventType ev_type, map<string, string> params)
+  B2BEvent(int ev_id, B2BEventType            ev_type,
+           std::map<std::string, std::string> params)
       : AmEvent(ev_id)
       , ev_type(ev_type)
       , params(params)
@@ -112,12 +109,12 @@ struct B2BSipRequestEvent : public B2BSipEvent
 /** \brief SIP reply in B2B session */
 struct B2BSipReplyEvent : public B2BSipEvent
 {
-  AmSipReply reply;
-  string     trans_method;
-  string     sender_ltag;
+  AmSipReply  reply;
+  std::string trans_method;
+  std::string sender_ltag;
 
-  B2BSipReplyEvent(const AmSipReply& reply, bool forward, string trans_method,
-                   string sender_ltag)
+  B2BSipReplyEvent(const AmSipReply& reply, bool forward,
+                   std::string trans_method, std::string sender_ltag)
       : B2BSipEvent(B2BSipReply, forward)
       , reply(reply)
       , trans_method(trans_method)
@@ -129,16 +126,17 @@ struct B2BSipReplyEvent : public B2BSipEvent
 /** \brief trigger connecting the callee leg in B2B session */
 struct B2BConnectEvent : public B2BEvent
 {
-  string remote_party;
-  string remote_uri;
+  std::string remote_party;
+  std::string remote_uri;
 
-  AmMimeBody body;
-  string     hdrs;
+  AmMimeBody  body;
+  std::string hdrs;
 
   bool         relayed_invite;
   unsigned int r_cseq;
 
-  B2BConnectEvent(const string& remote_party, const string& remote_uri)
+  B2BConnectEvent(const std::string& remote_party,
+                  const std::string& remote_uri)
       : B2BEvent(B2BConnectLeg)
       , remote_party(remote_party)
       , remote_uri(remote_uri)
@@ -180,10 +178,10 @@ class AmB2BSession
 
  private:
   /** local tag of the other leg */
-  string other_id;
+  std::string other_id;
 
   /** CSeq map for REFER subscriptions */
-  map<unsigned int, unsigned int> refer_id_map;
+  std::map<unsigned int, unsigned int> refer_id_map;
 
  protected:
   /** Tell if the session should
@@ -229,9 +227,9 @@ class AmB2BSession
   int relaySip(const AmSipRequest& orig, const AmSipReply& reply);
 
  public:
-  void relayError(const string& method, unsigned int cseq, bool forward,
+  void relayError(const std::string& method, unsigned int cseq, bool forward,
                   int sip_code, const char* reason);
-  void relayError(const string& method, unsigned int cseq, bool forward,
+  void relayError(const std::string& method, unsigned int cseq, bool forward,
                   int err_code);
 
  protected:
@@ -292,8 +290,8 @@ class AmB2BSession
    */
   virtual bool onOtherReply(const AmSipReply& reply);
 
-  AmB2BSession(const string& other_local_tag = "", AmSipDialog* p_dlg = NULL,
-               AmSipSubscription* p_subs = NULL);
+  AmB2BSession(const std::string& other_local_tag = "",
+               AmSipDialog* p_dlg = NULL, AmSipSubscription* p_subs = NULL);
 
   virtual ~AmB2BSession();
 
@@ -315,7 +313,7 @@ class AmB2BSession
 
   /** Low fidelity payloads for which inband DTMF
       transcoding should be used */
-  vector<SdpPayload> lowfi_payloads;
+  std::vector<SdpPayload> lowfi_payloads;
 
   /** clear our and the other side's RTP streams from RTPReceiver */
   void clearRtpReceiverRelay();
@@ -338,8 +336,11 @@ class AmB2BSession
                                    unsigned int mapped_id);
 
  public:
-  virtual void setOtherId(const string& n_other_id) { other_id = n_other_id; }
-  virtual const string&                 getOtherId() const { return other_id; }
+  virtual void setOtherId(const std::string& n_other_id)
+  {
+    other_id = n_other_id;
+  }
+  virtual const std::string& getOtherId() const { return other_id; }
 
   /** Relay one event to the other side. @return 0 on success */
   virtual int relayEvent(AmEvent* ev);
@@ -358,7 +359,7 @@ class AmB2BSession
   bool getEnableDtmfTranscoding() const { return enable_dtmf_transcoding; }
   bool getEnableDtmfRtpFiltering() const { return enable_dtmf_rtp_filtering; }
   bool getEnableDtmfRtpDetection() const { return enable_dtmf_rtp_detection; }
-  void getLowFiPLs(vector<SdpPayload>& lowfi_payloads) const;
+  void getLowFiPLs(std::vector<SdpPayload>& lowfi_payloads) const;
 
   virtual void setRtpInterface(int relay_interface);
   virtual void setRtpRelayForceSymmetricRtp(bool force_symmetric);
@@ -368,7 +369,7 @@ class AmB2BSession
   void setEnableDtmfTranscoding(bool enable);
   void setEnableDtmfRtpFiltering(bool enable);
   void setEnableDtmfRtpDetection(bool enable);
-  void setLowFiPLs(const vector<SdpPayload>& lowfi_payloads);
+  void setLowFiPLs(const std::vector<SdpPayload>& lowfi_payloads);
 
   bool getRtpRelayTransparentSeqno() { return rtp_relay_transparent_seqno; }
   bool getRtpRelayTransparentSSRC() { return rtp_relay_transparent_ssrc; }
@@ -427,8 +428,9 @@ class AmB2BCallerSession : public AmB2BSession
 
   virtual AmB2BCalleeSession* newCalleeSession();
 
-  void connectCallee(const string& remote_party, const string& remote_uri,
-                     bool relayed_invite = false);
+  void connectCallee(const std::string& remote_party,
+                     const std::string& remote_uri,
+                     bool               relayed_invite = false);
 
   const AmSipRequest& getOriginalRequest() { return invite_req; }
 
@@ -461,7 +463,7 @@ class AmB2BCallerSession : public AmB2BSession
 class AmB2BCalleeSession : public AmB2BSession
 {
  public:
-  AmB2BCalleeSession(const string& other_local_tag);
+  AmB2BCalleeSession(const std::string& other_local_tag);
   AmB2BCalleeSession(const AmB2BCallerSession* caller);
 
   virtual ~AmB2BCalleeSession();

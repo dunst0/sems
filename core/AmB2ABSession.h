@@ -31,11 +31,8 @@
 #include "AmSipDialog.h"
 #include "SampleArray.h"
 
-#include <string>
 #include <map>
-
-using std::string;
-using std::map;
+#include <string>
 
 /** BRIDGE_DELAY is needed because of possible different packet sizes */
 #define BRIDGE_DELAY (30.0 / 1000.0) // 30ms
@@ -91,16 +88,19 @@ struct B2ABConnectEarlyAudioEvent : public B2ABEvent
 /** \brief trigger connecting the callee leg in B2AB session */
 struct B2ABConnectLegEvent : public B2ABEvent
 {
-  string remote_party;
-  string remote_uri;
-  string local_party;
-  string local_uri;
-  string callgroup;
-  string headers;
+  std::string remote_party;
+  std::string remote_uri;
+  std::string local_party;
+  std::string local_uri;
+  std::string callgroup;
+  std::string headers;
 
-  B2ABConnectLegEvent(const string& remote_party, const string& remote_uri,
-                      const string& local_party, const string& local_uri,
-                      const string& callgroup, const string& headers = "")
+  B2ABConnectLegEvent(const std::string& remote_party,
+                      const std::string& remote_uri,
+                      const std::string& local_party,
+                      const std::string& local_uri,
+                      const std::string& callgroup,
+                      const std::string& headers = "")
       : B2ABEvent(B2ABConnectLeg)
       , remote_party(remote_party)
       , remote_uri(remote_uri)
@@ -116,9 +116,10 @@ struct B2ABConnectLegEvent : public B2ABEvent
 struct B2ABConnectOtherLegExceptionEvent : public B2ABEvent
 {
   unsigned int code;
-  string       reason;
+  std::string  reason;
 
-  B2ABConnectOtherLegExceptionEvent(unsigned int code, const string& reason)
+  B2ABConnectOtherLegExceptionEvent(unsigned int       code,
+                                    const std::string& reason)
       : B2ABEvent(B2ABConnectOtherLegException)
       , code(code)
       , reason(reason)
@@ -130,9 +131,9 @@ struct B2ABConnectOtherLegExceptionEvent : public B2ABEvent
 struct B2ABConnectOtherLegFailedEvent : public B2ABEvent
 {
   unsigned int code;
-  string       reason;
+  std::string  reason;
 
-  B2ABConnectOtherLegFailedEvent(unsigned int code, const string& reason)
+  B2ABConnectOtherLegFailedEvent(unsigned int code, const std::string& reason)
       : B2ABEvent(B2ABConnectOtherLegFailed)
       , code(code)
       , reason(reason)
@@ -149,13 +150,13 @@ class AmB2ABSession : public AmSession
 {
  protected:
   /** local tag of the other leg */
-  string other_id;
+  std::string other_id;
 
   /** reference to the audio connector - caution: not owned by callee dialog! */
   AmSessionAudioConnector* connector;
 
   /** Requests received for relaying */
-  map<int, AmSipRequest> recvd_req;
+  std::map<int, AmSipRequest> recvd_req;
 
   void clear_other();
 
@@ -182,7 +183,7 @@ class AmB2ABSession : public AmSession
 
  public:
   AmB2ABSession();
-  AmB2ABSession(const string& other_local_tag);
+  AmB2ABSession(const std::string& other_local_tag);
   virtual ~AmB2ABSession();
 
   void onBye(const AmSipRequest& req);
@@ -226,9 +227,11 @@ class AmB2ABCallerSession : public AmB2ABSession
 
   CalleeStatus getCalleeStatus() { return callee_status; }
 
-  void connectCallee(const string& remote_party, const string& remote_uri,
-                     const string& local_party, const string& local_uri,
-                     const string& headers = "");
+  void connectCallee(const std::string& remote_party,
+                     const std::string& remote_uri,
+                     const std::string& local_party,
+                     const std::string& local_uri,
+                     const std::string& headers = "");
 
   // @see AmB2ABSession
   void terminateOtherLeg();
@@ -244,7 +247,7 @@ class AmB2ABCalleeSession : public AmB2ABSession
   bool is_connected;
 
  public:
-  AmB2ABCalleeSession(const string&            other_local_tag,
+  AmB2ABCalleeSession(const std::string&       other_local_tag,
                       AmSessionAudioConnector* callers_connector);
   ~AmB2ABCalleeSession();
 
@@ -266,7 +269,7 @@ class AmSessionAudioConnector
 {
  private:
   AmAudioDelay audio_connectors[2];
-  string       tag_sess[2];
+  std::string  tag_sess[2];
   bool         connected[2];
   AmMutex      tag_mut;
 

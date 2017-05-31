@@ -39,9 +39,6 @@
 #include <memory>
 #include <string>
 
-using std::unique_ptr;
-using std::string;
-
 #ifdef USE_LIBSAMPLERATE
 #include <samplerate.h>
 #endif
@@ -86,7 +83,6 @@ class AmAudioEvent : public AmEvent
  public:
   enum EventType
   {
-
     noAudio, // Audio class has nothing to play and/or record anymore
 
     // Audio input & output have been cleared:
@@ -105,7 +101,6 @@ class AmAudioEvent : public AmEvent
  * \brief double buffer with back and front
  * Implements double buffering.
  */
-
 class DblBuffer
 {
   /** Buffer. */
@@ -124,8 +119,6 @@ class DblBuffer
   void swap();
 };
 
-class AmAudio;
-
 /**
  * \brief Audio format structure.
  * Holds a description of the format.
@@ -135,14 +128,13 @@ class AmAudio;
  *   <li>payload based format
  * </ul>
  */
-
 class AmAudioFormat
 {
  public:
   /** Number of channels. */
   int channels;
 
-  string      sdp_format_parameters;
+  std::string sdp_format_parameters;
   const char* sdp_format_parameters_out;
 
   AmAudioFormat(int          codec_id = CODEC_PCM16,
@@ -244,7 +236,6 @@ class AmInternalResamplerState : public AmResamplingState
  * AmAudio binds a format and converts the samples if needed.
  * <br>Internal Format: PCM signed 16 bit (mono | stereo).
  */
-
 class AmAudio : public AmObject
 {
  private:
@@ -264,11 +255,11 @@ class AmAudio : public AmObject
   DblBuffer samples;
 
   /** Audio format. @see AmAudioFormat */
-  unique_ptr<AmAudioFormat> fmt;
+  std::unique_ptr<AmAudioFormat> fmt;
 
   /** Resampling states. @see AmResamplingState */
-  unique_ptr<AmResamplingState> input_resampling_state;
-  unique_ptr<AmResamplingState> output_resampling_state;
+  std::unique_ptr<AmResamplingState> input_resampling_state;
+  std::unique_ptr<AmResamplingState> output_resampling_state;
 
   AmAudio();
   AmAudio(AmAudioFormat*);

@@ -34,9 +34,6 @@
 #include <map>
 #include <set>
 
-using std::map;
-using std::set;
-
 class AmAudioMixerConnector;
 
 /**
@@ -56,11 +53,11 @@ class AmAudioMixer
   AmMultiPartyMixer mixer;
 
   AmMutex srcsink_mut;
-  map<AmAudioMixerConnector*, unsigned int> sources;
+  std::map<AmAudioMixerConnector*, unsigned int> sources;
 
   unsigned int           sink_channel;
   AmAudioMixerConnector* sink_connector;
-  set<AmAudio*>          sinks;
+  std::set<AmAudio*>     sinks;
 
  public:
   AmAudioMixer(int external_sample_rate);
@@ -75,11 +72,11 @@ class AmAudioMixer
 
 class AmAudioMixerConnector : public AmAudio
 {
-  AmMultiPartyMixer& mixer;
-  unsigned int       channel;
-  AmMutex*           audio_mut;
-  set<AmAudio*>*     sinks;
-  AmAudio*           mix_channel;
+  AmMultiPartyMixer&  mixer;
+  unsigned int        channel;
+  AmMutex*            audio_mut;
+  std::set<AmAudio*>* sinks;
+  AmAudio*            mix_channel;
 
  protected:
   int get(unsigned long long int system_ts, unsigned char* buffer,
@@ -94,7 +91,7 @@ class AmAudioMixerConnector : public AmAudio
  public:
   AmAudioMixerConnector(AmMultiPartyMixer& mixer, unsigned int channel,
                         AmAudio* mix_channel, AmMutex* audio_mut = NULL,
-                        set<AmAudio*>* sinks = NULL)
+                        std::set<AmAudio*>* sinks = NULL)
       : mixer(mixer)
       , channel(channel)
       , audio_mut(audio_mut)
