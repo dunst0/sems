@@ -1,10 +1,8 @@
 #ifndef _AM100REL_H_
 #define _AM100REL_H_
 
+#include "AmSipDialog.h"
 #include "AmSipMsg.h"
-
-class AmSipDialog;
-class AmSipDialogEventHandler;
 
 class Am100rel
 {
@@ -34,7 +32,8 @@ class Am100rel
   Am100rel(AmSipDialog* dlg, AmSipDialogEventHandler* hdl);
 
   void setState(State s) { reliable_1xx = s; }
-  State               getState() { return reliable_1xx; }
+
+  State getState() { return reliable_1xx; }
 
   int onRequestIn(const AmSipRequest& req);
   int onReplyIn(const AmSipReply& reply);

@@ -102,9 +102,9 @@ class AmAudioQueue : public AmAudio
   void setOwning(bool _owning);
 
   /** AmAudio interface */
-  int get(unsigned long long system_ts, unsigned char* buffer,
+  int get(unsigned long long int system_ts, unsigned char* buffer,
           int output_sample_rate, unsigned int nb_samples);
-  int put(unsigned long long system_ts, unsigned char* buffer,
+  int put(unsigned long long int system_ts, unsigned char* buffer,
           int input_sample_rate, unsigned int size);
 
  protected:
@@ -135,10 +135,10 @@ class AmAudioFrontlist : public AmPlaylist
 
   void setBackAudio(AmAudio* new_ba);
 
-  int put(unsigned long long system_ts, unsigned char* buffer,
+  int put(unsigned long long int system_ts, unsigned char* buffer,
           int input_sample_rate, unsigned int size);
 
-  int get(unsigned long long user_ts, unsigned char* buffer,
+  int get(unsigned long long int user_ts, unsigned char* buffer,
           int output_sample_rate, unsigned int size);
 };
 
@@ -192,11 +192,11 @@ class AmNullAudio : public AmAudio
   int read_msec;
   int write_msec;
 
-  bool               read_end_ts_i;
-  unsigned long long read_end_ts;
+  bool                   read_end_ts_i;
+  unsigned long long int read_end_ts;
 
-  bool               write_end_ts_i;
-  unsigned long long write_end_ts;
+  bool                   write_end_ts_i;
+  unsigned long long int write_end_ts;
 
  public:
   AmNullAudio(int read_msec = -1, int write_msec = -1)
@@ -214,9 +214,9 @@ class AmNullAudio : public AmAudio
   void setWriteLength(int n_msec);
 
   /** AmAudio interface */
-  int get(unsigned long long system_ts, unsigned char* buffer,
+  int get(unsigned long long int system_ts, unsigned char* buffer,
           int output_sample_rate, unsigned int nb_samples);
-  int put(unsigned long long system_ts, unsigned char* buffer,
+  int put(unsigned long long int system_ts, unsigned char* buffer,
           int input_sample_rate, unsigned int size);
 
  protected:

@@ -48,6 +48,7 @@ int Am100rel::onRequestIn(const AmSipRequest& req)
                                         SIP_HDR_COLSP(SIP_HDR_REQUIRE)
                                             SIP_EXT_100REL CRLF);
           if (hdl) hdl->onFailure();
+
           return 0; // has been replied
         }
         break; // 100rel required
