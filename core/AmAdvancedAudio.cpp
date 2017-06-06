@@ -31,6 +31,8 @@
 
 #include <set>
 
+using std::list;
+
 /* AudioQueue */
 AmAudioQueue::AmAudioQueue()
     : AmAudio(new AmAudioFormat(CODEC_PCM16))
