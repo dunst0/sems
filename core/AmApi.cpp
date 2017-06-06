@@ -32,47 +32,49 @@
 #include "AmSession.h"
 #include "log.h"
 
+using std::map;
+using std::string;
+
 AmDynInvoke::AmDynInvoke() {}
 AmDynInvoke::~AmDynInvoke() {}
 
-void AmDynInvoke::invoke(const std::string& method, const AmArg& args,
-                         AmArg& ret)
+void AmDynInvoke::invoke(const string& method, const AmArg& args, AmArg& ret)
 {
   throw NotImplemented(method);
 }
 
-AmDynInvokeFactory::AmDynInvokeFactory(const std::string& name)
+AmDynInvokeFactory::AmDynInvokeFactory(const string& name)
     : AmPluginFactory(name)
 {
 }
 
-AmSessionFactory::AmSessionFactory(const std::string& name)
+AmSessionFactory::AmSessionFactory(const string& name)
     : AmPluginFactory(name)
 {
 }
 
 AmSession* AmSessionFactory::onInvite(const AmSipRequest& req,
-                                      const std::string&  app_name,
+                                      const string&       app_name,
                                       AmArg&              session_params)
 {
   WARN(" discarding session parameters to new session.\n");
-  map<std::string, std::string> app_params;
+  map<string, string> app_params;
   return onInvite(req, app_name, app_params);
 }
 
-AmSession*
-AmSessionFactory::onRefer(const AmSipRequest& req, const std::string& app_name,
-                          const map<std::string, std::string>& app_params)
+AmSession* AmSessionFactory::onRefer(const AmSipRequest& req,
+                                     const string&       app_name,
+                                     const map<string, string>& app_params)
 {
   throw AmSession::Exception(488, "Not accepted here");
 }
 
 AmSession* AmSessionFactory::onRefer(const AmSipRequest& req,
-                                     const std::string&  app_name,
+                                     const string&       app_name,
                                      AmArg&              session_params)
 {
   WARN(" discarding session parameters to new session.\n");
-  map<std::string, std::string> app_params;
+  map<string, string> app_params;
   return onRefer(req, app_name, app_params);
 }
 
@@ -103,10 +105,10 @@ void AmSessionFactory::onOoDRequest(const AmSipRequest& req)
 
 void AmSessionFactory::replyOptions(const AmSipRequest& req)
 {
-  std::string hdrs;
+  string hdrs;
 
   if (!AmConfig::OptionsTranscoderInStatsHdr.empty()) {
-    std::string usage;
+    string usage;
     B2BMediaStatistics::instance()->reportCodecReadUsage(usage);
 
     hdrs += AmConfig::OptionsTranscoderInStatsHdr + ": ";
@@ -115,7 +117,7 @@ void AmSessionFactory::replyOptions(const AmSipRequest& req)
   }
 
   if (!AmConfig::OptionsTranscoderOutStatsHdr.empty()) {
-    std::string usage;
+    string usage;
     B2BMediaStatistics::instance()->reportCodecWriteUsage(usage);
 
     hdrs += AmConfig::OptionsTranscoderOutStatsHdr + ": ";
@@ -149,8 +151,7 @@ void AmSessionFactory::replyOptions(const AmSipRequest& req)
 // }
 // UNUSED_END
 
-AmSessionEventHandlerFactory::AmSessionEventHandlerFactory(
-    const std::string& name)
+AmSessionEventHandlerFactory::AmSessionEventHandlerFactory(const string& name)
     : AmPluginFactory(name)
 {
 }
@@ -163,7 +164,7 @@ bool AmSessionEventHandlerFactory::onInvite(const AmSipRequest& req,
   return onInvite(req, cfg);
 }
 
-AmLoggingFacility::AmLoggingFacility(const std::string& name)
+AmLoggingFacility::AmLoggingFacility(const string& name)
     : AmPluginFactory(name)
 {
 }

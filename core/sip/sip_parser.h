@@ -118,17 +118,17 @@ struct sip_msg
   sip_header* rack;
 
   std::list<sip_header*> vias;
-  sip_header*       via1;
-  sip_via_parm*     via_p1;
+  sip_header*            via1;
+  sip_via_parm*          via_p1;
 
   sip_header* callid;
 
   std::list<sip_header*> contacts;
   std::list<sip_header*> route;
   std::list<sip_header*> record_route;
-  sip_header*       content_type;
-  sip_header*       content_length;
-  cstring           body;
+  sip_header*            content_type;
+  sip_header*            content_length;
+  cstring                body;
 
   sockaddr_storage local_ip;
   trsp_socket*     local_socket;

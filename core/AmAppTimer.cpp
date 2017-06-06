@@ -30,6 +30,8 @@
 #include "AmSessionContainer.h"
 #include "log.h"
 
+using std::map;
+
 #define MAX_TIMER_SECONDS 365 * 24 * 3600 // one year, well below 1<<31
 
 class app_timer : public timer

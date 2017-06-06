@@ -102,7 +102,7 @@ class _wheeltimer : public AmThread
   base_timer wheels[WHEELS][ELMTS_PER_WHEEL];
 
   // request backlog lock (insert/remove)
-  AmMutex          reqs_m;
+  AmMutex               reqs_m;
   std::deque<timer_req> reqs_backlog;
   std::deque<timer_req> reqs_process;
 

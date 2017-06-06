@@ -29,7 +29,7 @@ class tcp_trsp_socket : public trsp_socket
   bool             closed;
   bool             connected;
   sockaddr_storage peer_addr;
-  std::string           peer_ip;
+  std::string      peer_ip;
   unsigned short   peer_port;
   // UNUSED
   // bool             peer_addr_valid;

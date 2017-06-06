@@ -48,7 +48,7 @@ class DirectAppTimer
 class _AmAppTimer : public _wheeltimer
 {
   typedef std::map<int, app_timer*>                    AppTimers;
-  typedef std::map<std::string, AppTimers>                  TimerQueues;
+  typedef std::map<std::string, AppTimers>             TimerQueues;
   typedef std::map<DirectAppTimer*, direct_app_timer*> DirectTimers;
 
   AmMutex     user_timers_mut;
@@ -58,7 +58,8 @@ class _AmAppTimer : public _wheeltimer
   DirectTimers direct_timers;
 
   /** creates timer object and inserts it into our container */
-  app_timer* create_timer(const std::string& q_id, int id, unsigned int expires);
+  app_timer* create_timer(const std::string& q_id, int id,
+                          unsigned int expires);
   /** erases timer - does not delete timer object @return timer object pointer,
    * if found */
   app_timer* erase_timer(const std::string& q_id, int id);
@@ -77,7 +78,8 @@ class _AmAppTimer : public _wheeltimer
 
   /** set a timer for event queue eventqueue_name with id timer_id and timeout
    * (s) */
-  void setTimer(const std::string& eventqueue_name, int timer_id, double timeout);
+  void setTimer(const std::string& eventqueue_name, int timer_id,
+                double timeout);
   /** remove timer for event queue eventqueue_name with id timer_id */
   void removeTimer(const std::string& eventqueue_name, int timer_id);
   /** remove all timers for event queue eventqueue_name */

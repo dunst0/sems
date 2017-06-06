@@ -32,6 +32,7 @@
 #include <set>
 
 using std::list;
+using std::set;
 
 /* AudioQueue */
 AmAudioQueue::AmAudioQueue()
@@ -43,7 +44,7 @@ AmAudioQueue::AmAudioQueue()
 AmAudioQueue::~AmAudioQueue()
 {
   if (owning) {
-    std::set<AmAudio*> deleted_audios; // don't delete them twice
+    set<AmAudio*> deleted_audios; // don't delete them twice
     for (list<AudioQueueEntry>::iterator it = inputQueue.begin();
          it != inputQueue.end(); it++) {
       if (deleted_audios.find(it->audio) == deleted_audios.end()) {
