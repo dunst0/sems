@@ -12,6 +12,9 @@
 #include <string.h>
 #include <sys/ioctl.h>
 
+using std::map;
+using std::string;
+
 void tcp_trsp_socket::on_sock_read(int fd, short ev, void* arg)
 {
   if (ev & (EV_READ | EV_TIMEOUT)) {

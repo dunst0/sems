@@ -39,10 +39,6 @@
 
 #include <sys/socket.h>
 
-#include <list>
-
-using std::list;
-
 /**
  * Transaction types
  */

@@ -53,6 +53,11 @@
 #include <netdb.h>
 #include <netinet/in.h>
 
+using std::list;
+using std::vector;
+using std::string;
+using std::map;
+
 #define DEFAULT_BL_TTL 60000 /* 60s */
 
 #define BRANCH_BUF_LEN 8

@@ -47,6 +47,8 @@
 #include <errno.h>
 #include <string.h>
 
+using std::string;
+
 /**
  * Maximum message length for UDP
  * not including terminating '\0'

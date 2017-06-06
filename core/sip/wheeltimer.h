@@ -38,8 +38,6 @@
 
 #include <deque>
 
-using std::deque;
-
 #define BITS_PER_WHEEL 8
 #define ELMTS_PER_WHEEL (1 << BITS_PER_WHEEL)
 
@@ -105,8 +103,8 @@ class _wheeltimer : public AmThread
 
   // request backlog lock (insert/remove)
   AmMutex          reqs_m;
-  deque<timer_req> reqs_backlog;
-  deque<timer_req> reqs_process;
+  std::deque<timer_req> reqs_backlog;
+  std::deque<timer_req> reqs_process;
 
   void turn_wheel();
   void update_wheel(int wheel);

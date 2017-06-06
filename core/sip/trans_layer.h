@@ -45,15 +45,9 @@
 
 #include <sys/socket.h>
 
-#include <list>
 #include <map>
 #include <string>
 #include <vector>
-
-using std::list;
-using std::vector;
-using std::string;
-using std::map;
 
 // replace the RURI-host with next-hop IP / port
 #define TR_FLAG_NEXT_HOP_RURI 1
@@ -122,11 +116,11 @@ class _trans_layer
 
   struct less_case_i
   {
-    bool operator()(const string& lhs, const string& rhs) const;
+    bool operator()(const std::string& lhs, const std::string& rhs) const;
   };
-  typedef map<string, trsp_socket*, less_case_i> prot_collection;
+  typedef std::map<std::string, trsp_socket*, less_case_i> prot_collection;
 
-  vector<prot_collection> transports;
+  std::vector<prot_collection> transports;
 
  public:
   /**

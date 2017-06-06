@@ -42,8 +42,6 @@
 
 #include <list>
 
-using std::list;
-
 //
 // SIP message types:
 //
@@ -111,7 +109,7 @@ struct sip_msg
     sip_reply*   reply;
   } u;
 
-  list<sip_header*> hdrs;
+  std::list<sip_header*> hdrs;
 
   sip_header* to;
   sip_header* from;
@@ -119,15 +117,15 @@ struct sip_msg
   sip_header* cseq;
   sip_header* rack;
 
-  list<sip_header*> vias;
+  std::list<sip_header*> vias;
   sip_header*       via1;
   sip_via_parm*     via_p1;
 
   sip_header* callid;
 
-  list<sip_header*> contacts;
-  list<sip_header*> route;
-  list<sip_header*> record_route;
+  std::list<sip_header*> contacts;
+  std::list<sip_header*> route;
+  std::list<sip_header*> record_route;
   sip_header*       content_type;
   sip_header*       content_length;
   cstring           body;

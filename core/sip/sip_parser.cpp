@@ -38,6 +38,7 @@
 #include <memory>
 
 using std::unique_ptr;
+using std::list;
 
 #define case_SIPVER_TEXT(ch1, ch2, st1, st2)                                   \
   case st1:                                                                    \

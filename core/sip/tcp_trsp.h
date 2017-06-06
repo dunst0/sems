@@ -12,11 +12,6 @@
 #include <string>
 #include <vector>
 
-using std::vector;
-using std::map;
-using std::deque;
-using std::string;
-
 /**
  * Maximum message length for TCP
  * not including terminating '\0'
@@ -34,7 +29,7 @@ class tcp_trsp_socket : public trsp_socket
   bool             closed;
   bool             connected;
   sockaddr_storage peer_addr;
-  string           peer_ip;
+  std::string           peer_ip;
   unsigned short   peer_port;
   // UNUSED
   // bool             peer_addr_valid;
@@ -61,7 +56,7 @@ class tcp_trsp_socket : public trsp_socket
     int bytes_left() { return msg_len - (cursor - msg); }
   };
 
-  deque<msg_buf*> send_q;
+  std::deque<msg_buf*> send_q;
 
   AmMutex sock_mut;
 
@@ -77,7 +72,7 @@ class tcp_trsp_socket : public trsp_socket
   int parse_input();
 
   /** fake implementation: we will never bind a connection socket */
-  int bind(const string& address, unsigned short port) { return 0; }
+  int bind(const std::string& address, unsigned short port) { return 0; }
 
   /**
    * Instantiates read_ev & write_ev
@@ -162,7 +157,7 @@ class tcp_trsp_socket : public trsp_socket
 
   void copy_peer_addr(sockaddr_storage* sa);
 
-  const string& get_peer_ip() { return peer_ip; }
+  const std::string& get_peer_ip() { return peer_ip; }
 
   unsigned short get_peer_port() { return peer_port; }
 
@@ -182,7 +177,7 @@ class tcp_server_worker : public AmThread
   tcp_server_socket* server_sock;
 
   AmMutex connections_mut;
-  map<string, tcp_trsp_socket*> connections;
+  std::map<std::string, tcp_trsp_socket*> connections;
 
  protected:
   void run();
@@ -204,7 +199,7 @@ class tcp_server_socket : public trsp_socket
   struct event_base* evbase;
   struct event*      ev_accept;
 
-  vector<tcp_server_worker*> workers;
+  std::vector<tcp_server_worker*> workers;
 
   /**
    * Timeout while connecting to a remote peer.
@@ -238,7 +233,7 @@ class tcp_server_socket : public trsp_socket
   /* activates libevent on_accept callback */
   void add_event(struct event_base* evbase);
 
-  int bind(const string& address, unsigned short port);
+  int bind(const std::string& address, unsigned short port);
   int send(const sockaddr_storage* sa, const char* msg, const int msg_len,
            unsigned int flags);
 

@@ -37,8 +37,6 @@
 
 #include <string>
 
-using std::string;
-
 #define DEFAULT_TCP_CONNECT_TIMEOUT 2000 /* 2 seconds */
 #define DEFAULT_TCP_IDLE_TIMEOUT 3600000 /* 1 hour */
 
@@ -63,13 +61,13 @@ class trsp_socket : public atomic_ref_cnt
   sockaddr_storage addr;
 
   // bound IP
-  string ip;
+  std::string ip;
 
   // bound port number
   unsigned short port;
 
   // public IP (Via-HF)
-  string public_ip;
+  std::string public_ip;
 
   // internal interface number
   unsigned short if_num;
@@ -89,7 +87,7 @@ class trsp_socket : public atomic_ref_cnt
    * Binds the transport socket to an address
    * @return -1 if error(s) occured.
    */
-  virtual int bind(const string& address, unsigned short port) = 0;
+  virtual int bind(const std::string& address, unsigned short port) = 0;
 
   /**
    * Getter for the transport name
@@ -109,7 +107,7 @@ class trsp_socket : public atomic_ref_cnt
   /**
    * Setter for public IP address
    */
-  void set_public_ip(const string& ip);
+  void set_public_ip(const std::string& ip);
 
   /**
    * Getter for advertised IP address

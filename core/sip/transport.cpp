@@ -34,6 +34,8 @@
 #include <netinet/in.h>
 #include <string.h>
 
+using std::str;
+
 int trsp_socket::log_level_raw_msgs = L_DBG;
 
 trsp_socket::trsp_socket(unsigned short if_num, unsigned int opts,

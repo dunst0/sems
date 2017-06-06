@@ -36,8 +36,6 @@
 
 #include <string>
 
-using std::string;
-
 class udp_trsp_socket : public trsp_socket
 {
   int sendto(const sockaddr_storage* sa, const char* msg, const int msg_len);
@@ -56,7 +54,7 @@ class udp_trsp_socket : public trsp_socket
    * Binds the transport socket to an address
    * @return -1 if error(s) occured.
    */
-  virtual int bind(const string& address, unsigned short port);
+  virtual int bind(const std::string& address, unsigned short port);
 
   const char* get_transport() const { return "udp"; }
 
