@@ -34,7 +34,7 @@
 #include <netinet/in.h>
 #include <string.h>
 
-using std::str;
+using std::string;
 
 int trsp_socket::log_level_raw_msgs = L_DBG;
 
