@@ -34,8 +34,6 @@
 
 #include <list>
 
-using std::list;
-
 //
 // Constants
 //
@@ -208,7 +206,7 @@ int parse_sip_version(const char* beg, int len);
  * and separated by semi-colons until stop_char or the
  * end of the string is reached.
  */
-int parse_gen_params_sc(list<sip_avp*>* params, const char** c, int len,
+int parse_gen_params_sc(std::list<sip_avp*>* params, const char** c, int len,
                         char stop_char);
 
 /**
@@ -216,10 +214,10 @@ int parse_gen_params_sc(list<sip_avp*>* params, const char** c, int len,
  * by semi-colons until stop_char or the end of
  * the string is reached.
  */
-int parse_gen_params(list<sip_avp*>* params, const char** c, int len,
+int parse_gen_params(std::list<sip_avp*>* params, const char** c, int len,
                      char stop_char);
 
 /** Free the parameters in the list (NOT the list itself) */
-void free_gen_params(list<sip_avp*>* params);
+void free_gen_params(std::list<sip_avp*>* params);
 
 #endif

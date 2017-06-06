@@ -5,16 +5,14 @@
 
 #include <string>
 
-using std::string;
-
 class _excl_file_reg;
 
 class exclusive_file : public async_file
 {
-  string name;
-  int    fd;
+  std::string name;
+  int         fd;
 
-  exclusive_file(const string& name);
+  exclusive_file(const std::string& name);
   ~exclusive_file();
 
   int open(bool& is_new);

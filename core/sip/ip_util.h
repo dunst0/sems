@@ -33,8 +33,6 @@
 
 #include <string>
 
-using std::string;
-
 #define SAv4(addr) ((struct sockaddr_in*) addr)
 
 #define SAv6(addr) ((struct sockaddr_in6*) addr)
@@ -65,7 +63,7 @@ const char* am_inet_ntop(const sockaddr_storage* addr, char* str, size_t size);
  *
  * @return empty string if failed, result string otherwise.
  */
-string am_inet_ntop(const sockaddr_storage* addr);
+std::string am_inet_ntop(const sockaddr_storage* addr);
 
 /**
  * Print a string representation of the IP address in 'addr'.

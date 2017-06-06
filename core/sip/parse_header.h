@@ -34,8 +34,6 @@
 
 #include <list>
 
-using std::list;
-
 struct sip_parsed_hdr
 {
   virtual ~sip_parsed_hdr() {}
@@ -83,7 +81,7 @@ struct sip_header
 
 int parse_header_type(sip_header* h);
 
-int parse_headers(list<sip_header*>& hdrs, char** c, char* end);
-void free_headers(list<sip_header*>& hdrs);
+int parse_headers(std::list<sip_header*>& hdrs, char** c, char* end);
+void free_headers(std::list<sip_header*>& hdrs);
 
 #endif

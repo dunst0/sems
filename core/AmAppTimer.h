@@ -33,9 +33,6 @@
 #include <map>
 #include <string>
 
-using std::map;
-using std::string;
-
 #define TICKS_PER_SEC (1000000 / TIMER_RESOLUTION)
 
 class app_timer;
@@ -50,9 +47,9 @@ class DirectAppTimer
 
 class _AmAppTimer : public _wheeltimer
 {
-  typedef map<int, app_timer*>                    AppTimers;
-  typedef map<string, AppTimers>                  TimerQueues;
-  typedef map<DirectAppTimer*, direct_app_timer*> DirectTimers;
+  typedef std::map<int, app_timer*>                    AppTimers;
+  typedef std::map<std::string, AppTimers>                  TimerQueues;
+  typedef std::map<DirectAppTimer*, direct_app_timer*> DirectTimers;
 
   AmMutex     user_timers_mut;
   TimerQueues user_timers;
@@ -61,10 +58,10 @@ class _AmAppTimer : public _wheeltimer
   DirectTimers direct_timers;
 
   /** creates timer object and inserts it into our container */
-  app_timer* create_timer(const string& q_id, int id, unsigned int expires);
+  app_timer* create_timer(const std::string& q_id, int id, unsigned int expires);
   /** erases timer - does not delete timer object @return timer object pointer,
    * if found */
-  app_timer* erase_timer(const string& q_id, int id);
+  app_timer* erase_timer(const std::string& q_id, int id);
 
   /* callback used by app_timer */
   void app_timer_cb(app_timer* at);
@@ -80,11 +77,11 @@ class _AmAppTimer : public _wheeltimer
 
   /** set a timer for event queue eventqueue_name with id timer_id and timeout
    * (s) */
-  void setTimer(const string& eventqueue_name, int timer_id, double timeout);
+  void setTimer(const std::string& eventqueue_name, int timer_id, double timeout);
   /** remove timer for event queue eventqueue_name with id timer_id */
-  void removeTimer(const string& eventqueue_name, int timer_id);
+  void removeTimer(const std::string& eventqueue_name, int timer_id);
   /** remove all timers for event queue eventqueue_name */
-  void removeTimers(const string& eventqueue_name);
+  void removeTimers(const std::string& eventqueue_name);
 
   /* set a timer which directly calls your handler */
   void setTimer(DirectAppTimer* t, double timeout);

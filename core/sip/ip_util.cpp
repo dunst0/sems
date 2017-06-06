@@ -7,6 +7,8 @@
 #include <netdb.h>
 #include <string.h>
 
+using std::string;
+
 int am_inet_pton(const char* src, struct sockaddr_storage* dst)
 {
   char src_addr[NI_MAXHOST];

@@ -31,8 +31,6 @@
 
 #include <set>
 
-using std::set;
-
 /* AudioQueue */
 AmAudioQueue::AmAudioQueue()
     : AmAudio(new AmAudioFormat(CODEC_PCM16))
@@ -43,7 +41,7 @@ AmAudioQueue::AmAudioQueue()
 AmAudioQueue::~AmAudioQueue()
 {
   if (owning) {
-    set<AmAudio*> deleted_audios; // don't delete them twice
+    std::set<AmAudio*> deleted_audios; // don't delete them twice
     for (list<AudioQueueEntry>::iterator it = inputQueue.begin();
          it != inputQueue.end(); it++) {
       if (deleted_audios.find(it->audio) == deleted_audios.end()) {

@@ -31,6 +31,8 @@
 
 #include "parse_uri.h"
 
+#include <list>
+
 struct sip_nameaddr
 {
   cstring name;
@@ -38,7 +40,7 @@ struct sip_nameaddr
 
   sip_uri uri;
 
-  list<sip_avp*> params;
+  std::list<sip_avp*> params;
 
   sip_nameaddr() {}
   ~sip_nameaddr();
@@ -47,6 +49,6 @@ struct sip_nameaddr
 int parse_nameaddr(sip_nameaddr* na, const char** c, int len);
 int parse_nameaddr_uri(sip_nameaddr* na, const char** c, int len);
 int parse_first_nameaddr(sip_nameaddr* na, const char* c, int len);
-int parse_nameaddr_list(list<cstring>& nas, const char* c, int len);
+int parse_nameaddr_list(std::list<cstring>& nas, const char* c, int len);
 
 #endif

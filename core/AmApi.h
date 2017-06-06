@@ -43,9 +43,6 @@
 #include <map>
 #include <string>
 
-using std::string;
-using std::map;
-
 /**
  * \brief interface of the DynInvoke API
  */
@@ -55,8 +52,8 @@ class AmDynInvoke
   /** \brief NotImplemented result for DI API calls */
   struct NotImplemented
   {
-    string what;
-    NotImplemented(const string& w)
+    std::string what;
+    NotImplemented(const std::string& w)
         : what(w)
     {
     }
@@ -64,7 +61,7 @@ class AmDynInvoke
 
   AmDynInvoke();
   virtual ~AmDynInvoke();
-  virtual void invoke(const string& method, const AmArg& args, AmArg& ret);
+  virtual void invoke(const std::string& method, const AmArg& args, AmArg& ret);
 };
 
 /**
@@ -72,17 +69,17 @@ class AmDynInvoke
  */
 class AmPluginFactory : public virtual atomic_ref_cnt
 {
-  string plugin_name;
+  std::string plugin_name;
 
  public:
-  AmPluginFactory(const string& name)
+  AmPluginFactory(const std::string& name)
       : plugin_name(name)
   {
   }
 
   virtual ~AmPluginFactory() {}
 
-  const string& getName() { return plugin_name; }
+  const std::string& getName() { return plugin_name; }
 
   /**
    * Enables the plug-in to initialize whatever it needs.
@@ -102,7 +99,7 @@ class AmPluginFactory : public virtual atomic_ref_cnt
 class AmDynInvokeFactory : public AmPluginFactory
 {
  public:
-  AmDynInvokeFactory(const string& name);
+  AmDynInvokeFactory(const std::string& name);
   virtual AmDynInvoke* getInstance() = 0;
 };
 
@@ -114,7 +111,7 @@ class AmSessionEventHandler;
 class AmSessionEventHandlerFactory : public AmPluginFactory
 {
  public:
-  AmSessionEventHandlerFactory(const string& name);
+  AmSessionEventHandlerFactory(const std::string& name);
 
   virtual AmSessionEventHandler* getHandler(AmSession*) = 0;
 
@@ -144,7 +141,7 @@ class AmSessionFactory : public AmPluginFactory
    */
   void configureSession(AmSession* sess);
 
-  AmSessionFactory(const string& name);
+  AmSessionFactory(const std::string& name);
 
   /**
    * Creates a dialog state on new UAS request.
@@ -154,8 +151,9 @@ class AmSessionFactory : public AmPluginFactory
    *   This method should not make any expensive
    *   processing as it would block the server.
    */
-  virtual AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-                              const map<string, string>& app_params) = 0;
+  virtual AmSession*
+  onInvite(const AmSipRequest& req, const std::string& app_name,
+           const std::map<std::string, std::string>&   app_params) = 0;
 
   /**
    * Creates a dialog state on new UAC request.
@@ -167,8 +165,9 @@ class AmSessionFactory : public AmPluginFactory
    *   This method should not make any expensive
    *   processing as it would block the server.
    */
-  virtual AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-                              AmArg& session_params);
+  virtual AmSession* onInvite(const AmSipRequest& req,
+                              const std::string&  app_name,
+                              AmArg&              session_params);
 
   /**
    * Creates a dialog state on new REFER with local-tag.
@@ -178,8 +177,9 @@ class AmSessionFactory : public AmPluginFactory
    *   This method should not make any expensive
    *   processing as it would block the server.
    */
-  virtual AmSession* onRefer(const AmSipRequest& req, const string& app_name,
-                             const map<string, string>&             app_params);
+  virtual AmSession*
+  onRefer(const AmSipRequest& req, const std::string& app_name,
+          const std::map<std::string, std::string>&   app_params);
 
   /**
    * Creates a dialog state on new REFER with local-tag.
@@ -190,8 +190,9 @@ class AmSessionFactory : public AmPluginFactory
    *   This method should not make any expensive
    *   processing as it would block the server.
    */
-  virtual AmSession* onRefer(const AmSipRequest& req, const string& app_name,
-                             AmArg& session_params);
+  virtual AmSession* onRefer(const AmSipRequest& req,
+                             const std::string&  app_name,
+                             AmArg&              session_params);
 
   /**
    * Method to receive any out-of-dialog request
@@ -211,7 +212,7 @@ class AmSessionFactory : public AmPluginFactory
 class AmLoggingFacility : public AmPluginFactory
 {
  public:
-  AmLoggingFacility(const string& name);
+  AmLoggingFacility(const std::string& name);
   virtual ~AmLoggingFacility() {}
 
   /**

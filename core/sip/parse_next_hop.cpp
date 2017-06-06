@@ -5,6 +5,8 @@
 
 #include <stdio.h>
 
+using std::list;
+
 int parse_next_hop(const cstring& next_hop, list<sip_destination>& dest_list)
 {
   enum

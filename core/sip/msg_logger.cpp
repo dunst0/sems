@@ -6,6 +6,8 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 
+using std::string;
+
 file_msg_logger::~file_msg_logger() { exclusive_file::close(excl_fp); }
 
 int file_msg_logger::open(const char* filename)

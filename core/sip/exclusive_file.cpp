@@ -11,6 +11,7 @@
 #include <map>
 
 using std::map;
+using std::string;
 
 #ifndef EXCL_BUFFER_SIZE
 #define EXCL_BUFFER_SIZE 1024 * 1024 /* 1 MB */

@@ -36,6 +36,7 @@
 #include <memory>
 
 using std::unique_ptr;
+using std::list;
 
 int parse_sip_version(const char* beg, int len)
 {

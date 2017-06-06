@@ -3,16 +3,14 @@
 
 #include <vector>
 
-using std::vector;
-
 class Resample
 {
  protected:
-  int           filter_delay;
-  unsigned int  current;
-  unsigned int  curfrc;
-  unsigned int  pad_samples;
-  vector<float> samples;
+  int                filter_delay;
+  unsigned int       current;
+  unsigned int       curfrc;
+  unsigned int       pad_samples;
+  std::vector<float> samples;
 
  public:
   Resample();

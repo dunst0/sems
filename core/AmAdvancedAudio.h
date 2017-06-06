@@ -37,8 +37,6 @@
 
 #include <list>
 
-using std::list;
-
 /**
  * \brief Entry in an AudioQueue
  */
@@ -65,10 +63,10 @@ struct AudioQueueEntry
 
 class AmAudioQueue : public AmAudio
 {
-  AmMutex               inputQueue_mut;
-  list<AudioQueueEntry> inputQueue;
-  AmMutex               outputQueue_mut;
-  list<AudioQueueEntry> outputQueue;
+  AmMutex                    inputQueue_mut;
+  std::list<AudioQueueEntry> inputQueue;
+  AmMutex                    outputQueue_mut;
+  std::list<AudioQueueEntry> outputQueue;
 
   bool owning;
 

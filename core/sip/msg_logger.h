@@ -8,9 +8,6 @@
 #include <set>
 #include <string>
 
-using std::set;
-using std::string;
-
 struct sockaddr_storage;
 
 class msg_logger : public atomic_ref_cnt
@@ -49,9 +46,9 @@ class file_msg_logger : public msg_logger
 
 class cf_msg_logger : public file_msg_logger
 {
-  set<string> known_destinations;
+  std::set<std::string> known_destinations;
 
-  int write_src_dst(const string& obj);
+  int write_src_dst(const std::string& obj);
 
  protected:
   int write_file_header() { return 0; }

@@ -5,8 +5,6 @@
 
 #include <list>
 
-using std::list;
-
 struct sip_destination
 {
   cstring        host;
@@ -21,6 +19,7 @@ struct sip_destination
   }
 };
 
-int parse_next_hop(const cstring& next_hop, list<sip_destination>& dest_list);
+int parse_next_hop(const cstring&              next_hop,
+                   std::list<sip_destination>& dest_list);
 
 #endif

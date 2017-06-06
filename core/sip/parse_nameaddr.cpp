@@ -33,6 +33,8 @@
 
 #include <assert.h>
 
+using std::list;
+
 sip_nameaddr::~sip_nameaddr() { free_gen_params(&params); }
 
 int parse_nameaddr(sip_nameaddr* na, const char** c, int len)
