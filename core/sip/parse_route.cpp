@@ -32,6 +32,7 @@
 #include <memory>
 
 using std::unique_ptr;
+using std::list;
 
 route_elmt::~route_elmt()
 {

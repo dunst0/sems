@@ -32,6 +32,8 @@
 #include "parse_nameaddr.h"
 #include "parse_uri.h"
 
+#include <list>
+
 struct route_elmt
 {
   sip_nameaddr* addr;
@@ -48,7 +50,7 @@ struct route_elmt
 
 struct sip_route : public sip_parsed_hdr
 {
-  list<route_elmt*> elmts;
+  std::list<route_elmt*> elmts;
 
   sip_route()
       : sip_parsed_hdr()

@@ -33,10 +33,9 @@
 #include "log.h"
 
 #include <memory>
-#include <string>
 
-using std::string;
 using std::unique_ptr;
+using std::list;
 
 #define case_VIA_PARAM(st1, ch1, ch2, st2)                                     \
   case st1:                                                                    \

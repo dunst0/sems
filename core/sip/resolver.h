@@ -43,11 +43,6 @@
 #include <string>
 #include <vector>
 
-using std::string;
-using std::vector;
-using std::map;
-using std::pair;
-
 #define DNS_CACHE_SIZE 128
 
 #define SIP_TRSP_SIZE_MAX 4
@@ -77,7 +72,7 @@ struct dns_base_entry
   }
 
   virtual ~dns_base_entry() {}
-  virtual string to_str() = 0;
+  virtual std::string to_str() = 0;
 };
 
 class dns_entry
@@ -88,7 +83,7 @@ class dns_entry
                                  u_char* end) = 0;
 
  public:
-  vector<dns_base_entry*> ip_vec;
+  std::vector<dns_base_entry*> ip_vec;
 
   static dns_entry* make_entry(dns_rr_type t);
 
@@ -98,10 +93,10 @@ class dns_entry
   virtual void add_rr(dns_record* rr, u_char* begin, u_char* end, long now);
   virtual int next_ip(dns_handle* h, sockaddr_storage* sa) = 0;
 
-  virtual string to_str();
+  virtual std::string to_str();
 };
 
-typedef ht_map_bucket<string, dns_entry> dns_bucket_base;
+typedef ht_map_bucket<std::string, dns_entry> dns_bucket_base;
 
 class dns_bucket : protected dns_bucket_base
 {
@@ -109,9 +104,9 @@ class dns_bucket : protected dns_bucket_base
 
  public:
   dns_bucket(unsigned long id);
-  bool insert(const string& name, dns_entry* e);
-  bool remove(const string& name);
-  dns_entry* find(const string& name);
+  bool insert(const std::string& name, dns_entry* e);
+  bool remove(const std::string& name);
+  dns_entry* find(const std::string& name);
 };
 
 typedef hash_table<dns_bucket> dns_cache;
@@ -127,7 +122,7 @@ struct ip_entry : public dns_base_entry
   };
 
   virtual void to_sa(sockaddr_storage* sa);
-  virtual string to_str();
+  virtual std::string to_str();
 };
 
 struct ip_port_entry : public ip_entry
@@ -135,7 +130,7 @@ struct ip_port_entry : public ip_entry
   unsigned short port;
 
   virtual void to_sa(sockaddr_storage* sa);
-  virtual string to_str();
+  virtual std::string to_str();
 };
 
 class dns_ip_entry : public dns_entry
@@ -187,12 +182,12 @@ struct naptr_record : public dns_base_entry
   unsigned short order;
   unsigned short pref;
 
-  string flags;
-  string services;
-  string regexp;
-  string replace;
+  std::string flags;
+  std::string services;
+  std::string regexp;
+  std::string replace;
 
-  virtual string to_str() { return string(); }
+  virtual std::string to_str() { return std::string(); }
 };
 
 class dns_naptr_entry : public dns_entry
@@ -240,7 +235,7 @@ struct sip_target_set
   sip_target_set(const sip_target_set&) {}
 };
 
-typedef map<string, dns_entry*> dns_entry_map_base;
+typedef std::map<std::string, dns_entry*> dns_entry_map_base;
 
 class dns_entry_map : public dns_entry_map_base
 {
@@ -254,7 +249,7 @@ class dns_entry_map : public dns_entry_map_base
  private:
   // forbid some inherited methods
   mapped_type& operator[](const key_type& k);
-  pair<iterator, bool> insert(const value_type& x);
+  std::pair<iterator, bool> insert(const value_type& x);
 };
 
 class _resolver : AmThread

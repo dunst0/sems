@@ -53,6 +53,10 @@
 
 using std::make_pair;
 using std::list;
+using std::pair;
+using std::map;
+using std::vector;
+using std::string;
 
 // Maximum number of SRV entries
 // within a cache entry

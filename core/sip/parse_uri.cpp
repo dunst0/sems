@@ -31,6 +31,8 @@
 
 #include "log.h"
 
+using std::list;
+
 sip_uri::sip_uri()
     : scheme(UNKNOWN)
     , trsp(NULL)

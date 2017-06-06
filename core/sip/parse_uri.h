@@ -35,8 +35,6 @@
 
 #include <list>
 
-using std::list;
-
 struct sip_uri
 {
   enum uri_scheme
@@ -54,9 +52,9 @@ struct sip_uri
   cstring        port_str;
   unsigned short port;
 
-  list<sip_avp*> params;
-  list<sip_avp*> hdrs;
-  sip_avp*       trsp;
+  std::list<sip_avp*> params;
+  std::list<sip_avp*> hdrs;
+  sip_avp*            trsp;
 
   sip_uri();
   ~sip_uri();

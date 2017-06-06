@@ -33,6 +33,8 @@
 #include "parse_common.h"
 #include "parse_header.h"
 
+#include <list>
+
 #define MAGIC_BRANCH_COOKIE "z9hG4bK"
 #define MAGIC_BRANCH_LEN 7
 
@@ -56,7 +58,7 @@ struct sip_via_parm
 {
   const char* eop;
 
-  list<sip_avp*> params;
+  std::list<sip_avp*> params;
 
   sip_transport trans;
   cstring       host;
@@ -78,7 +80,7 @@ struct sip_via_parm
 
 struct sip_via : public sip_parsed_hdr
 {
-  list<sip_via_parm*> parms;
+  std::list<sip_via_parm*> parms;
 
   ~sip_via();
 };
