@@ -27,6 +27,8 @@
 
 #include "AmAudioMixer.h"
 
+using std::map;
+
 AmAudioMixer::AmAudioMixer(int external_sample_rate)
 {
   sink_channel   = mixer.addChannel(external_sample_rate);
@@ -37,8 +39,7 @@ AmAudioMixer::AmAudioMixer(int external_sample_rate)
 AmAudioMixer::~AmAudioMixer()
 {
   mixer.removeChannel(sink_channel);
-  for (std::map<AmAudioMixerConnector*, unsigned int>::iterator it =
-           sources.begin();
+  for (map<AmAudioMixerConnector*, unsigned int>::iterator it = sources.begin();
        it != sources.end(); it++) {
     mixer.removeChannel(it->second);
     delete it->first;
@@ -61,7 +62,7 @@ AmAudio* AmAudioMixer::addSource(int external_sample_rate)
 void AmAudioMixer::releaseSource(AmAudio* s)
 {
   srcsink_mut.lock();
-  std::map<AmAudioMixerConnector*, unsigned int>::iterator it =
+  map<AmAudioMixerConnector*, unsigned int>::iterator it =
       sources.find((AmAudioMixerConnector*) s);
   if (it == sources.end()) {
     srcsink_mut.unlock();

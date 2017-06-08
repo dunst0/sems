@@ -10,6 +10,11 @@
 #include <algorithm>
 #include <stdexcept>
 
+using std::string;
+using std::vector;
+using std::map;
+using std::exception;
+
 #define TRACE DBG
 #define UNDEFINED_PAYLOAD (-1)
 
@@ -17,12 +22,12 @@
  * all payloads supported by remote party */
 static B2BMediaStatistics b2b_stats;
 
-static const std::string zero_ip("0.0.0.0");
+static const string zero_ip("0.0.0.0");
 
-static void replaceRtcpAttr(SdpMedia& m, const std::string& relay_address,
+static void replaceRtcpAttr(SdpMedia& m, const string& relay_address,
                             int rtcp_port)
 {
-  for (std::vector<SdpAttribute>::iterator a = m.attributes.begin();
+  for (vector<SdpAttribute>::iterator a = m.attributes.begin();
        a != m.attributes.end(); a++) {
     try {
       if (a->attribute == "rtcp") {
@@ -34,7 +39,7 @@ static void replaceRtcpAttr(SdpMedia& m, const std::string& relay_address,
         a->value = addr.print();
       }
     }
-    catch (const std::exception& e) {
+    catch (const exception& e) {
       DBG("can't replace RTCP address: %s\n", e.what());
     }
   }
@@ -42,12 +47,12 @@ static void replaceRtcpAttr(SdpMedia& m, const std::string& relay_address,
 
 //////////////////////////////////////////////////////////////////////////////////
 
-void B2BMediaStatistics::incCodecWriteUsage(const std::string& codec_name)
+void B2BMediaStatistics::incCodecWriteUsage(const string& codec_name)
 {
   if (codec_name.empty()) return;
 
   AmLock lock(mutex);
-  std::map<std::string, int>::iterator i = codec_write_usage.find(codec_name);
+  map<string, int>::iterator i = codec_write_usage.find(codec_name);
   if (i != codec_write_usage.end()) {
     i->second++;
   }
@@ -56,23 +61,23 @@ void B2BMediaStatistics::incCodecWriteUsage(const std::string& codec_name)
   }
 }
 
-void B2BMediaStatistics::decCodecWriteUsage(const std::string& codec_name)
+void B2BMediaStatistics::decCodecWriteUsage(const string& codec_name)
 {
   if (codec_name.empty()) return;
 
   AmLock lock(mutex);
-  std::map<std::string, int>::iterator i = codec_write_usage.find(codec_name);
+  map<string, int>::iterator i = codec_write_usage.find(codec_name);
   if (i != codec_write_usage.end()) {
     if (i->second > 0) i->second--;
   }
 }
 
-void B2BMediaStatistics::incCodecReadUsage(const std::string& codec_name)
+void B2BMediaStatistics::incCodecReadUsage(const string& codec_name)
 {
   if (codec_name.empty()) return;
 
   AmLock lock(mutex);
-  std::map<std::string, int>::iterator i = codec_read_usage.find(codec_name);
+  map<string, int>::iterator i = codec_read_usage.find(codec_name);
   if (i != codec_read_usage.end()) {
     i->second++;
   }
@@ -81,12 +86,12 @@ void B2BMediaStatistics::incCodecReadUsage(const std::string& codec_name)
   }
 }
 
-void B2BMediaStatistics::decCodecReadUsage(const std::string& codec_name)
+void B2BMediaStatistics::decCodecReadUsage(const string& codec_name)
 {
   if (codec_name.empty()) return;
 
   AmLock lock(mutex);
-  std::map<std::string, int>::iterator i = codec_read_usage.find(codec_name);
+  map<string, int>::iterator i = codec_read_usage.find(codec_name);
   if (i != codec_read_usage.end()) {
     if (i->second > 0) i->second--;
   }
@@ -94,7 +99,7 @@ void B2BMediaStatistics::decCodecReadUsage(const std::string& codec_name)
 
 B2BMediaStatistics* B2BMediaStatistics::instance() { return &b2b_stats; }
 
-void B2BMediaStatistics::reportCodecWriteUsage(std::string& dst)
+void B2BMediaStatistics::reportCodecWriteUsage(string& dst)
 {
   if (codec_write_usage.empty()) {
     dst = "pcma=0"; // to be not empty
@@ -104,7 +109,7 @@ void B2BMediaStatistics::reportCodecWriteUsage(std::string& dst)
   bool first = true;
   dst.clear();
   AmLock lock(mutex);
-  for (std::map<std::string, int>::iterator i = codec_write_usage.begin();
+  for (map<string, int>::iterator i = codec_write_usage.begin();
        i != codec_write_usage.end(); i++) {
     if (first) {
       first = false;
@@ -119,7 +124,7 @@ void B2BMediaStatistics::reportCodecWriteUsage(std::string& dst)
   }
 }
 
-void B2BMediaStatistics::reportCodecReadUsage(std::string& dst)
+void B2BMediaStatistics::reportCodecReadUsage(string& dst)
 {
   if (codec_read_usage.empty()) {
     dst = "pcma=0"; // to be not empty
@@ -129,7 +134,7 @@ void B2BMediaStatistics::reportCodecReadUsage(std::string& dst)
   bool first = true;
   dst.clear();
   AmLock lock(mutex);
-  for (std::map<std::string, int>::iterator i = codec_read_usage.begin();
+  for (map<string, int>::iterator i = codec_read_usage.begin();
        i != codec_read_usage.end(); i++) {
     if (first) {
       first = false;
@@ -152,7 +157,7 @@ void B2BMediaStatistics::getReport(const AmArg& args, AmArg& ret)
   { // locked area
     AmLock lock(mutex);
 
-    for (std::map<std::string, int>::iterator i = codec_write_usage.begin();
+    for (map<string, int>::iterator i = codec_write_usage.begin();
          i != codec_write_usage.end(); i++) {
       AmArg avp;
       avp["codec"] = i->first;
@@ -160,7 +165,7 @@ void B2BMediaStatistics::getReport(const AmArg& args, AmArg& ret)
       write_usage.push(avp);
     }
 
-    for (std::map<std::string, int>::iterator i = codec_read_usage.begin();
+    for (map<string, int>::iterator i = codec_read_usage.begin();
          i != codec_read_usage.end(); i++) {
       AmArg avp;
       avp["codec"] = i->first;
@@ -304,8 +309,8 @@ void AudioStreamData::setRelayPayloads(const SdpMedia& m, RelayController* ctrl)
   ctrl->computeRelayMask(m, relay_enabled, relay_mask);
 }
 
-void AudioStreamData::setRelayDestination(const std::string& connection_address,
-                                          int                port)
+void AudioStreamData::setRelayDestination(const string& connection_address,
+                                          int           port)
 {
   relay_address = connection_address;
   relay_port    = port;
@@ -357,10 +362,10 @@ void AudioStreamData::setDtmfSink(AmDtmfSink* dtmf_sink)
                                      stream->getSampleRate());
 
     if (!enable_dtmf_transcoding && lowfi_payloads.size()) {
-      std::string selected_payload_name =
+      string selected_payload_name =
           stream->getPayloadName(stream->getPayloadType());
 
-      for (std::vector<SdpPayload>::iterator it = lowfi_payloads.begin();
+      for (vector<SdpPayload>::iterator it = lowfi_payloads.begin();
            it != lowfi_payloads.end(); it++) {
         DBG("checking %s/%i PL type against %s/%i\n",
             selected_payload_name.c_str(), stream->getPayloadType(),
@@ -798,9 +803,9 @@ bool AmB2BMedia::canRelay(const SdpMedia& m)
 
 void AmB2BMedia::createStreams(const AmSdp& sdp)
 {
-  AudioStreamIterator                   astreams = audio.begin();
-  RelayStreamIterator                   rstreams = relay_streams.begin();
-  std::vector<SdpMedia>::const_iterator m        = sdp.media.begin();
+  AudioStreamIterator              astreams = audio.begin();
+  RelayStreamIterator              rstreams = relay_streams.begin();
+  vector<SdpMedia>::const_iterator m        = sdp.media.begin();
 
   int  idx          = 0;
   bool create_audio = astreams == audio.end();
@@ -833,9 +838,9 @@ void AmB2BMedia::createStreams(const AmSdp& sdp)
   }
 }
 
-void AmB2BMedia::replaceConnectionAddress(
-    AmSdp& parser_sdp, bool a_leg, const std::string& relay_address,
-    const std::string& relay_public_address)
+void AmB2BMedia::replaceConnectionAddress(AmSdp& parser_sdp, bool a_leg,
+                                          const string& relay_address,
+                                          const string& relay_public_address)
 {
   AmLock lock(mutex);
 
@@ -852,12 +857,12 @@ void AmB2BMedia::replaceConnectionAddress(
   // we need to create streams if they are not already created
   createStreams(parser_sdp);
 
-  std::string replaced_ports;
+  string replaced_ports;
 
   AudioStreamIterator audio_stream_it = audio.begin();
   RelayStreamIterator relay_stream_it = relay_streams.begin();
 
-  std::vector<SdpMedia>::iterator it = parser_sdp.media.begin();
+  vector<SdpMedia>::iterator it = parser_sdp.media.begin();
   for (; it != parser_sdp.media.end(); it++) {
     // FIXME: only UDP streams are handled for now
     if (it->type == MT_AUDIO) {
@@ -888,9 +893,9 @@ void AmB2BMedia::replaceConnectionAddress(
           if (!replaced_ports.empty()) replaced_ports += "/";
           replaced_ports += int2str(it->port);
         }
-        catch (const std::string& s) {
+        catch (const string& s) {
           ERROR("setting port: '%s'\n", s.c_str());
-          throw std::string("error setting RTP port\n");
+          throw string("error setting RTP port\n");
         }
       }
       ++audio_stream_it;
@@ -927,9 +932,9 @@ void AmB2BMedia::replaceConnectionAddress(
           if (!replaced_ports.empty()) replaced_ports += "/";
           replaced_ports += int2str(it->port);
         }
-        catch (const std::string& s) {
+        catch (const string& s) {
           ERROR("setting port: '%s'\n", s.c_str());
-          throw std::string("error setting RTP port\n");
+          throw string("error setting RTP port\n");
         }
       }
       ++relay_stream_it;
@@ -1058,7 +1063,7 @@ void AmB2BMedia::updateAudioStreams()
 }
 
 void AmB2BMedia::updateRelayStream(AmRtpStream* stream, AmB2BSession* session,
-                                   const std::string& connection_address,
+                                   const string&   connection_address,
                                    const SdpMedia& m, AmRtpStream* relay_to)
 {
   static const PayloadMask true_mask(true);
@@ -1098,7 +1103,7 @@ void AmB2BMedia::updateStreams(bool a_leg, const AmSdp& local_sdp,
               : (b ? b->getLocalTag().c_str() : "NULL"),
         a_leg ? 'A' : 'B');
 
-  /*std::string s;
+  /*string s;
   local_sdp.print(s);
   INFO("local SDP: %s\n", s.c_str());
   remote_sdp.print(s);
@@ -1132,9 +1137,9 @@ void AmB2BMedia::updateStreams(bool a_leg, const AmSdp& local_sdp,
 
   AudioStreamIterator astream = audio.begin();
   RelayStreamIterator rstream = relay_streams.begin();
-  for (std::vector<SdpMedia>::const_iterator m = remote_sdp.media.begin();
+  for (vector<SdpMedia>::const_iterator m = remote_sdp.media.begin();
        m != remote_sdp.media.end(); m++) {
-    const std::string& connection_address =
+    const string& connection_address =
         (m->conn.address.empty() ? remote_sdp.conn.address : m->conn.address);
 
     if (m->type == MT_AUDIO) {
@@ -1204,8 +1209,8 @@ bool AmB2BMedia::replaceOffer(AmSdp& sdp, bool a_leg)
 
   try {
     AudioStreamIterator as = audio.begin();
-    for (std::vector<SdpMedia>::iterator m = sdp.media.begin();
-         m != sdp.media.end(); m++) {
+    for (vector<SdpMedia>::iterator m = sdp.media.begin(); m != sdp.media.end();
+         m++) {
       if (m->type == MT_AUDIO && as != audio.end()) {
         // generate our local offer
         TRACE("... making audio stream offer\n");
@@ -1313,8 +1318,8 @@ void AmB2BMedia::createHoldAnswer(bool a_leg, const AmSdp& offer, AmSdp& answer,
     }
   }
 
-  AudioStreamIterator                   i = audio.begin();
-  std::vector<SdpMedia>::const_iterator m;
+  AudioStreamIterator              i = audio.begin();
+  vector<SdpMedia>::const_iterator m;
   for (m = offer.media.begin(); m != offer.media.end(); m++) {
     answer.media.push_back(SdpMedia());
     SdpMedia& media = answer.media.back();

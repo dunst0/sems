@@ -36,6 +36,11 @@
 
 #include <assert.h>
 
+using std::string;
+using std::map;
+using std::make_pair;
+using std::vector;
+
 #define skip_line                                                              \
   while (cmp_body_length && *cmp_body_begin != '\n') {                         \
     cmp_body_begin++;                                                          \
@@ -47,8 +52,8 @@
   }
 
 // helpers
-static const std::string sdp_content_type(SIP_APPLICATION_SDP);
-static const std::string empty;
+static const string sdp_content_type(SIP_APPLICATION_SDP);
+static const string empty;
 
 //
 // helper functions
@@ -78,8 +83,8 @@ static void errCode2RelayedReply(AmSipReply& reply, int err_code,
 // AmB2BSession methods
 //
 
-AmB2BSession::AmB2BSession(const std::string& other_local_tag,
-                           AmSipDialog* p_dlg, AmSipSubscription* p_subs)
+AmB2BSession::AmB2BSession(const string& other_local_tag, AmSipDialog* p_dlg,
+                           AmSipSubscription* p_subs)
     : AmSession(p_dlg)
     , other_id(other_local_tag)
     , sip_relay_only(true)
@@ -104,7 +109,7 @@ AmB2BSession::~AmB2BSession()
 
   DBG("relayed_req.size() = %zu\n", relayed_req.size());
 
-  std::map<int, AmSipRequest>::iterator it = recvd_req.begin();
+  map<int, AmSipRequest>::iterator it = recvd_req.begin();
   DBG("recvd_req.size() = %zu\n", recvd_req.size());
   for (; it != recvd_req.end(); it++) {
     DBG("  <%i,%s>\n", it->first, it->second.method.c_str());
@@ -155,7 +160,7 @@ void AmB2BSession::finalize()
   AmSession::finalize();
 }
 
-void AmB2BSession::relayError(const std::string& method, unsigned int cseq,
+void AmB2BSession::relayError(const string& method, unsigned int cseq,
                               bool forward, int err_code)
 {
   if (method != "ACK") {
@@ -170,7 +175,7 @@ void AmB2BSession::relayError(const std::string& method, unsigned int cseq,
   }
 }
 
-void AmB2BSession::relayError(const std::string& method, unsigned int cseq,
+void AmB2BSession::relayError(const string& method, unsigned int cseq,
                               bool forward, int sip_code, const char* reason)
 {
   if (method != "ACK") {
@@ -254,7 +259,7 @@ void AmB2BSession::onB2BEvent(B2BEvent* ev)
           reply_ev->reply.body.getCTStr().c_str());
 
       if (reply_ev->forward) {
-        std::map<int, AmSipRequest>::iterator t_req =
+        map<int, AmSipRequest>::iterator t_req =
             recvd_req.find(reply_ev->reply.cseq);
 
         if (t_req != recvd_req.end()) {
@@ -323,7 +328,7 @@ void AmB2BSession::onB2BEvent(B2BEvent* ev)
 bool AmB2BSession::getMappedReferID(unsigned int  refer_id,
                                     unsigned int& mapped_id) const
 {
-  std::map<unsigned int, unsigned int>::const_iterator id_it =
+  map<unsigned int, unsigned int>::const_iterator id_it =
       refer_id_map.find(refer_id);
   if (id_it != refer_id_map.end()) {
     mapped_id = id_it->second;
@@ -367,9 +372,9 @@ void AmB2BSession::onSipRequest(const AmSipRequest& req)
         r_ev->req.r_uri.c_str());
 
     if (r_ev->req.method == SIP_METH_NOTIFY) {
-      std::string event = getHeader(r_ev->req.hdrs, SIP_HDR_EVENT, true);
-      std::string id    = get_header_param(event, "id");
-      event             = strip_header_params(event);
+      string event = getHeader(r_ev->req.hdrs, SIP_HDR_EVENT, true);
+      string id    = get_header_param(event, "id");
+      event        = strip_header_params(event);
 
       if (event == "refer" && !id.empty()) {
         int id_int = 0;
@@ -389,7 +394,7 @@ void AmB2BSession::onSipRequest(const AmSipRequest& req)
     if (res == 0) {
       // successfuly relayed, store the request
       if (req.method != SIP_METH_ACK) {
-        recvd_req.insert(std::make_pair(req.cseq, req));
+        recvd_req.insert(make_pair(req.cseq, req));
       }
     }
     else {
@@ -447,7 +452,7 @@ void AmB2BSession::updateLocalBody(AmMimeBody& body)
   updateLocalSdp(parser_sdp);
 
   // regenerate SDP
-  std::string n_body;
+  string n_body;
   parser_sdp.print(n_body);
   sdp->parse(sdp->getCTStr(), (const unsigned char*) n_body.c_str(),
              n_body.length());
@@ -751,7 +756,7 @@ int AmB2BSession::sendEstablishedReInvite()
     updateLocalBody(body);
     return dlg->reinvite("", &body, SIP_FLAGS_VERBATIM);
   }
-  catch (const std::string& s) {
+  catch (const string& s) {
     ERROR("sending established SDP reinvite: %s\n", s.c_str());
   }
 
@@ -790,8 +795,8 @@ int AmB2BSession::relaySip(const AmSipRequest& req)
   if (req.method != "ACK") {
     relayed_req[dlg->cseq] = req;
 
-    const std::string* hdrs = &req.hdrs;
-    std::string        m_hdrs;
+    const string* hdrs = &req.hdrs;
+    string        m_hdrs;
 
     // translate RAck for PRACK
     if (req.method == SIP_METH_PRACK && req.rseq) {
@@ -856,9 +861,9 @@ int AmB2BSession::relaySip(const AmSipRequest& req)
 
 int AmB2BSession::relaySip(const AmSipRequest& orig, const AmSipReply& reply)
 {
-  const std::string* hdrs = &reply.hdrs;
-  std::string        m_hdrs;
-  const std::string  method(orig.method);
+  const string* hdrs = &reply.hdrs;
+  string        m_hdrs;
+  const string  method(orig.method);
 
   if (reply.rseq != 0) {
     m_hdrs =
@@ -936,12 +941,12 @@ void AmB2BSession::setEnableDtmfRtpDetection(bool enable)
   enable_dtmf_rtp_detection = enable;
 }
 
-void AmB2BSession::getLowFiPLs(std::vector<SdpPayload>& lowfi_payloads) const
+void AmB2BSession::getLowFiPLs(vector<SdpPayload>& lowfi_payloads) const
 {
   lowfi_payloads = this->lowfi_payloads;
 }
 
-void AmB2BSession::setLowFiPLs(const std::vector<SdpPayload>& lowfi_payloads)
+void AmB2BSession::setLowFiPLs(const vector<SdpPayload>& lowfi_payloads)
 {
   this->lowfi_payloads = lowfi_payloads;
 }
@@ -973,7 +978,7 @@ void AmB2BSession::computeRelayMask(const SdpMedia& m, bool& enable,
   mask.clear();
 
   // walk through the media lines and find the telephone-event payload
-  for (std::vector<SdpPayload>::const_iterator i = m.payloads.begin();
+  for (vector<SdpPayload>::const_iterator i = m.payloads.begin();
        i != m.payloads.end(); i++) {
     // do not mark telephone-event payload for relay
     if (!strcasecmp("telephone-event", i->encoding_name.c_str())) {
@@ -1187,9 +1192,9 @@ void AmB2BCallerSession::onBye(const AmSipRequest& req)
   AmB2BSession::onBye(req);
 }
 
-void AmB2BCallerSession::connectCallee(const std::string& remote_party,
-                                       const std::string& remote_uri,
-                                       bool               relayed_invite)
+void AmB2BCallerSession::connectCallee(const string& remote_party,
+                                       const string& remote_uri,
+                                       bool          relayed_invite)
 {
   if (callee_status != None) terminateOtherLeg();
 
@@ -1198,7 +1203,7 @@ void AmB2BCallerSession::connectCallee(const std::string& remote_party,
   if (relayed_invite) {
     // relayed INVITE - we need to add the original INVITE to
     // list of received (relayed) requests
-    recvd_req.insert(std::make_pair(invite_req.cseq, invite_req));
+    recvd_req.insert(make_pair(invite_req.cseq, invite_req));
 
     // in SIP relay mode from the beginning
     sip_relay_only = true;
@@ -1294,7 +1299,7 @@ void AmB2BCallerSession::initializeRTPRelay(AmB2BCalleeSession* callee_session)
   }
 }
 
-AmB2BCalleeSession::AmB2BCalleeSession(const std::string& other_local_tag)
+AmB2BCalleeSession::AmB2BCalleeSession(const string& other_local_tag)
     : AmB2BSession(other_local_tag)
 {
   a_leg = false;
@@ -1334,7 +1339,7 @@ void AmB2BCalleeSession::onB2BEvent(B2BEvent* ev)
     try {
       updateLocalBody(body);
     }
-    catch (const std::string& s) {
+    catch (const string& s) {
       relayError(SIP_METH_INVITE, co_ev->r_cseq, co_ev->relayed_invite, 500,
                  SIP_REPLY_SERVER_INTERNAL_ERROR);
       throw;

@@ -32,7 +32,9 @@
 
 #include <string.h>
 
-AmAudioFileFormat::AmAudioFileFormat(const std::string& name, int subtype)
+using std::string;
+
+AmAudioFileFormat::AmAudioFileFormat(const string& name, int subtype)
     : name(name)
     , subtype(subtype)
     , p_subtype(0)
@@ -49,7 +51,7 @@ AmAudioFileFormat::AmAudioFileFormat(const std::string& name, int subtype)
       subtype, rate, channels);
 }
 
-AmAudioFileFormat::AmAudioFileFormat(const std::string& name, int subtype,
+AmAudioFileFormat::AmAudioFileFormat(const string& name, int subtype,
                                      amci_subtype_t* p_subtype)
     : name(name)
     , subtype(subtype)
@@ -110,10 +112,10 @@ amci_subtype_t* AmAudioFileFormat::getSubtype()
   return p_subtype;
 }
 
-AmAudioFileFormat* AmAudioFile::fileName2Fmt(const std::string& name,
-                                             const std::string& subtype)
+AmAudioFileFormat* AmAudioFile::fileName2Fmt(const string& name,
+                                             const string& subtype)
 {
-  std::string ext = file_extension(name);
+  string ext = file_extension(name);
   if (ext == "") {
     ERROR("fileName2Fmt: file name has no extension (%s)\n", name.c_str());
     return NULL;
@@ -148,10 +150,10 @@ int AmAudioFileFormat::getCodecId()
   return -1;
 }
 
-std::string AmAudioFile::getSubtype(std::string& filename)
+string AmAudioFile::getSubtype(string& filename)
 {
-  std::string res;
-  size_t      dpos = filename.rfind('|');
+  string res;
+  size_t dpos = filename.rfind('|');
   if (dpos != string::npos) {
     res      = filename.substr(dpos + 1);
     filename = filename.substr(0, dpos);
@@ -161,7 +163,7 @@ std::string AmAudioFile::getSubtype(std::string& filename)
 
 // returns 0 if everything's OK
 // return -1 if error
-int AmAudioFile::open(const std::string& filename, OpenMode mode, bool is_tmp)
+int AmAudioFile::open(const string& filename, OpenMode mode, bool is_tmp)
 {
   close();
 
@@ -170,8 +172,8 @@ int AmAudioFile::open(const std::string& filename, OpenMode mode, bool is_tmp)
 
   FILE* n_fp = NULL;
 
-  std::string f_name  = filename;
-  std::string subtype = getSubtype(f_name);
+  string f_name  = filename;
+  string subtype = getSubtype(f_name);
 
   if (!is_tmp) {
     n_fp = fopen(f_name.c_str(), mode == AmAudioFile::Read ? "r" : "w+");
@@ -194,17 +196,17 @@ int AmAudioFile::open(const std::string& filename, OpenMode mode, bool is_tmp)
   return fpopen_int(f_name, mode, n_fp, subtype);
 }
 
-int AmAudioFile::fpopen(const std::string& filename, OpenMode mode, FILE* n_fp)
+int AmAudioFile::fpopen(const string& filename, OpenMode mode, FILE* n_fp)
 {
   close();
-  on_close_done       = false;
-  std::string f_name  = filename;
-  std::string subtype = getSubtype(f_name);
+  on_close_done  = false;
+  string f_name  = filename;
+  string subtype = getSubtype(f_name);
   return fpopen_int(f_name, mode, n_fp, subtype);
 }
 
-int AmAudioFile::fpopen_int(const std::string& filename, OpenMode mode,
-                            FILE* n_fp, const std::string& subtype)
+int AmAudioFile::fpopen_int(const string& filename, OpenMode mode, FILE* n_fp,
+                            const string& subtype)
 {
   AmAudioFileFormat* f_fmt = fileName2Fmt(filename, subtype);
   if (!f_fmt) {
@@ -365,7 +367,7 @@ void AmAudioFile::close()
   }
 }
 
-std::string AmAudioFile::getMimeType()
+string AmAudioFile::getMimeType()
 {
   if (!iofmt) return "";
 
