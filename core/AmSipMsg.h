@@ -1,5 +1,6 @@
 #ifndef __AMSIPMSG_H__
 #define __AMSIPMSG_H__
+
 #include "AmArg.h"
 #include "AmMimeBody.h"
 

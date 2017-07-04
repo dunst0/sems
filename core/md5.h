@@ -1,6 +1,5 @@
 /* MD5.H - header file for MD5C.C*/
 
-
 /* Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All
 rights reserved.
 
@@ -29,13 +28,14 @@ documentation and/or software.
 #include "md5global.h"
 
 /* MD5 context. */
-typedef struct {
-  UINT4 state[4];                                   /* state (ABCD) */
-  UINT4 count[2];        /* number of bits, modulo 2^64 (lsb first) */
-  unsigned char buffer[64];                         /* input buffer */
+typedef struct
+{
+  UINT4         state[4];   /* state (ABCD) */
+  UINT4         count[2];   /* number of bits, modulo 2^64 (lsb first) */
+  unsigned char buffer[64]; /* input buffer */
 } MD5_CTX;
 
-void MD5Init(MD5_CTX *);
-void MD5Update(MD5_CTX *, unsigned char *, unsigned int);
-void MD5Final(unsigned char [16], MD5_CTX *);
+void MD5Init(MD5_CTX*);
+void MD5Update(MD5_CTX*, unsigned char*, unsigned int);
+void MD5Final(unsigned char[16], MD5_CTX*);
 #endif /* MD5_H */

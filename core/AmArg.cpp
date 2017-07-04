@@ -403,6 +403,9 @@ bool operator==(const AmArg& lhs, const AmArg& rhs)
     case AmArg::Undef: return true;
     default: assert(0);
   }
+
+  /* should be never reached, makes compiler happy */
+  return true;
 }
 
 bool AmArg::hasMember(const char* name) const

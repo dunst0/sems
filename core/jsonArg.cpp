@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 TelTech Systems Inc.
- * 
+ *
  * This file is part of SEMS, a free SIP media server.
  *
  * SEMS is free software; you can redistribute it and/or modify
@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -37,123 +37,101 @@ using namespace jsonxx;
 
 #include <sstream>
 
-const char *hex_chars = "0123456789abcdef";
+const char* hex_chars = "0123456789abcdef";
 
-string str2json(const char* str)
-{
-  return str2json(str,strlen(str));
-}
+string str2json(const char* str) { return str2json(str, strlen(str)); }
 
 string str2json(const string& str)
 {
-  return str2json(str.c_str(),str.length());
+  return str2json(str.c_str(), str.length());
 }
 
 string str2json(const char* str, size_t len)
 {
-    // borrowed from jsoncpp
-    // Not sure how to handle unicode...
-    if (strpbrk(str, "\"\\\b\f\n\r\t") == NULL)
-      return string("\"") + str + "\"";
-    // We have to walk value and escape any special characters.
-    // Appending to std::string is not efficient, but this should be rare.
-    // (Note: forward slashes are *not* rare, but I am not escaping them.)
-    unsigned maxsize = len*2 + 3; // allescaped+quotes+NULL
-    std::string result;
-    result.reserve(maxsize); // to avoid lots of mallocs
-    result += "\"";
-    const char* end = str + len;
-    for (const char* c = str; (c != end) && (*c != 0); ++c){
-      switch(*c){
-      case '\"':
-	result += "\\\"";
-	break;
-      case '\\':
-	result += "\\\\";
-	break;
-      case '\b':
-	result += "\\b";
-	break;
-      case '\f':
-	 result += "\\f";
-	 break;
-      case '\n':
-	result += "\\n";
-	break;
-      case '\r':
-	result += "\\r";
-	break;
-      case '\t':
-	result += "\\t";
-	break;
+  // borrowed from jsoncpp
+  // Not sure how to handle unicode...
+  if (strpbrk(str, "\"\\\b\f\n\r\t") == NULL) return string("\"") + str + "\"";
+  // We have to walk value and escape any special characters.
+  // Appending to std::string is not efficient, but this should be rare.
+  // (Note: forward slashes are *not* rare, but I am not escaping them.)
+  unsigned    maxsize = len * 2 + 3; // allescaped+quotes+NULL
+  std::string result;
+  result.reserve(maxsize); // to avoid lots of mallocs
+  result += "\"";
+  const char* end = str + len;
+  for (const char* c = str; (c != end) && (*c != 0); ++c) {
+    switch (*c) {
+      case '\"': result += "\\\""; break;
+      case '\\': result += "\\\\"; break;
+      case '\b': result += "\\b"; break;
+      case '\f': result += "\\f"; break;
+      case '\n': result += "\\n"; break;
+      case '\r': result += "\\r"; break;
+      case '\t': result += "\\t"; break;
       case '/':
-	// Even though \/ is considered a legal escape in JSON, a bare
-	// slash is also legal, so I see no reason to escape it.
-	// (I hope I am not misunderstanding something.)
-      default:{
-	if (*c < ' ') 
-	  result += "\\u00" + string() + hex_chars[*c >> 4] + string() + hex_chars[*c & 0xf];
-	else 
-	  result += *c;
+      // Even though \/ is considered a legal escape in JSON, a bare
+      // slash is also legal, so I see no reason to escape it.
+      // (I hope I am not misunderstanding something.)
+      default: {
+        if (*c < ' ')
+          result += "\\u00" + string() + hex_chars[*c >> 4] + string()
+                    + hex_chars[*c & 0xf];
+        else
+          result += *c;
       } break;
-      }
     }
-    result += "\"";
-    return result;
+  }
+  result += "\"";
+  return result;
 }
 
-string arg2json(const AmArg &a) {
+string arg2json(const AmArg& a)
+{
   // TODO: optimize to avoid lots of mallocs
-  // TODO: how to get a bool? 
+  // TODO: how to get a bool?
   string s;
   switch (a.getType()) {
-  case AmArg::Undef:
-    return "null";
+    case AmArg::Undef: return "null";
 
-  case AmArg::Int:
-    return a.asInt()<0?"-"+int2str(abs(a.asInt())):int2str(abs(a.asInt()));
+    case AmArg::Int:
+      return a.asInt() < 0 ? "-" + int2str(abs(a.asInt()))
+                           : int2str(abs(a.asInt()));
 
-  case AmArg::LongLong:
-    return longlong2str(a.asLongLong());
+    case AmArg::LongLong: return longlong2str(a.asLongLong());
 
-  case AmArg::Bool:
-    return a.asBool()?"true":"false";
+    case AmArg::Bool: return a.asBool() ? "true" : "false";
 
-  case AmArg::Double: 
-    return double2str(a.asDouble());
+    case AmArg::Double: return double2str(a.asDouble());
 
-  case AmArg::CStr:
-    return str2json(a.asCStr());
+    case AmArg::CStr: return str2json(a.asCStr());
 
-  case AmArg::Array:
-    s = "[";
-    for (size_t i = 0; i < a.size(); i ++)
-      s += arg2json(a[i]) + ", ";
-    if (1 < s.size()) 
-      s.resize(s.size() - 2); // strip last ", "
-    s += "]";
-    return s;
+    case AmArg::Array:
+      s = "[";
+      for (size_t i = 0; i < a.size(); i++) s += arg2json(a[i]) + ", ";
+      if (1 < s.size()) s.resize(s.size() - 2); // strip last ", "
+      s += "]";
+      return s;
 
-  case AmArg::Struct:
-    s = "{";
-    for (AmArg::ValueStruct::const_iterator it = a.asStruct()->begin();
-	 it != a.asStruct()->end(); it ++) {
-      s += '"'+it->first + "\": ";
-      s += arg2json(it->second);
-      s += ", ";
-    }
-    if (1 < s.size())
-      s.resize(s.size() - 2); // strip last ", "
-    s += "}";
-    return s;
-  default: break;
+    case AmArg::Struct:
+      s = "{";
+      for (AmArg::ValueStruct::const_iterator it = a.asStruct()->begin();
+           it != a.asStruct()->end(); it++) {
+        s += '"' + it->first + "\": ";
+        s += arg2json(it->second);
+        s += ", ";
+      }
+      if (1 < s.size()) s.resize(s.size() - 2); // strip last ", "
+      s += "}";
+      return s;
+    default: break;
   }
 
   return "{}";
 }
 
 // based on jsonxx
-bool array_parse(std::istream& input, AmArg& res) {
+bool array_parse(std::istream& input, AmArg& res)
+{
   if (!match("[", input)) {
     return false;
   }
@@ -167,14 +145,14 @@ bool array_parse(std::istream& input, AmArg& res) {
   do {
     res.push(AmArg());
     AmArg v;
-    if (!json2arg(input, res.get(res.size()-1))) {
+    if (!json2arg(input, res.get(res.size() - 1))) {
       res.clear();
       return false;
       res.pop_back();
       break; // TODO: return false????
     }
   } while (match(",", input));
-  
+
   if (!match("]", input)) {
     res.clear();
     return false;
@@ -182,7 +160,8 @@ bool array_parse(std::istream& input, AmArg& res) {
   return true;
 }
 
-bool object_parse(std::istream& input, AmArg& res) {
+bool object_parse(std::istream& input, AmArg& res)
+{
   if (!match("{", input)) {
     return false;
   }
@@ -196,8 +175,8 @@ bool object_parse(std::istream& input, AmArg& res) {
   do {
     std::string key;
     if (!parse_string(input, &key)) {
-      if (match("}",input,true)) {          
-	return true;
+      if (match("}", input, true)) {
+        return true;
       }
       res.clear();
       return false;
@@ -212,7 +191,7 @@ bool object_parse(std::istream& input, AmArg& res) {
       return false;
     }
   } while (match(",", input));
-  
+
   if (!match("}", input)) {
     res.clear();
     return false;
@@ -221,18 +200,20 @@ bool object_parse(std::istream& input, AmArg& res) {
   return true;
 }
 
-bool json2arg(const std::string& input, AmArg& res) {
+bool json2arg(const std::string& input, AmArg& res)
+{
   std::istringstream iss(input);
   return json2arg(iss, res);
 }
 
-bool json2arg(const char* input, AmArg& res) {
+bool json2arg(const char* input, AmArg& res)
+{
   std::istringstream iss(input);
   return json2arg(iss, res);
 }
 
-bool json2arg(std::istream& input, AmArg& res) {
-
+bool json2arg(std::istream& input, AmArg& res)
+{
   res.clear();
 
   std::string string_value;
@@ -250,7 +231,7 @@ bool json2arg(std::istream& input, AmArg& res) {
     res.type = AmArg::Int;
     return true;
   }
-  
+
   if (parse_bool(input, &res.v_bool)) {
     res.type = AmArg::Bool;
     return true;
@@ -265,7 +246,7 @@ bool json2arg(std::istream& input, AmArg& res) {
   }
 
   if (object_parse(input, res)) {
-     return true;
+    return true;
   }
 
   res.clear();

@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmThread.h */
-#ifndef _AmThread_h_
-#define _AmThread_h_
+
+#ifndef __AMTHREAD_H__
+#define __AMTHREAD_H__
 
 #include <errno.h>
 #include <pthread.h>
@@ -169,7 +170,7 @@ template <class T> class AmCondition
   }
 
   /** Waits for the condition to be true or a timeout. */
-  bool wait_for_to(unsigned long msec)
+  bool wait_for_to(unsigned long int msec)
   {
     struct timeval  now;
     struct timespec timeout;
@@ -280,7 +281,3 @@ template <class T> class AmThreadLocalStorage
 };
 
 #endif
-
-// Local Variables:
-// mode:C++
-// End:

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 TelTech Systems Inc.
- * 
+ *
  * This file is part of SEMS, a free SIP media server.
  *
  * SEMS is free software; you can redistribute it and/or modify
@@ -20,22 +20,22 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef _jsonArg_h_
 #define _jsonArg_h_
-#include <string>
-#include <iostream>
 #include "AmArg.h"
+#include <iostream>
+#include <string>
 
 std::string str2json(const char* str);
 std::string str2json(const std::string& str);
 std::string str2json(const char* str, size_t len);
 
-string arg2json(const AmArg &a);
+string arg2json(const AmArg& a);
 
 /** @return true on success */
 bool json2arg(std::istream& input, AmArg& res);
