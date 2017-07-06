@@ -32,8 +32,8 @@
 #include "AmEventQueue.h"
 #include "amci/amci.h" // AUDIO_BUFFER_SIZE
 
-#include <set>
 #include <map>
+#include <set>
 
 struct SchedRequest;
 
@@ -163,9 +163,9 @@ class AmMediaProcessorThread
     : public AmThread
     , public AmEventHandler
 {
-  AmEventQueue         events;
-  unsigned char        buffer[AUDIO_BUFFER_SIZE];
-  set<AmMediaSession*> sessions;
+  AmEventQueue              events;
+  unsigned char             buffer[AUDIO_BUFFER_SIZE];
+  std::set<AmMediaSession*> sessions;
 
   void processAudio(unsigned long long int ts);
   /**

@@ -280,12 +280,12 @@ class AmArg : public AmObject
   ArgBlob*     asBlob() const { return v_blob; }
   ValueStruct* asStruct() const { return v_struct; }
 
-  std::vector<std::string>    asStringVector() const;
-  std::vector<int>       asIntVector() const;
-  std::vector<bool>      asBoolVector() const;
-  std::vector<double>    asDoubleVector() const;
-  std::vector<AmObject*> asAmObjectVector() const;
-  std::vector<ArgBlob>   asArgBlobVector() const;
+  std::vector<std::string> asStringVector() const;
+  std::vector<int>         asIntVector() const;
+  std::vector<bool>        asBoolVector() const;
+  std::vector<double>      asDoubleVector() const;
+  std::vector<AmObject*>   asAmObjectVector() const;
+  std::vector<ArgBlob>     asArgBlobVector() const;
 
   // operations on arrays
   void assertArray(size_t s);
@@ -331,7 +331,7 @@ class AmArg : public AmObject
   bool hasMember(const std::string& name) const;
   bool hasMember(const char* name) const;
 
-  std::vector<std::string>              enumerateKeys() const;
+  std::vector<std::string>    enumerateKeys() const;
   ValueStruct::const_iterator begin() const;
   ValueStruct::const_iterator end() const;
 

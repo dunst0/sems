@@ -97,8 +97,7 @@ void AmMediaProcessor::addSession(AmMediaSession* s, const string& callgroup)
   group_mut.lock();
 
   // callgroup already in a thread?
-  map<string, unsigned int>::iterator it =
-      callgroup2thread.find(callgroup);
+  map<string, unsigned int>::iterator it = callgroup2thread.find(callgroup);
   if (it != callgroup2thread.end()) {
     // yes, use it
     sched_thread = it->second;
