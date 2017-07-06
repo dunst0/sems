@@ -37,6 +37,7 @@
 using std::ifstream;
 using std::map;
 using std::string;
+using std::vector;
 
 unsigned int precoded_bytes2samples(long int h_codec, unsigned int num_bytes)
 {
