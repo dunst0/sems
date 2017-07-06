@@ -333,7 +333,7 @@ syntax_error:
 
 bool AmConfigReader::getMD5(const string& path, string& md5hash, bool lowercase)
 {
-  ifstream data_file(path.c_str(), ios::in | ::binary);
+  ifstream data_file(path.c_str(), ios::in | ios::binary);
 
   if (!data_file) {
     DBG("could not read file '%s'\n", path.c_str());
