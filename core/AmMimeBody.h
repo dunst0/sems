@@ -4,12 +4,7 @@
 #include "AmArg.h"
 
 #include <list>
-#include <map>
 #include <string>
-
-using std::string;
-using std::list;
-using std::map;
 
 struct AmContentType
 {
@@ -22,11 +17,11 @@ struct AmContentType
       OTHER
     };
 
-    Type   type;
-    string name;
-    string value;
+    Type        type;
+    std::string name;
+    std::string value;
 
-    Param(const string& name, const string& value)
+    Param(const std::string& name, const std::string& value)
         : type(UNPARSED)
         , name(name)
         , value(value)
@@ -36,12 +31,12 @@ struct AmContentType
     int parseType();
   };
 
-  typedef list<Param*> Params;
+  typedef std::list<Param*> Params;
 
-  string type;
-  string subtype;
-  Params params;
-  Param* mp_boundary;
+  std::string type;
+  std::string subtype;
+  Params      params;
+  Param*      mp_boundary;
 
   AmContentType();
   AmContentType(const AmContentType& ct);
@@ -49,21 +44,21 @@ struct AmContentType
 
   const AmContentType& operator=(const AmContentType& r_ct);
 
-  int parse(const string& ct);
+  int parse(const std::string& ct);
   int parseParams(const char* c, const char* end);
 
-  void setType(const string& t);
-  void setSubType(const string& st);
+  void setType(const std::string& t);
+  void setSubType(const std::string& st);
 
-  bool isType(const string& t) const;
-  bool isSubType(const string& st) const;
-  bool hasContentType(const string& content_type) const;
+  bool isType(const std::string& t) const;
+  bool isSubType(const std::string& st) const;
+  bool hasContentType(const std::string& content_type) const;
 
   /** get content-type without any parameters */
-  string getStr() const;
+  std::string getStr() const;
 
   /** get content-type with parameters */
-  string getHdr() const;
+  std::string getHdr() const;
 
   /** Clear and free param list */
   void clearParams();
@@ -75,11 +70,11 @@ struct AmContentType
 class AmMimeBody : public AmObject
 {
  public:
-  typedef list<AmMimeBody*> Parts;
+  typedef std::list<AmMimeBody*> Parts;
 
  private:
   AmContentType  ct;
-  string         hdrs;
+  std::string    hdrs;
   unsigned int   content_len;
   unsigned char* payload;
 
@@ -110,38 +105,38 @@ class AmMimeBody : public AmObject
   const AmMimeBody& operator=(const AmMimeBody& r_body);
 
   /** Parse a body (single & multi-part) */
-  int parse(const string& content_type, const unsigned char* buf,
+  int parse(const std::string& content_type, const unsigned char* buf,
             unsigned int len);
 
   /** Set the payload of this body */
   void setPayload(const unsigned char* buf, unsigned int len);
 
   /** Set part headers (intended for sub-parts)*/
-  void setHeaders(const string& hdrs);
+  void setHeaders(const std::string& hdrs);
 
   /**
    * Add a new part to this body, possibly
    * converting to multi-part if necessary.
    * @return a pointer to the new empty part.
    */
-  AmMimeBody* addPart(const string& content_type);
+  AmMimeBody* addPart(const std::string& content_type);
 
   /**
    * Delete a body part, converting resulting body to single-part if necessary.
    */
-  int deletePart(const string& content_type);
+  int deletePart(const std::string& content_type);
 
   /** Get content-type without any parameters */
-  string getCTStr() const { return ct.getStr(); }
+  std::string getCTStr() const { return ct.getStr(); }
 
   /** Get content-type with parameters */
-  string getCTHdr() const { return ct.getHdr(); }
+  std::string getCTHdr() const { return ct.getHdr(); }
 
   /** @return the list of sub-parts */
   const Parts& getParts() const { return parts; }
 
   /** @return the sub-part headers */
-  const string& getHeaders() const { return hdrs; }
+  const std::string& getHeaders() const { return hdrs; }
 
   /**
    * @return a pointer to the payload of this part.
@@ -159,27 +154,27 @@ class AmMimeBody : public AmObject
   bool empty() const;
 
   /** @return true if this part has the provided content-type */
-  bool isContentType(const string& content_type) const;
+  bool isContentType(const std::string& content_type) const;
 
   /**
    * @return a pointer to a part of the coresponding
    *         content-type (if available).
    *         This could be a pointer to this body.
    */
-  AmMimeBody* hasContentType(const string& content_type);
+  AmMimeBody* hasContentType(const std::string& content_type);
 
   /**
    * @return a const pointer to a part of the coresponding
    *         content-type (if available).
    *         This could be a pointer to this body.
    */
-  const AmMimeBody* hasContentType(const string& content_type) const;
+  const AmMimeBody* hasContentType(const std::string& content_type) const;
 
   /**
    * Print the body including sub-parts suitable for sending
    * within the body of a SIP message.
    */
-  void print(string& buf) const;
+  void print(std::string& buf) const;
 
   const AmContentType& getContentType() { return ct; }
   void setContentType(const AmContentType& _ct) { ct = _ct; }

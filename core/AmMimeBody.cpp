@@ -1,13 +1,16 @@
 #include "AmMimeBody.h"
+
+#include "AmUtils.h"
+#include "log.h"
 #include "sip/defs.h"
 #include "sip/parse_common.h"
 #include "sip/parse_header.h"
 
-#include "AmUtils.h"
-#include "log.h"
-
 #include <memory>
+
 using std::unique_ptr;
+using std::string;
+using std::list;
 
 #define MULTIPART "multipart"
 #define MULTIPART_MIXED "multipart/mixed"
@@ -33,7 +36,7 @@ AmMimeBody::AmMimeBody(const AmMimeBody& body)
   }
 
   for (Parts::const_iterator it = body.parts.begin(); it != body.parts.end();
-       ++it) {
+       it++) {
     parts.push_back(new AmMimeBody(**it));
   }
 }
@@ -58,7 +61,7 @@ const AmMimeBody& AmMimeBody::operator=(const AmMimeBody& r_body)
 
   clearParts();
   for (Parts::const_iterator it = r_body.parts.begin();
-       it != r_body.parts.end(); ++it) {
+       it != r_body.parts.end(); it++) {
     parts.push_back(new AmMimeBody(**it));
   }
 
@@ -76,7 +79,7 @@ AmContentType::AmContentType(const AmContentType& ct)
     , mp_boundary(NULL)
 {
   for (Params::const_iterator it = ct.params.begin(); it != ct.params.end();
-       ++it) {
+       it++) {
     params.push_back(new Param(**it));
     if ((*it)->type == Param::BOUNDARY) mp_boundary = params.back();
   }
@@ -91,7 +94,7 @@ const AmContentType& AmContentType::operator=(const AmContentType& r_ct)
 
   clearParams();
   for (Params::const_iterator it = r_ct.params.begin(); it != r_ct.params.end();
-       ++it) {
+       it++) {
     params.push_back(new Param(**it));
     if ((*it)->type == Param::BOUNDARY) mp_boundary = params.back();
   }
@@ -463,7 +466,7 @@ int AmMimeBody::parseSinglePart(unsigned char* buf, unsigned int len)
 
   string sub_part_hdrs;
   string sub_part_ct;
-  for (list<sip_header*>::iterator it = hdrs.begin(); it != hdrs.end(); ++it) {
+  for (list<sip_header*>::iterator it = hdrs.begin(); it != hdrs.end(); it++) {
     DBG("Part header: <%.*s>: <%.*s>\n", (*it)->name.len, (*it)->name.s,
         (*it)->value.len, (*it)->value.s);
 
@@ -636,7 +639,7 @@ int AmMimeBody::deletePart(const string& content_type)
     return -1;
   }
 
-  for (Parts::iterator it = parts.begin(); it != parts.end(); ++it) {
+  for (Parts::iterator it = parts.begin(); it != parts.end(); it++) {
     if ((*it)->hasContentType(content_type)) {
       clearPart(it);
       if (parts.size() == 1) convertToSinglepart();
@@ -689,7 +692,7 @@ string AmContentType::getHdr() const
   string ct = getStr();
   if (ct.empty()) return ct;
 
-  for (Params::const_iterator it = params.begin(); it != params.end(); ++it) {
+  for (Params::const_iterator it = params.begin(); it != params.end(); it++) {
     ct += ";" + (*it)->name + "=" + (*it)->value;
   }
 
@@ -707,7 +710,7 @@ AmMimeBody* AmMimeBody::hasContentType(const string& content_type)
     return this;
   }
   else if (ct.isType(MULTIPART)) {
-    for (Parts::iterator it = parts.begin(); it != parts.end(); ++it) {
+    for (Parts::iterator it = parts.begin(); it != parts.end(); it++) {
       if ((*it)->hasContentType(content_type)) {
         return *it;
       }
@@ -723,7 +726,7 @@ const AmMimeBody* AmMimeBody::hasContentType(const string& content_type) const
     return this;
   }
   else if (ct.isType(MULTIPART)) {
-    for (Parts::const_iterator it = parts.begin(); it != parts.end(); ++it) {
+    for (Parts::const_iterator it = parts.begin(); it != parts.end(); it++) {
       if ((*it)->hasContentType(content_type)) {
         return *it;
       }
@@ -744,7 +747,7 @@ void AmMimeBody::print(string& buf) const
     // if (ct.mp_boundary == NULL)
     //   ct.resetBoundary();
 
-    for (Parts::const_iterator it = parts.begin(); it != parts.end(); ++it) {
+    for (Parts::const_iterator it = parts.begin(); it != parts.end(); it++) {
       buf += "--"
              + (ct.mp_boundary != NULL ? ct.mp_boundary->value : string(""))
              + CRLF;

@@ -81,14 +81,15 @@ class AmMultiPartyMixer
 
   std::deque<MixerBufferState>::iterator
   findOrCreateBufferState(unsigned int sample_rate);
+
   std::deque<MixerBufferState>::iterator
-  findBufferStateForReading(unsigned int       sample_rate,
-                            unsigned long long last_ts);
+  findBufferStateForReading(unsigned int           sample_rate,
+                            unsigned long long int last_ts);
   void cleanupBufferStates(unsigned int last_ts);
 
-  void mix_add(int* dest, int* src1, short* src2, unsigned int size);
-  void mix_sub(int* dest, int* src1, short* src2, unsigned int size);
-  void scale(short* buffer, int* tmp_buf, unsigned int size);
+  void mix_add(int* dest, int* src1, short int* src2, unsigned int size);
+  void mix_sub(int* dest, int* src1, short int* src2, unsigned int size);
+  void scale(short int* buffer, int* tmp_buf, unsigned int size);
 
  public:
   AmMultiPartyMixer();
@@ -97,10 +98,11 @@ class AmMultiPartyMixer
   unsigned int addChannel(unsigned int external_sample_rate);
   void removeChannel(unsigned int channel_id);
 
-  void PutChannelPacket(unsigned int channel_id, unsigned long long system_ts,
-                        unsigned char* buffer, unsigned int size);
+  void PutChannelPacket(unsigned int           channel_id,
+                        unsigned long long int system_ts, unsigned char* buffer,
+                        unsigned int size);
 
-  void GetChannelPacket(unsigned int channel, unsigned long long system_ts,
+  void GetChannelPacket(unsigned int channel, unsigned long long int system_ts,
                         unsigned char* buffer, unsigned int& size,
                         unsigned int& output_sample_rate);
 
