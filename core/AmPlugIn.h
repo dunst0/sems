@@ -92,7 +92,7 @@ class AmPlugIn : public AmPayloadProvider
 
   std::map<int, amci_codec_t*>            codecs;
   std::map<int, amci_payload_t*>          payloads;
-  multimap<int, int>                      payload_order;
+  std::multimap<int, int>                 payload_order;
   std::map<std::string, amci_inoutfmt_t*> file_formats;
 
   std::map<std::string, AmSessionFactory*> name2app;

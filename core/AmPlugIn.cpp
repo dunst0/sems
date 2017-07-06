@@ -104,8 +104,7 @@ static void delete_plugin_factory(pair<string, AmPluginFactory*> pf)
 
 AmPlugIn::~AmPlugIn()
 {
-  for_each(module_objects.begin(), module_objects.end(),
-                delete_plugin_factory);
+  for_each(module_objects.begin(), module_objects.end(), delete_plugin_factory);
   for_each(name2seh.begin(), name2seh.end(), delete_plugin_factory);
   for_each(name2base.begin(), name2base.end(), delete_plugin_factory);
   for_each(name2di.begin(), name2di.end(), delete_plugin_factory);
@@ -113,7 +112,7 @@ AmPlugIn::~AmPlugIn()
 
 // if _DEBUG is set do not unload shared libs to allow better debugging
 #ifndef _DEBUG
-  for (vector<void*>::iterator it = dlls.begin(); it != dlls.end(); ++it) {
+  for (vector<void*>::iterator it = dlls.begin(); it != dlls.end(); it++) {
     dlclose(*it);
   }
 #endif
@@ -238,8 +237,7 @@ int AmPlugIn::load(const string& directory, const string& plugins)
 void AmPlugIn::registerLoggingPlugins()
 {
   // init logging facilities
-  for (map<string, AmLoggingFacility*>::iterator it =
-           name2logfac.begin();
+  for (map<string, AmLoggingFacility*>::iterator it = name2logfac.begin();
        it != name2logfac.end(); it++) {
     // register for receiving logging messages
     register_log_hook(it->second);
@@ -351,8 +349,7 @@ error:
 amci_inoutfmt_t* AmPlugIn::fileFormat(const string& fmt_name, const string& ext)
 {
   if (!fmt_name.empty()) {
-    map<string, amci_inoutfmt_t*>::iterator it =
-        file_formats.find(fmt_name);
+    map<string, amci_inoutfmt_t*>::iterator it = file_formats.find(fmt_name);
     if ((it != file_formats.end()) && (ext.empty() || (ext == it->second->ext)))
       return it->second;
   }
@@ -421,8 +418,7 @@ void AmPlugIn::getPayloads(vector<SdpPayload>& pl_vec) const
 {
   for (map<int, int>::const_iterator it = payload_order.begin();
        it != payload_order.end(); ++it) {
-    map<int, amci_payload_t*>::const_iterator pl_it =
-        payloads.find(it->second);
+    map<int, amci_payload_t*>::const_iterator pl_it = payloads.find(it->second);
     if (pl_it != payloads.end()) {
       // if channels==2 use that value; otherwise don't add channels param
       pl_vec.push_back(SdpPayload(pl_it->first, pl_it->second->name,
@@ -477,8 +473,7 @@ AmSessionFactory* AmPlugIn::getFactory4App(const string& app_name)
   AmSessionFactory* res = NULL;
 
   name2app_mut.lock();
-  map<string, AmSessionFactory*>::iterator it =
-      name2app.find(app_name);
+  map<string, AmSessionFactory*>::iterator it = name2app.find(app_name);
   if (it != name2app.end()) res = it->second;
   name2app_mut.unlock();
 
@@ -487,8 +482,7 @@ AmSessionFactory* AmPlugIn::getFactory4App(const string& app_name)
 
 AmSessionEventHandlerFactory* AmPlugIn::getFactory4Seh(const string& name)
 {
-  map<string, AmSessionEventHandlerFactory*>::iterator it =
-      name2seh.find(name);
+  map<string, AmSessionEventHandlerFactory*>::iterator it = name2seh.find(name);
   if (it != name2seh.end()) return it->second;
   return 0;
 }
@@ -502,8 +496,7 @@ AmDynInvokeFactory* AmPlugIn::getFactory4Di(const string& name)
 
 AmLoggingFacility* AmPlugIn::getFactory4LogFaclty(const string& name)
 {
-  map<string, AmLoggingFacility*>::iterator it =
-      name2logfac.find(name);
+  map<string, AmLoggingFacility*>::iterator it = name2logfac.find(name);
   if (it != name2logfac.end()) return it->second;
   return 0;
 }
@@ -742,8 +735,7 @@ bool AmPlugIn::registerFactory4App(const string& app_name, AmSessionFactory* f)
   bool res;
 
   name2app_mut.lock();
-  map<string, AmSessionFactory*>::iterator it =
-      name2app.find(app_name);
+  map<string, AmSessionFactory*>::iterator it = name2app.find(app_name);
   if (it != name2app.end()) {
     WARN("Application '%s' has already been registered and cannot be "
          "registered a second time\n",
@@ -810,7 +802,7 @@ AmSessionFactory* AmPlugIn::findSessionFactory(const AmSipRequest& req,
     return false;                                                              \
   }                                                                            \
   inc_ref(f);                                                                  \
-  instance()->map_name.insert(make_pair(param_name, f));                  \
+  instance()->map_name.insert(make_pair(param_name, f));                       \
   DBG(comp_name " '%s' registered.\n", param_name.c_str());                    \
   return true;
 
