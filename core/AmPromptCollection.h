@@ -28,6 +28,15 @@
 #ifndef _AMPROMPTCOLLECTION_H_
 #define _AMPROMPTCOLLECTION_H_
 
+#include "AmCachedAudioFile.h"
+#include "AmConfigReader.h"
+#include "AmPlaylist.h"
+
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
+
 /**
  *
  * Example how to use:
@@ -40,23 +49,14 @@
 
 #define AM_PROMPT_START                                                        \
   {                                                                            \
-    std::vector<std::pair<string, string>> _prompt_names
+    std::vector<std::pair<std::string, std::string>> _prompt_names
 
 #define AM_PROMPT_ADD(_name, _default_file)                                    \
   _prompt_names.push_back(std::make_pair(_name, _default_file))
 
 #define AM_PROMPT_END(_prompts, _cfg, _MOD_NAME)                               \
-    _prompts.configureModule(_cfg, _prompt_names, _MOD_NAME);                  \
+  _prompts.configureModule(_cfg, _prompt_names, _MOD_NAME);                    \
   }
-
-#include <map>
-#include <string>
-#include <utility>
-using std::string;
-
-#include "AmCachedAudioFile.h"
-#include "AmConfigReader.h"
-#include "AmPlaylist.h"
 
 class AudioFileEntry;
 
@@ -66,10 +66,10 @@ class AudioFileEntry;
 class AmPromptCollection
 {
   // loaded files
-  std::map<string, AudioFileEntry*> store;
+  std::map<std::string, AudioFileEntry*> store;
 
   // opened objects
-  std::map<long, vector<AmCachedAudioFile*>> items;
+  std::map<long int, std::vector<AmCachedAudioFile*>> items;
   // mutex for the above
   AmMutex items_mut;
 
@@ -82,30 +82,31 @@ class AmPromptCollection
    * check for file existence
    * @param announcements : name, default file for announcement
    */
-  int configureModule(AmConfigReader& cfg,
-                      vector<std::pair<string, string>>& announcements,
-                      const char* mod_name);
+  int configureModule(
+      AmConfigReader& cfg,
+      std::vector<std::pair<std::string, std::string>>& announcements,
+      const char* mod_name);
   /**
    * add a prompt with explicit filename
    */
-  int setPrompt(const string& name, const string& filename,
+  int setPrompt(const std::string& name, const std::string& filename,
                 const char* mod_name);
 
   /**
    * check whether prompt exists
    */
-  bool hasPrompt(const string& name);
+  bool hasPrompt(const std::string& name);
 
   /**
    * add the announcement identified with  @param name
    * to the playlist @list
    */
-  int addToPlaylist(const string& name, long sess_id, AmPlaylist& list,
+  int addToPlaylist(const std::string& name, long int sess_id, AmPlaylist& list,
                     bool front = false, bool loop = false);
   /**
    * cleanup allocated object of sess_id
    */
-  void cleanup(long sess_id);
+  void cleanup(long int sess_id);
 };
 
 /**
