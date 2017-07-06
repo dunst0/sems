@@ -25,17 +25,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "AmArg.h"
+#include "jsonArg.h"
+
 #include "AmUtils.h"
+#include "jsonxx.h"
 #include "log.h"
 
-#include "jsonArg.h"
-using std::string;
-
-#include "jsonxx.h"
-using namespace jsonxx;
-
 #include <sstream>
+
+using std::string;
+using std::istream;
+using std::istringstream;
+using namespace jsonxx;
 
 const char* hex_chars = "0123456789abcdef";
 
@@ -54,10 +55,12 @@ string str2json(const char* str, size_t len)
   // We have to walk value and escape any special characters.
   // Appending to std::string is not efficient, but this should be rare.
   // (Note: forward slashes are *not* rare, but I am not escaping them.)
-  unsigned    maxsize = len * 2 + 3; // allescaped+quotes+NULL
-  std::string result;
+  unsigned int maxsize = len * 2 + 3; // allescaped+quotes+NULL
+
+  string result;
   result.reserve(maxsize); // to avoid lots of mallocs
   result += "\"";
+
   const char* end = str + len;
   for (const char* c = str; (c != end) && (*c != 0); ++c) {
     switch (*c) {
@@ -130,7 +133,7 @@ string arg2json(const AmArg& a)
 }
 
 // based on jsonxx
-bool array_parse(std::istream& input, AmArg& res)
+bool array_parse(istream& input, AmArg& res)
 {
   if (!match("[", input)) {
     return false;
@@ -160,7 +163,7 @@ bool array_parse(std::istream& input, AmArg& res)
   return true;
 }
 
-bool object_parse(std::istream& input, AmArg& res)
+bool object_parse(istream& input, AmArg& res)
 {
   if (!match("{", input)) {
     return false;
@@ -173,7 +176,7 @@ bool object_parse(std::istream& input, AmArg& res)
   }
 
   do {
-    std::string key;
+    string key;
     if (!parse_string(input, &key)) {
       if (match("}", input, true)) {
         return true;
@@ -200,23 +203,23 @@ bool object_parse(std::istream& input, AmArg& res)
   return true;
 }
 
-bool json2arg(const std::string& input, AmArg& res)
+bool json2arg(const string& input, AmArg& res)
 {
-  std::istringstream iss(input);
+  istringstream iss(input);
   return json2arg(iss, res);
 }
 
 bool json2arg(const char* input, AmArg& res)
 {
-  std::istringstream iss(input);
+  istringstream iss(input);
   return json2arg(iss, res);
 }
 
-bool json2arg(std::istream& input, AmArg& res)
+bool json2arg(istream& input, AmArg& res)
 {
   res.clear();
 
-  std::string string_value;
+  string string_value;
   if (parse_string(input, &string_value)) {
     res = string_value; // todo: unnecessary value copy here
     return true;
