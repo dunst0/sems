@@ -26,8 +26,11 @@
  */
 
 #include "AmPlayoutBuffer.h"
+
 #include "AmAudio.h"
 #include "AmRtpAudio.h"
+
+using std::multiset;
 
 #define SEARCH_OFFSET 140
 
@@ -66,6 +69,7 @@ void AmPlayoutBuffer::write(u_int32_t ref_ts, u_int32_t rtp_ts, int16_t* buf,
                             u_int32_t len, bool begin_talk)
 {
   unsigned int mapped_ts;
+
   if (!recv_offset_i) {
     recv_offset   = rtp_ts - ref_ts;
     recv_offset_i = true;
@@ -119,10 +123,12 @@ u_int32_t AmPlayoutBuffer::read(u_int32_t ts, int16_t* buf, u_int32_t len)
 {
   if (ts_less()(r_ts, w_ts)) {
     u_int32_t rlen = 0;
-    if (ts_less()(r_ts + PCM16_B2S(AUDIO_BUFFER_SIZE), w_ts))
+    if (ts_less()(r_ts + PCM16_B2S(AUDIO_BUFFER_SIZE), w_ts)) {
       rlen = PCM16_B2S(AUDIO_BUFFER_SIZE);
-    else
+    }
+    else {
       rlen = w_ts - r_ts;
+    }
 
     buffer_get(r_ts, buf, rlen);
     return rlen;
@@ -256,7 +262,8 @@ void AmAdaptivePlayout::write_buffer(u_int32_t ref_ts, u_int32_t ts,
     return;
   }
 
-  int32_t n_len        = len + wsola_off - old_off;
+  int32_t n_len = len + wsola_off - old_off;
+
   if (n_len < 0) n_len = 1;
 
   float f                  = float(n_len) / float(len);
@@ -302,7 +309,7 @@ u_int32_t AmAdaptivePlayout::read(u_int32_t ts, int16_t* buf, u_int32_t len)
   }
 
   if (do_plc) {
-    short plc_buf[FRAMESZ];
+    short int plc_buf[FRAMESZ];
 
     for (unsigned int i = 0; i < len / FRAMESZ; i++) {
       fec.dofe(plc_buf);
@@ -315,8 +322,9 @@ u_int32_t AmAdaptivePlayout::read(u_int32_t ts, int16_t* buf, u_int32_t len)
   else {
     buffer_get(ts, buf, len);
 
-    for (unsigned int i = 0; i < len / FRAMESZ; i++)
+    for (unsigned int i = 0; i < len / FRAMESZ; i++) {
       fec.addtohistory(buf + i * FRAMESZ);
+    }
   }
 
   return len;
@@ -335,13 +343,13 @@ void AmAdaptivePlayout::direct_write_buffer(unsigned int ts, ShortSample* buf,
  *  * to TEMPLATE_SEG samples frame starting from ts
  *
  */
-short* find_best_corr(short* ts, short* sr_beg, short* sr_end,
-                      unsigned int sample_rate)
+short int* find_best_corr(short int* ts, short int* sr_beg, short int* sr_end,
+                          unsigned int sample_rate)
 {
   // find best correlation
-  float  corr = 0.f, best_corr = 0.f;
-  short* best_sr = ts;
-  short* sr;
+  float      corr = 0.f, best_corr = 0.f;
+  short int* best_sr = ts;
+  short int* sr;
 
   for (sr = sr_beg; sr != sr_end; sr++) {
     corr = 0.f;
@@ -361,10 +369,10 @@ u_int32_t AmAdaptivePlayout::time_scale(u_int32_t ts, float factor,
                                         u_int32_t packet_len)
 {
   // current position in strech buffer
-  short* tmpl = p_buf + packet_len;
+  short int* tmpl = p_buf + packet_len;
   // begin and end of strech buffer
-  short* p_buf_beg = p_buf;
-  short* p_buf_end;
+  short int* p_buf_beg = p_buf;
+  short int* p_buf_end;
 
   // initially size is packet_len
   unsigned int s = packet_len;
@@ -386,12 +394,14 @@ u_int32_t AmAdaptivePlayout::time_scale(u_int32_t ts, float factor,
   }
 
   // boundaries of scaling
-  if (factor > TSM_MAX_SCALE)
+  if (factor > TSM_MAX_SCALE) {
     factor = TSM_MAX_SCALE;
-  else if (factor < TSM_MIN_SCALE)
+  }
+  else if (factor < TSM_MIN_SCALE) {
     factor = TSM_MIN_SCALE;
+  }
 
-  short *srch_beg, *srch_end, *srch;
+  short int *srch_beg, *srch_end, *srch;
 
   while (true) {
     // get previous packet_len frame + scaled frame
@@ -440,7 +450,7 @@ u_int32_t AmAdaptivePlayout::time_scale(u_int32_t ts, float factor,
       else if (v < -32768.)
         v = -32768.;
 
-      merge_buf[k] = (short) v;
+      merge_buf[k] = (short int) v;
     }
 
     // put merged segment into buffer

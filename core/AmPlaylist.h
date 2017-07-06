@@ -34,7 +34,6 @@
 #include "AmThread.h"
 
 #include <deque>
-using std::deque;
 
 /** \brief entry in an \ref AmPlaylist */
 struct AmPlaylistItem
@@ -61,8 +60,8 @@ struct AmPlaylistItem
  */
 class AmPlaylist : public AmAudio
 {
-  AmMutex                items_mut;
-  deque<AmPlaylistItem*> items;
+  AmMutex                     items_mut;
+  std::deque<AmPlaylistItem*> items;
 
   AmMutex         cur_mut;
   AmPlaylistItem* cur_item;
@@ -78,10 +77,10 @@ class AmPlaylist : public AmAudio
   int write(unsigned int user_ts, unsigned int size) { return -1; }
 
   /** override AmAudio */
-  int get(unsigned long long system_ts, unsigned char* buffer,
+  int get(unsigned long long int system_ts, unsigned char* buffer,
           int output_sample_rate, unsigned int nb_samples);
 
-  int put(unsigned long long system_ts, unsigned char* buffer,
+  int put(unsigned long long int system_ts, unsigned char* buffer,
           int input_sample_rate, unsigned int size);
 
   /** from AmAudio */

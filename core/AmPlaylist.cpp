@@ -29,6 +29,8 @@
 #include "amci/codecs.h"
 #include "log.h"
 
+using std::deque;
+
 void AmPlaylist::updateCurrentItem()
 {
   if (!cur_item) {
@@ -57,7 +59,7 @@ void AmPlaylist::gotoNextItem(bool notify)
   }
 }
 
-int AmPlaylist::get(unsigned long long system_ts, unsigned char* buffer,
+int AmPlaylist::get(unsigned long long int system_ts, unsigned char* buffer,
                     int output_sample_rate, unsigned int nb_samples)
 {
   int ret = -1;
@@ -82,7 +84,7 @@ int AmPlaylist::get(unsigned long long system_ts, unsigned char* buffer,
   return ret;
 }
 
-int AmPlaylist::put(unsigned long long system_ts, unsigned char* buffer,
+int AmPlaylist::put(unsigned long long int system_ts, unsigned char* buffer,
                     int input_sample_rate, unsigned int size)
 {
   int ret = -1;

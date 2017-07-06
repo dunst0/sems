@@ -34,7 +34,6 @@
 #include "LowcFE.h"
 #include "SampleArray.h"
 #include <set>
-using std::multiset;
 
 #define ORDER_STAT_WIN_SIZE 35
 #define ORDER_STAT_LOSS_RATE 0.1
@@ -101,10 +100,10 @@ class AmPlayoutBuffer
 class AmAdaptivePlayout : public AmPlayoutBuffer
 {
   // Order statistics delay estimation
-  multiset<int32_t> o_stat;
-  int32_t           n_stat[ORDER_STAT_WIN_SIZE];
-  int               idx;
-  double            loss_rate;
+  std::multiset<int32_t> o_stat;
+  int32_t                n_stat[ORDER_STAT_WIN_SIZE];
+  int                    idx;
+  double                 loss_rate;
 
   // adaptive WSOLA
   u_int32_t wsola_off;
@@ -117,9 +116,9 @@ class AmAdaptivePlayout : public AmPlayoutBuffer
 
   // buffers
   // strech buffer
-  short p_buf[MAX_PACKET_SAMPLES * 4];
+  short int p_buf[MAX_PACKET_SAMPLES * 4];
   // merging buffer (merge segment from strech + original seg)
-  short merge_buf[STATIC_TEMPLATE_SEG];
+  short int merge_buf[STATIC_TEMPLATE_SEG];
 
   u_int32_t time_scale(u_int32_t ts, float factor, u_int32_t packet_len);
   u_int32_t next_delay(u_int32_t ref_ts, u_int32_t ts);
