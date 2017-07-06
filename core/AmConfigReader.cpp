@@ -25,13 +25,20 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "AmConfigReader.h"
+
 #include "AmConfig.h"
 #include "AmUtils.h"
 #include "log.h"
 #include "md5.h"
 
 #include <errno.h>
+
 #include <fstream>
+
+using std::string;
+using std::ifstream;
+using std::ios;
+using std::istreambuf_iterator;
 
 #define IS_SPACE(c) ((c == ' ') || (c == '\t'))
 
@@ -326,15 +333,17 @@ syntax_error:
 
 bool AmConfigReader::getMD5(const string& path, string& md5hash, bool lowercase)
 {
-  std::ifstream data_file(path.c_str(), std::ios::in | std::ios::binary);
+  ifstream data_file(path.c_str(), ios::in | ::binary);
+
   if (!data_file) {
     DBG("could not read file '%s'\n", path.c_str());
     return false;
   }
+
   // that one is clever...
   // (see http://www.gamedev.net/community/forums/topic.asp?topic_id=353162 )
-  string file_data((std::istreambuf_iterator<char>(data_file)),
-                   std::istreambuf_iterator<char>());
+  string file_data((istreambuf_iterator<char>(data_file)),
+                   istreambuf_iterator<char>());
 
   if (file_data.empty()) {
     return false;
@@ -349,6 +358,7 @@ bool AmConfigReader::getMD5(const string& path, string& md5hash, bool lowercase)
   for (size_t i = 0; i < 16; i++) {
     md5hash += char2hex(_md5hash[i], lowercase);
   }
+
   return true;
 }
 
@@ -375,20 +385,25 @@ const string& AmConfigReader::getParameter(const string& param,
                                            const string& defval) const
 {
   map<string, string>::const_iterator it = keys.find(param);
-  if (it == keys.end())
+  if (it == keys.end()) {
     return defval;
-  else
+  }
+  else {
     return it->second;
+  }
 }
 
 unsigned int AmConfigReader::getParameterInt(const string& param,
                                              unsigned int  defval) const
 {
   unsigned int result = 0;
-  if (!hasParameter(param) || str2i(getParameter(param), result))
+
+  if (!hasParameter(param) || str2i(getParameter(param), result)) {
     return defval;
-  else
+  }
+  else {
     return result;
+  }
 }
 
 void AmConfigReader::dump()

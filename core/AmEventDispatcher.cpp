@@ -26,9 +26,12 @@
  */
 
 #include "AmEventDispatcher.h"
+
 #include "AmConfig.h"
 #include "AmSipEvent.h"
 #include "sip/hash.h"
+
+using std::string;
 
 unsigned int AmEventDispatcher::hash(const string& s1)
 {

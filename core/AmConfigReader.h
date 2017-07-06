@@ -31,7 +31,6 @@
 
 #include <map>
 #include <string>
-using std::string;
 
 #define MAX_CONFIG_LINE 2048
 #define CONFIG_FILE_SUFFIX ".conf"
@@ -46,30 +45,35 @@ using std::string;
 
 class AmConfigReader
 {
-  std::map<string, string> keys;
+  std::map<std::string, std::string> keys;
 
  public:
-  int loadFile(const string& path);
-  int loadPluginConf(const string& mod_name);
+  int loadFile(const std::string& path);
+  int loadPluginConf(const std::string& mod_name);
   int loadString(const char* cfg_lines, size_t cfg_len);
 
   /** get md5 hash of file contents */
-  bool getMD5(const string& path, string& md5hash, bool lowercase = true);
-  void setParameter(const string& param, const string& val);
-  void eraseParameter(const string& param);
-  bool hasParameter(const string& param) const;
+  bool getMD5(const std::string& path, std::string& md5hash,
+              bool lowercase = true);
+  void setParameter(const std::string& param, const std::string& val);
+  void eraseParameter(const std::string& param);
+  bool hasParameter(const std::string& param) const;
 
-  const string& getParameter(const string& param) const;
-  const string& getParameter(const string& param, const string& defval) const;
-  unsigned int getParameterInt(const string& param,
-                               unsigned int  defval = 0) const;
+  const std::string& getParameter(const std::string& param) const;
+  const std::string& getParameter(const std::string& param,
+                                  const std::string& defval) const;
+  unsigned int getParameterInt(const std::string& param,
+                               unsigned int       defval = 0) const;
 
-  std::map<string, string>::const_iterator begin() const
+  std::map<std::string, std::string>::const_iterator begin() const
   {
     return keys.begin();
   }
 
-  std::map<string, string>::const_iterator end() const { return keys.end(); }
+  std::map<std::string, std::string>::const_iterator end() const
+  {
+    return keys.end();
+  }
 
   void dump();
 };

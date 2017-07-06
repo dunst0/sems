@@ -26,7 +26,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #include "AmDtmfDetector.h"
+
 #include "AmSession.h"
 #include "log.h"
 
@@ -57,7 +59,7 @@ void AmDtmfEventQueue::processEvents()
 }
 
 void AmDtmfEventQueue::putDtmfAudio(const unsigned char* buf, int size,
-                                    unsigned long long system_ts)
+                                    unsigned long long int system_ts)
 {
   m_detector->putDtmfAudio(buf, size, system_ts);
 }
@@ -317,8 +319,8 @@ void AmDtmfDetector::registerKeyPressed(int event, Dtmf::EventSource type,
       reportEvent();
     }
 
-    long delta_msec = (tm.tv_sec - m_lastReportTime.tv_sec) * 1000
-                      + (tm.tv_usec - m_lastReportTime.tv_usec) / 1000;
+    long int delta_msec = (tm.tv_sec - m_lastReportTime.tv_sec) * 1000
+                          + (tm.tv_usec - m_lastReportTime.tv_usec) / 1000;
     // SIP INFO can report stop time is in future so avoid changing
     // m_lastReportTime during that period
     if (delta_msec > 0) memcpy(&m_lastReportTime, &tm, sizeof(struct timeval));
@@ -342,8 +344,8 @@ void AmDtmfDetector::checkTimeout()
       // ... else wait until timeout
       struct timeval tm;
       gettimeofday(&tm, NULL);
-      long delta_msec = (tm.tv_sec - m_lastReportTime.tv_sec) * 1000
-                        + (tm.tv_usec - m_lastReportTime.tv_usec) / 1000;
+      long int delta_msec = (tm.tv_sec - m_lastReportTime.tv_sec) * 1000
+                            + (tm.tv_usec - m_lastReportTime.tv_usec) / 1000;
       if (delta_msec > WAIT_TIMEOUT) reportEvent();
     }
   }
@@ -354,8 +356,9 @@ void AmDtmfDetector::reportEvent()
   m_reportLock.lock();
 
   if (m_eventPending) {
-    long duration = (m_lastReportTime.tv_sec - m_startTime.tv_sec) * 1000
-                    + (m_lastReportTime.tv_usec - m_startTime.tv_usec) / 1000;
+    long int duration =
+        (m_lastReportTime.tv_sec - m_startTime.tv_sec) * 1000
+        + (m_lastReportTime.tv_usec - m_startTime.tv_usec) / 1000;
     m_dtmfSink->postDtmfEvent(new AmDtmfEvent(m_currentEvent, duration));
     m_eventPending        = false;
     m_sipEventReceived    = false;
@@ -368,7 +371,7 @@ void AmDtmfDetector::reportEvent()
 }
 
 void AmDtmfDetector::putDtmfAudio(const unsigned char* buf, int size,
-                                  unsigned long long system_ts)
+                                  unsigned long long int system_ts)
 {
   if (m_inbandDetector.get()) {
     m_inbandDetector->streamPut(buf, size, system_ts);
@@ -663,7 +666,7 @@ void AmSemsInbandDtmfDetector::isdn_audio_eval_dtmf_relative()
   m_last = what;
 }
 
-void AmSemsInbandDtmfDetector::isdn_audio_calc_dtmf(const signed short* buf,
+void AmSemsInbandDtmfDetector::isdn_audio_calc_dtmf(const signed short int* buf,
                                                     int len, unsigned int ts)
 {
   int c;
@@ -693,15 +696,15 @@ void AmSemsInbandDtmfDetector::isdn_audio_calc_dtmf(const signed short* buf,
   }
 }
 
-int AmSemsInbandDtmfDetector::streamPut(const unsigned char* samples,
-                                        unsigned int         size,
-                                        unsigned long long   system_ts)
+int AmSemsInbandDtmfDetector::streamPut(const unsigned char*   samples,
+                                        unsigned int           size,
+                                        unsigned long long int system_ts)
 {
-  unsigned long long user_ts = system_ts
-                               * ((unsigned long long) SAMPLERATE / 100)
-                               / (WALLCLOCK_RATE / 100);
+  unsigned long long int user_ts = system_ts
+                                   * ((unsigned long long int) SAMPLERATE / 100)
+                                   / (WALLCLOCK_RATE / 100);
 
-  isdn_audio_calc_dtmf((const signed short*) samples, size / 2,
+  isdn_audio_calc_dtmf((const signed short int*) samples, size / 2,
                        (unsigned int) user_ts);
   return size;
 }
@@ -739,9 +742,9 @@ AmSpanDSPInbandDtmfDetector::~AmSpanDSPInbandDtmfDetector()
 #endif
 }
 
-int AmSpanDSPInbandDtmfDetector::streamPut(const unsigned char* samples,
-                                           unsigned int         size,
-                                           unsigned long long   system_ts)
+int AmSpanDSPInbandDtmfDetector::streamPut(const unsigned char*   samples,
+                                           unsigned int           size,
+                                           unsigned long long int system_ts)
 {
   dtmf_rx(rx_state, (const int16_t*) samples, size / 2);
   return size;

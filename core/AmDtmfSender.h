@@ -32,15 +32,13 @@
 #include "AmThread.h"
 
 #include <queue>
-using std::queue;
-using std::pair;
 
 class AmRtpStream;
 
 class AmDtmfSender
 {
   // event, duration
-  typedef pair<int, unsigned int> Dtmf;
+  typedef std::pair<int, unsigned int> Dtmf;
 
   enum sending_state_t
   {
@@ -49,8 +47,8 @@ class AmDtmfSender
     DTMF_SEND_ENDING   // sending end of event
   } sending_state;
 
-  queue<Dtmf> send_queue;
-  AmMutex     send_queue_mut;
+  std::queue<Dtmf> send_queue;
+  AmMutex          send_queue_mut;
 
   Dtmf         current_send_dtmf;
   unsigned int current_send_dtmf_ts;

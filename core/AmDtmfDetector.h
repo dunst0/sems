@@ -32,9 +32,6 @@
 #include "AmEventQueue.h"
 #include "rtp/telephone_event.h"
 
-#include <memory>
-#include <string>
-
 #ifdef USE_SPANDSP
 #include <math.h>
 #ifndef HAVE_OLD_SPANDSP_CALLBACK
@@ -43,6 +40,9 @@
 #include "spandsp/tone_detect.h"
 #endif
 #endif
+
+#include <memory>
+#include <string>
 
 //
 // Forward declarations
@@ -68,6 +68,7 @@ enum InbandDetectorType
   SpanDSP
 };
 };
+
 /**
  * \brief sink for audio to be processed by the inband DTMF detector
  *
@@ -85,7 +86,7 @@ class AmDtmfEventQueue : public AmEventQueue
    */
   void processEvents();
   void putDtmfAudio(const unsigned char*, int size,
-                    unsigned long long system_ts);
+                    unsigned long long int system_ts);
 };
 
 /**
@@ -220,17 +221,17 @@ class AmSipDtmfEvent : public AmDtmfEvent
   /**
    * Parser for application/dtmf-relay
    */
-  void parseRequestBody(const string&);
+  void parseRequestBody(const std::string&);
   /**
    * Parser for application/dtmf-relay
    */
-  void parseLine(const string&);
+  void parseLine(const std::string&);
 
  public:
   /**
    * Constructor
    */
-  AmSipDtmfEvent(const string& request_body);
+  AmSipDtmfEvent(const std::string& request_body);
 };
 
 /** the inband DTMF detector interface */
@@ -247,7 +248,7 @@ class AmInbandDtmfDetector
    * Entry point for audio stream
    */
   virtual int streamPut(const unsigned char* samples, unsigned int size,
-                        unsigned long long system_ts) = 0;
+                        unsigned long long int system_ts) = 0;
 };
 
 /**
@@ -291,7 +292,8 @@ class AmSemsInbandDtmfDetector : public AmInbandDtmfDetector
 
   void isdn_audio_goertzel_relative();
   void isdn_audio_eval_dtmf_relative();
-  void isdn_audio_calc_dtmf(const signed short* buf, int len, unsigned int ts);
+  void isdn_audio_calc_dtmf(const signed short int* buf, int len,
+                            unsigned int ts);
 
  public:
   AmSemsInbandDtmfDetector(AmKeyPressSink* keysink, int sample_rate);
@@ -300,7 +302,7 @@ class AmSemsInbandDtmfDetector : public AmInbandDtmfDetector
    * Entry point for audio stream
    */
   int streamPut(const unsigned char* samples, unsigned int size,
-                unsigned long long system_ts);
+                unsigned long long int system_ts);
 };
 
 #ifdef USE_SPANDSP
@@ -332,7 +334,7 @@ class AmSpanDSPInbandDtmfDetector : public AmInbandDtmfDetector
    * Entry point for audio stream
    */
   int streamPut(const unsigned char* samples, unsigned int size,
-                unsigned long long system_ts);
+                unsigned long long int system_ts);
 };
 #endif // USE_SPANDSP
 
@@ -495,7 +497,7 @@ class AmDtmfDetector
 
   void checkTimeout();
   void putDtmfAudio(const unsigned char*, int size,
-                    unsigned long long system_ts);
+                    unsigned long long int system_ts);
 
   void setInbandDetector(Dtmf::InbandDetectorType t, int sample_rate);
   friend class AmSipDtmfDetector;

@@ -30,6 +30,7 @@
 
 #include "AmEventQueue.h"
 #include "AmSipMsg.h"
+
 #include <map>
 
 #define EVENT_DISPATCHER_POWER 10
@@ -41,7 +42,7 @@ class AmEventDispatcher
   struct QueueEntry
   {
     AmEventQueueInterface* q;
-    string                 id;
+    std::string            id;
 
     QueueEntry()
         : q(NULL)
@@ -55,17 +56,17 @@ class AmEventDispatcher
     {
     }
 
-    QueueEntry(AmEventQueueInterface* q, string id)
+    QueueEntry(AmEventQueueInterface* q, std::string id)
         : q(q)
         , id(id)
     {
     }
   };
 
-  typedef std::map<string, QueueEntry> EvQueueMap;
+  typedef std::map<std::string, QueueEntry> EvQueueMap;
   typedef EvQueueMap::iterator EvQueueMapIter;
 
-  typedef std::map<string, string> Dictionnary;
+  typedef std::map<std::string, std::string> Dictionnary;
   typedef Dictionnary::iterator DictIter;
 
  private:
@@ -89,8 +90,8 @@ class AmEventDispatcher
   // mutex for "id_lookup"
   AmMutex id_lookup_mut[EVENT_DISPATCHER_BUCKETS];
 
-  unsigned int hash(const string& s1);
-  unsigned int hash(const string& s1, const string s2);
+  unsigned int hash(const std::string& s1);
+  unsigned int hash(const std::string& s1, const std::string s2);
 
  public:
   static AmEventDispatcher* instance();
@@ -98,20 +99,20 @@ class AmEventDispatcher
 
   bool postSipRequest(const AmSipRequest& req);
 
-  bool post(const string& local_tag, AmEvent* ev);
-  bool post(const string& callid, const string& remote_tag,
-            const string& via_branch, AmEvent* ev);
+  bool post(const std::string& local_tag, AmEvent* ev);
+  bool post(const std::string& callid, const std::string& remote_tag,
+            const std::string& via_branch, AmEvent* ev);
 
   /* send event to all event queues. Note: event instances will be cloned */
   bool broadcast(AmEvent* ev);
 
-  bool addEventQueue(const string& local_tag, AmEventQueueInterface* q);
+  bool addEventQueue(const std::string& local_tag, AmEventQueueInterface* q);
 
-  bool addEventQueue(const string& local_tag, AmEventQueueInterface* q,
-                     const string& callid, const string& remote_tag,
-                     const string& via_branch);
+  bool addEventQueue(const std::string& local_tag, AmEventQueueInterface* q,
+                     const std::string& callid, const std::string& remote_tag,
+                     const std::string& via_branch);
 
-  AmEventQueueInterface* delEventQueue(const string& local_tag);
+  AmEventQueueInterface* delEventQueue(const std::string& local_tag);
 
   bool empty();
 

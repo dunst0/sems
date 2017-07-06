@@ -1,5 +1,7 @@
 #include "AmEvent.h"
 
+using std::string;
+
 AmEvent::AmEvent(int event_id)
     : event_id(event_id)
     , processed(false)

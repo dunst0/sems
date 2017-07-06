@@ -32,7 +32,6 @@
 #include "AmArg.h"
 
 #include <string>
-using std::string;
 
 #define E_PLUGIN 100
 #define E_SYSTEM 101
@@ -60,12 +59,12 @@ struct AmEvent
  */
 struct AmPluginEvent : public AmEvent
 {
-  string name;
-  AmArg  data;
+  std::string name;
+  AmArg       data;
 
-  AmPluginEvent(const string& n);
+  AmPluginEvent(const std::string& n);
 
-  AmPluginEvent(const string& n, const AmArg& d);
+  AmPluginEvent(const std::string& n, const AmArg& d);
 };
 
 /**

@@ -116,7 +116,7 @@ class AmArg : public AmObject
 
  private:
   // type
-  short type;
+  short int type;
 
   // value
   union
@@ -218,7 +218,7 @@ class AmArg : public AmObject
   void assertStruct();
   void assertStruct() const;
 
-  short getType() const { return type; }
+  short int getType() const { return type; }
 
   AmArg& operator=(const AmArg& rhs);
 
