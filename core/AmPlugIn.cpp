@@ -45,6 +45,14 @@
 
 #include <algorithm>
 
+using std::string;
+using std::vector;
+using std::map;
+using std::set;
+using std::pair;
+using std::for_each;
+using std::make_pair;
+
 static unsigned int pcm16_bytes2samples(long h_codec, unsigned int num_bytes)
 {
   return num_bytes / 2;
@@ -88,7 +96,7 @@ AmPlugIn::AmPlugIn()
 {
 }
 
-static void delete_plugin_factory(std::pair<string, AmPluginFactory*> pf)
+static void delete_plugin_factory(pair<string, AmPluginFactory*> pf)
 {
   DBG("decreasing reference to plug-in factory: %s\n", pf.first.c_str());
   dec_ref(pf.second);
@@ -96,12 +104,12 @@ static void delete_plugin_factory(std::pair<string, AmPluginFactory*> pf)
 
 AmPlugIn::~AmPlugIn()
 {
-  std::for_each(module_objects.begin(), module_objects.end(),
+  for_each(module_objects.begin(), module_objects.end(),
                 delete_plugin_factory);
-  std::for_each(name2seh.begin(), name2seh.end(), delete_plugin_factory);
-  std::for_each(name2base.begin(), name2base.end(), delete_plugin_factory);
-  std::for_each(name2di.begin(), name2di.end(), delete_plugin_factory);
-  std::for_each(name2logfac.begin(), name2logfac.end(), delete_plugin_factory);
+  for_each(name2seh.begin(), name2seh.end(), delete_plugin_factory);
+  for_each(name2base.begin(), name2base.end(), delete_plugin_factory);
+  for_each(name2di.begin(), name2di.end(), delete_plugin_factory);
+  for_each(name2logfac.begin(), name2logfac.end(), delete_plugin_factory);
 
 // if _DEBUG is set do not unload shared libs to allow better debugging
 #ifndef _DEBUG
@@ -230,7 +238,7 @@ int AmPlugIn::load(const string& directory, const string& plugins)
 void AmPlugIn::registerLoggingPlugins()
 {
   // init logging facilities
-  for (std::map<std::string, AmLoggingFacility*>::iterator it =
+  for (map<string, AmLoggingFacility*>::iterator it =
            name2logfac.begin();
        it != name2logfac.end(); it++) {
     // register for receiving logging messages
@@ -263,7 +271,7 @@ int AmPlugIn::loadPlugIn(const string& file, const string& plugin_name,
   }
 
   // possibly others
-  for (std::set<string>::iterator it = rtld_global_plugins.begin();
+  for (set<string>::iterator it = rtld_global_plugins.begin();
        it != rtld_global_plugins.end(); it++) {
     if (!strcmp(bname, it->c_str())) {
       dlopen_flags = RTLD_NOW | RTLD_GLOBAL;
@@ -343,13 +351,13 @@ error:
 amci_inoutfmt_t* AmPlugIn::fileFormat(const string& fmt_name, const string& ext)
 {
   if (!fmt_name.empty()) {
-    std::map<std::string, amci_inoutfmt_t*>::iterator it =
+    map<string, amci_inoutfmt_t*>::iterator it =
         file_formats.find(fmt_name);
     if ((it != file_formats.end()) && (ext.empty() || (ext == it->second->ext)))
       return it->second;
   }
   else if (!ext.empty()) {
-    std::map<std::string, amci_inoutfmt_t*>::iterator it = file_formats.begin();
+    map<string, amci_inoutfmt_t*>::iterator it = file_formats.begin();
     for (; it != file_formats.end(); ++it) {
       if (ext == it->second->ext) return it->second;
     }
@@ -360,7 +368,7 @@ amci_inoutfmt_t* AmPlugIn::fileFormat(const string& fmt_name, const string& ext)
 
 amci_codec_t* AmPlugIn::codec(int id)
 {
-  std::map<int, amci_codec_t*>::const_iterator it = codecs.find(id);
+  map<int, amci_codec_t*>::const_iterator it = codecs.find(id);
   if (it != codecs.end()) return it->second;
 
   return 0;
@@ -368,7 +376,7 @@ amci_codec_t* AmPlugIn::codec(int id)
 
 amci_payload_t* AmPlugIn::payload(int payload_id) const
 {
-  std::map<int, amci_payload_t*>::const_iterator it = payloads.find(payload_id);
+  map<int, amci_payload_t*>::const_iterator it = payloads.find(payload_id);
   if (it != payloads.end()) return it->second;
 
   return 0;
@@ -394,7 +402,7 @@ int AmPlugIn::getDynPayload(const string& name, int rate,
                             int encoding_param) const
 {
   // find a dynamic payload by name/rate and encoding_param (channels, if > 0)
-  for (std::map<int, amci_payload_t*>::const_iterator pl_it = payloads.begin();
+  for (map<int, amci_payload_t*>::const_iterator pl_it = payloads.begin();
        pl_it != payloads.end(); ++pl_it)
     if ((!strcasecmp(name.c_str(), pl_it->second->name)
          && (rate == pl_it->second->advertised_sample_rate))) {
@@ -411,9 +419,9 @@ int AmPlugIn::getDynPayload(const string& name, int rate,
 /** return 0, or -1 in case of error. */
 void AmPlugIn::getPayloads(vector<SdpPayload>& pl_vec) const
 {
-  for (std::map<int, int>::const_iterator it = payload_order.begin();
+  for (map<int, int>::const_iterator it = payload_order.begin();
        it != payload_order.end(); ++it) {
-    std::map<int, amci_payload_t*>::const_iterator pl_it =
+    map<int, amci_payload_t*>::const_iterator pl_it =
         payloads.find(it->second);
     if (pl_it != payloads.end()) {
       // if channels==2 use that value; otherwise don't add channels param
@@ -469,7 +477,7 @@ AmSessionFactory* AmPlugIn::getFactory4App(const string& app_name)
   AmSessionFactory* res = NULL;
 
   name2app_mut.lock();
-  std::map<std::string, AmSessionFactory*>::iterator it =
+  map<string, AmSessionFactory*>::iterator it =
       name2app.find(app_name);
   if (it != name2app.end()) res = it->second;
   name2app_mut.unlock();
@@ -479,7 +487,7 @@ AmSessionFactory* AmPlugIn::getFactory4App(const string& app_name)
 
 AmSessionEventHandlerFactory* AmPlugIn::getFactory4Seh(const string& name)
 {
-  std::map<std::string, AmSessionEventHandlerFactory*>::iterator it =
+  map<string, AmSessionEventHandlerFactory*>::iterator it =
       name2seh.find(name);
   if (it != name2seh.end()) return it->second;
   return 0;
@@ -487,14 +495,14 @@ AmSessionEventHandlerFactory* AmPlugIn::getFactory4Seh(const string& name)
 
 AmDynInvokeFactory* AmPlugIn::getFactory4Di(const string& name)
 {
-  std::map<std::string, AmDynInvokeFactory*>::iterator it = name2di.find(name);
+  map<string, AmDynInvokeFactory*>::iterator it = name2di.find(name);
   if (it != name2di.end()) return it->second;
   return 0;
 }
 
 AmLoggingFacility* AmPlugIn::getFactory4LogFaclty(const string& name)
 {
-  std::map<std::string, AmLoggingFacility*>::iterator it =
+  map<string, AmLoggingFacility*>::iterator it =
       name2logfac.find(name);
   if (it != name2logfac.end()) return it->second;
   return 0;
@@ -548,11 +556,11 @@ int AmPlugIn::loadAppPlugIn(AmPluginFactory* f)
     return -1;
   }
 
-  name2app.insert(std::make_pair(sf->getName(), sf));
+  name2app.insert(make_pair(sf->getName(), sf));
   DBG("application '%s' loaded.\n", sf->getName().c_str());
 
   inc_ref(sf);
-  if (!module_objects.insert(std::make_pair(sf->getName(), sf)).second) {
+  if (!module_objects.insert(make_pair(sf->getName(), sf)).second) {
     // insertion failed
     dec_ref(sf);
   }
@@ -576,7 +584,7 @@ int AmPlugIn::loadSehPlugIn(AmPluginFactory* f)
   }
 
   inc_ref(sf);
-  name2seh.insert(std::make_pair(sf->getName(), sf));
+  name2seh.insert(make_pair(sf->getName(), sf));
   DBG("session component '%s' loaded.\n", sf->getName().c_str());
 
   return 0;
@@ -588,7 +596,7 @@ error:
 int AmPlugIn::loadBasePlugIn(AmPluginFactory* f)
 {
   inc_ref(f);
-  if (!name2base.insert(std::make_pair(f->getName(), f)).second) {
+  if (!name2base.insert(make_pair(f->getName(), f)).second) {
     // insertion failed
     dec_ref(f);
   }
@@ -608,7 +616,7 @@ int AmPlugIn::loadDiPlugIn(AmPluginFactory* f)
     goto error;
   }
 
-  name2di.insert(std::make_pair(sf->getName(), sf));
+  name2di.insert(make_pair(sf->getName(), sf));
   DBG("component '%s' loaded.\n", sf->getName().c_str());
 
   return 0;
@@ -630,7 +638,7 @@ int AmPlugIn::loadLogFacPlugIn(AmPluginFactory* f)
     goto error;
   }
 
-  name2logfac.insert(std::make_pair(sf->getName(), sf));
+  name2logfac.insert(make_pair(sf->getName(), sf));
   DBG("logging facility component '%s' loaded.\n", sf->getName().c_str());
 
   return 0;
@@ -645,7 +653,7 @@ int AmPlugIn::addCodec(amci_codec_t* c)
     ERROR("codec id (%i) already supported\n", c->id);
     return -1;
   }
-  codecs.insert(std::make_pair(c->id, c));
+  codecs.insert(make_pair(c->id, c));
   DBG("codec id %i inserted\n", c->id);
   return 0;
 }
@@ -675,19 +683,19 @@ int AmPlugIn::addPayload(amci_payload_t* p)
     dynamic_pl++;
   }
 
-  payloads.insert(std::make_pair(p->payload_id, p));
+  payloads.insert(make_pair(p->payload_id, p));
   id = p->payload_id;
 
   for (i = 0; i < AmConfig::CodecOrder.size(); i++) {
     if (p->name == AmConfig::CodecOrder[i]) break;
   }
   if (i >= AmConfig::CodecOrder.size()) {
-    payload_order.insert(std::make_pair(id + 100, id));
+    payload_order.insert(make_pair(id + 100, id));
     DBG("payload '%s/%i' inserted with id %i and order %i\n", p->name,
         p->sample_rate, id, id + 100);
   }
   else {
-    payload_order.insert(std::make_pair(i, id));
+    payload_order.insert(make_pair(i, id));
     DBG("payload '%s/%i' inserted with id %i and order %i\n", p->name,
         p->sample_rate, id, i);
   }
@@ -724,7 +732,7 @@ int AmPlugIn::addFileFormat(amci_inoutfmt_t* f)
     }
   }
   DBG("file format %s inserted\n", f->name);
-  file_formats.insert(std::make_pair(f->name, f));
+  file_formats.insert(make_pair(f->name, f));
 
   return 0;
 }
@@ -734,7 +742,7 @@ bool AmPlugIn::registerFactory4App(const string& app_name, AmSessionFactory* f)
   bool res;
 
   name2app_mut.lock();
-  std::map<std::string, AmSessionFactory*>::iterator it =
+  map<string, AmSessionFactory*>::iterator it =
       name2app.find(app_name);
   if (it != name2app.end()) {
     WARN("Application '%s' has already been registered and cannot be "
@@ -802,7 +810,7 @@ AmSessionFactory* AmPlugIn::findSessionFactory(const AmSipRequest& req,
     return false;                                                              \
   }                                                                            \
   inc_ref(f);                                                                  \
-  instance()->map_name.insert(std::make_pair(param_name, f));                  \
+  instance()->map_name.insert(make_pair(param_name, f));                  \
   DBG(comp_name " '%s' registered.\n", param_name.c_str());                    \
   return true;
 

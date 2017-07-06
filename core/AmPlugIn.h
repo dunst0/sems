@@ -37,12 +37,6 @@
 #include <string>
 #include <vector>
 
-using std::string;
-using std::vector;
-using std::map;
-using std::multimap;
-using std::set;
-
 class AmPluginFactory;
 class AmSessionFactory;
 class AmSessionEventHandlerFactory;
@@ -76,13 +70,13 @@ class AmPayloadProvider
    * @param name Payload ID.
    * @return -1 if failed, else the internal payload id.
    */
-  virtual int getDynPayload(const string& name, int rate,
+  virtual int getDynPayload(const std::string& name, int rate,
                             int encoding_param) const = 0;
 
   /**
    * List all the payloads available for a media type
    */
-  virtual void getPayloads(vector<SdpPayload>& pl_vec) const = 0;
+  virtual void getPayloads(std::vector<SdpPayload>& pl_vec) const = 0;
 };
 
 /**
@@ -93,35 +87,35 @@ class AmPlugIn : public AmPayloadProvider
  private:
   static AmPlugIn* _instance;
 
-  set<string>   rtld_global_plugins;
-  vector<void*> dlls;
+  std::set<std::string> rtld_global_plugins;
+  std::vector<void*>    dlls;
 
-  map<int, amci_codec_t*>       codecs;
-  map<int, amci_payload_t*>     payloads;
-  multimap<int, int>            payload_order;
-  map<string, amci_inoutfmt_t*> file_formats;
+  std::map<int, amci_codec_t*>            codecs;
+  std::map<int, amci_payload_t*>          payloads;
+  multimap<int, int>                      payload_order;
+  std::map<std::string, amci_inoutfmt_t*> file_formats;
 
-  map<string, AmSessionFactory*> name2app;
+  std::map<std::string, AmSessionFactory*> name2app;
   AmMutex name2app_mut;
 
-  map<string, AmSessionEventHandlerFactory*> name2seh;
-  map<string, AmPluginFactory*>              name2base;
-  map<string, AmDynInvokeFactory*>           name2di;
-  map<string, AmLoggingFacility*>            name2logfac;
+  std::map<std::string, AmSessionEventHandlerFactory*> name2seh;
+  std::map<std::string, AmPluginFactory*>              name2base;
+  std::map<std::string, AmDynInvokeFactory*>           name2di;
+  std::map<std::string, AmLoggingFacility*>            name2logfac;
 
-  map<string, AmPluginFactory*> module_objects;
+  std::map<std::string, AmPluginFactory*> module_objects;
 
   // AmCtrlInterfaceFactory *ctrlIface;
 
-  int         dynamic_pl;        // range: 96->127, see RFC 1890
-  set<string> excluded_payloads; // don't load these payloads (named)
+  int                   dynamic_pl;        // range: 96->127, see RFC 1890
+  std::set<std::string> excluded_payloads; // don't load these payloads (named)
 
   AmPlugIn();
   virtual ~AmPlugIn();
 
   /** @return -1 if failed, else 0. */
-  int loadPlugIn(const string& file, const string& plugin_name,
-                 vector<AmPluginFactory*>& plugins);
+  int loadPlugIn(const std::string& file, const std::string& plugin_name,
+                 std::vector<AmPluginFactory*>& plugins);
 
   int loadAudioPlugIn(amci_exports_t* exports);
   int loadAppPlugIn(AmPluginFactory* cb);
@@ -137,7 +131,7 @@ class AmPlugIn : public AmPayloadProvider
   int addPayload(amci_payload_t* p);
   int addFileFormat(amci_inoutfmt_t* f);
 
-  void set_load_rtld_global(const string& plugin_name);
+  void set_load_rtld_global(const std::string& plugin_name);
 
   static AmPlugIn* instance();
   static void      dispose();
@@ -148,7 +142,7 @@ class AmPlugIn : public AmPayloadProvider
    * Loads all plug-ins from the directory given as parameter.
    * @return -1 if failed, else 0.
    */
-  int load(const string& directory, const string& plugins);
+  int load(const std::string& directory, const std::string& plugins);
 
   /** register logging plugins to receive logging messages */
   void registerLoggingPlugins();
@@ -165,10 +159,11 @@ class AmPlugIn : public AmPayloadProvider
    * @param name Payload ID.
    * @return -1 if failed, else the internal payload id.
    */
-  int getDynPayload(const string& name, int rate, int encoding_param) const;
+  int getDynPayload(const std::string& name, int rate,
+                    int encoding_param) const;
 
   /** return 0, or -1 in case of error. */
-  void getPayloads(vector<SdpPayload>& pl_vec) const;
+  void getPayloads(std::vector<SdpPayload>& pl_vec) const;
 
   /** @return the suported payloads. */
 
@@ -181,7 +176,8 @@ class AmPlugIn : public AmPayloadProvider
    * @param ext File extension.
    * @return NULL if failed.
    */
-  amci_inoutfmt_t* fileFormat(const string& fmt_name, const string& ext = "");
+  amci_inoutfmt_t* fileFormat(const std::string& fmt_name,
+                              const std::string& ext = "");
 
   /**
    * File format's subtype lookup function.
@@ -196,7 +192,8 @@ class AmPlugIn : public AmPayloadProvider
    * @param subtype_name The subtype's name (e.g. Pcm16).
    * @return NULL if failed.
    */
-  amci_subtype_t* subtype(amci_inoutfmt_t* iofmt, const string& subtype_name);
+  amci_subtype_t* subtype(amci_inoutfmt_t*   iofmt,
+                          const std::string& subtype_name);
 
   /**
    * Codec lookup function.
@@ -212,41 +209,43 @@ class AmPlugIn : public AmPayloadProvider
    * @param fmt_params_in input parameters for an answer
    * @return fmt parameters for SDP (offer or answer)
    */
-  string getSdpFormatParameters(int codec_id, bool is_offer,
-                                const string& fmt_params_in);
+  std::string getSdpFormatParameters(int codec_id, bool is_offer,
+                                     const std::string& fmt_params_in);
 
   /**
    * Application lookup function
    * @param app_name application name
    * @return NULL if failed (-> application not found).
    */
-  AmSessionFactory* getFactory4App(const string& app_name);
+  AmSessionFactory* getFactory4App(const std::string& app_name);
 
   /** @return true if this record has been inserted. */
-  bool registerFactory4App(const string& app_name, AmSessionFactory* f);
+  bool registerFactory4App(const std::string& app_name, AmSessionFactory* f);
 
   /** register a factory for applications
       @return true on success
    */
-  static bool registerApplication(const string& app_name, AmSessionFactory* f);
+  static bool registerApplication(const std::string& app_name,
+                                  AmSessionFactory*  f);
 
   /** register a SIP Event Handler module
       note: unprotected, use only at server startup (onLoad)
       @return true on success
    */
-  static bool registerSIPEventHandler(const string&                 seh_name,
+  static bool registerSIPEventHandler(const std::string&            seh_name,
                                       AmSessionEventHandlerFactory* f);
   /** register a DI Interface module
       note: unprotected, use only at server startup (onLoad)
       @return true on success
    */
-  static bool registerDIInterface(const string& di_name, AmDynInvokeFactory* f);
+  static bool registerDIInterface(const std::string&  di_name,
+                                  AmDynInvokeFactory* f);
 
   /** register a logging facility
       note: unprotected, use only at server startup (onLoad)
       @return true on success
    */
-  static bool registerLoggingFacility(const string&      lf_name,
+  static bool registerLoggingFacility(const std::string& lf_name,
                                       AmLoggingFacility* f);
 
   /**
@@ -254,26 +253,26 @@ class AmPlugIn : public AmPayloadProvider
    * for the given request.
    */
   AmSessionFactory* findSessionFactory(const AmSipRequest& req,
-                                       string&             app_name);
+                                       std::string&        app_name);
 
   /**
    * Session event handler lookup function
    * @param name application name
    * @return NULL if failed (-> handler not found).
    */
-  AmSessionEventHandlerFactory* getFactory4Seh(const string& name);
+  AmSessionEventHandlerFactory* getFactory4Seh(const std::string& name);
 
   /**
    * Dynamic invokation component
    */
-  AmDynInvokeFactory* getFactory4Di(const string& name);
+  AmDynInvokeFactory* getFactory4Di(const std::string& name);
 
   /**
    * logging facility lookup function
    * @param name application name
    * @return NULL if failed (-> handler not found).
    */
-  AmLoggingFacility* getFactory4LogFaclty(const string& name);
+  AmLoggingFacility* getFactory4LogFaclty(const std::string& name);
 };
 
 #endif
