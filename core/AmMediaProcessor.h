@@ -33,7 +33,6 @@
 #include "amci/amci.h" // AUDIO_BUFFER_SIZE
 
 #include <set>
-using std::set;
 #include <map>
 
 struct SchedRequest;
@@ -168,7 +167,7 @@ class AmMediaProcessorThread
   unsigned char        buffer[AUDIO_BUFFER_SIZE];
   set<AmMediaSession*> sessions;
 
-  void processAudio(unsigned long long ts);
+  void processAudio(unsigned long long int ts);
   /**
    * Process pending DTMF events
    */
@@ -206,9 +205,9 @@ class AmMediaProcessor
   unsigned int             num_threads;
   AmMediaProcessorThread** threads;
 
-  std::map<string, unsigned int>         callgroup2thread;
-  std::multimap<string, AmMediaSession*> callgroupmembers;
-  std::map<AmMediaSession*, string>      session2callgroup;
+  std::map<std::string, unsigned int>         callgroup2thread;
+  std::multimap<std::string, AmMediaSession*> callgroupmembers;
+  std::map<AmMediaSession*, std::string>      session2callgroup;
   AmMutex group_mut;
 
   AmMediaProcessor();
@@ -236,7 +235,7 @@ class AmMediaProcessor
 
   void init();
   /** Add session s to processor */
-  void addSession(AmMediaSession* s, const string& callgroup);
+  void addSession(AmMediaSession* s, const std::string& callgroup);
   /** Remove session s from processor */
   void removeSession(AmMediaSession* s);
   /** Remove session s from processor and clear its audio */
@@ -244,7 +243,7 @@ class AmMediaProcessor
   /** Remove session s from processor but don't signal that to the session */
   void softRemoveSession(AmMediaSession* s);
   /** Change the callgroup of a session (use with caution) */
-  void changeCallgroup(AmMediaSession* s, const string& new_callgroup);
+  void changeCallgroup(AmMediaSession* s, const std::string& new_callgroup);
 
   void        stop();
   static void dispose();

@@ -36,6 +36,11 @@
 #include <time.h>
 #endif
 
+using std::set;
+using std::string;
+using std::map;
+using std::multimap;
+
 /** \brief Request event to the MediaProcessor (remove,...) */
 struct SchedRequest : public AmEvent
 {
@@ -92,7 +97,7 @@ void AmMediaProcessor::addSession(AmMediaSession* s, const string& callgroup)
   group_mut.lock();
 
   // callgroup already in a thread?
-  std::map<std::string, unsigned int>::iterator it =
+  map<string, unsigned int>::iterator it =
       callgroup2thread.find(callgroup);
   if (it != callgroup2thread.end()) {
     // yes, use it
@@ -157,7 +162,7 @@ void AmMediaProcessor::removeFromProcessor(AmMediaSession* s,
   unsigned int sched_thread = callgroup2thread[callgroup];
   DBG("  callgroup is '%s', thread %u\n", callgroup.c_str(), sched_thread);
   // erase callgroup membership entry
-  std::multimap<std::string, AmMediaSession*>::iterator it =
+  multimap<string, AmMediaSession*>::iterator it =
       callgroupmembers.lower_bound(callgroup);
   while ((it != callgroupmembers.end())
          && (it != callgroupmembers.upper_bound(callgroup))) {
