@@ -26,19 +26,25 @@
  */
 
 #include "AmPrecodedFile.h"
+
 #include "AmUtils.h"
 #include "log.h"
-#include <fstream>
 
 #include <libgen.h>
 
-unsigned int precoded_bytes2samples(long h_codec, unsigned int num_bytes)
+#include <fstream>
+
+using std::ifstream;
+using std::map;
+using std::string;
+
+unsigned int precoded_bytes2samples(long int h_codec, unsigned int num_bytes)
 {
   return ((precoded_payload_t*) h_codec)->frame_ms
          * ((precoded_payload_t*) h_codec)->sample_rate / 1000;
 }
 
-unsigned int precoded_samples2bytes(long h_codec, unsigned int num_samples)
+unsigned int precoded_samples2bytes(long int h_codec, unsigned int num_samples)
 {
   return ((precoded_payload_t*) h_codec)->frame_bytes;
 }
@@ -56,7 +62,7 @@ amci_codec_t _codec_precoded = {PRECODED_CODEC_ID,
 void AmPrecodedFile::initPlugin()
 {
   AmPlugIn::instance()->addCodec(&_codec_precoded);
-  for (std::map<int, precoded_payload_t>::iterator it = payloads.begin();
+  for (map<int, precoded_payload_t>::iterator it = payloads.begin();
        it != payloads.end(); ++it)
     AmPlugIn::instance()->addPayload(&it->second);
 }
@@ -71,7 +77,7 @@ AmPrecodedRtpFormat::AmPrecodedRtpFormat(precoded_payload_t& precoded_payload)
   // frame_size = precoded_payload.frame_ms * precoded_payload.sample_rate /
   // 1000;  frame_length = precoded_payload.frame_ms;  frame_encoded_size =
   // precoded_payload.frame_bytes;
-  h_codec = (long) &(this->precoded_payload);
+  h_codec = (long int) &(this->precoded_payload);
 }
 
 AmPrecodedRtpFormat::~AmPrecodedRtpFormat() {}
@@ -93,13 +99,13 @@ AmPrecodedFileFormat::AmPrecodedFileFormat(precoded_payload_t& precoded_payload)
   // used in precoded_bytes2samples()/precoded_samples2bytes()
   // frame_size = precoded_payload.frame_ms * precoded_payload.sample_rate /
   // 1000;  frame_encoded_size = precoded_payload.frame_bytes;
-  h_codec = (long) &(this->precoded_payload);
+  h_codec = (long int) &(this->precoded_payload);
 }
 
 AmPrecodedFileFormat::~AmPrecodedFileFormat() {}
 
 int precoded_file_open(FILE* fp, struct amci_file_desc_t* fmt_desc, int options,
-                       long h_codec)
+                       long int h_codec)
 {
   fseek(fp, 0, SEEK_END);
   fmt_desc->data_size = ftell(fp);
@@ -109,7 +115,8 @@ int precoded_file_open(FILE* fp, struct amci_file_desc_t* fmt_desc, int options,
 }
 
 int precoded_file_close(FILE* fp, struct amci_file_desc_t* fmt_desc,
-                        int options, long h_codec, struct amci_codec_t* codec)
+                        int options, long int h_codec,
+                        struct amci_codec_t* codec)
 {
   DBG("file closed\n");
   return 0;
@@ -148,9 +155,10 @@ AmPrecodedFile::AmPrecodedFile() {}
 
 AmPrecodedFile::~AmPrecodedFile() {}
 
-int AmPrecodedFile::open(const std::string& filename)
+int AmPrecodedFile::open(const string& filename)
 {
-  std::ifstream ifs(filename.c_str());
+  ifstream ifs(filename.c_str());
+
   if (!ifs.good()) {
     return -1;
   }
@@ -203,8 +211,7 @@ int AmPrecodedFile::open(const std::string& filename)
 
 amci_payload_t* AmPrecodedFile::payload(int payload_id) const
 {
-  std::map<int, precoded_payload_t>::const_iterator it =
-      payloads.find(payload_id);
+  map<int, precoded_payload_t>::const_iterator it = payloads.find(payload_id);
 
   if (it != payloads.end()) return (amci_payload_t*) &it->second;
 
@@ -215,8 +222,7 @@ int AmPrecodedFile::getDynPayload(const string& name, int rate,
                                   int encoding_param) const
 {
   // find a dynamic payload by name/rate and encoding_param (channels, if > 0)
-  for (std::map<int, precoded_payload_t>::const_iterator pl_it =
-           payloads.begin();
+  for (map<int, precoded_payload_t>::const_iterator pl_it = payloads.begin();
        pl_it != payloads.end(); ++pl_it)
     if ((name == pl_it->second.name) && (rate == pl_it->second.sample_rate)) {
       if ((encoding_param > 0) && (pl_it->second.channels > 0)
@@ -232,8 +238,7 @@ int AmPrecodedFile::getDynPayload(const string& name, int rate,
 
 void AmPrecodedFile::getPayloads(vector<SdpPayload>& pl_vec) const
 {
-  for (std::map<int, precoded_payload_t>::const_iterator pl_it =
-           payloads.begin();
+  for (map<int, precoded_payload_t>::const_iterator pl_it = payloads.begin();
        pl_it != payloads.end(); ++pl_it) {
     pl_vec.push_back(SdpPayload(pl_it->first, pl_it->second.name,
                                 pl_it->second.sample_rate, 0));
@@ -242,7 +247,7 @@ void AmPrecodedFile::getPayloads(vector<SdpPayload>& pl_vec) const
 
 AmPrecodedFileInstance* AmPrecodedFile::getFileInstance(int payload_id)
 {
-  std::map<int, precoded_payload_t>::iterator it = payloads.find(payload_id);
+  map<int, precoded_payload_t>::iterator it = payloads.find(payload_id);
   if (it != payloads.end()) return new AmPrecodedFileInstance(it->second);
   return NULL;
 }

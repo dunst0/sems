@@ -37,17 +37,18 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #define PRECODED_CODEC_ID 100 // could go into amci/codecs.h
 
 struct precoded_payload_t : public amci_payload_t
 {
  public:
-  string       c_name;
-  string       format_parameters;
+  std::string  c_name;
+  std::string  format_parameters;
   unsigned int frame_ms;
   unsigned int frame_bytes;
-  string       filename;
+  std::string  filename;
 
   precoded_payload_t() { codec_id = PRECODED_CODEC_ID; }
 };
@@ -95,7 +96,8 @@ class AmPrecodedFileInstance : public AmAudioFile
   int open();
 
  protected:
-  AmAudioFileFormat* fileName2Fmt(const string& name, const string& subtype);
+  AmAudioFileFormat* fileName2Fmt(const std::string& name,
+                                  const std::string& subtype);
 };
 
 class AmPrecodedFile : public AmPayloadProvider
@@ -116,8 +118,9 @@ class AmPrecodedFile : public AmPayloadProvider
 
   /** from @AmPayloadProvider */
   amci_payload_t* payload(int payload_id) const;
-  int getDynPayload(const string& name, int rate, int encoding_param) const;
-  void getPayloads(vector<SdpPayload>& pl_vec) const;
+  int getDynPayload(const std::string& name, int rate,
+                    int encoding_param) const;
+  void getPayloads(std::vector<SdpPayload>& pl_vec) const;
 };
 
 #endif
