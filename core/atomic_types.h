@@ -1,5 +1,5 @@
-#ifndef __ATOMICTYPES_H__
-#define __ATOMICTYPES_H__
+#ifndef _ATOMIC_TYPES_H_
+#define _ATOMIC_TYPES_H_
 
 #if (__GNUC__ > 4)                                                             \
     || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)                                  \

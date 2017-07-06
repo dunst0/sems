@@ -25,8 +25,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _AM_ZRTP_H
-#define _AM_ZRTP_H
+#ifndef _AMZRTP_H_
+#define _AMZRTP_H_
 
 #ifdef WITH_ZRTP
 
@@ -110,6 +110,6 @@ zrtp_status_t zrtp_cache_user_down();
 }
 #endif
 
-#endif // WITH_ZRTP
+#endif
 
-#endif //_AM_ZRTP_H
+#endif

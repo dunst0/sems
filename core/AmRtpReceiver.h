@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmRtpReceiver.h */
-#ifndef _AmRtpReceiver_h_
-#define _AmRtpReceiver_h_
+
+#ifndef _AMRTPRECEIVER_H_
+#define _AMRTPRECEIVER_H_
 
 #include "AmThread.h"
 #include "atomic_types.h"
@@ -113,7 +114,3 @@ class _AmRtpReceiver
 typedef singleton<_AmRtpReceiver> AmRtpReceiver;
 
 #endif
-
-// Local Variables:
-// mode:C++
-// End:

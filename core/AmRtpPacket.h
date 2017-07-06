@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmRtpPacket.h */
-#ifndef _AmRtpPacket_h_
-#define _AmRtpPacket_h_
+
+#ifndef _AMRTPPACKET_H_
+#define _AMRTPPACKET_H_
 
 #include <netinet/in.h>
 #include <sys/time.h>

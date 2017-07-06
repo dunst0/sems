@@ -26,8 +26,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _AmSipRegistration_h_
-#define _AmSipRegistration_h_
+#ifndef _AMSIPREGISTRATION_H_
+#define _AMSIPREGISTRATION_H_
+
 #include <string>
 using std::string;
 

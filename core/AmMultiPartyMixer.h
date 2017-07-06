@@ -23,14 +23,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmMultiPartyMixer.h */
-#ifndef _MultiPartyMixer_h_
-#define _MultiPartyMixer_h_
+
+#ifndef _AMMULTIPARTYMIXER_H_
+#define _AMMULTIPARTYMIXER_H_
 
 #include "AmAudio.h"
 #include "AmThread.h"
 #include "SampleArray.h"
-
-//#define RORPP_PLC
 
 #ifdef RORPP_PLC
 #include "LowcFE.h"

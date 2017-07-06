@@ -38,10 +38,7 @@
 #include <map>
 #include <string>
 #include <utility>
-
-using std::map;
-using std::multimap;
-using std::string;
+#include <vector>
 
 /**
  * \brief holds the current configuration.
@@ -51,17 +48,17 @@ using std::string;
 struct AmConfig
 {
   /** Name of the main configuration file. */
-  static string ConfigurationFile;
+  static std::string ConfigurationFile;
   /** Path to the plug-in configuration files. */
-  static string ModConfigPath;
+  static std::string ModConfigPath;
   /** Path where the plug-ins are. */
-  static string PlugInPath;
+  static std::string PlugInPath;
   /** semicolon separated list of plugins to load */
-  static string LoadPlugins;
+  static std::string LoadPlugins;
   /** semicolon separated list of plugins to exclude from loading */
-  static string ExcludePlugins;
+  static std::string ExcludePlugins;
   /** semicolon separated list of payloads to exclude from loading */
-  static string ExcludePayloads;
+  static std::string ExcludePayloads;
   // static unsigned int MaxRecordTime;
   /** log level */
   static int LogLevel;
@@ -72,32 +69,32 @@ struct AmConfig
   /** run the program in daemon mode? */
   static bool DaemonMode;
   /** PID file when in daemon mode */
-  static string DaemonPidFile;
+  static std::string DaemonPidFile;
   /** set UID when in daemon mode */
-  static string DaemonUid;
+  static std::string DaemonUid;
   /** set GID when in daemon mode */
-  static string DaemonGid;
+  static std::string DaemonGid;
 #endif
 
   static unsigned int MaxShutdownTime;
 
   struct IP_interface
   {
-    string name;
+    std::string name;
 
     /** Used for binding socket */
-    string LocalIP;
+    std::string LocalIP;
 
     /** Used in Contact-HF */
-    string PublicIP;
+    std::string PublicIP;
 
     /** Network interface name and index */
-    string       NetIf;
+    std::string  NetIf;
     unsigned int NetIfIdx;
 
     IP_interface();
 
-    string getIP() { return PublicIP.empty() ? LocalIP : PublicIP; }
+    std::string getIP() { return PublicIP.empty() ? LocalIP : PublicIP; }
   };
 
   struct SIP_interface : public IP_interface
@@ -135,18 +132,18 @@ struct AmConfig
     AmMutex next_rtp_port_mut;
   };
 
-  static vector<SIP_interface> SIP_Ifs;
-  static vector<RTP_interface> RTP_Ifs;
-  static map<string, unsigned short> SIP_If_names;
-  static map<string, unsigned short> RTP_If_names;
-  static map<string, unsigned short> LocalSIPIP2If;
+  static std::vector<SIP_interface> SIP_Ifs;
+  static std::vector<RTP_interface> RTP_Ifs;
+  static std::map<std::string, unsigned short> SIP_If_names;
+  static std::map<std::string, unsigned short> RTP_If_names;
+  static std::map<std::string, unsigned short> LocalSIPIP2If;
 
   struct IPAddr
   {
-    string addr;
-    short  family;
+    std::string addr;
+    short       family;
 
-    IPAddr(const string& addr, const short family)
+    IPAddr(const std::string& addr, const short family)
         : addr(addr)
         , family(family)
     {
@@ -161,14 +158,14 @@ struct AmConfig
 
   struct SysIntf
   {
-    string       name;
+    std::string  name;
     list<IPAddr> addrs;
     // identical to those returned by SIOCGIFFLAGS
     unsigned int flags;
     unsigned int mtu;
   };
 
-  static vector<SysIntf> SysIfs;
+  static std::vector<SysIntf> SysIfs;
 
   static int insert_SIP_interface(const SIP_interface& intf);
   static int insert_SIP_interface_mapping(const SIP_interface& intf);
@@ -186,11 +183,11 @@ struct AmConfig
   /** number of SIP server threads */
   static int SIPServerThreads;
   /** Outbound Proxy (optional, outgoing calls only) */
-  static string OutboundProxy;
+  static std::string OutboundProxy;
   /** force Outbound Proxy to be used for in dialog requests */
   static bool ForceOutboundProxy;
   /** force next hop IP[:port] */
-  static string NextHop;
+  static std::string NextHop;
   /** use next hop only on 1st request within a dialog */
   static bool NextHop1stReq;
   /** update ruri-host to previously resolved IP:port on SIP auth */
@@ -206,12 +203,12 @@ struct AmConfig
   /** Ignore Low CSeq on NOTIFY  - for RFC 3265 instead of 5057 */
   static bool IgnoreNotifyLowerCSeq;
   /** Server/User-Agent header (optional) */
-  static string Signature;
+  static std::string Signature;
   /** Value of Max-Forward header field for new requests */
   static unsigned int MaxForwards;
   /** If 200 OK reply should be limited to preferred codec only */
-  static bool           SingleCodecInOK;
-  static vector<string> CodecOrder;
+  static bool                     SingleCodecInOK;
+  static std::vector<std::string> CodecOrder;
 
   enum ApplicationSelector
   {
@@ -223,7 +220,7 @@ struct AmConfig
   };
 
   /** "application" config value */
-  static string Application;
+  static std::string Application;
   /** type of application selection (parsed from Application) */
   static ApplicationSelector AppSelect;
 
@@ -237,36 +234,36 @@ struct AmConfig
 
   static unsigned int SessionLimit;
   static unsigned int SessionLimitErrCode;
-  static string       SessionLimitErrReason;
+  static std::string  SessionLimitErrReason;
 
   static unsigned int OptionsSessionLimit;
   static unsigned int OptionsSessionLimitErrCode;
-  static string       OptionsSessionLimitErrReason;
+  static std::string  OptionsSessionLimitErrReason;
 
   static unsigned int CPSLimitErrCode;
-  static string       CPSLimitErrReason;
+  static std::string  CPSLimitErrReason;
 
   static bool AcceptForkedDialogs;
 
   static bool         ShutdownMode;
   static unsigned int ShutdownModeErrCode;
-  static string       ShutdownModeErrReason;
+  static std::string  ShutdownModeErrReason;
 
   /** header containing the transcoder's outgoing codec statistics which should
    * be present in replies to OPTIONS requests */
-  static string OptionsTranscoderOutStatsHdr;
+  static std::string OptionsTranscoderOutStatsHdr;
   /** header containing the transcoder's incoming codec statistics which should
    * be present in replies to OPTIONS requests */
-  static string OptionsTranscoderInStatsHdr;
+  static std::string OptionsTranscoderInStatsHdr;
   /** header containing the transcoder's outgoing codec statistics which should
    * be present in every message leaving server */
-  static string TranscoderOutStatsHdr;
+  static std::string TranscoderOutStatsHdr;
   /** header containing the transcoder's incoming codec statistics which should
    * be present in every message leaving server */
-  static string TranscoderInStatsHdr;
+  static std::string TranscoderInStatsHdr;
 
-  static bool   DumpConferenceStreams;
-  static string DumpConferencePath;
+  static bool        DumpConferenceStreams;
+  static std::string DumpConferencePath;
 
   static Am100rel::State rel100;
 
@@ -298,37 +295,37 @@ struct AmConfig
   /* following setters are used to fill config from config file */
 
   /** Setter for SIP Port, returns 0 on invalid value */
-  static int setSIPPort(const string& port);
+  static int setSIPPort(const std::string& port);
   /** Setter for SmtpServer Port, returns 0 on invalid value */
-  static int setSmtpPort(const string& port);
+  static int setSmtpPort(const std::string& port);
   /** Setter for RtpLowPort, returns 0 on invalid value */
-  static int setRtpLowPort(const string& port);
+  static int setRtpLowPort(const std::string& port);
   /** Setter for RtpHighPort, returns 0 on invalid value */
-  static int setRtpHighPort(const string& port);
+  static int setRtpHighPort(const std::string& port);
   /** Setter for Loglevel, returns 0 on invalid value */
-  static int setLogLevel(const string& level, bool apply = true);
+  static int setLogLevel(const std::string& level, bool apply = true);
   /** Setter for parameter stderr, returns 0 on invalid value */
-  static int setLogStderr(const string& s, bool apply = true);
+  static int setLogStderr(const std::string& s, bool apply = true);
 
 #ifndef DISABLE_DAEMON_MODE
   /** Setter for parameter DaemonMode, returns 0 on invalid value */
-  static int setDaemonMode(const string& fork);
+  static int setDaemonMode(const std::string& fork);
 #endif
 
   /** Setter for parameter SessionProcessorThreads, returns 0 on invalid value
    */
-  static int setSessionProcessorThreads(const string& th);
+  static int setSessionProcessorThreads(const std::string& th);
   /** Setter for parameter MediaProcessorThreads, returns 0 on invalid value */
-  static int setMediaProcessorThreads(const string& th);
+  static int setMediaProcessorThreads(const std::string& th);
   /** Setter for parameter RTPReceiverThreads, returns 0 on invalid value */
-  static int setRTPReceiverThreads(const string& th);
+  static int setRTPReceiverThreads(const std::string& th);
   /** Setter for parameter SIPServerThreads, returns 0 on invalid value */
-  static int setSIPServerThreads(const string& th);
+  static int setSIPServerThreads(const std::string& th);
   /** Setter for parameter DeadRtpTime, returns 0 on invalid value */
-  static int setDeadRtpTime(const string& drt);
+  static int setDeadRtpTime(const std::string& drt);
 };
 
 /** Get the PF_INET address associated with the network interface */
-string fixIface2IP(const string& dev_name, bool v6_for_sip = false);
+std::string fixIface2IP(const std::string& dev_name, bool v6_for_sip = false);
 
 #endif

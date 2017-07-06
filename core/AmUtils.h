@@ -25,8 +25,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _AmUtils_h_
-#define _AmUtils_h_
+#ifndef _AMUTILS_H_
+#define _AMUTILS_H_
 
 #include <errno.h>
 #include <regex.h>
@@ -299,7 +299,3 @@ void cvt_hex(HASH bin, HASHHEX hex);
 string calculateMD5(const string& input);
 
 #endif
-
-// Local Variables:
-// mode:C++
-// End:

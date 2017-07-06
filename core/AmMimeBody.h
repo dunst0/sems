@@ -1,5 +1,5 @@
-#ifndef _AmMimeBody_h_
-#define _AmMimeBody_h_
+#ifndef _AMMIMEBODY_H_
+#define _AMMIMEBODY_H_
 
 #include "AmArg.h"
 

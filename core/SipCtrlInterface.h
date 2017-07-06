@@ -27,8 +27,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _SipCtrlInterface_h_
-#define _SipCtrlInterface_h_
+#ifndef _SIPCTRLINTERFACE_H_
+#define _SIPCTRLINTERFACE_H_
 
 #include "AmThread.h"
 #include "sip/sip_ua.h"
@@ -136,10 +136,3 @@ class _SipCtrlInterface : public sip_ua
 typedef singleton<_SipCtrlInterface> SipCtrlInterface;
 
 #endif
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 4
- * End:
- */

@@ -25,12 +25,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmStats.h */
-#ifndef _AmStats_h_
-#define _AmStats_h_
+
+#ifndef _AMSTATS_H_
+#define _AMSTATS_H_
 
 #include <math.h>
 #include <string.h>
 #include <sys/types.h>
+
 /**
  * \brief math mean implementation
  *

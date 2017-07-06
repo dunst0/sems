@@ -1,5 +1,5 @@
-#ifndef _singleton_h_
-#define _singleton_h_
+#ifndef _SINGLETON_H_
+#define _SINGLETON_H_
 
 #include "AmThread.h"
 

@@ -25,8 +25,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _AmPrecodedFile_H
-#define _AmPrecodedFile_H
+#ifndef _AMPRECODEDFILE_H_
+#define _AMPRECODEDFILE_H_
 
 #include "AmAudio.h"
 #include "AmAudioFile.h"

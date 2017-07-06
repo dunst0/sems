@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmDtmfDetector.h */
-#ifndef _AmDtmfDetector_h_
-#define _AmDtmfDetector_h_
+
+#ifndef _AMDTMFDETECTOR_H_
+#define _AMDTMFDETECTOR_H_
 
 #include "AmEventQueue.h"
 #include "rtp/telephone_event.h"
@@ -501,4 +502,5 @@ class AmDtmfDetector
   friend class AmRtpDtmfDetector;
   friend class AmInbandDtmfDetector;
 };
-#endif // _AmDtmfDetector_h_
+
+#endif

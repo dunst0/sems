@@ -25,12 +25,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "AmCallWatcher.h"
+#include "log.h"
+
 #include <sys/time.h>
 #include <unistd.h>
 
-#include "log.h"
-
-#include "AmCallWatcher.h"
+using std::string;
+using std::make_pair;
 
 AmCallWatcher::AmCallWatcher()
     : AmEventQueue(this)
@@ -122,7 +124,7 @@ void AmCallWatcher::process(AmEvent* ev)
 
         soft_states_mut.lock();
         soft_states[csu->get_call_id()] =
-            std::make_pair(cs, now.tv_sec + WATCHER_SOFT_EXPIRE_SECONDS);
+            make_pair(cs, now.tv_sec + WATCHER_SOFT_EXPIRE_SECONDS);
         size_t soft_size = soft_states.size();
         soft_states_mut.unlock();
 

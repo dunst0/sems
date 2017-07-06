@@ -26,8 +26,8 @@
  */
 /** @file AmSipEvent.h */
 
-#ifndef AmSipEvent_h
-#define AmSipEvent_h
+#ifndef _AMSIPEVENT_H_
+#define _AMSIPEVENT_H_
 
 #include "AmEvent.h"
 #include "AmSipMsg.h"

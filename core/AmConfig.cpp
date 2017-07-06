@@ -54,6 +54,9 @@
 
 using std::make_pair;
 using std::transform;
+using std::map;
+using std::multimap;
+using std::string;
 
 string AmConfig::ConfigurationFile = CONFIG_FILE;
 string AmConfig::ModConfigPath     = MOD_CFG_PATH;

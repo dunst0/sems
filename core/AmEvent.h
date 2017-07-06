@@ -26,8 +26,8 @@
  */
 /** @file AmEvent.h */
 
-#ifndef AmEvent_h
-#define AmEvent_h
+#ifndef _AMEVENT_H_
+#define _AMEVENT_H_
 
 #include "AmArg.h"
 

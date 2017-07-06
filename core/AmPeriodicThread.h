@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmPeriodicThread.h */
-#ifndef _AmPeriodicThread_h_
-#define _AmPeriodicThread_h_
+
+#ifndef _AMPERIODICTHREAD_H_
+#define _AMPERIODICTHREAD_H_
 
 #include "AmThread.h"
 

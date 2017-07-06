@@ -26,8 +26,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _AmSipSubscriptionContainer_h_
-#define _AmSipSubscriptionContainer_h_
+
+#ifndef _AMSIPSUBSCRIPTIONCONTAINER_H_
+#define _AMSIPSUBSCRIPTIONCONTAINER_H_
 
 #include "AmEventProcessingThread.h"
 #include "AmSipSubscription.h"

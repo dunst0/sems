@@ -38,11 +38,6 @@
 #include <string>
 #include <vector>
 
-using std::vector;
-using std::string;
-using std::map;
-using std::istream;
-
 /** base for Objects as @see AmArg parameter, not owned by AmArg (!) */
 class AmObject
 {
@@ -116,8 +111,8 @@ class AmArg : public AmObject
     TypeMismatchException() {}
   };
 
-  typedef vector<AmArg> ValueArray;
-  typedef map<string, AmArg> ValueStruct;
+  typedef std::vector<AmArg> ValueArray;
+  typedef std::map<std::string, AmArg> ValueStruct;
 
  private:
   // type
@@ -184,7 +179,7 @@ class AmArg : public AmObject
     v_cstr = strdup(v);
   }
 
-  AmArg(const string& v)
+  AmArg(const std::string& v)
       : type(CStr)
   {
     v_cstr = strdup(v.c_str());
@@ -209,11 +204,11 @@ class AmArg : public AmObject
   }
 
   // convenience constructors
-  AmArg(vector<string>& v);
-  AmArg(const vector<int>& v);
-  AmArg(const vector<double>& v);
-  AmArg(map<string, string>& v);
-  AmArg(map<string, AmArg>& v);
+  AmArg(std::vector<std::string>& v);
+  AmArg(const std::vector<int>& v);
+  AmArg(const std::vector<double>& v);
+  AmArg(std::map<std::string, std::string>& v);
+  AmArg(std::map<std::string, AmArg>& v);
 
   ~AmArg() { invalidate(); }
 
@@ -285,18 +280,18 @@ class AmArg : public AmObject
   ArgBlob*     asBlob() const { return v_blob; }
   ValueStruct* asStruct() const { return v_struct; }
 
-  vector<string>    asStringVector() const;
-  vector<int>       asIntVector() const;
-  vector<bool>      asBoolVector() const;
-  vector<double>    asDoubleVector() const;
-  vector<AmObject*> asAmObjectVector() const;
-  vector<ArgBlob>   asArgBlobVector() const;
+  std::vector<std::string>    asStringVector() const;
+  std::vector<int>       asIntVector() const;
+  std::vector<bool>      asBoolVector() const;
+  std::vector<double>    asDoubleVector() const;
+  std::vector<AmObject*> asAmObjectVector() const;
+  std::vector<ArgBlob>   asArgBlobVector() const;
 
   // operations on arrays
   void assertArray(size_t s);
 
   void push(const AmArg& a);
-  void push(const string& key, const AmArg& val);
+  void push(const std::string& key, const AmArg& val);
   void pop(AmArg& a);
   void pop_back(AmArg& a);
   void pop_back();
@@ -327,23 +322,23 @@ class AmArg : public AmObject
   /** throws OutOfBoundsException if array too small */
   AmArg& operator[](int idx) const;
 
-  AmArg& operator[](string key);
-  AmArg& operator[](string key) const;
+  AmArg& operator[](std::string key);
+  AmArg& operator[](std::string key) const;
   AmArg& operator[](const char* key);
   AmArg& operator[](const char* key) const;
 
   /** Check for the existence of a struct member by name. */
-  bool hasMember(const string& name) const;
+  bool hasMember(const std::string& name) const;
   bool hasMember(const char* name) const;
 
-  vector<string>              enumerateKeys() const;
+  std::vector<std::string>              enumerateKeys() const;
   ValueStruct::const_iterator begin() const;
   ValueStruct::const_iterator end() const;
 
   /** remove struct member */
   void erase(const char* name);
   /** remove struct member */
-  void erase(const string& name);
+  void erase(const std::string& name);
 
   /**
    * throws exception if arg array does not conform to spec
@@ -365,9 +360,9 @@ class AmArg : public AmObject
   void        clear();
   friend bool operator==(const AmArg& lhs, const AmArg& rhs);
 
-  friend bool json2arg(istream& input, AmArg& res);
+  friend bool json2arg(std::istream& input, AmArg& res);
 
-  static string print(const AmArg& a);
+  static std::string print(const AmArg& a);
 
   static const char* t2str(int type);
 };
@@ -376,6 +371,6 @@ class AmArg : public AmObject
 bool operator==(const AmArg& lhs, const AmArg& rhs);
 
 int arg2int(const AmArg& a);
-string arg2str(const AmArg& a);
+std::string arg2str(const AmArg& a);
 
 #endif

@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmRtpAudio.h */
-#ifndef _AmRtpAudio_h_
-#define _AmRtpAudio_h_
+
+#ifndef _AMRTPAUDIO_H_
+#define _AMRTPAUDIO_H_
 
 #include "AmAudio.h"
 #include "AmRtpStream.h"

@@ -1,5 +1,5 @@
-#ifndef _AmRingTone_h_
-#define _AmRingTone_h_
+#ifndef _AMRINGTONE_H_
+#define _AMRINGTONE_H_
 
 #include "AmAudio.h"
 

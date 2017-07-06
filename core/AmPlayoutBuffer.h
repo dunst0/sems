@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmPlayoutBuffer.h */
-#ifndef _AmPlayoutBuffer_h_
-#define _AmPlayoutBuffer_h_
+
+#ifndef _AMPLAYOUTBUFFER_H_
+#define _AMPLAYOUTBUFFER_H_
 
 #include "AmJitterBuffer.h"
 #include "AmStats.h"

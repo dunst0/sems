@@ -1,5 +1,6 @@
-#ifndef _UACAuth_h_
-#define _UACAuth_h_
+#ifndef _AMUACAUTH_H_
+#define _AMUACAUTH_H_
+
 #include "AmArg.h"
 #include "AmSession.h"
 #include "ampi/UACAuthAPI.h"
@@ -24,4 +25,5 @@ class AmUACAuth
   */
   static bool enable(AmSession* s);
 };
+
 #endif

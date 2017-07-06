@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmUAC.h */
-#ifndef AmUAC_H
-#define AmUAC_H
+
+#ifndef _AMUAC_H_
+#define _AMUAC_H_
 
 #include "AmArg.h"
 #include "AmSession.h"

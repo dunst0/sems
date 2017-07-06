@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmPlaylist.h */
-#ifndef AmPlaylist_h
-#define AmPlaylist_h
+
+#ifndef _AMPLAYLIST_H_
+#define _AMPLAYLIST_H_
 
 #include "AmAudio.h"
 #include "AmEventQueue.h"

@@ -25,8 +25,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _AmEventQueueProcessor_h_
-#define _AmEventQueueProcessor_h_
+#ifndef _AMEVENTQUEUEPROCESSOR_H_
+#define _AMEVENTQUEUEPROCESSOR_H_
 
 #include "AmEventQueue.h"
 #include "AmThread.h"
@@ -88,4 +88,4 @@ class AmEventQueueProcessor
   int startEventQueue(AmEventQueue* q);
 };
 
-#endif // _AmEventQueueProcessor_h_
+#endif

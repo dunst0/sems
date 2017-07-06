@@ -23,25 +23,24 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _LowcFE_h_
-#define _LowcFE_h_
+#ifndef _LOWCFE_H_
+#define _LOWCFE_H_
 
 #include "AmAudio.h"
 
 typedef float Float;
 
-#define PITCH_MIN                                                              \
-  ((unsigned int) (sample_rate / 200)) /* minimum allowed pitch, 200 Hz */
-#define PITCH_MAX                                                              \
-  ((unsigned int) (sample_rate / 66.6)) /* maximum allowed pitch, 66 Hz */
+/* minimum allowed pitch, 200 Hz */
+#define PITCH_MIN ((unsigned int) (sample_rate / 200))
+/* maximum allowed pitch, 66 Hz */
+#define PITCH_MAX ((unsigned int) (sample_rate / 66.6))
 #define PITCHDIFF (PITCH_MAX - PITCH_MIN)
-#define POVERLAPMAX (PITCH_MAX >> 2)             /* maximum pitch OLA window */
-#define HISTORYLEN (PITCH_MAX * 3 + POVERLAPMAX) /* history buff length*/
-#define NDEC 2                                   /* 2:1 decimation */
-#define CORRLEN 20 * sample_rate / 1000  /* 20 msec correlation length */
-#define CORRBUFLEN (CORRLEN + PITCH_MAX) /* correlation buffer length */
-#define CORRMINPOWER (((Float) 250.) * (sample_rate / 8000)) /* minimum power  \
-                                                              */
+#define POVERLAPMAX (PITCH_MAX >> 2)              /* maximum pitch OLA window */
+#define HISTORYLEN (PITCH_MAX * 3 + POVERLAPMAX)  /* history buff length*/
+#define NDEC 2                                    /* 2:1 decimation */
+#define CORRLEN 20 * sample_rate / 1000         /* 20 msec correlation length */
+#define CORRBUFLEN (CORRLEN + PITCH_MAX)   /* correlation buffer length */
+#define CORRMINPOWER (((Float) 250.) * (sample_rate / 8000)) /* minimum power */
 #define EOVERLAPINCR 32                   /* end OLA increment per frame,4 ms */
 #define FRAMESZ (10 * sample_rate / 1000) /* 10 msec */
 #define ATTENFAC ((Float) .2)             /* attenu. factor per 10 ms frame */

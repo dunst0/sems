@@ -25,8 +25,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __SdpParser__
-#define __SdpParser__
+#ifndef _AMSDP_H_
+#define _AMSDP_H_
 
 #include "AmPlugIn.h"
 
@@ -346,7 +346,3 @@ class AmSdp
 };
 
 #endif
-
-// Local Variables:
-// mode:C++
-// End:

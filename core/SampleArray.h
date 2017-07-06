@@ -23,11 +23,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _SampleArray_h_
-#define _SampleArray_h_
+#ifndef _SAMPLEARRAY_H_
+#define _SAMPLEARRAY_H_
 
 /* MUST be a power of 2 */
 #define SIZE_MIX_BUFFER (1 << 14)
+
 /** \brief comparator for user timestamps */
 struct ts_less
 {
@@ -86,9 +87,6 @@ typedef SampleArray<ShortSample> SampleArrayShort;
 
 typedef short ShortSample;
 
-#include "SampleArray.cc"
+#include "SampleArray.cc" //TODO: wtf?
 
 #endif
-// Local Variables:
-// mode:C++
-// End:

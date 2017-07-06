@@ -24,8 +24,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmPromptCollection.h */
-#ifndef AM_PROMPT_COLLECTION_H
-#define AM_PROMPT_COLLECTION_H
+
+#ifndef _AMPROMPTCOLLECTION_H_
+#define _AMPROMPTCOLLECTION_H_
 
 /**
  *
@@ -45,7 +46,7 @@
   _prompt_names.push_back(std::make_pair(_name, _default_file))
 
 #define AM_PROMPT_END(_prompts, _cfg, _MOD_NAME)                               \
-  _prompts.configureModule(_cfg, _prompt_names, _MOD_NAME);                    \
+    _prompts.configureModule(_cfg, _prompt_names, _MOD_NAME);                  \
   }
 
 #include <map>

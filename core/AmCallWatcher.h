@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmCallWatcher.h */
-#ifndef _AM_CALL_WATCHER_H
-#define _AM_CALL_WATCHER_H
+
+#ifndef _AMCALLWATCHER_H
+#define _AMCALLWATCHER_H
 
 //
 // States are put into map on an Initialize event.
@@ -38,17 +39,13 @@
 
 #define WATCHER_SOFT_EXPIRE_SECONDS 5
 
-#include <string>
-using std::string;
-
-#include <map>
-
-#include <utility>
-using std::pair;
-
 #include "AmEvent.h"
 #include "AmEventQueue.h"
 #include "AmThread.h"
+
+#include <map>
+#include <string>
+#include <utility>
 
 class CallStatus;
 
@@ -57,7 +54,7 @@ class CallStatus;
  */
 class CallStatusUpdateEvent : public AmEvent
 {
-  string call_id;
+  std::string call_id;
 
   CallStatus* init_status;
 
@@ -69,14 +66,14 @@ class CallStatusUpdateEvent : public AmEvent
     Obsolete
   };
 
-  CallStatusUpdateEvent(UpdateType t, const string& call_id)
+  CallStatusUpdateEvent(UpdateType t, const std::string& call_id)
       : AmEvent(t)
       , call_id(call_id)
   {
   }
 
   // implicit: initialize
-  CallStatusUpdateEvent(const string& call_id, CallStatus* init_status)
+  CallStatusUpdateEvent(const std::string& call_id, CallStatus* init_status)
       : AmEvent(Initialize)
       , call_id(call_id)
       , init_status(init_status)
@@ -85,7 +82,7 @@ class CallStatusUpdateEvent : public AmEvent
 
   ~CallStatusUpdateEvent() {}
 
-  string      get_call_id() { return call_id; }
+  std::string get_call_id() { return call_id; }
   CallStatus* get_init_status() { return init_status; }
 };
 
@@ -121,8 +118,9 @@ class AmCallWatcher
     , public AmEventHandler
 {
  public:
-  typedef std::map<string, CallStatus*> CallStatusMap;
-  typedef std::map<string, pair<CallStatus*, time_t>> CallStatusTimedMap;
+  typedef std::map<std::string, CallStatus*> CallStatusMap;
+  typedef std::map<std::string, std::pair<CallStatus*, time_t>>
+      CallStatusTimedMap;
 
  private:
   CallStatusMap states;
@@ -143,7 +141,7 @@ class AmCallWatcher
   // eventhandler
   void process(AmEvent*);
 
-  CallStatus* getStatus(const string& call_id);
+  CallStatus* getStatus(const std::string& call_id);
 
   // dump all states
   void dump();

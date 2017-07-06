@@ -24,8 +24,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _AMEVENTDISPATCHER_h_
-#define _AMEVENTDISPATCHER_h_
+
+#ifndef _AMEVENTDISPATCHER_H_
+#define _AMEVENTDISPATCHER_H_
 
 #include "AmEventQueue.h"
 #include "AmSipMsg.h"

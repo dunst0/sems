@@ -27,10 +27,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef SESSION_THREADPOOL
+#ifndef _AMSESSIONPROCESSOR_H_
+#define _AMSESSIONPROCESSOR_H_
 
-#ifndef _AmSessionProcessor_h_
-#define _AmSessionProcessor_h_
+#ifdef SESSION_THREADPOOL
 
 #include "AmEventQueue.h"
 #include "AmThread.h"
@@ -38,6 +38,7 @@
 #include <list>
 #include <set>
 #include <vector>
+
 class AmSessionProcessorThread;
 class AmSession;
 
@@ -93,6 +94,6 @@ class AmSessionProcessorThread
   void startSession(AmSession* s);
 };
 
-#endif // _AmSessionProcessor_h_
+#endif
 
-#endif // #ifdef SESSION_THREADPOOL
+#endif

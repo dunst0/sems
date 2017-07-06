@@ -1,9 +1,11 @@
 #include "AmConferenceChannel.h"
 #include "AmConfig.h"
 #include "AmUtils.h"
+
 #include <assert.h>
-#include <fstream>
 #include <string.h>
+
+#include <fstream>
 
 AmConferenceChannel::AmConferenceChannel(AmConferenceStatus* status,
                                          int channel_id, string channel_tag,
@@ -43,7 +45,7 @@ AmConferenceChannel::~AmConferenceChannel()
   if (out_file) out_file->close();
 }
 
-int AmConferenceChannel::put(unsigned long long system_ts,
+int AmConferenceChannel::put(unsigned long long int system_ts,
                              unsigned char* buffer, int input_sample_rate,
                              unsigned int size)
 {
@@ -75,7 +77,7 @@ int AmConferenceChannel::put(unsigned long long system_ts,
   return size;
 }
 
-int AmConferenceChannel::get(unsigned long long system_ts,
+int AmConferenceChannel::get(unsigned long long int system_ts,
                              unsigned char* buffer, int output_sample_rate,
                              unsigned int nb_samples)
 {

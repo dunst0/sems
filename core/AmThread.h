@@ -26,8 +26,8 @@
  */
 /** @file AmThread.h */
 
-#ifndef __AMTHREAD_H__
-#define __AMTHREAD_H__
+#ifndef _AMTHREAD_H_
+#define _AMTHREAD_H_
 
 #include <errno.h>
 #include <pthread.h>

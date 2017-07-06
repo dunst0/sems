@@ -30,6 +30,10 @@
 #include "AmUtils.h"
 #include "log.h"
 
+using std::map;
+using std::string;
+using std::vector;
+
 const char* AmArg::t2str(int type)
 {
   switch (type) {

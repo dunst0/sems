@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmConfigReader.h */
-#ifndef AmConfigReader_h
-#define AmConfigReader_h
+
+#ifndef _AMCONFIGREADER_H_
+#define _AMCONFIGREADER_H_
 
 #include <map>
 #include <string>

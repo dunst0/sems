@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmSipDialog.h */
-#ifndef AmSipDialog_h
-#define AmSipDialog_h
+
+#ifndef _AMSIPDIALOG_H_
+#define _AMSIPDIALOG_H_
 
 #include "Am100rel.h"
 #include "AmBasicSipDialog.h"
@@ -177,10 +178,3 @@ class AmSipDialogEventHandler : public AmBasicSipEventHandler
 };
 
 #endif
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 2
- * End:
- */

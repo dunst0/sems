@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmOfferAnswer.h */
-#ifndef AmOfferAnswer_h
-#define AmOfferAnswer_h
+
+#ifndef _AMOFFERANSWER_H_
+#define _AMOFFERANSWER_H_
 
 #include "AmSdp.h"
 #include "AmSipMsg.h"

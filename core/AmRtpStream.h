@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmRtpStream.h */
-#ifndef _RtpStream_h_
-#define _RtpStream_h_
+
+#ifndef _AMRTPSTREAM_H_
+#define _AMRTPSTREAM_H_
 
 #include "AmDtmfSender.h"
 #include "AmEvent.h"
@@ -542,7 +543,3 @@ class AmRtpStream : public AmObject
 };
 
 #endif
-
-// Local Variables:
-// mode:C++
-// End:

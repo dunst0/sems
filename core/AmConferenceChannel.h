@@ -25,13 +25,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmConferenceChannel.h */
-#ifndef AmConferenceChannel_h
-#define AmConferenceChannel_h
+
+#ifndef _AMCONFERENCECHANNEL_H_
+#define _AMCONFERENCECHANNEL_H_
 
 #include "AmAudio.h"
 #include "AmConferenceStatus.h"
 
 #include "sip/async_file.h"
+
 class ChannelWritingFile : public async_file
 {
   FILE* fp;
@@ -75,9 +77,9 @@ class AmConferenceChannel : public AmAudio
   int write(unsigned int user_ts, unsigned int size) { return -1; }
 
   // override AmAudio
-  int get(unsigned long long system_ts, unsigned char* buffer,
+  int get(unsigned long long int system_ts, unsigned char* buffer,
           int output_sample_rate, unsigned int nb_samples);
-  int put(unsigned long long system_ts, unsigned char* buffer,
+  int put(unsigned long long int system_ts, unsigned char* buffer,
           int input_sample_rate, unsigned int size);
 
  public:

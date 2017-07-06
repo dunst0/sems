@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmSessionContainer.h */
-#ifndef AmSessionContainer_h
-#define AmSessionContainer_h
+
+#ifndef _AMSESSIONCONTAINER_H_
+#define _AMSESSIONCONTAINER_H_
 
 #include "AmSession.h"
 #include "AmThread.h"

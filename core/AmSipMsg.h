@@ -1,5 +1,5 @@
-#ifndef __AMSIPMSG_H__
-#define __AMSIPMSG_H__
+#ifndef _AMSIPMSG_H_
+#define _AMSIPMSG_H_
 
 #include "AmArg.h"
 #include "AmMimeBody.h"
@@ -146,11 +146,4 @@ void addOptionTag(string& hdrs, const string& hdr_name, const string& tag);
 /** remove an option tag @param tag from list @param hdr_name */
 void removeOptionTag(string& hdrs, const string& hdr_name, const string& tag);
 
-#endif /* __AMSIPMSG_H__ */
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 2
- * End:
- */
+#endif

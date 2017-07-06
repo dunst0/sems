@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _jsonArg_h_
-#define _jsonArg_h_
+#ifndef _JSONARG_H_
+#define _JSONARG_H_
+
 #include "AmArg.h"
 #include <iostream>
 #include <string>
@@ -45,4 +46,5 @@ bool json2arg(const char* input, AmArg& res);
 
 /** @return true on success */
 bool json2arg(const std::string& input, AmArg& res);
+
 #endif

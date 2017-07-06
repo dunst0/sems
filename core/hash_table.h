@@ -27,8 +27,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _hash_table_h
-#define _hash_table_h
+#ifndef _HASH_TABLE_H_
+#define _HASH_TABLE_H_
 
 #include "AmThread.h"
 #include "log.h"
@@ -263,10 +263,3 @@ template <class Bucket> class hash_table
 };
 
 #endif
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 4
- * End:
- */

@@ -24,10 +24,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 /** @file log.h */
-#ifndef _log_h_
-#define _log_h_
+
+#ifndef _LOG_H_
+#define _LOG_H_
 
 #include <execinfo.h> /* backtrace_symbols() */
 #include <pthread.h>  /* pthread_self() */
@@ -42,7 +42,7 @@
 #ifdef __cplusplus
 extern "C" {
 #if 0
-}
+} //TODO: remove this stupid stuff
 #endif
 #endif
 
@@ -204,4 +204,4 @@ class AmLoggingFacility;
 void register_log_hook(AmLoggingFacility*);
 #endif
 
-#endif /* !_log_h_ */
+#endif

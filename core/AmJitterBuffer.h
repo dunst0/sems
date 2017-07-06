@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmJitterBuffer.h */
-#ifndef _AmJitterBuffer_h_
-#define _AmJitterBuffer_h_
+
+#ifndef _AMJITTERBUFFER_H_
+#define _AMJITTERBUFFER_H_
 
 #include "AmAudio.h"
 #include "AmThread.h"
@@ -35,8 +36,7 @@
 
 #define INITIAL_JITTER 80 * SYSTEM_SAMPLECLOCK_RATE / 1000 // 80 miliseconds
 #define MAX_JITTER 2 * SYSTEM_SAMPLECLOCK_RATE             // 2 seconds
-#define RESYNC_THRESHOLD                                                       \
-  5 // resync backward if RESYNC_THRESHOLD packets arrive late
+#define RESYNC_THRESHOLD 5 // resync backward if RESYNC_THRESHOLD packets arrive late
 
 class Packet
 {
@@ -98,4 +98,4 @@ class AmJitterBuffer
            unsigned int* size, unsigned int* out_ts);
 };
 
-#endif // _AmJitterBuffer_h_
+#endif
