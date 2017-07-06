@@ -52,6 +52,7 @@
 #include <fstream>
 
 using std::string;
+using std::vector;
 
 static char _int2str_lookup[] = {'0', '1', '2', '3', '4',
                                  '5', '6', '7', '8', '9'};
@@ -385,7 +386,7 @@ bool str2bool(const string& s, bool& dst)
   return false;
 }
 
-std::string URL_decode(const std::string& s)
+string URL_decode(const string& s)
 {
   enum
   {
@@ -451,11 +452,11 @@ std::string URL_decode(const std::string& s)
   return res;
 }
 
-std::string URL_encode(const std::string& s)
+string URL_encode(const string& s)
 {
-  const std::string unreserved = "-_.~";
+  const string unreserved = "-_.~";
 
-  std::string escaped = "";
+  string escaped = "";
   for (size_t i = 0; i < s.length(); i++) {
     // RFC 3986 section 2.3 Unreserved Characters (January 2005)
     if ((s[i] >= 'A' && s[i] <= 'Z') || (s[i] >= 'a' && s[i] <= 'z')
@@ -968,8 +969,8 @@ unsigned int get_random()
 
 // Explode string by a separator to a vector
 // see http://stackoverflow.com/questions/236129/c-how-to-split-a-string
-std::vector<string> explode(const string& s, const string& delim,
-                            const bool keep_empty)
+vector<string> explode(const string& s, const string& delim,
+                       const bool keep_empty)
 {
   vector<string> result;
   if (delim.empty()) {
@@ -1082,11 +1083,11 @@ bool read_regex_mapping(const string& fname, const char* sep,
   return true;
 }
 
-void ReplaceStringInPlace(std::string& subject, const std::string& search,
-                          const std::string& replace)
+void ReplaceStringInPlace(string& subject, const string& search,
+                          const string& replace)
 {
   size_t pos = 0;
-  while ((pos = subject.find(search, pos)) != std::string::npos) {
+  while ((pos = subject.find(search, pos)) != string::npos) {
     subject.replace(pos, search.length(), replace);
     pos += replace.length();
   }
