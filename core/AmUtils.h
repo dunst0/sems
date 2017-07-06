@@ -24,9 +24,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+/** @file AmUtils.h */
 
 #ifndef _AMUTILS_H_
 #define _AMUTILS_H_
+
+#include "md5.h"
 
 #include <errno.h>
 #include <regex.h>
@@ -35,14 +38,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <string>
-using std::string;
-
 #include <map>
+#include <string>
 #include <utility>
 #include <vector>
-
-#include "md5.h"
 
 #define HASHLEN 16
 typedef unsigned char HASH[HASHLEN];
@@ -55,42 +54,40 @@ typedef unsigned char HASHHEX[HASHHEXLEN + 1];
 #define PARAM_HDR "P-App-Param"
 #define APPNAME_HDR "P-App-Name"
 
-/** @file AmUtils.h */
-
 /**
  * Convert an int to a string.
  */
-string int2str(int val);
+std::string int2str(int val);
 
 /**
  * Convert an unsigned int to a string.
  */
-string int2str(unsigned int val);
+std::string int2str(unsigned int val);
 
 /**
  * Convert a long to a string.
  */
-string long2str(long int val);
+std::string long2str(long int val);
 
 /**
  * Convert a long long to a string.
  */
-string longlong2str(long long int val);
+std::string longlong2str(long long int val);
 
 /**
  * Convert a a byte to a string using hexdecimal representation.
  */
-string char2hex(unsigned char val, bool lowercase = false);
+std::string char2hex(unsigned char val, bool lowercase = false);
 
 /**
  * Convert an unsigned int to a string using hexdecimal representation.
  */
-string int2hex(unsigned int val, bool lowercase = false);
+std::string int2hex(unsigned int val, bool lowercase = false);
 
 /**
  * Convert an unsigned long to a string using hexdecimal representation.
  */
-string long2hex(unsigned long val);
+std::string long2hex(unsigned long val);
 
 /**
  * Convert a reversed hex string to uint.
@@ -98,12 +95,12 @@ string long2hex(unsigned long val);
  * @param result [out] result integer.
  * @return true if failed.
  */
-bool reverse_hex2int(const string& str, unsigned int& result);
+bool reverse_hex2int(const std::string& str, unsigned int& result);
 
 /**
  * Convert a double to a string.
  */
-string double2str(double val);
+std::string double2str(double val);
 
 /**
  * Convert a string to an uint.
@@ -111,7 +108,7 @@ string double2str(double val);
  * @param result [out] result integer.
  * @return true if failed (!!!)
  */
-bool str2i(const string& str, unsigned int& result);
+bool str2i(const std::string& str, unsigned int& result);
 
 /**
  * Internal version of preceeding 'str2i' method.
@@ -129,7 +126,7 @@ bool str2i(char*& str, unsigned int& result, char sep = ' ');
  * @param result [out] result integer.
  * @return true on success (!!!)
  */
-bool str2int(const string& str, int& result);
+bool str2int(const std::string& str, int& result);
 
 /**
  * Internal version of preceeding 'str2int' method.
@@ -148,7 +145,7 @@ bool str2int(char*& str, int& result, char sep = ' ');
  * @param result [out] result integer.
  * @return true if on success (!!!).
  */
-bool str2long(const string& str, long& result);
+bool str2long(const std::string& str, long& result);
 
 /**
  * Internal version of preceeding 'str2long' method.
@@ -161,7 +158,7 @@ bool str2long(const string& str, long& result);
 bool str2long(char*& str, long& result, char sep = ' ');
 
 /* translates string value into bool, returns false on error */
-bool str2bool(const string& s, bool& dst);
+bool str2bool(const std::string& s, bool& dst);
 
 std::string URL_decode(const std::string& s);
 std::string URL_encode(const std::string& s);
@@ -177,32 +174,32 @@ std::string URL_encode(const std::string& s);
  * @param res_msg       where to store the 'reason'.
  */
 int parse_return_code(const char* lbuf, unsigned int& res_code,
-                      string& res_msg);
+                      std::string& res_msg);
 /**
  * Tells if a file exists.
  * @param name file name.
  * @return true if file could be openned.
  */
-bool file_exists(const string& name);
+bool file_exists(const std::string& name);
 
 /**
  * @return A file name extracted from the given full path file name.
  */
-string filename_from_fullpath(const string& path);
+std::string filename_from_fullpath(const std::string& path);
 
 /**
  * @return A file extension extracted from the given full path file name.
  */
-string file_extension(const string& path);
+std::string file_extension(const std::string& path);
 
 /**
  * @return new path resulting from the concatanation of path,
  * suffix and eventually a slash between them
  */
-string add2path(const string& path, int n_suffix, ...);
+std::string add2path(const std::string& path, int n_suffix, ...);
 
-string get_addr_str(const sockaddr_storage* addr);
-string get_addr_str_sip(const sockaddr_storage* addr);
+std::string get_addr_str(const sockaddr_storage* addr);
+std::string get_addr_str_sip(const sockaddr_storage* addr);
 
 /** \brief microseconds sleep using select */
 #define sleep_us(nusecs)                                                       \
@@ -220,39 +217,44 @@ string get_addr_str_sip(const sockaddr_storage* addr);
  */
 int get_local_addr_for_dest(sockaddr_storage* remote_ip,
                             sockaddr_storage* local);
-int get_local_addr_for_dest(const string& remote_ip, string& local);
+int get_local_addr_for_dest(const std::string& remote_ip, std::string& local);
 
-string extract_tag(const string& addr);
+std::string extract_tag(const std::string& addr);
 
 /** returns true if key is in s_list, a list of items delimited by list_delim
  *skips whitespaces, too */
-bool key_in_list(const string& s_list, const string& key,
+bool key_in_list(const std::string& s_list, const std::string& key,
                  char list_delim = ',');
 
 /** return string with trailing spaces and everything after ; including ; itself
  * removed */
-string strip_header_params(const string& hdr_string);
+std::string strip_header_params(const std::string& hdr_string);
 
 /** get a header parameter value */
-string get_header_param(const string& hdr_string, const string& param_name);
+std::string get_header_param(const std::string& hdr_string,
+                             const std::string& param_name);
 
 /** get the value of key @param name from the list param_hdr*/
-string get_header_keyvalue(const string& param_hdr, const string& name);
+std::string get_header_keyvalue(const std::string& param_hdr,
+                                const std::string& name);
 
 /** get the value of key @param name from the list param_hdr, no comma separated
  * values*/
-string get_header_keyvalue_single(const string& param_hdr, const string& name);
+std::string get_header_keyvalue_single(const std::string& param_hdr,
+                                       const std::string& name);
 
 /** get the value of key @param short_name or @param name or from the list
  * param_hdr*/
-string get_header_keyvalue(const string& param_hdr, const string& short_name,
-                           const string& name);
+std::string get_header_keyvalue(const std::string& param_hdr,
+                                const std::string& short_name,
+                                const std::string& name);
 
 /** get the value of key @param name from P-Iptel-Param header in hdrs */
-string get_session_param(const string& hdrs, const string& name);
+std::string get_session_param(const std::string& hdrs, const std::string& name);
 
 /** parse the P-App-Param header and extracts the parameters into a map */
-void parse_app_params(const string& hdrs, std::map<string, string>& app_params);
+void parse_app_params(const std::string& hdrs,
+                      std::map<std::string, std::string>& app_params);
 
 /** support for thread-safe pseudo-random numbers  - init function */
 void init_random();
@@ -261,8 +263,8 @@ void init_random();
 unsigned int get_random();
 
 /** Explode string by a separator to a vector */
-std::vector<string> explode(const string& s, const string& delim,
-                            const bool keep_empty = false);
+std::vector<std::string> explode(const std::string& s, const std::string& delim,
+                                 const bool keep_empty = false);
 
 /** remove chars in sepSet from beginning and end of str */
 inline std::string trim(std::string const& str, char const* sepSet)
@@ -274,28 +276,28 @@ inline std::string trim(std::string const& str, char const* sepSet)
 }
 
 /** add a directory to an environement variable */
-void add_env_path(const char* name, const string& path);
+void add_env_path(const char* name, const std::string& path);
 
-size_t skip_to_end_of_brackets(const string& s, size_t start);
+size_t skip_to_end_of_brackets(const std::string& s, size_t start);
 
-typedef std::vector<std::pair<regex_t, string>> RegexMappingVector;
+typedef std::vector<std::pair<regex_t, std::string>> RegexMappingVector;
 
 /** read a regex=>string mapping from file
     @return true on success
  */
-bool read_regex_mapping(const string& fname, const char* sep,
+bool read_regex_mapping(const std::string& fname, const char* sep,
                         const char* dbg_type, RegexMappingVector& result);
 
 /** run a regex mapping - result is the first matching entry
     @return true if matched
  */
 bool run_regex_mapping(const RegexMappingVector& mapping, const char* test_s,
-                       string& result);
+                       std::string& result);
 
 /** convert a binary MD5 hash to hex representation */
 void cvt_hex(HASH bin, HASHHEX hex);
 
 /** get an MD5 hash of a string */
-string calculateMD5(const string& input);
+std::string calculateMD5(const std::string& input);
 
 #endif

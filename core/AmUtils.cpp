@@ -24,10 +24,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 /** @file AmUtils.cpp */
 
 #include "AmUtils.h"
+
 #include "AmConfig.h"
 #include "AmSipMsg.h"
 #include "AmThread.h"
@@ -41,17 +41,17 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <regex.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <unistd.h>
-
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <unistd.h>
 
 #include <algorithm>
-#include <regex.h>
-
 #include <fstream>
+
+using std::string;
 
 static char _int2str_lookup[] = {'0', '1', '2', '3', '4',
                                  '5', '6', '7', '8', '9'};
@@ -95,11 +95,11 @@ string signed2str(T val, T (*abs_func)(T), DT (*div_func)(T, T))
 string int2str(int val) { return signed2str<int, div_t>(val, abs, div); }
 string long2str(long int val)
 {
-  return signed2str<long, ldiv_t>(val, labs, ldiv);
+  return signed2str<long int, ldiv_t>(val, labs, ldiv);
 }
 string longlong2str(long long int val)
 {
-  return signed2str<long long, lldiv_t>(val, llabs, lldiv);
+  return signed2str<long long int, lldiv_t>(val, llabs, lldiv);
 }
 
 static char _int2hex_lookup[] = {'0', '1', '2', '3', '4', '5', '6', '7',
@@ -138,15 +138,15 @@ string int2hex(unsigned int val, bool lowercase)
   return string((char*) buffer);
 }
 
-string long2hex(unsigned long val)
+string long2hex(unsigned long int val)
 {
   unsigned int digit = 0;
 
-  char buffer[2 * sizeof(long) + 1] = {0};
+  char buffer[2 * sizeof(long int) + 1] = {0};
   int  i, j = 0;
 
-  for (i = 0; i < int(2 * sizeof(long)); i++) {
-    digit       = val >> 4 * (2 * sizeof(long) - 1);
+  for (i = 0; i < int(2 * sizeof(long int)); i++) {
+    digit       = val >> 4 * (2 * sizeof(long int) - 1);
     val         = val << 4;
     buffer[j++] = _int2hex_lookup[(unsigned char) digit];
   }
@@ -317,18 +317,18 @@ error_char:
 }
 
 // long int could probably be the same size as int
-bool str2long(const string& str, long& result)
+bool str2long(const string& str, long int& result)
 {
   char* s = (char*) str.c_str();
   return str2long(s, result);
 }
 
-bool str2long(char*& str, long& result, char sep)
+bool str2long(char*& str, long int& result, char sep)
 {
-  long  ret  = 0;
-  int   i    = 0;
-  char* init = str;
-  long  sign = 1;
+  long int ret  = 0;
+  int      i    = 0;
+  char*    init = str;
+  long int sign = 1;
 
   for (; (*str != '\0') && (*str == ' '); str++)
     ;
@@ -1125,8 +1125,8 @@ bool run_regex_mapping(const RegexMappingVector& mapping, const char* test_s,
 // These function comes basically from ser's uac module
 void cvt_hex(HASH bin, HASHHEX hex)
 {
-  unsigned short i;
-  unsigned char  j;
+  unsigned short int i;
+  unsigned char      j;
 
   for (i = 0; i < HASHLEN; i++) {
     j = (bin[i] >> 4) & 0xf;
