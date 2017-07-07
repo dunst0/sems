@@ -25,7 +25,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "log.h"
+
+#include "AmApi.h"    /* AmLoggingFacility */
+#include "AmThread.h" /* AmMutex */
 #include "sems.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -34,12 +39,9 @@
 #include <syslog.h>
 #endif
 
-#include <string>
 #include <vector>
 
-#include "AmApi.h"    /* AmLoggingFacility */
-#include "AmThread.h" /* AmMutex */
-#include "log.h"
+using std::vector;
 
 int log_level  = AmConfig::LogLevel;  /**< log level */
 int log_stderr = AmConfig::LogStderr; /**< non-zero if logging to stderr */

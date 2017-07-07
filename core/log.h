@@ -41,9 +41,6 @@
 
 #ifdef __cplusplus
 extern "C" {
-#if 0
-} //TODO: remove this stupid stuff
-#endif
 #endif
 
 /**
