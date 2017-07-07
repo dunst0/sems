@@ -41,17 +41,13 @@
 #include "AmSipHeaders.h"
 #include "AmSipMsg.h"
 #include "AmThread.h"
-
+#ifdef WITH_ZRTP
 #include "AmZRTP.h"
+#endif
 
 #include <map>
-#include <queue>
 #include <string>
 #include <vector>
-
-using std::string;
-using std::vector;
-using std::unique_ptr;
 
 class AmSessionFactory;
 class AmDtmfEvent;
@@ -80,7 +76,7 @@ class AmSession
   AmMutex audio_mut;
 
  protected:
-  vector<SdpPayload*> m_payloads;
+  std::vector<SdpPayload*> m_payloads;
   // bool         negotiate_onreply;
 
   friend class AmRtpAudio;
@@ -118,11 +114,11 @@ class AmSession
   static void session_started();
   static void session_stopped();
 
-  static volatile unsigned int       session_num;
-  static volatile unsigned int       session_count;
-  static volatile unsigned int       max_session_num;
-  static volatile unsigned long long avg_session_num;
-  static AmMutex                     session_num_mut;
+  static volatile unsigned int           session_num;
+  static volatile unsigned int           session_count;
+  static volatile unsigned int           max_session_num;
+  static volatile unsigned long long int avg_session_num;
+  static AmMutex                         session_num_mut;
 
   friend class AmMediaProcessor;
   friend class AmMediaProcessorThread;
@@ -130,10 +126,10 @@ class AmSession
   friend class AmSessionFactory;
   friend class AmSessionProcessorThread;
 
-  unique_ptr<AmRtpAudio> _rtp_str;
+  std::unique_ptr<AmRtpAudio> _rtp_str;
 
   /** Application parameters passed through P-App-Param HF */
-  map<string, string> app_params;
+  std::map<std::string, std::string> app_params;
 
   /** Sets the application parameters from the original request */
   void setAppParams(const AmSipRequest& req);
@@ -143,7 +139,7 @@ class AmSession
 
   /** this is the group the media is processed with
       - by default local tag */
-  string callgroup;
+  std::string callgroup;
 
   /** do accept early session? */
   bool accept_early_session;
@@ -152,7 +148,7 @@ class AmSession
   int rtp_interface;
 
   /** Session event handlers (ex: session timer, UAC auth, etc...) */
-  vector<AmSessionEventHandler*> ev_handlers;
+  std::vector<AmSessionEventHandler*> ev_handlers;
 
   AmAudio *input, *output;
 
@@ -182,7 +178,7 @@ class AmSession
   SessionRefreshMethod refresh_method;
 
   /** update selected session refresh method from remote capabilities */
-  void updateRefreshMethod(const string& headers);
+  void updateRefreshMethod(const std::string& headers);
 
   AmRtpAudio* RTPStream();
   bool        hasRtpStream() { return _rtp_str.get() != NULL; }
@@ -203,10 +199,10 @@ class AmSession
    */
   struct Exception
   {
-    int    code;
-    string reason;
-    string hdrs;
-    Exception(int c, string r, string h = "")
+    int         code;
+    std::string reason;
+    std::string hdrs;
+    Exception(int c, std::string r, std::string h = "")
         : code(c)
         , reason(r)
         , hdrs(h)
@@ -249,10 +245,10 @@ class AmSession
    * Note: this must be set before inserting
    * the session to the MediaProcessor!
    */
-  void setCallgroup(const string& cg);
+  void setCallgroup(const std::string& cg);
 
   /** get the callgroup @return callgroup */
-  string getCallgroup();
+  std::string getCallgroup();
 
   /**
    * change the callgroup
@@ -260,7 +256,7 @@ class AmSession
    * This function removes the session from
    * the media processor and adds it again.
    */
-  void changeCallgroup(const string& cg);
+  void changeCallgroup(const std::string& cg);
 
   /* ----         audio input and output        ---- */
 
@@ -318,30 +314,30 @@ class AmSession
   /* ----         SIP dialog attributes                  ---- */
 
   /** Gets the Session's call ID */
-  const string& getCallID() const;
+  const std::string& getCallID() const;
 
   /** Gets the Session's remote tag */
-  const string& getRemoteTag() const;
+  const std::string& getRemoteTag() const;
 
   /** Gets the Session's local tag */
-  const string& getLocalTag() const;
+  const std::string& getLocalTag() const;
 
   /** Gets the branch param of the first via in the original INVITE*/
-  const string& getFirstBranch() const;
+  const std::string& getFirstBranch() const;
 
   /** Sets the Session's local tag if not set already */
   void setLocalTag();
 
   /** Sets the Session's local tag */
-  void setLocalTag(const string& tag);
+  void setLocalTag(const std::string& tag);
 
   /** Sets the URI for the session */
-  void setUri(const string& uri);
+  void setUri(const std::string& uri);
 
   /* ----         RTP stream attributes                  ---- */
 
   /** Gets the current RTP payload */
-  const vector<SdpPayload*>& getPayloads();
+  const std::vector<SdpPayload*>& getPayloads();
 
   /** Gets the port number of the remote part of the session */
   int getRPort();
@@ -352,14 +348,14 @@ class AmSession
   virtual bool refresh(int flags = 0);
 
   /** send an UPDATE in the session */
-  virtual int sendUpdate(const AmMimeBody* body, const string& hdrs);
+  virtual int sendUpdate(const AmMimeBody* body, const std::string& hdrs);
 
   /** send a Re-INVITE (if connected) */
-  virtual int sendReinvite(bool updateSDP = true, const string& headers = "",
-                           int flags = 0);
+  virtual int sendReinvite(bool               updateSDP = true,
+                           const std::string& headers = "", int flags = 0);
 
   /** send an INVITE */
-  virtual int sendInvite(const string& headers = "");
+  virtual int sendInvite(const std::string& headers = "");
 
   /** set the session on/off hold */
   virtual void setOnHold(bool hold);
@@ -376,7 +372,7 @@ class AmSession
   /**
    * Get a session parameter ('P-App-Param' HF, etc...)
    */
-  string getAppParam(const string& param_name) const;
+  std::string getAppParam(const std::string& param_name) const;
 
   /**
    * Destroy the session.
@@ -493,7 +489,7 @@ class AmSession
    * onOutgoingInvite will be called if an INVITE
    * is sent in the session.
    */
-  virtual void onOutgoingInvite(const string& headers) {}
+  virtual void onOutgoingInvite(const std::string& headers) {}
 
   /**
    * onCancel will be called if a CANCEL for a running
@@ -601,18 +597,18 @@ class AmSession
   virtual void onBeforeDestroy() {}
 
   // The IP address to put as c= in SDP bodies
-  string advertisedIP(int addrType = AT_NONE);
+  std::string advertisedIP(int addrType = AT_NONE);
 
   // IP address used to bind the RTP socket
-  string localMediaIP(int addrType = AT_NONE);
+  std::string localMediaIP(int addrType = AT_NONE);
 
   /** format session id for debugging */
-  string sid4dbg();
+  std::string sid4dbg();
 
   /**
    * Creates a new Id which can be used within sessions.
    */
-  static string getNewId();
+  static std::string getNewId();
 
   /* ----------------- media processing interface ------------------- */
 

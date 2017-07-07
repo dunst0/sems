@@ -38,11 +38,6 @@
 #include "AmSessionContainer.h"
 #include "AmSessionProcessor.h"
 #include "AmUtils.h"
-
-#ifdef WITH_ZRTP
-#include "AmZRTP.h"
-#endif
-
 #include "log.h"
 
 #include <assert.h>
@@ -51,11 +46,14 @@
 
 #include <algorithm>
 
-volatile unsigned int       AmSession::session_num = 0;
-AmMutex                     AmSession::session_num_mut;
-volatile unsigned int       AmSession::session_count   = 0;
-volatile unsigned int       AmSession::max_session_num = 0;
-volatile unsigned long long AmSession::avg_session_num = 0;
+using std::string;
+using std::stable_sort;
+
+volatile unsigned int           AmSession::session_num = 0;
+AmMutex                         AmSession::session_num_mut;
+volatile unsigned int           AmSession::session_count   = 0;
+volatile unsigned int           AmSession::max_session_num = 0;
+volatile unsigned long long int AmSession::avg_session_num = 0;
 
 struct timeval get_now()
 {
@@ -951,8 +949,8 @@ bool AmSession::getSdpAnswer(const AmSdp& offer, AmSdp& answer)
 
     // sort payload type in the answer according to the priority given in the
     // codec_order configuration key
-    std::stable_sort(answer_media.payloads.begin(), answer_media.payloads.end(),
-                     codec_priority_cmp());
+    stable_sort(answer_media.payloads.begin(), answer_media.payloads.end(),
+                codec_priority_cmp());
 
     media_index++;
   }
@@ -1179,8 +1177,8 @@ string AmSession::localMediaIP(int addrType)
   for (size_t i = rtp_interface; i < AmConfig::RTP_Ifs.size(); i++) {
     set_ip = AmConfig::RTP_Ifs[i].LocalIP; // "media_ip" parameter.
     if ((addrType == AT_NONE)
-        || ((addrType == AT_V4) && (set_ip.find(".") != std::string::npos))
-        || ((addrType == AT_V6) && (set_ip.find(":") != std::string::npos)))
+        || ((addrType == AT_V4) && (set_ip.find(".") != string::npos))
+        || ((addrType == AT_V6) && (set_ip.find(":") != string::npos)))
       return set_ip;
   }
   return set_ip;
@@ -1200,8 +1198,8 @@ string AmSession::advertisedIP(int addrType)
   for (size_t i = rtp_interface; i < AmConfig::RTP_Ifs.size(); i++) {
     set_ip = AmConfig::RTP_Ifs[i].getIP(); // "media_ip" parameter.
     if ((addrType == AT_NONE)
-        || ((addrType == AT_V4) && (set_ip.find(".") != std::string::npos))
-        || ((addrType == AT_V6) && (set_ip.find(":") != std::string::npos)))
+        || ((addrType == AT_V4) && (set_ip.find(".") != string::npos))
+        || ((addrType == AT_V6) && (set_ip.find(":") != string::npos)))
       return set_ip;
   }
   return set_ip;
@@ -1322,10 +1320,3 @@ int AmSession::writeStreams(unsigned long long ts, unsigned char* buffer)
   unlockAudio();
   return res;
 }
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 2
- * End:
- */
