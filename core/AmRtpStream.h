@@ -40,6 +40,7 @@
 
 #include <map>
 #include <string>
+#include <memory>
 
 // return values of AmRtpStream::receive
 #define RTP_EMPTY 0        // no rtp packet available
