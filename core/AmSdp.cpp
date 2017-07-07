@@ -28,6 +28,9 @@
 #include <stdexcept>
 
 using std::string;
+using std::vector;
+using std::pair;
+using std::mismatch;
 
 static void parse_session_attr(AmSdp* sdp_msg, char* s, char** next);
 static bool parse_sdp_line_ex(AmSdp* sdp_msg, char*& s);
@@ -164,7 +167,7 @@ string SdpConnection::debugPrint() const
 string SdpMedia::debugPrint() const
 {
   string payload_list;
-  for (std::vector<SdpPayload>::const_iterator it = payloads.begin();
+  for (vector<SdpPayload>::const_iterator it = payloads.begin();
        it != payloads.end(); it++) {
     if (it != payloads.begin()) payload_list += " ";
     payload_list += int2str(it->payload_type);
@@ -203,10 +206,9 @@ bool SdpMedia::operator==(const SdpMedia& other) const
     return false;
   }
   else {
-    std::pair<vector<SdpPayload>::const_iterator,
-              vector<SdpPayload>::const_iterator>
-        pl_mismatch = std::mismatch(payloads.begin(), payloads.end(),
-                                    other.payloads.begin());
+    pair<vector<SdpPayload>::const_iterator, vector<SdpPayload>::const_iterator>
+        pl_mismatch =
+            mismatch(payloads.begin(), payloads.end(), other.payloads.begin());
 
     if (pl_mismatch.first != payloads.end()
         || pl_mismatch.second != other.payloads.end())
@@ -219,10 +221,10 @@ bool SdpMedia::operator==(const SdpMedia& other) const
     }
   }
   else {
-    std::pair<vector<SdpAttribute>::const_iterator,
-              vector<SdpAttribute>::const_iterator>
-        a_mismatch = std::mismatch(attributes.begin(), attributes.end(),
-                                   other.attributes.begin());
+    pair<vector<SdpAttribute>::const_iterator,
+         vector<SdpAttribute>::const_iterator>
+        a_mismatch = mismatch(attributes.begin(), attributes.end(),
+                              other.attributes.begin());
 
     if (a_mismatch.first != attributes.end()
         || a_mismatch.second != other.attributes.end())
@@ -389,12 +391,12 @@ void AmSdp::print(string& body) const
   out_buf += "t=0 0\r\n";
 
   // add attributes (session level)
-  for (std::vector<SdpAttribute>::const_iterator a_it = attributes.begin();
+  for (vector<SdpAttribute>::const_iterator a_it = attributes.begin();
        a_it != attributes.end(); a_it++) {
     out_buf += a_it->print();
   }
 
-  for (std::vector<SdpMedia>::const_iterator media_it = media.begin();
+  for (vector<SdpMedia>::const_iterator media_it = media.begin();
        media_it != media.end(); media_it++) {
     out_buf += "m=" + media_t_2_str(media_it->type) + " "
                + int2str(media_it->port) + " "
@@ -407,7 +409,7 @@ void AmSdp::print(string& body) const
         || media_it->transport == TP_RTPSAVPF
         || media_it->transport == TP_UDPTLSRTPSAVP
         || media_it->transport == TP_UDPTLSRTPSAVPF) {
-      for (std::vector<SdpPayload>::const_iterator pl_it =
+      for (vector<SdpPayload>::const_iterator pl_it =
                media_it->payloads.begin();
            pl_it != media_it->payloads.end(); pl_it++) {
         out_buf += " " + int2str(pl_it->payload_type);
@@ -461,7 +463,7 @@ void AmSdp::print(string& body) const
     }
 
     // add attributes (media level)
-    for (std::vector<SdpAttribute>::const_iterator a_it =
+    for (vector<SdpAttribute>::const_iterator a_it =
              media_it->attributes.begin();
          a_it != media_it->attributes.end(); a_it++) {
       out_buf += a_it->print();
@@ -509,10 +511,10 @@ bool AmSdp::operator==(const AmSdp& other) const
     return false;
   }
   else {
-    std::pair<vector<SdpAttribute>::const_iterator,
-              vector<SdpAttribute>::const_iterator>
-        a_mismatch = std::mismatch(attributes.begin(), attributes.end(),
-                                   other.attributes.begin());
+    pair<vector<SdpAttribute>::const_iterator,
+         vector<SdpAttribute>::const_iterator>
+        a_mismatch = mismatch(attributes.begin(), attributes.end(),
+                              other.attributes.begin());
 
     if (a_mismatch.first != attributes.end()
         || a_mismatch.second != other.attributes.end())
@@ -526,10 +528,8 @@ bool AmSdp::operator==(const AmSdp& other) const
     return false;
   }
   else {
-    std::pair<vector<SdpMedia>::const_iterator,
-              vector<SdpMedia>::const_iterator>
-        m_mismatch =
-            std::mismatch(media.begin(), media.end(), other.media.begin());
+    pair<vector<SdpMedia>::const_iterator, vector<SdpMedia>::const_iterator>
+        m_mismatch = mismatch(media.begin(), media.end(), other.media.begin());
 
     if (m_mismatch.first != media.end()
         || m_mismatch.second != other.media.end())
