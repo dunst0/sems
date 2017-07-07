@@ -26,8 +26,10 @@
  */
 
 #include "AmRtpAudio.h"
+
 #include "AmPlayoutBuffer.h"
 #include "AmSession.h"
+
 #include <assert.h>
 #include <sys/time.h>
 
@@ -127,7 +129,7 @@ AmRtpAudio::~AmRtpAudio()
 #endif // USE_SPANDSP_PLC
 }
 
-bool AmRtpAudio::checkInterval(unsigned long long ts)
+bool AmRtpAudio::checkInterval(unsigned long long int ts)
 {
   if (!last_check_i) {
     send_int     = true;
@@ -149,12 +151,12 @@ bool AmRtpAudio::checkInterval(unsigned long long ts)
 
 bool AmRtpAudio::sendIntReached() { return send_int; }
 
-bool AmRtpAudio::sendIntReached(unsigned long long ts)
+bool AmRtpAudio::sendIntReached(unsigned long long int ts)
 {
-  if (!last_send_ts_i)
-    return true;
-  else
-    return (scaleSystemTS(ts - last_send_ts) >= getFrameSize());
+  if (!last_send_ts_i){
+    return true;}
+  else{
+    return (scaleSystemTS(ts - last_send_ts) >= getFrameSize());}
 }
 
 unsigned int AmRtpAudio::bytes2samples(unsigned int bytes) const
@@ -164,7 +166,7 @@ unsigned int AmRtpAudio::bytes2samples(unsigned int bytes) const
 /*
    @param wallclock_ts [in]    the current ts in the audio buffer
 */
-int AmRtpAudio::receive(unsigned long long system_ts)
+int AmRtpAudio::receive(unsigned long long int system_ts)
 {
   int          size;
   unsigned int rtp_ts;
@@ -229,12 +231,12 @@ int AmRtpAudio::receive(unsigned long long system_ts)
     // For g722, TSRate=8000 and Rate=16000
     //
     AmAudioRtpFormat*  rtp_fmt         = (AmAudioRtpFormat*) fmt.get();
-    unsigned long long adjusted_rtp_ts = rtp_ts;
+    unsigned long long int adjusted_rtp_ts = rtp_ts;
 
     if (rtp_fmt->getRate() != rtp_fmt->getTSRate()) {
-      adjusted_rtp_ts = (unsigned long long) rtp_ts
-                        * (unsigned long long) rtp_fmt->getRate()
-                        / (unsigned long long) rtp_fmt->getTSRate();
+      adjusted_rtp_ts = (unsigned long long int) rtp_ts
+                        * (unsigned long long int) rtp_fmt->getRate()
+                        / (unsigned long long int) rtp_fmt->getTSRate();
     }
 
     playout_buffer->write(wallclock_ts, adjusted_rtp_ts,
@@ -249,7 +251,7 @@ int AmRtpAudio::receive(unsigned long long system_ts)
   return size;
 }
 
-int AmRtpAudio::get(unsigned long long system_ts, unsigned char* buffer,
+int AmRtpAudio::get(unsigned long long int system_ts, unsigned char* buffer,
                     int output_sample_rate, unsigned int nb_samples)
 {
   if (!(receiving || getPassiveMode())) return 0; // like nothing received
@@ -276,7 +278,7 @@ int AmRtpAudio::get(unsigned long long system_ts, unsigned char* buffer,
   return size;
 }
 
-int AmRtpAudio::put(unsigned long long system_ts, unsigned char* buffer,
+int AmRtpAudio::put(unsigned long long int system_ts, unsigned char* buffer,
                     int input_sample_rate, unsigned int size)
 {
   last_send_ts_i = true;
@@ -302,8 +304,8 @@ int AmRtpAudio::put(unsigned long long system_ts, unsigned char* buffer,
   // pre-division by 100 is important
   // so that the first multiplication
   // does not overflow the 64bit int
-  unsigned long long user_ts =
-      system_ts * ((unsigned long long) rtp_fmt->getTSRate() / 100)
+  unsigned long long int user_ts =
+      system_ts * ((unsigned long long int) rtp_fmt->getTSRate() / 100)
       / (WALLCLOCK_RATE / 100);
 
   return send((unsigned int) user_ts, (unsigned char*) samples, s);

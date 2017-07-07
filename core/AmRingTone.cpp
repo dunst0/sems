@@ -1,4 +1,5 @@
 #include "AmRingTone.h"
+
 #include <math.h>
 
 #include "log.h"
@@ -34,7 +35,7 @@ int AmRingTone::read(unsigned int user_ts, unsigned int size)
     return size;
   }
 
-  short* s = (short*) ((unsigned char*) samples);
+  short int* s = (short int*) ((unsigned char*) samples);
   for (unsigned int i = 0; i < PCM16_B2S(size); i++, s++, t++) {
     if (t < ts_on) {
       float fs =
@@ -44,7 +45,7 @@ int AmRingTone::read(unsigned int user_ts, unsigned int size)
         fs +=
             sin((float(t * freq2) / (float) SYSTEM_SAMPLECLOCK_RATE) * 2.0 * PI)
             * 15000.0;
-      *s = (short) (fs);
+      *s = (short int) (fs);
     }
     else
       *s = 0;
