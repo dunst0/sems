@@ -46,6 +46,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+using std::vector;
+using std::string;
+
 #define CTRL_MSGBUF_SIZE 2048
 
 // UNUSED
