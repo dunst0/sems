@@ -60,6 +60,7 @@
 #endif
 
 using std::string;
+using std::vector;
 
 void PayloadMask::clear() { memset(bits, 0, sizeof(bits)); }
 
