@@ -112,11 +112,11 @@ class AmRtpAudio
   bool use_default_plc;
 
   unsigned long long int last_check;
-  bool               last_check_i;
-  bool               send_int;
+  bool                   last_check_i;
+  bool                   send_int;
 
   unsigned long long int last_send_ts;
-  bool               last_send_ts_i;
+  bool                   last_send_ts_i;
 
   //
   // Default packet loss concealment functions

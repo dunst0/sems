@@ -153,10 +153,12 @@ bool AmRtpAudio::sendIntReached() { return send_int; }
 
 bool AmRtpAudio::sendIntReached(unsigned long long int ts)
 {
-  if (!last_send_ts_i){
-    return true;}
-  else{
-    return (scaleSystemTS(ts - last_send_ts) >= getFrameSize());}
+  if (!last_send_ts_i) {
+    return true;
+  }
+  else {
+    return (scaleSystemTS(ts - last_send_ts) >= getFrameSize());
+  }
 }
 
 unsigned int AmRtpAudio::bytes2samples(unsigned int bytes) const
@@ -230,7 +232,7 @@ int AmRtpAudio::receive(unsigned long long int system_ts)
     // is 2. Rate and TSRate are only different in case of g722.
     // For g722, TSRate=8000 and Rate=16000
     //
-    AmAudioRtpFormat*  rtp_fmt         = (AmAudioRtpFormat*) fmt.get();
+    AmAudioRtpFormat*      rtp_fmt         = (AmAudioRtpFormat*) fmt.get();
     unsigned long long int adjusted_rtp_ts = rtp_ts;
 
     if (rtp_fmt->getRate() != rtp_fmt->getTSRate()) {

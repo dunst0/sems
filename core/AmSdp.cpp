@@ -13,22 +13,21 @@
 #include "sip/defs.h"
 #include "sip/parse_common.h"
 
-#include <algorithm>
 #include <arpa/inet.h>
 #include <assert.h>
-#include <cctype>
 #include <fcntl.h>
-#include <map>
 #include <netinet/in.h>
-#include <stdexcept>
 #include <stdio.h>
-
-using std::map;
-
 // Not on Solaris!
 #if !defined(__SVR4) && !defined(__sun)
 #include "strings.h"
 #endif
+
+#include <algorithm>
+#include <cctype>
+#include <stdexcept>
+
+using std::string;
 
 static void parse_session_attr(AmSdp* sdp_msg, char* s, char** next);
 static bool parse_sdp_line_ex(AmSdp* sdp_msg, char*& s);

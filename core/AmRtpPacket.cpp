@@ -31,15 +31,15 @@
 #include "log.h"
 #include "rtp/rtp.h"
 #include "sip/ip_util.h"
-#include "sip/raw_sender.h"
 #include "sip/msg_logger.h"
+#include "sip/raw_sender.h"
 
 #define __APPLE_USE_RFC_3542
-#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <assert.h>
 #include <errno.h>
+#include <netinet/in.h>
 #include <string.h>
-#include <arpa/inet.h>
 #include <sys/socket.h>
 
 AmRtpPacket::AmRtpPacket()

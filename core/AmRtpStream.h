@@ -39,7 +39,6 @@
 #include <netinet/in.h>
 
 #include <map>
-#include <memory>
 #include <string>
 
 // return values of AmRtpStream::receive
@@ -147,11 +146,11 @@ class PayloadMask
 struct Payload
 {
   unsigned char pt;
-  std::string        name;
+  std::string   name;
   unsigned int  clock_rate;
   unsigned int  advertised_clock_rate; // differs for G722
   int           codec_id;
-  std::string        format_parameters;
+  std::string   format_parameters;
 };
 
 /**
@@ -201,7 +200,7 @@ class AmRtpStream : public AmObject
   int last_payload;
 
   /** Remote host information */
-  std::string         r_host;
+  std::string    r_host;
   unsigned short r_port;
   unsigned short r_rtcp_port;
 
@@ -439,8 +438,8 @@ class AmRtpStream : public AmObject
     sdp_media_index   = idx;
     offer_answer_used = false;
   }
-  int    getPayloadType() { return payload; }
-  int    getLastPayload() { return last_payload; }
+  int         getPayloadType() { return payload; }
+  int         getLastPayload() { return last_payload; }
   std::string getPayloadName(int payload_type);
 
   /**

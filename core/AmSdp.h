@@ -30,13 +30,10 @@
 
 #include "AmPlugIn.h"
 
-#include <map>
-#include <memory>
 #include <netinet/in.h>
+
 #include <string>
 #include <vector>
-
-using std::string;
 
 #define COMFORT_NOISE_PAYLOAD_TYPE 13 // RFC 3389
 #define DYNAMIC_PAYLOAD_TYPE_START 96 // range: 96->127, see RFC 1890
@@ -98,7 +95,7 @@ struct SdpConnection
   struct sockaddr_in  ipv4;
   struct sockaddr_in6 ipv6;
   /** IP address */
-  string address;
+  std::string address;
 
   SdpConnection()
       : address()
@@ -107,13 +104,13 @@ struct SdpConnection
 
   bool operator==(const SdpConnection& other) const;
   /** pretty print */
-  string debugPrint() const;
+  std::string debugPrint() const;
 };
 
 /** \brief o=... line in SDP */
 struct SdpOrigin
 {
-  string        user;
+  std::string   user;
   unsigned int  sessId;
   unsigned int  sessV;
   SdpConnection conn;
@@ -141,13 +138,13 @@ struct SdpOrigin
  */
 struct SdpPayload
 {
-  int    type;         // media type
-  int    payload_type; // SDP payload type
-  string encoding_name;
-  int    clock_rate; // sample rate (Hz)
-  string format;
-  string sdp_format_parameters;
-  int    encoding_param;
+  int         type;         // media type
+  int         payload_type; // SDP payload type
+  std::string encoding_name;
+  int         clock_rate; // sample rate (Hz)
+  std::string format;
+  std::string sdp_format_parameters;
+  int         encoding_param;
 
   SdpPayload()
       : payload_type(-1)
@@ -163,7 +160,7 @@ struct SdpPayload
   {
   }
 
-  SdpPayload(int pt, const string& name, int rate, int param)
+  SdpPayload(int pt, const std::string& name, int rate, int param)
       : payload_type(pt)
       , encoding_name(name)
       , clock_rate(rate)
@@ -190,18 +187,18 @@ struct SdpPayload
 /** \brief a=... line in SDP */
 struct SdpAttribute
 {
-  string attribute;
-  string value;
+  std::string attribute;
+  std::string value;
 
   // property attribute
-  SdpAttribute(const string& attribute, const string& value)
+  SdpAttribute(const std::string& attribute, const std::string& value)
       : attribute(attribute)
       , value(value)
   {
   }
 
   // value attribute
-  SdpAttribute(const string& attribute)
+  SdpAttribute(const std::string& attribute)
       : attribute(attribute)
   {
   }
@@ -212,7 +209,7 @@ struct SdpAttribute
   {
   }
 
-  string print() const;
+  std::string print() const;
 
   bool operator==(const SdpAttribute& other) const;
 };
@@ -234,7 +231,7 @@ struct SdpMedia
   int           transport;
   SdpConnection conn; // c=
   Direction     dir;  // a=direction
-  string        fmt;  // format in case proto != RTP/AVP or RTP/SAVP
+  std::string   fmt;  // format in case proto != RTP/AVP or RTP/SAVP
 
   // sendrecv|sendonly|recvonly|inactive
   bool send;
@@ -257,9 +254,9 @@ struct SdpMedia
   }
 
   /** pretty print */
-  string debugPrint() const;
+  std::string debugPrint() const;
 
-  static string type2str(int type);
+  static std::string type2str(int type);
 
   /**
    * Checks which payloads are compatible with the payload provider,
@@ -276,18 +273,18 @@ struct SdpMedia
 class RtcpAddress
 {
  private:
-  string nettype, addrtype, address;
-  bool parse(const string& src);
+  std::string nettype, addrtype, address;
+  bool parse(const std::string& src);
   int port;
 
  public:
-  RtcpAddress(const string& attr_value);
+  RtcpAddress(const std::string& attr_value);
   bool hasAddress() { return !address.empty(); }
-  void setAddress(const string& addr) { address = addr; }
-  const string&                 getAddress() { return address; }
+  void setAddress(const std::string& addr) { address = addr; }
+  const std::string&                 getAddress() { return address; }
   void setPort(int _port) { port = _port; }
   int              getPort() { return port; }
-  string           print();
+  std::string      print();
 };
 
 /**
@@ -298,14 +295,14 @@ class AmSdp
   /**
    * Find payload by name, return cloned object
    */
-  const SdpPayload* findPayload(const string& name) const;
+  const SdpPayload* findPayload(const std::string& name) const;
 
  public:
   // parsed SDP definition
   unsigned int              version;     // v=
   SdpOrigin                 origin;      // o=
-  string                    sessionName; // s=
-  string                    uri;         // u=
+  std::string               sessionName; // s=
+  std::string               uri;         // u=
   SdpConnection             conn;        // c=
   std::vector<SdpAttribute> attributes;  // unknown session level attributes
 
@@ -327,7 +324,7 @@ class AmSdp
    * Prints the current SDP structure
    * into a proper SDP message.
    */
-  void print(string& body) const;
+  void print(std::string& body) const;
 
   /** get telephone event payload */
   const SdpPayload* telephoneEventPayload() const;

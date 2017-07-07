@@ -75,7 +75,8 @@ class AmRtpReceiverThread : public AmThread
 
   AmSharedVar<bool> stop_requested;
 
-  static void _rtp_receiver_read_cb(evutil_socket_t sd, short what, void* arg);
+  static void _rtp_receiver_read_cb(evutil_socket_t sd, short int what,
+                                    void* arg);
 
  public:
   AmRtpReceiverThread();

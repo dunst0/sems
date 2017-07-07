@@ -29,21 +29,21 @@
 
 #include "AmAudio.h"
 #include "AmConfig.h"
+#include "AmDtmfDetector.h"
+#include "AmJitterBuffer.h"
 #include "AmPlugIn.h"
 #include "AmRtpPacket.h"
 #include "AmRtpReceiver.h"
 #include "AmSession.h"
 #include "AmUtils.h"
-#include "AmDtmfDetector.h"
-#include "AmJitterBuffer.h"
 #include "amci/codecs.h"
-#include "rtp/telephone_event.h"
+#include "log.h"
 #include "rtp/rtp.h"
+#include "rtp/telephone_event.h"
 #include "sip/ip_util.h"
 #include "sip/msg_logger.h"
 #include "sip/raw_sender.h"
 #include "sip/resolver.h"
-#include "log.h"
 
 #include <arpa/inet.h>
 #include <assert.h>
@@ -69,8 +69,8 @@ void PayloadMask::invert()
 {
   // assumes that bits[] contains 128 bits
   unsigned long long int* ull = (unsigned long long int*) bits;
-  ull[0]                  = ~ull[0];
-  ull[1]                  = ~ull[1];
+  ull[0]                      = ~ull[0];
+  ull[1]                      = ~ull[1];
 }
 
 PayloadMask::PayloadMask(const PayloadMask& src)
@@ -129,7 +129,7 @@ int AmRtpStream::getLocalSocket()
   return l_sd;
 }
 
-void AmRtpStream::setLocalPort(unsigned short p)
+void AmRtpStream::setLocalPort(unsigned short int p)
 {
   if (l_port) return;
 
@@ -143,8 +143,8 @@ void AmRtpStream::setLocalPort(unsigned short p)
     }
   }
 
-  int            retry = 10;
-  unsigned short port  = 0;
+  int                retry = 10;
+  unsigned short int port  = 0;
   for (; retry; --retry) {
     if (!getLocalSocket()) return;
 
@@ -445,8 +445,8 @@ int AmRtpStream::getRPort() { return r_port; }
 
 string AmRtpStream::getRHost() { return r_host; }
 
-void AmRtpStream::setRAddr(const string& addr, unsigned short port,
-                           unsigned short rtcp_port)
+void AmRtpStream::setRAddr(const string& addr, unsigned short int port,
+                           unsigned short int rtcp_port)
 {
   DBG("RTP remote address set to %s:(%u/%u)\n", addr.c_str(), port, rtcp_port);
 
@@ -485,7 +485,7 @@ void AmRtpStream::handleSymmetricRtp(struct sockaddr_storage* recv_addr,
     struct sockaddr_in*  in_addr  = (struct sockaddr_in*) &r_saddr;
     struct sockaddr_in6* in6_addr = (struct sockaddr_in6*) &r_saddr;
 
-    unsigned short port = am_get_port(recv_addr);
+    unsigned short int port = am_get_port(recv_addr);
 
     // symmetric RTP
     if ((!rtcp && (port != r_port)) || (rtcp && (port != r_rtcp_port))
