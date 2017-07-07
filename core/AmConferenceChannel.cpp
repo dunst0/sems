@@ -7,6 +7,8 @@
 
 #include <fstream>
 
+using std::ofstream;
+
 AmConferenceChannel::AmConferenceChannel(AmConferenceStatus* status,
                                          int channel_id, string channel_tag,
                                          bool own_channel)
@@ -56,7 +58,7 @@ int AmConferenceChannel::put(unsigned long long int system_ts,
     if (!have_in_sr) {
       DBG("writing sample rate of %u to %s\n", input_sample_rate,
           (in_file_name + ".samplerate").c_str());
-      std::ofstream ofs((in_file_name + ".samplerate").c_str());
+      ofstream ofs((in_file_name + ".samplerate").c_str());
       if (ofs.good()) {
         ofs << int2str(input_sample_rate);
         ofs.close();
@@ -97,7 +99,7 @@ int AmConferenceChannel::get(unsigned long long int system_ts,
     if (!have_out_sr) {
       DBG("writing mixer sample rate of %u to %s\n", mixer_sample_rate,
           (out_file_name + ".samplerate").c_str());
-      std::ofstream ofs((out_file_name + ".samplerate").c_str());
+      ofstream ofs((out_file_name + ".samplerate").c_str());
       if (ofs.good()) {
         ofs << int2str(mixer_sample_rate);
         ofs.close();

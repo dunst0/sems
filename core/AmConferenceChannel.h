@@ -59,12 +59,12 @@ class AmConferenceChannel : public AmAudio
 {
   bool                own_channel;
   int                 channel_id;
-  string              channel_tag;
-  string              conf_id;
+  std::string         channel_tag;
+  std::string         conf_id;
   AmConferenceStatus* status;
 
-  string              in_file_name;
-  string              out_file_name;
+  std::string         in_file_name;
+  std::string         out_file_name;
   bool                have_in_sr;
   bool                have_out_sr;
   ChannelWritingFile* in_file;
@@ -84,11 +84,11 @@ class AmConferenceChannel : public AmAudio
 
  public:
   AmConferenceChannel(AmConferenceStatus* status, int channel_id,
-                      string channel_tag, bool own_channel);
+                      std::string channel_tag, bool own_channel);
 
   ~AmConferenceChannel();
 
-  string getConfID() { return conf_id; }
+  std::string getConfID() { return conf_id; }
 };
 
 #endif
