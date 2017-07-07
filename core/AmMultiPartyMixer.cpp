@@ -35,6 +35,7 @@
 using std::deque;
 using std::set;
 using std::make_pair;
+using std::string;
 
 // PCM16 range: [-32767:32768]
 #define MAX_LINEAR_SAMPLE 32737
