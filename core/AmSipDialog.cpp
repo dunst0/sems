@@ -39,6 +39,8 @@
 
 #include "AmB2BMedia.h" // just because of statistics
 
+using std::vector;
+
 static void addTranscoderStats(string& hdrs)
 {
   // add transcoder statistics into request/reply headers
