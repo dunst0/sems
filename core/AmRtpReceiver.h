@@ -36,7 +36,6 @@
 #include <event2/event.h>
 
 #include <map>
-using std::greater;
 
 class AmRtpStream;
 class _AmRtpReceiver;

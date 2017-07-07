@@ -51,7 +51,7 @@ class AmRtpPacket
  public:
   unsigned char  payload;
   bool           marker;
-  unsigned short sequence;
+  unsigned short int sequence;
   unsigned int   timestamp;
   unsigned int   ssrc;
   unsigned char  version;

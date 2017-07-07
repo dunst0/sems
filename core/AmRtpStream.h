@@ -40,11 +40,7 @@
 
 #include <map>
 #include <memory>
-#include <queue>
 #include <string>
-using std::string;
-using std::unique_ptr;
-using std::pair;
 
 // return values of AmRtpStream::receive
 #define RTP_EMPTY 0        // no rtp packet available
@@ -151,11 +147,11 @@ class PayloadMask
 struct Payload
 {
   unsigned char pt;
-  string        name;
+  std::string        name;
   unsigned int  clock_rate;
   unsigned int  advertised_clock_rate; // differs for G722
   int           codec_id;
-  string        format_parameters;
+  std::string        format_parameters;
 };
 
 /**
@@ -205,7 +201,7 @@ class AmRtpStream : public AmObject
   int last_payload;
 
   /** Remote host information */
-  string         r_host;
+  std::string         r_host;
   unsigned short r_port;
   unsigned short r_rtcp_port;
 
@@ -256,8 +252,8 @@ class AmRtpStream : public AmObject
   bool monitor_rtp_timeout;
 
   /** Payload type for telephone event */
-  unique_ptr<const SdpPayload> remote_telephone_event_pt;
-  unique_ptr<const SdpPayload> local_telephone_event_pt;
+  std::unique_ptr<const SdpPayload> remote_telephone_event_pt;
+  std::unique_ptr<const SdpPayload> local_telephone_event_pt;
 
   /** DTMF sender */
   AmDtmfSender dtmf_sender;
@@ -388,7 +384,7 @@ class AmRtpStream : public AmObject
    * setLocalPort will bind the socket and it will be not
    * possible to change the IP later
    */
-  void setLocalIP(const string& ip);
+  void setLocalIP(const std::string& ip);
 
   /**
    * Initializes with a new random local port if 'p' is 0,
@@ -418,12 +414,12 @@ class AmRtpStream : public AmObject
    * Gets remote host IP.
    * @return remote host IP.
    */
-  string getRHost();
+  std::string getRHost();
 
   /**
    * Set remote IP & port.
    */
-  void setRAddr(const string& addr, unsigned short port,
+  void setRAddr(const std::string& addr, unsigned short port,
                 unsigned short rtcp_port = 0);
 
   /** Symmetric RTP & RTCP: passive mode ? */
@@ -445,7 +441,7 @@ class AmRtpStream : public AmObject
   }
   int    getPayloadType() { return payload; }
   int    getLastPayload() { return last_payload; }
-  string getPayloadName(int payload_type);
+  std::string getPayloadName(int payload_type);
 
   /**
    * send a DTMF as RTP payload (RFC4733)

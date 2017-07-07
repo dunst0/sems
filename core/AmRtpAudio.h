@@ -111,11 +111,11 @@ class AmRtpAudio
 
   bool use_default_plc;
 
-  unsigned long long last_check;
+  unsigned long long int last_check;
   bool               last_check_i;
   bool               send_int;
 
-  unsigned long long last_send_ts;
+  unsigned long long int last_send_ts;
   bool               last_send_ts_i;
 
   //
@@ -130,20 +130,20 @@ class AmRtpAudio
 
   unsigned int getFrameSize();
 
-  bool checkInterval(unsigned long long ts);
+  bool checkInterval(unsigned long long int ts);
   bool sendIntReached();
-  bool sendIntReached(unsigned long long ts);
+  bool sendIntReached(unsigned long long int ts);
 
   int setCurrentPayload(int payload);
   int getCurrentPayload();
 
-  int receive(unsigned long long system_ts);
+  int receive(unsigned long long int system_ts);
 
   // AmAudio interface
-  int get(unsigned long long system_ts, unsigned char* buffer,
+  int get(unsigned long long int system_ts, unsigned char* buffer,
           int output_sample_rate, unsigned int nb_samples);
 
-  int put(unsigned long long system_ts, unsigned char* buffer,
+  int put(unsigned long long int system_ts, unsigned char* buffer,
           int input_sample_rate, unsigned int size);
 
   unsigned int bytes2samples(unsigned int) const;

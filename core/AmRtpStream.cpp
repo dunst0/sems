@@ -26,6 +26,7 @@
  */
 
 #include "AmRtpStream.h"
+
 #include "AmAudio.h"
 #include "AmConfig.h"
 #include "AmPlugIn.h"
@@ -33,17 +34,15 @@
 #include "AmRtpReceiver.h"
 #include "AmSession.h"
 #include "AmUtils.h"
-
 #include "AmDtmfDetector.h"
 #include "AmJitterBuffer.h"
 #include "amci/codecs.h"
 #include "rtp/telephone_event.h"
-
+#include "rtp/rtp.h"
 #include "sip/ip_util.h"
 #include "sip/msg_logger.h"
 #include "sip/raw_sender.h"
 #include "sip/resolver.h"
-
 #include "log.h"
 
 #include <arpa/inet.h>
@@ -60,10 +59,7 @@
 #include "libzrtp/zrtp.h"
 #endif
 
-#include "rtp/rtp.h"
-
-#include <set>
-using std::set;
+using std::string;
 
 void PayloadMask::clear() { memset(bits, 0, sizeof(bits)); }
 
@@ -72,7 +68,7 @@ void PayloadMask::set_all() { memset(bits, 0xFF, sizeof(bits)); }
 void PayloadMask::invert()
 {
   // assumes that bits[] contains 128 bits
-  unsigned long long* ull = (unsigned long long*) bits;
+  unsigned long long int* ull = (unsigned long long int*) bits;
   ull[0]                  = ~ull[0];
   ull[1]                  = ~ull[1];
 }

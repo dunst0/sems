@@ -26,13 +26,13 @@
  */
 
 #include "AmRtpReceiver.h"
+
 #include "AmConfig.h"
 #include "AmRtpPacket.h"
 #include "AmRtpStream.h"
 #include "log.h"
 
 #include <errno.h>
-
 // Not on Solaris!
 #if !defined(__SVR4) && !defined(__sun)
 #include <strings.h>
