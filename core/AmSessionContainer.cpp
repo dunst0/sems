@@ -27,17 +27,21 @@
  */
 
 #include "AmSessionContainer.h"
+
 #include "AmApi.h"
 #include "AmConfig.h"
 #include "AmEventDispatcher.h"
 #include "AmPlugIn.h"
 #include "AmUtils.h"
+#include "sems.h"
 
 #include <assert.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "sems.h"
+using std::pair;
+using std::string;
+using std::exception;
 
 AmSessionContainer* AmSessionContainer::_instance = NULL;
 
@@ -104,7 +108,7 @@ bool AmSessionContainer::clean_sessions()
 
     swap(d_sessions, n_sessions);
   }
-  catch (std::exception& e) {
+  catch (exception& e) {
     ERROR("exception caught in session cleaner: %s\n", e.what());
     throw; /* throw again as this is fatal (because unlocking the mutex fails!!
             */

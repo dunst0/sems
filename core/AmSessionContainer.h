@@ -34,11 +34,8 @@
 
 #include "ampi/MonitoringAPI.h"
 
-#include <map>
 #include <queue>
 #include <string>
-
-using std::string;
 
 /**
  * \brief Centralized session container.
@@ -118,22 +115,24 @@ class AmSessionContainer : public AmThread
    * @param req local request
    * @return a new session or NULL on error.
    */
-  AmSession* createSession(const AmSipRequest& req, string& app_name,
+  AmSession* createSession(const AmSipRequest& req, std::string& app_name,
                            AmArg* session_params = NULL);
 
   /**
    * Adds a session to the container (UAS only).
    * @return true if the session is new within the container.
    */
-  AddSessionStatus addSession(const string& callid, const string& remote_tag,
-                              const string& local_tag, const string& via_branch,
-                              AmSession* session);
+  AddSessionStatus addSession(const std::string& callid,
+                              const std::string& remote_tag,
+                              const std::string& local_tag,
+                              const std::string& via_branch,
+                              AmSession*         session);
 
   /**
    * Adds a session to the container.
    * @return true if the session is new within the container.
    */
-  AddSessionStatus addSession(const string& local_tag, AmSession* session);
+  AddSessionStatus addSession(const std::string& local_tag, AmSession* session);
 
   /**
    * Constructs a new session and adds it to the active session container.
@@ -145,8 +144,8 @@ class AmSessionContainer : public AmThread
    * Constructs a new session and adds it to the active session container.
    * @param req client's request
    */
-  string startSessionUAC(const AmSipRequest& req, string& app_name,
-                         AmArg* session_params = NULL);
+  std::string startSessionUAC(const AmSipRequest& req, std::string& app_name,
+                              AmArg* session_params = NULL);
 
   /**
    * Detroys a session.
@@ -157,8 +156,8 @@ class AmSessionContainer : public AmThread
    * post an event into the event queue of the identified dialog.
    * @return false if session doesn't exist
    */
-  bool postEvent(const string& callid, const string& remote_tag,
-                 const string& via_branch, AmEvent* event);
+  bool postEvent(const std::string& callid, const std::string& remote_tag,
+                 const std::string& via_branch, AmEvent* event);
 
   /**
    * post a generic event into the event queue of the identified dialog.
@@ -168,7 +167,7 @@ class AmSessionContainer : public AmThread
    *       for better performance.
    * @return false if session doesn't exist
    */
-  bool postEvent(const string& local_tag, AmEvent* event);
+  bool postEvent(const std::string& local_tag, AmEvent* event);
 
   /**
    * broadcasts a server shutdown system event to all sessions
