@@ -48,6 +48,7 @@
 
 using std::string;
 using std::stable_sort;
+using std::vector;
 
 volatile unsigned int           AmSession::session_num = 0;
 AmMutex                         AmSession::session_num_mut;
