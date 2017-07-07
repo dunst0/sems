@@ -188,7 +188,7 @@ class AmSessionContainer : public AmThread
   void setCPSSoftLimit(unsigned int percent);
 
   /** Return the maximum number of calls per second to be accepted */
-  pair<unsigned int, unsigned int> getCPSLimit();
+  std::pair<unsigned int, unsigned int> getCPSLimit();
 
   /**
    * Gets the timeaverage of calls per second in the last CPS_SAMPLERATE sec
