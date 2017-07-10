@@ -78,9 +78,9 @@ void MWI::publish(const string& user, const string& domain)
   MessageStorage->invoke("userdir_open", di_args, ret);
 
   if (!ret.size() || !isArgInt(ret.get(0))) {
-    ERROR(
-        "userdir_open for user '%s' domain '%s' returned no (valid) result.\n",
-        user.c_str(), domain.c_str());
+    ERROR("userdir_open for user '%s' domain '%s' returned no (valid)"
+          " result.\n",
+          user.c_str(), domain.c_str());
     return;
   };
 
@@ -136,6 +136,7 @@ void MWI::invoke(const string& method, const AmArg& args, AmArg& ret)
     publish(user, domain);
     ret.push(0);
   }
-  else
+  else {
     throw AmDynInvoke::NotImplemented(method);
+  }
 };
