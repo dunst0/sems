@@ -27,8 +27,11 @@
  */
 
 #include "AmSipRegistration.h"
+
 #include "AmSession.h"
 #include "AmSessionContainer.h"
+
+using std::string;
 
 AmSIPRegistration::AmSIPRegistration(const string&              handle,
                                      const SIPRegistrationInfo& info,
@@ -202,10 +205,12 @@ bool AmSIPRegistration::getUnregistering() { return unregistering; }
 unsigned int AmSIPRegistration::getExpiresLeft()
 {
   long diff = reg_begin + reg_expires - time(NULL);
-  if (diff < 0)
+  if (diff < 0) {
     return 0;
-  else
+  }
+  else {
     return diff;
+  }
 }
 
 time_t AmSIPRegistration::getExpiresTS() { return reg_begin + reg_expires; }
@@ -246,8 +251,8 @@ bool AmSIPRegistration::timeToReregister(time_t now_sec)
   //   	if (active)
   //   		DBG("compare %lu with %lu\n",(reg_begin+reg_expires), (unsigned
   //   long)now_sec);
-  return (((unsigned long) reg_begin + reg_expires / 2)
-          < (unsigned long) now_sec);
+  return (((unsigned long int) reg_begin + reg_expires / 2)
+          < (unsigned long int) now_sec);
 }
 
 bool AmSIPRegistration::registerExpired(time_t now_sec)

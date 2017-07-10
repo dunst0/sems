@@ -32,8 +32,6 @@
 #include "AmSipDialog.h"
 #include "AmSipEvent.h"
 #include "AmSipMsg.h"
-#include <string>
-using std::string;
 
 class AmConfigReader;
 

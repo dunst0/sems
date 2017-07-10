@@ -1,4 +1,5 @@
 #include "AmSipEvent.h"
+
 #include "AmSipDialog.h"
 
 void AmSipTimeoutEvent::operator()(AmBasicSipDialog* dlg)

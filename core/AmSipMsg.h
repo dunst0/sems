@@ -3,44 +3,43 @@
 
 #include "AmArg.h"
 #include "AmMimeBody.h"
-
-#include <string>
-using std::string;
-
 #include "sip/trans_layer.h"
+
+#include <list>
+#include <string>
 
 /* enforce common naming in Req&Rpl */
 class _AmSipMsgInDlg : public AmObject
 {
  public:
-  string from;
-  string from_tag;
+  std::string from;
+  std::string from_tag;
 
-  string to;
-  string to_tag;
+  std::string to;
+  std::string to_tag;
 
-  string callid;
+  std::string callid;
 
   unsigned int cseq;
-  string       cseq_method;
+  std::string  cseq_method;
 
   unsigned int rseq;
 
-  string route;
-  string contact;
+  std::string route;
+  std::string contact;
 
-  string hdrs;
+  std::string hdrs;
 
   AmMimeBody body;
 
   // transaction ticket from sip stack
   trans_ticket tt;
 
-  string         remote_ip;
-  unsigned short remote_port;
-  string         local_ip;
-  unsigned short local_port;
-  string         trsp;
+  std::string        remote_ip;
+  unsigned short int remote_port;
+  std::string        local_ip;
+  unsigned short int local_port;
+  std::string        trsp;
 
   _AmSipMsgInDlg()
       : cseq(0)
@@ -49,16 +48,16 @@ class _AmSipMsgInDlg : public AmObject
   }
   virtual ~_AmSipMsgInDlg(){};
 
-  virtual string print() const = 0;
+  virtual std::string print() const = 0;
 };
 
 #ifdef PROPAGATE_UNPARSED_REPLY_HEADERS
 
 struct AmSipHeader
 {
-  string name, value;
+  std::string name, value;
   AmSipHeader() {}
-  AmSipHeader(const string& _name, const string& _value)
+  AmSipHeader(const std::string& _name, const std::string& _value)
       : name(_name)
       , value(_value)
   {
@@ -77,10 +76,10 @@ class AmSipReply : public _AmSipMsgInDlg
 {
  public:
   unsigned int code;
-  string       reason;
-  string       to_uri;
+  std::string  reason;
+  std::string  to_uri;
 #ifdef PROPAGATE_UNPARSED_REPLY_HEADERS
-  list<AmSipHeader> unparsed_headers;
+  std::list<AmSipHeader> unparsed_headers;
 #endif
 
   AmSipReply()
@@ -89,27 +88,27 @@ class AmSipReply : public _AmSipMsgInDlg
   {
   }
   ~AmSipReply() {}
-  string print() const;
+  std::string print() const;
 };
 
 /** \brief represents a SIP request */
 class AmSipRequest : public _AmSipMsgInDlg
 {
  public:
-  string method;
+  std::string method;
 
-  string user;
-  string domain;
-  string r_uri;
-  string from_uri;
+  std::string user;
+  std::string domain;
+  std::string r_uri;
+  std::string from_uri;
 
-  string       rack_method;
+  std::string  rack_method;
   unsigned int rack_cseq;
 
-  string vias;
-  string via1;
-  string via_branch;
-  bool   first_hop;
+  std::string vias;
+  std::string via1;
+  std::string via_branch;
+  bool        first_hop;
 
   int max_forwards;
 
@@ -118,32 +117,35 @@ class AmSipRequest : public _AmSipMsgInDlg
   AmSipRequest();
   ~AmSipRequest() {}
 
-  string print() const;
+  std::string print() const;
   void log(msg_logger* logger) const;
 };
 
-string getHeader(const string& hdrs, const string& hdr_name,
-                 bool single = false);
+std::string getHeader(const std::string& hdrs, const std::string& hdr_name,
+                      bool single = false);
 
-string getHeader(const string& hdrs, const string& hdr_name,
-                 const string& compact_hdr_name, bool single = false);
+std::string getHeader(const std::string& hdrs, const std::string& hdr_name,
+                      const std::string& compact_hdr_name, bool single = false);
 
 /** find a header, starting from char skip
     if found, value is between pos1 and pos2
     and hdr start is the start of the header
     @return true if found */
-bool findHeader(const string& hdrs, const string& hdr_name, const size_t skip,
-                size_t& pos1, size_t& pos2, size_t& hdr_start);
+bool findHeader(const std::string& hdrs, const std::string& hdr_name,
+                const size_t skip, size_t& pos1, size_t& pos2,
+                size_t& hdr_start);
 
 /** @return whether header hdr_name is in hdrs */
-bool hasHeader(const string& hdrs, const string& hdr_name);
+bool hasHeader(const std::string& hdrs, const std::string& hdr_name);
 
-bool removeHeader(string& hdrs, const string& hdr_name);
+bool removeHeader(std::string& hdrs, const std::string& hdr_name);
 
 /** add an option tag @param tag to list @param hdr_name */
-void addOptionTag(string& hdrs, const string& hdr_name, const string& tag);
+void addOptionTag(std::string& hdrs, const std::string& hdr_name,
+                  const std::string& tag);
 
 /** remove an option tag @param tag from list @param hdr_name */
-void removeOptionTag(string& hdrs, const string& hdr_name, const string& tag);
+void removeOptionTag(std::string& hdrs, const std::string& hdr_name,
+                     const std::string& tag);
 
 #endif

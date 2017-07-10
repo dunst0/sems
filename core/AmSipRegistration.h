@@ -29,30 +29,29 @@
 #ifndef _AMSIPREGISTRATION_H_
 #define _AMSIPREGISTRATION_H_
 
-#include <string>
-using std::string;
-
 #include "AmSessionEventHandler.h"
 #include "AmUriParser.h"
 #include "ampi/SIPRegistrarClientAPI.h"
 #include "ampi/UACAuthAPI.h"
 
+#include <string>
+
 #define REGISTER_SEND_TIMEOUT 60
 
 struct SIPRegistrationInfo
 {
-  string domain;
-  string user;
-  string name;
-  string auth_user;
-  string pwd;
-  string proxy;
-  string contact;
+  std::string domain;
+  std::string user;
+  std::string name;
+  std::string auth_user;
+  std::string pwd;
+  std::string proxy;
+  std::string contact;
 
-  SIPRegistrationInfo(const string& domain, const string& user,
-                      const string& name, const string& auth_user,
-                      const string& pwd, const string& proxy,
-                      const string& contact)
+  SIPRegistrationInfo(const std::string& domain, const std::string& user,
+                      const std::string& name, const std::string& auth_user,
+                      const std::string& pwd, const std::string& proxy,
+                      const std::string& contact)
       : domain(domain)
       , user(user)
       , name(name)
@@ -75,7 +74,7 @@ class AmSIPRegistration
   SIPRegistrationInfo info;
 
   // session to post events to
-  string sess_link;
+  std::string sess_link;
 
   AmSessionEventHandler* seh;
 
@@ -91,8 +90,8 @@ class AmSIPRegistration
   unsigned int expires_interval;
 
  public:
-  AmSIPRegistration(const string& handle, const SIPRegistrationInfo& info,
-                    const string& sess_link);
+  AmSIPRegistration(const std::string& handle, const SIPRegistrationInfo& info,
+                    const std::string& sess_link);
   ~AmSIPRegistration();
 
   void setRegistrationInfo(const SIPRegistrationInfo& _info);
@@ -147,8 +146,8 @@ class AmSIPRegistration
   bool getUnregistering();
 
   SIPRegistrationInfo& getInfo() { return info; }
-  const string&        getEventSink() { return sess_link; }
-  const string&        getHandle() { return req.from_tag; }
+  const std::string&   getEventSink() { return sess_link; }
+  const std::string&   getHandle() { return req.from_tag; }
 };
 
 #endif

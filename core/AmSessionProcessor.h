@@ -44,9 +44,9 @@ class AmSession;
 
 class AmSessionProcessor
 {
-  static vector<AmSessionProcessorThread*>           threads;
-  static AmMutex                                     threads_mut;
-  static vector<AmSessionProcessorThread*>::iterator threads_it;
+  static std::vector<AmSessionProcessorThread*>           threads;
+  static AmMutex                                          threads_mut;
+  static std::vector<AmSessionProcessorThread*>::iterator threads_it;
 
  public:
   static AmSessionProcessorThread* getProcessorThread();

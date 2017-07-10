@@ -26,18 +26,17 @@
  */
 
 #include "AmSipDialog.h"
+
+#include "AmB2BMedia.h" // just because of statistics
 #include "AmConfig.h"
 #include "AmSession.h"
 #include "AmSipHeaders.h"
 #include "AmUtils.h"
 #include "SipCtrlInterface.h"
 #include "sems.h"
-
 #include "sip/parse_next_hop.h"
 #include "sip/parse_route.h"
 #include "sip/parse_uri.h"
-
-#include "AmB2BMedia.h" // just because of statistics
 
 using std::vector;
 
@@ -781,10 +780,12 @@ int AmSipDialog::send_200_ack(unsigned int inv_cseq, const AmMimeBody* body,
   req.r_uri  = remote_uri;
 
   req.from = SIP_HDR_COLSP(SIP_HDR_FROM) + local_party;
-  if (!ext_local_tag.empty())
+  if (!ext_local_tag.empty()) {
     req.from += ";tag=" + ext_local_tag;
-  else if (!local_tag.empty())
+  }
+  else if (!local_tag.empty()) {
     req.from += ";tag=" + local_tag;
+  }
 
   req.to = SIP_HDR_COLSP(SIP_HDR_TO) + remote_party;
   if (!remote_tag.empty()) req.to += ";tag=" + remote_tag;
@@ -816,10 +817,3 @@ int AmSipDialog::send_200_ack(unsigned int inv_cseq, const AmMimeBody* body,
   onRequestTxed(req);
   return 0;
 }
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 2
- * End:
- */

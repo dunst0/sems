@@ -32,8 +32,9 @@
 #include "AmSessionProcessor.h"
 #include "AmSession.h"
 
-#include <list>
-#include <vector>
+using std::vector;
+using std::set;
+using std::list;
 
 vector<AmSessionProcessorThread*> AmSessionProcessor::threads;
 AmMutex                           AmSessionProcessor::threads_mut;
@@ -99,7 +100,7 @@ void AmSessionProcessorThread::run()
     process_sessions_mut.lock();
     runcond.set(false);
     // get the list of session s that need processing
-    std::set<AmEventQueue*> pending_process_sessions = process_sessions;
+    set<AmEventQueue*> pending_process_sessions = process_sessions;
     process_sessions.clear();
     process_sessions_mut.unlock();
 
@@ -110,7 +111,7 @@ void AmSessionProcessorThread::run()
     if (!startup_sessions.empty()) {
       DBG("starting up %zd sessions\n", startup_sessions.size());
 
-      for (std::vector<AmSession*>::iterator it = startup_sessions.begin();
+      for (vector<AmSession*>::iterator it = startup_sessions.begin();
            it != startup_sessions.end(); it++) {
         DBG("starting up [%s|%s]: [%p]\n", (*it)->getCallID().c_str(),
             (*it)->getLocalTag().c_str(), *it);
@@ -124,17 +125,17 @@ void AmSessionProcessorThread::run()
       startup_sessions.clear();
     }
 
-    std::vector<AmSession*> fin_sessions;
+    vector<AmSession*> fin_sessions;
 
     DBG("processing events for  up to %zd sessions\n",
         pending_process_sessions.size());
 
-    std::list<AmSession*>::iterator it = sessions.begin();
+    list<AmSession*>::iterator it = sessions.begin();
     while (it != sessions.end()) {
       if ((pending_process_sessions.find(*it) != pending_process_sessions.end())
           && (!(*it)->processingCycle())) {
         fin_sessions.push_back(*it);
-        std::list<AmSession*>::iterator d_it = it;
+        list<AmSession*>::iterator d_it = it;
         it++;
         sessions.erase(d_it);
       }
@@ -145,7 +146,7 @@ void AmSessionProcessorThread::run()
 
     if (fin_sessions.size()) {
       DBG("finalizing %zd sessions\n", fin_sessions.size());
-      for (std::vector<AmSession*>::iterator it = fin_sessions.begin();
+      for (vector<AmSession*>::iterator it = fin_sessions.begin();
            it != fin_sessions.end(); it++) {
         DBG("finalizing session [%p/%s/%s]\n", *it, (*it)->getCallID().c_str(),
             (*it)->getLocalTag().c_str());

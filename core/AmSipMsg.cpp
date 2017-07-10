@@ -1,11 +1,19 @@
 #include "AmSipMsg.h"
+
 #include "AmSipHeaders.h"
 #include "AmUtils.h"
+#include "log.h"
 #include "sip/msg_logger.h"
 #include "sip/sip_parser.h"
 #include "sip/sip_trans.h"
+
 #include <stdlib.h>
 #include <string.h>
+
+#include <vector>
+
+using std::string;
+using std::vector;
 
 AmSipRequest::AmSipRequest()
     : _AmSipMsgInDlg()
@@ -23,10 +31,13 @@ string getHeader(const string& hdrs, const string& hdr_name, bool single)
   size_t skip = 0;
   string ret  = "";
   while (findHeader(hdrs, hdr_name, skip, pos1, pos2, pos_s)) {
-    if (skip)
+    if (skip) {
       ret.append(", ");
-    else if (single)
+    }
+    else if (single) {
       return hdrs.substr(pos1, pos2 - pos1);
+    }
+
     ret.append(hdrs.substr(pos1, pos2 - pos1));
     skip = pos2 + 1;
   }
@@ -47,7 +58,6 @@ bool hasHeader(const string& hdrs, const string& hdr_name)
   return findHeader(hdrs, hdr_name, skip, pos1, pos2, hdr_start);
 }
 
-#include "log.h"
 bool findHeader(const string& hdrs, const string& hdr_name, const size_t skip,
                 size_t& pos1, size_t& pos2, size_t& hdr_start)
 {
@@ -141,8 +151,8 @@ void addOptionTag(string& hdrs, const string& hdr_name, const string& tag)
   // see if option tag already exists
   string options = getHeader(hdrs, hdr_name);
   if (options.size()) {
-    std::vector<string> option_entries = explode(options, ",");
-    for (std::vector<string>::iterator it = option_entries.begin();
+    vector<string> option_entries = explode(options, ",");
+    for (vector<string>::iterator it = option_entries.begin();
          it != option_entries.end(); it++) {
       if (trim(*it, " ") == tag)
         // found - no need to add again
@@ -176,11 +186,11 @@ void removeOptionTag(string& hdrs, const string& hdr_name, const string& tag)
   if (options.empty()) return;
 
   // todo: optimize by doing inplace
-  std::vector<string> options_v = explode(options, ",");
-  string              o_hdr;
-  bool                found = false;
-  for (std::vector<string>::iterator it = options_v.begin();
-       it != options_v.end(); it++) {
+  vector<string> options_v = explode(options, ",");
+  string         o_hdr;
+  bool           found = false;
+  for (vector<string>::iterator it = options_v.begin(); it != options_v.end();
+       it++) {
     if (trim(*it, " ") == tag) {
       found = true;
       continue;
@@ -273,10 +283,3 @@ string AmSipReply::print() const
 
 #undef _PM
 #undef _PMB
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 2
- * End:
- */

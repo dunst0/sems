@@ -25,13 +25,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "AmSipDispatcher.h"
+
+#include "AmEventDispatcher.h"
 #include "AmSessionContainer.h"
 #include "AmSipDialog.h"
 #include "AmUtils.h"
 #include "log.h"
 
-#include "AmEventDispatcher.h"
-#include "AmSipDispatcher.h"
+using std::string;
 
 AmSipDispatcher* AmSipDispatcher::_instance;
 

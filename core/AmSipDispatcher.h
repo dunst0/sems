@@ -30,6 +30,8 @@
 
 #include "AmSipMsg.h"
 
+#include <string>
+
 class AmSipDispatcher
 {
  private:
@@ -37,7 +39,7 @@ class AmSipDispatcher
 
  public:
   void handleSipMsg(AmSipRequest&);
-  void handleSipMsg(const string& dialog_id, AmSipReply&);
+  void handleSipMsg(const std::string& dialog_id, AmSipReply&);
 
   static AmSipDispatcher* instance();
 };
