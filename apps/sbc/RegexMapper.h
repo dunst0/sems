@@ -28,15 +28,15 @@
 
 #include "AmUtils.h"
 
-#include <map>
-#include <vector>
-#include <string>
 #include "AmThread.h"
+#include <map>
+#include <string>
+#include <vector>
 
-struct RegexMapper {
-
-  RegexMapper() { }
-  ~RegexMapper() { }
+struct RegexMapper
+{
+  RegexMapper() {}
+  ~RegexMapper() {}
 
   std::map<string, RegexMappingVector> regex_mappings;
   AmMutex regex_mappings_mut;
@@ -44,8 +44,7 @@ struct RegexMapper {
   void lock() { regex_mappings_mut.lock(); }
   void unlock() { regex_mappings_mut.unlock(); }
 
-  bool mapRegex(const string& mapping_name, const char* test_s,
-		string& result);
+  bool mapRegex(const string& mapping_name, const char* test_s, string& result);
 
   void setRegexMap(const string& mapping_name, const RegexMappingVector& r);
 

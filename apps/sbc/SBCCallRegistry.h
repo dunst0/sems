@@ -37,25 +37,31 @@ struct SBCCallRegistryEntry
   string ltag;
   string rtag;
   string callid;
-  
-  SBCCallRegistryEntry() { }
-SBCCallRegistryEntry(const string& callid, const string& ltag, const string& rtag)
-  : ltag(ltag), rtag(rtag), callid(callid) { }
+
+  SBCCallRegistryEntry() {}
+  SBCCallRegistryEntry(const string& callid, const string& ltag,
+                       const string& rtag)
+      : ltag(ltag)
+      , rtag(rtag)
+      , callid(callid)
+  {
+  }
 };
 
-class SBCCallRegistry 
+class SBCCallRegistry
 {
   static AmMutex registry_mutex;
   static std::map<string, SBCCallRegistryEntry> registry;
 
  public:
-  SBCCallRegistry() { }
-  ~SBCCallRegistry() { }
+  SBCCallRegistry() {}
+  ~SBCCallRegistry() {}
 
-  static void addCall(const string& ltag, const SBCCallRegistryEntry& other_dlg);
+  static void addCall(const string&               ltag,
+                      const SBCCallRegistryEntry& other_dlg);
   static void updateCall(const string& ltag, const string& other_rtag);
   static bool lookupCall(const string& ltag, SBCCallRegistryEntry& other_dlg);
   static void removeCall(const string& ltag);
 };
 
-#endif                           
+#endif

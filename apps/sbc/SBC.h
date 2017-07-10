@@ -23,60 +23,58 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _SBC_H
-#define _SBC_H
+#ifndef _SBC_H_
+#define _SBC_H_
 
 #include "AmB2BSession.h"
-
 #include "AmConfigReader.h"
-#include "AmUriParser.h"
-#include "HeaderFilter.h"
-#include "SBCCallProfile.h"
-#include "RegexMapper.h"
 #include "AmEventQueueProcessor.h"
-
+#include "AmUriParser.h"
 #include "CallLeg.h"
-class SBCCallLeg;
+#include "HeaderFilter.h"
+#include "RegexMapper.h"
+#include "SBCCallProfile.h"
 
 #include <map>
 
-using std::string;
-
 #define DEFAULT_OOD_THREADS 1
 
-#define SBC_TIMER_ID_CALL_TIMERS_START   10
-#define SBC_TIMER_ID_CALL_TIMERS_END     99
+#define SBC_TIMER_ID_CALL_TIMERS_START 10
+#define SBC_TIMER_ID_CALL_TIMERS_END 99
 
-struct CallLegCreator {
+class SBCCallLeg;
+class SimpleRelayDialog;
+
+struct CallLegCreator
+{
   virtual SBCCallLeg* create(const SBCCallProfile& call_profile);
   virtual SBCCallLeg* create(SBCCallLeg* caller);
 };
 
-class SimpleRelayDialog;
-
-struct SimpleRelayCreator {
-  typedef pair<SimpleRelayDialog*,SimpleRelayDialog*> Relay;
-  virtual Relay createRegisterRelay(SBCCallProfile& call_profile,
-				    vector<AmDynInvoke*> &cc_modules);
-  virtual Relay createSubscriptionRelay(SBCCallProfile& call_profile,
-					vector<AmDynInvoke*> &cc_modules);
-  virtual Relay createGenericRelay(SBCCallProfile& call_profile,
-				   vector<AmDynInvoke*> &cc_modules);
+struct SimpleRelayCreator
+{
+  typedef std::pair<SimpleRelayDialog*, SimpleRelayDialog*> Relay;
+  virtual Relay createRegisterRelay(SBCCallProfile&            call_profile,
+                                    std::vector<AmDynInvoke*>& cc_modules);
+  virtual Relay createSubscriptionRelay(SBCCallProfile&            call_profile,
+                                        std::vector<AmDynInvoke*>& cc_modules);
+  virtual Relay createGenericRelay(SBCCallProfile&            call_profile,
+                                   std::vector<AmDynInvoke*>& cc_modules);
 };
 
-class SBCFactory: public AmSessionFactory,
-    public AmDynInvoke,
-    public AmDynInvokeFactory
+class SBCFactory
+    : public AmSessionFactory
+    , public AmDynInvoke
+    , public AmDynInvokeFactory
 {
+  std::map<std::string, SBCCallProfile> call_profiles;
 
-  std::map<string, SBCCallProfile> call_profiles;
-  
-  vector<string> active_profile;
-  AmMutex profiles_mut;
+  std::vector<std::string> active_profile;
+  AmMutex                  profiles_mut;
 
   bool core_options_handling;
 
-  unique_ptr<CallLegCreator> callLegCreator;
+  unique_ptr<CallLegCreator>     callLegCreator;
   unique_ptr<SimpleRelayCreator> simpleRelayCreator;
 
   void listProfiles(const AmArg& args, AmArg& ret);
@@ -90,17 +88,16 @@ class SBCFactory: public AmSessionFactory,
   void loadCallcontrolModules(const AmArg& args, AmArg& ret);
   void postControlCmd(const AmArg& args, AmArg& ret);
 
-  SBCCallProfile* getActiveProfileMatch(const AmSipRequest& req, 
-					ParamReplacerCtx& ctx);
-  
-  bool CCRoute(const AmSipRequest& req,
-	       vector<AmDynInvoke*>& cc_modules,
-	       SBCCallProfile& call_profile);
+  SBCCallProfile* getActiveProfileMatch(const AmSipRequest& req,
+                                        ParamReplacerCtx&   ctx);
+
+  bool CCRoute(const AmSipRequest& req, std::vector<AmDynInvoke*>& cc_modules,
+               SBCCallProfile& call_profile);
 
  public:
   DECLARE_MODULE_INSTANCE(SBCFactory);
 
-  SBCFactory(const string& _app_name);
+  SBCFactory(const std::string& _app_name);
   ~SBCFactory();
 
   int onLoad();
@@ -108,17 +105,21 @@ class SBCFactory: public AmSessionFactory,
   void setCallLegCreator(CallLegCreator* clc) { callLegCreator.reset(clc); }
   CallLegCreator* getCallLegCreator() { return callLegCreator.get(); }
 
-  void setSimpleRelayCreator(SimpleRelayCreator* src) { 
-    simpleRelayCreator.reset(src); 
+  void setSimpleRelayCreator(SimpleRelayCreator* src)
+  {
+    simpleRelayCreator.reset(src);
   }
-  SimpleRelayCreator* getSimpleRelayCreator() { return simpleRelayCreator.get(); }
+  SimpleRelayCreator* getSimpleRelayCreator()
+  {
+    return simpleRelayCreator.get();
+  }
 
-  AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-		      const map<string,string>& app_params);
+  AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
+                      const map<std::string, std::string>&        app_params);
 
   void onOoDRequest(const AmSipRequest& req);
 
-  AmConfigReader cfg;
+  AmConfigReader                cfg;
   AmSessionEventHandlerFactory* session_timer_fact;
 
   // hack for routing of OoD (e.g. REGISTER) messages
@@ -132,13 +133,14 @@ class SBCFactory: public AmSessionFactory,
   // DI factory
   AmDynInvoke* getInstance() { return this; }
   // DI API
-  void invoke(const string& method, 
-	      const AmArg& args, AmArg& ret);
-
+  void invoke(const std::string& method, const AmArg& args, AmArg& ret);
 };
 
-extern void assertEndCRLF(string& s);
-extern bool getCCInterfaces(CCInterfaceListT& cc_interfaces, vector<AmDynInvoke*>& cc_modules);
-extern void oodHandlingTerminated(const AmSipRequest &req, vector<AmDynInvoke*>& cc_modules, SBCCallProfile& call_profile);
+extern void assertEndCRLF(std::string& s);
+extern bool getCCInterfaces(CCInterfaceListT&          cc_interfaces,
+                            std::vector<AmDynInvoke*>& cc_modules);
+extern void oodHandlingTerminated(const AmSipRequest&        req,
+                                  std::vector<AmDynInvoke*>& cc_modules,
+                                  SBCCallProfile&            call_profile);
 
 #endif

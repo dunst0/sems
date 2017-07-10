@@ -5,17 +5,16 @@
 #include "atomic_types.h"
 #include <sys/types.h>
 
-class DynRateLimit
-  : protected AmMutex
+class DynRateLimit : protected AmMutex
 {
   u_int32_t last_update;
-  int counter;
+  int       counter;
 
   unsigned int time_base;
 
   void update_limit(int rate, int peak);
 
-public:
+ public:
   // time_base_ms: milliseconds
   DynRateLimit(unsigned int time_base_ms);
 
@@ -34,27 +33,30 @@ public:
   u_int32_t getLastUpdate() { return last_update; }
 };
 
-class RateLimit
-  : protected DynRateLimit
+class RateLimit : protected DynRateLimit
 {
   int rate;
   int peak;
 
-public:
+ public:
   // time_base_ms: milliseconds
   RateLimit(unsigned int rate, unsigned int peak, unsigned int time_base_ms)
-    : DynRateLimit(time_base_ms), rate(rate), peak(peak)
-  {}
+      : DynRateLimit(time_base_ms)
+      , rate(rate)
+      , peak(peak)
+  {
+  }
 
-  int getRate() const { return rate; }
-  int getPeak() const { return peak; }
+  int          getRate() const { return rate; }
+  int          getPeak() const { return peak; }
   unsigned int getTimeBase() const { return DynRateLimit::getTimeBase(); }
 
   /**
    * returns true if 'size' should be dropped
    */
-  bool limit(unsigned int size) {
-    return DynRateLimit::limit(rate,peak,size);
+  bool limit(unsigned int size)
+  {
+    return DynRateLimit::limit(rate, peak, size);
   }
 };
 

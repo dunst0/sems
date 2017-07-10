@@ -26,8 +26,8 @@
 #ifndef _ReplacesMapper_H
 #define _ReplacesMapper_H
 
-#include "SBCCallRegistry.h"
 #include "AmSipMsg.h"
+#include "SBCCallRegistry.h"
 
 void fixReplaces(string& req_hdrs, bool is_invite);
 

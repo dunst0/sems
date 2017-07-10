@@ -20,51 +20,52 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #ifndef _SBCSimpleRelay_h_
 #define _SBCSimpleRelay_h_
 
-#include "atomic_types.h"
 #include "AmBasicSipDialog.h"
-#include "AmSipSubscription.h"
 #include "AmEventQueue.h"
+#include "AmSipSubscription.h"
+#include "atomic_types.h"
 
-#include "SBC.h"
 #include "ExtendedCCInterface.h"
+#include "SBC.h"
 
 #include "ampi/UACAuthAPI.h"
 
-#include <map>
 #include <list>
+#include <map>
 using std::map;
 
 class SimpleRelayDialog
-  : public AmBasicSipDialog,
-    public AmBasicSipEventHandler,
-    public AmEventQueue,
-    public AmEventHandler,
-    public DialogControl,
-    public CredentialHolder
+    : public AmBasicSipDialog
+    , public AmBasicSipEventHandler
+    , public AmEventQueue
+    , public AmEventHandler
+    , public DialogControl
+    , public CredentialHolder
 {
-  atomic_ref_cnt*     parent_obj;
-  string              other_dlg;
+  atomic_ref_cnt* parent_obj;
+  string          other_dlg;
 
   // mediation stuff
-  vector<FilterEntry>  headerfilter;
-  string               append_headers;
-  ReplyTranslationMap  reply_translations;
-  bool                 transparent_dlg_id;
-  bool                 keep_vias;
-  bool                 fix_replaces_ref;
+  vector<FilterEntry> headerfilter;
+  string              append_headers;
+  ReplyTranslationMap reply_translations;
+  bool                transparent_dlg_id;
+  bool                keep_vias;
+  bool                fix_replaces_ref;
 
   bool finished;
 
-  struct CCModuleInfo {
+  struct CCModuleInfo
+  {
     ExtendedCCInterface* module;
-    void *user_data;
+    void*                user_data;
   };
   std::list<CCModuleInfo> cc_ext;
 
@@ -72,15 +73,15 @@ class SimpleRelayDialog
   std::unique_ptr<UACAuthCred>           auth_cred;
   std::unique_ptr<AmSessionEventHandler> auth_h;
 
-  UACAuthCred* getCredentials() { return auth_cred.get(); }
+  UACAuthCred*      getCredentials() { return auth_cred.get(); }
   AmBasicSipDialog* getDlg() { return this; }
 
   // relay methods
   int relayRequest(const AmSipRequest& req);
   int relayReply(const AmSipReply& reply);
 
-protected:
-  typedef map<unsigned int,unsigned int> RelayMap;
+ protected:
+  typedef map<unsigned int, unsigned int> RelayMap;
   RelayMap relayed_reqs;
 
   // AmEventHandler
@@ -89,7 +90,7 @@ protected:
   // AmEventQueue
   bool processingCycle();
 
-  void initCCModules(SBCCallProfile &profile, vector<AmDynInvoke*> &cc_modules);
+  void initCCModules(SBCCallProfile& profile, vector<AmDynInvoke*>& cc_modules);
 
   virtual void onB2BRequest(const AmSipRequest& req);
   virtual void onB2BReply(const AmSipReply& reply);
@@ -98,42 +99,36 @@ protected:
    * is redefined */
   virtual void terminate() { finished = true; }
 
-public:
-  SimpleRelayDialog(SBCCallProfile &profile, vector<AmDynInvoke*> &cc_modules,
-		    atomic_ref_cnt* parent_obj=NULL);
-  SimpleRelayDialog(atomic_ref_cnt* parent_obj=NULL);
+ public:
+  SimpleRelayDialog(SBCCallProfile& profile, vector<AmDynInvoke*>& cc_modules,
+                    atomic_ref_cnt* parent_obj = NULL);
+  SimpleRelayDialog(atomic_ref_cnt* parent_obj = NULL);
   ~SimpleRelayDialog();
 
-  void setParent(atomic_ref_cnt* p_obj) {
-    if(parent_obj) dec_ref(parent_obj);
-    if(p_obj) inc_ref(p_obj);
+  void setParent(atomic_ref_cnt* p_obj)
+  {
+    if (parent_obj) dec_ref(parent_obj);
+    if (p_obj) inc_ref(p_obj);
     parent_obj = p_obj;
   }
 
-  void setOtherDlg(const string& dlg) {
-    other_dlg = dlg;
-  }
+  void setOtherDlg(const string& dlg) { other_dlg = dlg; }
 
-  const string& getOtherDlg() {
-    return other_dlg;
-  }
+  const string& getOtherDlg() { return other_dlg; }
 
-  void setKeepVias(bool kv) {
-    keep_vias = kv;
-  }
+  void setKeepVias(bool kv) { keep_vias = kv; }
 
-  bool getKeepVias() {
-    return keep_vias;
-  }
+  bool getKeepVias() { return keep_vias; }
 
-  vector<FilterEntry>&  getHeaderFilter() { return headerfilter; }
-  const vector<FilterEntry>&  getHeaderFilter() const { return headerfilter; }
+  vector<FilterEntry>&       getHeaderFilter() { return headerfilter; }
+  const vector<FilterEntry>& getHeaderFilter() const { return headerfilter; }
 
-  string& getAppendHeaders() { return append_headers; }
+  string&       getAppendHeaders() { return append_headers; }
   const string& getAppendHeaders() const { return append_headers; }
 
-  ReplyTranslationMap&  getReplyTranslations() { return reply_translations; }
-  const ReplyTranslationMap&  getReplyTranslations() const {
+  ReplyTranslationMap& getReplyTranslations() { return reply_translations; }
+  const ReplyTranslationMap& getReplyTranslations() const
+  {
     return reply_translations;
   }
 
@@ -145,9 +140,8 @@ public:
   // AmBasicSipEventHandler interface
   void onSendRequest(AmSipRequest& req, int& flags);
   void onSipRequest(const AmSipRequest& req);
-  void onSipReply(const AmSipRequest& req,
-		  const AmSipReply& reply, 
-		  AmBasicSipDialog::Status old_dlg_status);
+  void onSipReply(const AmSipRequest& req, const AmSipReply& reply,
+                  AmBasicSipDialog::Status old_dlg_status);
   void onRequestSent(const AmSipRequest& req);
   void onReplySent(const AmSipRequest& req, const AmSipReply& reply);
 
@@ -160,10 +154,9 @@ public:
 
 class SBCSimpleRelay
 {
-public:
+ public:
   static int start(const SimpleRelayCreator::Relay& relay,
-		   const AmSipRequest& req,
-		   const SBCCallProfile& cp);
+                   const AmSipRequest& req, const SBCCallProfile& cp);
 };
 
 #endif

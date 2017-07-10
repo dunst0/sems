@@ -29,15 +29,20 @@
 AmMutex SBCCallRegistry::registry_mutex;
 std::map<string, SBCCallRegistryEntry> SBCCallRegistry::registry;
 
-void SBCCallRegistry::addCall(const string& ltag, const SBCCallRegistryEntry& other_dlg) {
+void SBCCallRegistry::addCall(const string&               ltag,
+                              const SBCCallRegistryEntry& other_dlg)
+{
   registry_mutex.lock();
   registry[ltag] = other_dlg;
   registry_mutex.unlock();
 
-  DBG("SBCCallRegistry: Added call '%s' - mapped to: '%s'/'%s'/'%s'\n", ltag.c_str(), other_dlg.ltag.c_str(), other_dlg.rtag.c_str(), other_dlg.callid.c_str());
+  DBG("SBCCallRegistry: Added call '%s' - mapped to: '%s'/'%s'/'%s'\n",
+      ltag.c_str(), other_dlg.ltag.c_str(), other_dlg.rtag.c_str(),
+      other_dlg.callid.c_str());
 }
 
-void SBCCallRegistry::updateCall(const string& ltag, const string& other_rtag) {
+void SBCCallRegistry::updateCall(const string& ltag, const string& other_rtag)
+{
   registry_mutex.lock();
 
   std::map<string, SBCCallRegistryEntry>::iterator it = registry.find(ltag);
@@ -47,33 +52,39 @@ void SBCCallRegistry::updateCall(const string& ltag, const string& other_rtag) {
 
   registry_mutex.unlock();
 
-  DBG("SBCCallRegistry: Updated call '%s' - rtag to: '%s'\n", ltag.c_str(), other_rtag.c_str());
+  DBG("SBCCallRegistry: Updated call '%s' - rtag to: '%s'\n", ltag.c_str(),
+      other_rtag.c_str());
 }
 
-bool SBCCallRegistry::lookupCall(const string& ltag, SBCCallRegistryEntry& other_dlg) {
+bool SBCCallRegistry::lookupCall(const string&         ltag,
+                                 SBCCallRegistryEntry& other_dlg)
+{
   bool res = false;
 
   registry_mutex.lock();
   std::map<string, SBCCallRegistryEntry>::iterator it = registry.find(ltag);
   if (it != registry.end()) {
-    res = true;
+    res       = true;
     other_dlg = it->second;
   }
   registry_mutex.unlock();
 
   if (res) {
     DBG("SBCCallRegistry: found call mapping '%s' -> '%s'/'%s'/'%s'\n",
-	ltag.c_str(), other_dlg.ltag.c_str(), other_dlg.rtag.c_str(), other_dlg.callid.c_str());
-  } else {
+        ltag.c_str(), other_dlg.ltag.c_str(), other_dlg.rtag.c_str(),
+        other_dlg.callid.c_str());
+  }
+  else {
     DBG("SBCCallRegistry: no call mapping found for '%s'\n", ltag.c_str());
   }
   return res;
 }
 
-void SBCCallRegistry::removeCall(const string& ltag) {
+void SBCCallRegistry::removeCall(const string& ltag)
+{
   registry_mutex.lock();
   registry.erase(ltag);
-  registry_mutex.unlock();  
+  registry_mutex.unlock();
 
   DBG("SBCCallRegistry: removed entry for call '%s'\n", ltag.c_str());
 }

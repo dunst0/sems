@@ -26,14 +26,13 @@
 #ifndef _SDPFilter_h_
 #define _SDPFilter_h_
 
-#include "HeaderFilter.h" // filtertype
 #include "AmSdp.h"
+#include "HeaderFilter.h" // filtertype
 
 #include <string>
 using std::string;
 
 #include <set>
-
 
 int filterSDP(AmSdp& sdp, const vector<FilterEntry>& filter_list);
 int filterSDPalines(AmSdp& sdp, const vector<FilterEntry>& filter_list);
@@ -41,6 +40,6 @@ int filterMedia(AmSdp& sdp, const vector<FilterEntry>& filter_list);
 
 /** normalize SDP, fixing some common issues and anonymize (IP addresses
  * replaced in such case by advertised_ip) */
-int normalizeSDP(AmSdp& sdp, bool anonymize_sdp, const string &advertised_ip);
+int normalizeSDP(AmSdp& sdp, bool anonymize_sdp, const string& advertised_ip);
 
 #endif

@@ -25,26 +25,26 @@
  */
 
 #include "CallLeg.h"
-#include "AmSessionContainer.h"
 #include "AmConfig.h"
-#include "ampi/MonitoringAPI.h"
+#include "AmRtpReceiver.h"
+#include "AmSessionContainer.h"
 #include "AmSipHeaders.h"
 #include "AmUtils.h"
-#include "AmRtpReceiver.h"
 #include "SBCCallRegistry.h"
+#include "ampi/MonitoringAPI.h"
 
 #define TRACE DBG
 
 // helper functions
 
-static const char *callStatus2str(const CallLeg::CallStatus state)
+static const char* callStatus2str(const CallLeg::CallStatus state)
 {
-  static const char *disconnected = "Disconnected";
-  static const char *disconnecting = "Disconnecting";
-  static const char *noreply = "NoReply";
-  static const char *ringing = "Ringing";
-  static const char *connected = "Connected";
-  static const char *unknown = "???";
+  static const char* disconnected  = "Disconnected";
+  static const char* disconnecting = "Disconnecting";
+  static const char* noreply       = "NoReply";
+  static const char* ringing       = "Ringing";
+  static const char* connected     = "Connected";
+  static const char* unknown       = "???";
 
   switch (state) {
     case CallLeg::Disconnected: return disconnected;
@@ -60,23 +60,29 @@ static const char *callStatus2str(const CallLeg::CallStatus state)
 ReliableB2BEvent::~ReliableB2BEvent()
 {
   TRACE("reliable event was %sprocessed, sending %p to %s\n",
-      processed ? "" : "NOT ",
-      processed ? processed_reply : unprocessed_reply,
-      sender.c_str());
+        processed ? "" : "NOT ",
+        processed ? processed_reply : unprocessed_reply, sender.c_str());
   if (processed) {
     if (unprocessed_reply) delete unprocessed_reply;
-    if (processed_reply) AmSessionContainer::instance()->postEvent(sender, processed_reply);
+    if (processed_reply)
+      AmSessionContainer::instance()->postEvent(sender, processed_reply);
   }
   else {
     if (processed_reply) delete processed_reply;
-    if (unprocessed_reply) AmSessionContainer::instance()->postEvent(sender, unprocessed_reply);
+    if (unprocessed_reply)
+      AmSessionContainer::instance()->postEvent(sender, unprocessed_reply);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // helper functions
 
-enum HoldMethod { SendonlyStream, InactiveStream, ZeroedConnection };
+enum HoldMethod
+{
+  SendonlyStream,
+  InactiveStream,
+  ZeroedConnection
+};
 
 static const string sendonly("sendonly");
 static const string recvonly("recvonly");
@@ -88,37 +94,48 @@ static const string zero_connection("0.0.0.0");
 /** returns true if connection is avtive.
  * Returns given default_value if the connection address is empty to cope with
  * connection address set globaly and not per media stream */
-static bool connectionActive(const SdpConnection &connection, bool default_value)
+static bool connectionActive(const SdpConnection& connection,
+                             bool                 default_value)
 {
   if (connection.address.empty()) return default_value;
   if (connection.address == zero_connection) return false;
   return true;
 }
 
-enum MediaActivity { Inactive, Sendonly, Recvonly, Sendrecv };
+enum MediaActivity
+{
+  Inactive,
+  Sendonly,
+  Recvonly,
+  Sendrecv
+};
 
 /** Returns true if there is no direction=inactione or sendonly attribute in
  * given media stream. It doesn't check the connection address! */
-static MediaActivity getMediaActivity(const vector<SdpAttribute> &attrs, MediaActivity default_value)
+static MediaActivity getMediaActivity(const vector<SdpAttribute>& attrs,
+                                      MediaActivity               default_value)
 {
   // go through attributes and try to find sendonly/recvonly/sendrecv/inactive
-  for (std::vector<SdpAttribute>::const_iterator a = attrs.begin(); 
-      a != attrs.end(); ++a)
-  {
+  for (std::vector<SdpAttribute>::const_iterator a = attrs.begin();
+       a != attrs.end(); ++a) {
     if (a->attribute == sendonly) return Sendonly;
     if (a->attribute == inactive) return Inactive;
     if (a->attribute == recvonly) return Recvonly;
     if (a->attribute == sendrecv) return Sendrecv;
   }
 
-  return default_value; // none of the attributes given, return (session) default
+  return default_value; // none of the attributes given, return (session)
+                        // default
 }
 
-static MediaActivity getMediaActivity(const SdpMedia &m, MediaActivity default_value)
+static MediaActivity getMediaActivity(const SdpMedia& m,
+                                      MediaActivity   default_value)
 {
   if (m.send) {
-    if (m.recv) return Sendrecv;
-    else return Sendonly;
+    if (m.recv)
+      return Sendrecv;
+    else
+      return Sendonly;
   }
   else {
     if (m.recv) return Recvonly;
@@ -126,30 +143,27 @@ static MediaActivity getMediaActivity(const SdpMedia &m, MediaActivity default_v
   return Inactive;
 }
 
-static bool isHoldRequest(AmSdp &sdp, HoldMethod &method)
+static bool isHoldRequest(AmSdp& sdp, HoldMethod& method)
 {
   // set defaults from session parameters and attributes
   // inactive/sendonly/sendrecv/recvonly may be given as session attributes,
   // connection can be given for session as well
-  bool connection_active = connectionActive(sdp.conn, false /* empty connection like inactive? */);
+  bool connection_active =
+      connectionActive(sdp.conn, false /* empty connection like inactive? */);
   MediaActivity session_activity = getMediaActivity(sdp.attributes, Sendrecv);
 
-  for (std::vector<SdpMedia>::iterator m = sdp.media.begin(); 
-      m != sdp.media.end(); ++m) 
-  {
-    if (m->port == 0) continue; // this stream is disabled, handle like inactive (?)
+  for (std::vector<SdpMedia>::iterator m = sdp.media.begin();
+       m != sdp.media.end(); ++m) {
+    if (m->port == 0)
+      continue; // this stream is disabled, handle like inactive (?)
     if (!connectionActive(m->conn, connection_active)) {
       method = ZeroedConnection;
       continue;
     }
     switch (getMediaActivity(*m, session_activity)) {
-      case Sendonly:
-        method = SendonlyStream;
-        continue;
+      case Sendonly: method = SendonlyStream; continue;
 
-      case Inactive:
-        method = InactiveStream;
-        continue;
+      case Inactive: method = InactiveStream; continue;
 
       case Recvonly: // ?
       case Sendrecv:
@@ -159,22 +173,19 @@ static bool isHoldRequest(AmSdp &sdp, HoldMethod &method)
 
   if (sdp.media.empty()) {
     // no streams in the SDP, needed to set method somehow
-    if (!connection_active) method = ZeroedConnection;
+    if (!connection_active)
+      method = ZeroedConnection;
     else {
       switch (session_activity) {
-        case Sendonly:
-          method = SendonlyStream;
-          break;
+        case Sendonly: method = SendonlyStream; break;
 
-        case Inactive:
-          method = InactiveStream;
-          break;
+        case Inactive: method = InactiveStream; break;
 
         case Recvonly:
         case Sendrecv:
-          method = InactiveStream; // well, no stream is something like InactiveStream, isn't it?
+          method = InactiveStream; // well, no stream is something like
+                                   // InactiveStream, isn't it?
           break;
-
       }
     }
   }
@@ -182,23 +193,26 @@ static bool isHoldRequest(AmSdp &sdp, HoldMethod &method)
   return true; // no active stream was found
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 
 // callee
-CallLeg::CallLeg(const CallLeg* caller, AmSipDialog* p_dlg, AmSipSubscription* p_subs)
-  : AmB2BSession(caller->getLocalTag(),p_dlg,p_subs),
-    call_status(Disconnected),
-    on_hold(false),
-    hold(PreserveHoldStatus)
+CallLeg::CallLeg(const CallLeg* caller, AmSipDialog* p_dlg,
+                 AmSipSubscription* p_subs)
+    : AmB2BSession(caller->getLocalTag(), p_dlg, p_subs)
+    , call_status(Disconnected)
+    , on_hold(false)
+    , hold(PreserveHoldStatus)
 {
   a_leg = !caller->a_leg; // we have to be the complement
 
-  set_sip_relay_only(false); // will be changed later on (for now we have no peer so we can't relay)
+  set_sip_relay_only(false); // will be changed later on (for now we have no
+                             // peer so we can't relay)
 
   // enable OA for the purpose of hold request detection
-  if (dlg) dlg->setOAEnabled(true);
-  else WARN("can't enable OA!\n");
+  if (dlg)
+    dlg->setOAEnabled(true);
+  else
+    WARN("can't enable OA!\n");
 
   // code below taken from createCalleeSession
 
@@ -212,42 +226,43 @@ CallLeg::CallLeg(const CallLeg* caller, AmSipDialog* p_dlg, AmSipSubscription* p
   dlg->setRemoteParty(caller_dlg->getLocalParty());
   dlg->setRemoteUri(caller_dlg->getLocalUri());
 
-/*  if (AmConfig::LogSessions) {
-    INFO("Starting B2B callee session %s\n",
-	 getLocalTag().c_str());
-  }
+  /*  if (AmConfig::LogSessions) {
+      INFO("Starting B2B callee session %s\n",
+           getLocalTag().c_str());
+    }
 
-  MONITORING_LOG4(other_id.c_str(), 
-		  "dir",  "out",
-		  "from", dlg->local_party.c_str(),
-		  "to",   dlg->remote_party.c_str(),
-		  "ruri", dlg->remote_uri.c_str());
-*/
+    MONITORING_LOG4(other_id.c_str(),
+                    "dir",  "out",
+                    "from", dlg->local_party.c_str(),
+                    "to",   dlg->remote_party.c_str(),
+                    "ruri", dlg->remote_uri.c_str());
+  */
 
   // copy common RTP relay settings from A leg
-  //initRTPRelay(caller);
+  // initRTPRelay(caller);
   vector<SdpPayload> lowfi_payloads;
   setRtpRelayMode(caller->getRtpRelayMode());
   setEnableDtmfTranscoding(caller->getEnableDtmfTranscoding());
   caller->getLowFiPLs(lowfi_payloads);
   setLowFiPLs(lowfi_payloads);
 
- 
   // A->B
-  SBCCallRegistry::addCall(caller_dlg->getLocalTag(),
-			   SBCCallRegistryEntry(dlg->getCallid(), dlg->getLocalTag(), ""));
+  SBCCallRegistry::addCall(
+      caller_dlg->getLocalTag(),
+      SBCCallRegistryEntry(dlg->getCallid(), dlg->getLocalTag(), ""));
   // B->A
   SBCCallRegistry::addCall(dlg->getLocalTag(),
-			   SBCCallRegistryEntry(caller_dlg->getCallid(), caller_dlg->getLocalTag(), caller_dlg->getRemoteTag()));
-
+                           SBCCallRegistryEntry(caller_dlg->getCallid(),
+                                                caller_dlg->getLocalTag(),
+                                                caller_dlg->getRemoteTag()));
 }
 
 // caller
 CallLeg::CallLeg(AmSipDialog* p_dlg, AmSipSubscription* p_subs)
-  : AmB2BSession("",p_dlg,p_subs),
-    call_status(Disconnected),
-    on_hold(false),
-    hold(PreserveHoldStatus)
+    : AmB2BSession("", p_dlg, p_subs)
+    , call_status(Disconnected)
+    , on_hold(false)
+    , hold(PreserveHoldStatus)
 {
   a_leg = true;
 
@@ -259,20 +274,23 @@ CallLeg::CallLeg(AmSipDialog* p_dlg, AmSipSubscription* p_subs)
   set_sip_relay_only(false);
 
   // enable OA for the purpose of hold request detection
-  if (dlg) dlg->setOAEnabled(true);
-  else WARN("can't enable OA!\n");
+  if (dlg)
+    dlg->setOAEnabled(true);
+  else
+    WARN("can't enable OA!\n");
 }
-    
+
 CallLeg::~CallLeg()
 {
   // do necessary cleanup (might be needed if the call leg is destroyed other
   // way then expected)
-  for (vector<OtherLegInfo>::iterator i = other_legs.begin(); i != other_legs.end(); ++i) {
+  for (vector<OtherLegInfo>::iterator i = other_legs.begin();
+       i != other_legs.end(); ++i) {
     i->releaseMediaSession();
   }
 
   while (!pending_updates.empty()) {
-    SessionUpdate *u = pending_updates.front();
+    SessionUpdate* u = pending_updates.front();
     pending_updates.pop_front();
     delete u;
   }
@@ -283,16 +301,20 @@ CallLeg::~CallLeg()
 void CallLeg::terminateOtherLeg()
 {
   if (call_status != Connected) {
-    DBG("trying to terminate other leg in %s state -> terminating the others as well\n", callStatus2str(call_status));
-    // FIXME: may happen when for example reply forward fails, do we want to terminate
-    // all other legs in such case?
-    terminateNotConnectedLegs(); // terminates all except the one identified by other_id
+    DBG("trying to terminate other leg in %s state -> terminating the others "
+        "as well\n",
+        callStatus2str(call_status));
+    // FIXME: may happen when for example reply forward fails, do we want to
+    // terminate all other legs in such case?
+    terminateNotConnectedLegs(); // terminates all except the one identified by
+                                 // other_id
   }
-  
+
   AmB2BSession::terminateOtherLeg();
 
   // remove this one from the list of other legs
-  for (vector<OtherLegInfo>::iterator i = other_legs.begin(); i != other_legs.end(); ++i) {
+  for (vector<OtherLegInfo>::iterator i = other_legs.begin();
+       i != other_legs.end(); ++i) {
     if (i->id == getOtherId()) {
       i->releaseMediaSession();
       other_legs.erase(i);
@@ -301,22 +323,25 @@ void CallLeg::terminateOtherLeg()
   }
 
   // FIXME: call disconnect if connected (to put remote on hold)?
-  if (getCallStatus() != Disconnected) updateCallStatus(Disconnected); // no B legs should be remaining
+  if (getCallStatus() != Disconnected)
+    updateCallStatus(Disconnected); // no B legs should be remaining
 }
 
 void CallLeg::terminateNotConnectedLegs()
 {
-  bool found = false;
+  bool         found = false;
   OtherLegInfo b;
 
-  for (vector<OtherLegInfo>::iterator i = other_legs.begin(); i != other_legs.end(); ++i) {
+  for (vector<OtherLegInfo>::iterator i = other_legs.begin();
+       i != other_legs.end(); ++i) {
     if (i->id != getOtherId()) {
       i->releaseMediaSession();
-      AmSessionContainer::instance()->postEvent(i->id, new B2BEvent(B2BTerminateLeg));
+      AmSessionContainer::instance()->postEvent(i->id,
+                                                new B2BEvent(B2BTerminateLeg));
     }
     else {
       found = true; // other_id is there
-      b = *i;
+      b     = *i;
     }
   }
 
@@ -325,12 +350,13 @@ void CallLeg::terminateNotConnectedLegs()
   if (found) other_legs.push_back(b);
 }
 
-void CallLeg::removeOtherLeg(const string &id)
+void CallLeg::removeOtherLeg(const string& id)
 {
   if (getOtherId() == id) AmB2BSession::clear_other();
 
   // remove the call leg from list of B legs
-  for (vector<OtherLegInfo>::iterator i = other_legs.begin(); i != other_legs.end(); ++i) {
+  for (vector<OtherLegInfo>::iterator i = other_legs.begin();
+       i != other_legs.end(); ++i) {
     if (i->id == id) {
       i->releaseMediaSession();
       other_legs.erase(i);
@@ -338,87 +364,73 @@ void CallLeg::removeOtherLeg(const string &id)
     }
   }
 
-  /*if (terminate) AmSessionContainer::instance()->postEvent(id, new B2BEvent(B2BTerminateLeg));*/
+  /*if (terminate) AmSessionContainer::instance()->postEvent(id, new
+   * B2BEvent(B2BTerminateLeg));*/
 }
 
 // composed for caller and callee already
 void CallLeg::onB2BEvent(B2BEvent* ev)
 {
   switch (ev->event_id) {
+    case B2BSipReply: onB2BReply(dynamic_cast<B2BSipReplyEvent*>(ev)); break;
 
-    case B2BSipReply:
-      onB2BReply(dynamic_cast<B2BSipReplyEvent*>(ev));
-      break;
-
-    case ConnectLeg:
-      onB2BConnect(dynamic_cast<ConnectLegEvent*>(ev));
-      break;
+    case ConnectLeg: onB2BConnect(dynamic_cast<ConnectLegEvent*>(ev)); break;
 
     case ReconnectLeg:
       onB2BReconnect(dynamic_cast<ReconnectLegEvent*>(ev));
       break;
 
-    case ReplaceLeg:
-      onB2BReplace(dynamic_cast<ReplaceLegEvent*>(ev));
-      break;
+    case ReplaceLeg: onB2BReplace(dynamic_cast<ReplaceLegEvent*>(ev)); break;
 
     case ReplaceInProgress:
       onB2BReplaceInProgress(dynamic_cast<ReplaceInProgressEvent*>(ev));
       break;
 
-    case DisconnectLeg:
-      {
-        DisconnectLegEvent *dle = dynamic_cast<DisconnectLegEvent*>(ev);
-        if (dle) disconnect(dle->put_remote_on_hold, dle->preserve_media_session);
-      }
+    case DisconnectLeg: {
+      DisconnectLegEvent* dle = dynamic_cast<DisconnectLegEvent*>(ev);
+      if (dle) disconnect(dle->put_remote_on_hold, dle->preserve_media_session);
+    } break;
+
+    case ResumeHeldLeg: {
+      ResumeHeldEvent* e = dynamic_cast<ResumeHeldEvent*>(ev);
+      if (e) resumeHeld();
+    } break;
+
+    case ChangeRtpModeEventId: {
+      ChangeRtpModeEvent* e = dynamic_cast<ChangeRtpModeEvent*>(ev);
+      if (e) changeRtpMode(e->new_mode, e->media);
+    } break;
+
+    case ApplyPendingUpdatesEventId:
+      if (dynamic_cast<ApplyPendingUpdatesEvent*>(ev)) applyPendingUpdate();
       break;
-
-    case ResumeHeldLeg:
-      {
-        ResumeHeldEvent *e = dynamic_cast<ResumeHeldEvent*>(ev);
-        if (e) resumeHeld();
-      }
-      break;
-
-    case ChangeRtpModeEventId:
-      {
-        ChangeRtpModeEvent *e = dynamic_cast<ChangeRtpModeEvent*>(ev);
-        if (e) changeRtpMode(e->new_mode, e->media);
-      }
-      break;
-
-      case ApplyPendingUpdatesEventId:
-        if (dynamic_cast<ApplyPendingUpdatesEvent*>(ev)) applyPendingUpdate();
-        break;
-
 
     case B2BSipRequest:
       if (!sip_relay_only) {
         // disable forwarding of relayed request if we are not connected [yet]
-        // (only we known that, the B leg has just delayed information about being
-        // connected to us and thus it can't set)
-        // Need not to be done if we have only one possible B leg so instead of
-        // checking call_status we can check if sip_relay_only is set or not
-        B2BSipRequestEvent *req_ev = dynamic_cast<B2BSipRequestEvent*>(ev);
+        // (only we known that, the B leg has just delayed information about
+        // being connected to us and thus it can't set) Need not to be done if
+        // we have only one possible B leg so instead of checking call_status we
+        // can check if sip_relay_only is set or not
+        B2BSipRequestEvent* req_ev  = dynamic_cast<B2BSipRequestEvent*>(ev);
         if (req_ev) req_ev->forward = false;
       }
-      // continue handling in AmB2bSession
+    // continue handling in AmB2bSession
 
-    default:
-      AmB2BSession::onB2BEvent(ev);
+    default: AmB2BSession::onB2BEvent(ev);
   }
 }
 
-int CallLeg::relaySipReply(AmSipReply &reply)
+int CallLeg::relaySipReply(AmSipReply& reply)
 {
-  std::map<int,AmSipRequest>::iterator t_req = recvd_req.find(reply.cseq);
+  std::map<int, AmSipRequest>::iterator t_req = recvd_req.find(reply.cseq);
 
   if (t_req == recvd_req.end()) {
     ERROR("Request with CSeq %u not found in recvd_req.\n", reply.cseq);
     return 0; // ignore?
   }
 
-  int res;
+  int          res;
   AmSipRequest req(t_req->second);
 
   if ((reply.code >= 300) && (reply.code <= 305) && !reply.contact.empty()) {
@@ -428,15 +440,18 @@ int CallLeg::relaySipReply(AmSipReply &reply)
 
     res = relaySip(req, n_reply);
   }
-  else res = relaySip(req, reply); // relay response directly
+  else
+    res = relaySip(req, reply); // relay response directly
 
   return res;
 }
 
-bool CallLeg::setOther(const string &id, bool forward)
+bool CallLeg::setOther(const string& id, bool forward)
 {
-  if (getOtherId() == id) return true; // already set (needed when processing 2xx after 1xx)
-  for (vector<OtherLegInfo>::iterator i = other_legs.begin(); i != other_legs.end(); ++i) {
+  if (getOtherId() == id)
+    return true; // already set (needed when processing 2xx after 1xx)
+  for (vector<OtherLegInfo>::iterator i = other_legs.begin();
+       i != other_legs.end(); ++i) {
     if (i->id == id) {
       setOtherId(id);
       clearRtpReceiverRelay(); // release old media session if set
@@ -447,13 +462,14 @@ bool CallLeg::setOther(const string &id, bool forward)
         dlg->setOAState(AmOfferAnswer::OA_OfferRecved);
       }
       if (i->media_session) {
-        TRACE("connecting media session: %s to %s\n", 
-            dlg->getLocalTag().c_str(), getOtherId().c_str());
+        TRACE("connecting media session: %s to %s\n",
+              dlg->getLocalTag().c_str(), getOtherId().c_str());
         i->media_session->changeSession(a_leg, this);
       }
       else {
         // media session not set, set direct mode if not set already
-        if (rtp_relay_mode != AmB2BSession::RTP_Direct) setRtpRelayMode(AmB2BSession::RTP_Direct);
+        if (rtp_relay_mode != AmB2BSession::RTP_Direct)
+          setRtpRelayMode(AmB2BSession::RTP_Direct);
       }
       set_sip_relay_only(true); // relay only from now on
       return true;
@@ -475,22 +491,26 @@ void CallLeg::b2bInitial1xx(AmSipReply& reply, bool forward)
   if (call_status == NoReply) {
     DBG("1xx reply with to-tag received in NoReply state,"
         " changing status to Ringing and remembering the"
-        " other leg ID (%s)\n", getOtherId().c_str());
+        " other leg ID (%s)\n",
+        getOtherId().c_str());
     if (setOther(reply.from_tag, forward)) {
       updateCallStatus(Ringing, &reply);
-      if (forward && relaySipReply(reply) != 0) stopCall(StatusChangeCause::InternalError);
+      if (forward && relaySipReply(reply) != 0)
+        stopCall(StatusChangeCause::InternalError);
     }
   }
   else {
     if (getOtherId() == reply.from_tag) {
       // we can relay this reply because it is from the same B leg from which
       // we already relayed something
-      if (forward && relaySipReply(reply) != 0) stopCall(StatusChangeCause::InternalError);
+      if (forward && relaySipReply(reply) != 0)
+        stopCall(StatusChangeCause::InternalError);
     }
     else {
       // in Ringing state but the reply comes from another B leg than
       // previous 1xx reply => do not relay or process other way
-      DBG("1xx reply received in %s state from another B leg, ignoring\n", callStatus2str(call_status));
+      DBG("1xx reply received in %s state from another B leg, ignoring\n",
+          callStatus2str(call_status));
     }
   }
 }
@@ -510,8 +530,9 @@ void CallLeg::b2bInitial2xx(AmSipReply& reply, bool forward)
 
   // connect media with the other leg if RTP relay is enabled
   if (!other_legs.empty())
-    other_legs.begin()->releaseMediaSession(); // remove reference hold by OtherLegInfo
-  other_legs.clear(); // no need to remember the connected leg here
+    other_legs.begin()
+        ->releaseMediaSession(); // remove reference hold by OtherLegInfo
+  other_legs.clear();            // no need to remember the connected leg here
 
   onCallConnected(reply);
 
@@ -527,25 +548,27 @@ void CallLeg::b2bInitial2xx(AmSipReply& reply, bool forward)
   updateCallStatus(Connected, &reply);
 }
 
-void CallLeg::onInitialReply(B2BSipReplyEvent *e)
+void CallLeg::onInitialReply(B2BSipReplyEvent* e)
 {
-    if (e->reply.code < 200) b2bInitial1xx(e->reply, e->forward);
-    else if (e->reply.code < 300) b2bInitial2xx(e->reply, e->forward);
-    else b2bInitialErr(e->reply, e->forward);
+  if (e->reply.code < 200)
+    b2bInitial1xx(e->reply, e->forward);
+  else if (e->reply.code < 300)
+    b2bInitial2xx(e->reply, e->forward);
+  else
+    b2bInitialErr(e->reply, e->forward);
 }
 
 void CallLeg::b2bInitialErr(AmSipReply& reply, bool forward)
 {
   if (getCallStatus() == Ringing && getOtherId() != reply.from_tag) {
     removeOtherLeg(reply.from_tag); // we don't care about this leg any more
-    onBLegRefused(reply); // new B leg(s) may be added
+    onBLegRefused(reply);           // new B leg(s) may be added
     DBG("dropping non-ok reply, it is not from current peer\n");
     return;
   }
 
-  DBG("clean-up after non-ok reply (reply: %d, status %s, other: %s)\n", 
-      reply.code, callStatus2str(getCallStatus()),
-      getOtherId().c_str());
+  DBG("clean-up after non-ok reply (reply: %d, status %s, other: %s)\n",
+      reply.code, callStatus2str(getCallStatus()), getOtherId().c_str());
   clearRtpReceiverRelay();
   removeOtherLeg(reply.from_tag); // we don't care about this leg any more
   updateCallStatus(NoReply, &reply);
@@ -565,7 +588,7 @@ void CallLeg::b2bInitialErr(AmSipReply& reply, bool forward)
 }
 
 // was for caller only
-void CallLeg::onB2BReply(B2BSipReplyEvent *ev)
+void CallLeg::onB2BReply(B2BSipReplyEvent* ev)
 {
   if (!ev) {
     ERROR("BUG: invalid argument given\n");
@@ -575,22 +598,24 @@ void CallLeg::onB2BReply(B2BSipReplyEvent *ev)
   AmSipReply& reply = ev->reply;
 
   TRACE("%s: B2B SIP reply %d/%d %s received in %s state\n",
-      getLocalTag().c_str(),
-      reply.code, reply.cseq, reply.cseq_method.c_str(),
-      callStatus2str(call_status));
+        getLocalTag().c_str(), reply.code, reply.cseq,
+        reply.cseq_method.c_str(), callStatus2str(call_status));
 
   // FIXME: testing est_invite_cseq is wrong! (checking in what direction or
   // what role would be needed)
-  bool initial_reply = (reply.cseq_method == SIP_METH_INVITE &&
-      (call_status == NoReply || call_status == Ringing) &&
-      ((reply.cseq == est_invite_cseq && ev->forward) || // related to initial INVITE at our side
-       (!ev->forward))); // connect not related to initial INVITE at our side
+  bool initial_reply = (reply.cseq_method == SIP_METH_INVITE
+                        && (call_status == NoReply || call_status == Ringing)
+                        && ((reply.cseq == est_invite_cseq && ev->forward)
+                            || // related to initial INVITE at our side
+                            (!ev->forward))); // connect not related to initial
+                                              // INVITE at our side
 
   if (initial_reply) {
     // handle relayed initial replies (replies to initiating INVITE at the other
     // side, note that this need not to be initiating INVITE at our side)
 
-    TRACE("established CSeq: %d, forward: %s\n", est_invite_cseq, ev->forward ? "yes": "no");
+    TRACE("established CSeq: %d, forward: %s\n", est_invite_cseq,
+          ev->forward ? "yes" : "no");
 
     onInitialReply(ev);
   }
@@ -600,7 +625,8 @@ void CallLeg::onB2BReply(B2BSipReplyEvent *ev)
     // reply not from our peer (might be one of the discarded ones)
     if (getOtherId() != ev->sender_ltag && getOtherId() != reply.from_tag) {
       TRACE("ignoring reply from %s in %s state, other_id = '%s'\n",
-	    reply.from_tag.c_str(), callStatus2str(call_status), getOtherId().c_str());
+            reply.from_tag.c_str(), callStatus2str(call_status),
+            getOtherId().c_str());
       return;
     }
 
@@ -619,14 +645,14 @@ void CallLeg::onB2BConnect(ConnectLegEvent* co_ev)
   }
 
   if (call_status != Disconnected) {
-    ERROR("BUG: ConnectLegEvent received in %s state\n", callStatus2str(call_status));
+    ERROR("BUG: ConnectLegEvent received in %s state\n",
+          callStatus2str(call_status));
     return;
   }
 
-  MONITORING_LOG3(getLocalTag().c_str(), 
-		  "b2b_leg", getOtherId().c_str(),
-		  "to", dlg->getRemoteParty().c_str(),
-		  "ruri", dlg->getRemoteUri().c_str());
+  MONITORING_LOG3(getLocalTag().c_str(), "b2b_leg", getOtherId().c_str(), "to",
+                  dlg->getRemoteParty().c_str(), "ruri",
+                  dlg->getRemoteUri().c_str());
 
   // This leg is marked as 'relay only' since the beginning because it might
   // need not to know on time that it is connected and thus should relay.
@@ -635,18 +661,21 @@ void CallLeg::onB2BConnect(ConnectLegEvent* co_ev)
   // immediatelly processing in-dialog request which should be relayed, but
   // A leg didn't have chance to process the relayed reply so the B leg is not
   // connected to the A leg yet when handling the in-dialog request.
-  set_sip_relay_only(true); // we should relay everything to the other leg from now
+  set_sip_relay_only(
+      true); // we should relay everything to the other leg from now
 
   AmMimeBody body(co_ev->body);
   try {
     updateLocalBody(body);
-  } catch (const string& s) {
-    relayError(SIP_METH_INVITE, co_ev->r_cseq, true, 500, SIP_REPLY_SERVER_INTERNAL_ERROR);
+  }
+  catch (const string& s) {
+    relayError(SIP_METH_INVITE, co_ev->r_cseq, true, 500,
+               SIP_REPLY_SERVER_INTERNAL_ERROR);
     throw;
   }
 
-  int res = dlg->sendRequest(SIP_METH_INVITE, &body,
-      co_ev->hdrs, SIP_FLAGS_VERBATIM);
+  int res =
+      dlg->sendRequest(SIP_METH_INVITE, &body, co_ev->hdrs, SIP_FLAGS_VERBATIM);
   if (res < 0) {
     DBG("sending INVITE failed, relaying back error reply\n");
     relayError(SIP_METH_INVITE, co_ev->r_cseq, true, res);
@@ -659,12 +688,13 @@ void CallLeg::onB2BConnect(ConnectLegEvent* co_ev)
 
   if (co_ev->relayed_invite) {
     AmSipRequest fake_req;
-    fake_req.method = SIP_METH_INVITE;
-    fake_req.cseq = co_ev->r_cseq;
+    fake_req.method            = SIP_METH_INVITE;
+    fake_req.cseq              = co_ev->r_cseq;
     relayed_req[dlg->cseq - 1] = fake_req;
-    est_invite_other_cseq = co_ev->r_cseq;
+    est_invite_other_cseq      = co_ev->r_cseq;
   }
-  else est_invite_other_cseq = 0;
+  else
+    est_invite_other_cseq = 0;
 
   if (!co_ev->body.empty()) {
     saveSessionDescription(co_ev->body);
@@ -680,8 +710,8 @@ void CallLeg::onB2BReconnect(ReconnectLegEvent* ev)
     ERROR("BUG: invalid argument given\n");
     return;
   }
-  TRACE("handling ReconnectLegEvent, other: %s, connect to %s\n", 
-	getOtherId().c_str(), ev->session_tag.c_str());
+  TRACE("handling ReconnectLegEvent, other: %s, connect to %s\n",
+        getOtherId().c_str(), ev->session_tag.c_str());
 
   ev->markAsProcessed();
 
@@ -691,17 +721,20 @@ void CallLeg::onB2BReconnect(ReconnectLegEvent* ev)
   relayed_req.clear();
 
   // check if we aren't processing INVITE now (BLF ringing call pickup)
-  AmSipRequest *invite = dlg->getUASPendingInv();
+  AmSipRequest* invite = dlg->getUASPendingInv();
   if (invite) acceptPendingInvite(invite);
 
   setOtherId(ev->session_tag);
-  if (ev->role == ReconnectLegEvent::A) a_leg = true;
-  else a_leg = false;
+  if (ev->role == ReconnectLegEvent::A)
+    a_leg = true;
+  else
+    a_leg = false;
   // FIXME: What about calling SBC CC modules in this case? Original CC
   // interface is called from A leg only and it might happen that we were call
   // leg A before.
 
-  set_sip_relay_only(true); // we should relay everything to the other leg from now
+  set_sip_relay_only(
+      true); // we should relay everything to the other leg from now
   updateCallStatus(NoReply);
 
   // use new media session if given
@@ -711,16 +744,16 @@ void CallLeg::onB2BReconnect(ReconnectLegEvent* ev)
     getMediaSession()->changeSession(a_leg, this);
   }
 
-  MONITORING_LOG3(getLocalTag().c_str(),
-		  "b2b_leg", getOtherId().c_str(),
-		  "to", dlg->getRemoteParty().c_str(),
-		  "ruri", dlg->getRemoteUri().c_str());
+  MONITORING_LOG3(getLocalTag().c_str(), "b2b_leg", getOtherId().c_str(), "to",
+                  dlg->getRemoteParty().c_str(), "ruri",
+                  dlg->getRemoteUri().c_str());
 
   updateSession(new Reinvite(ev->hdrs, ev->body,
-        /* establishing = */ true, ev->relayed_invite, ev->r_cseq));
+                             /* establishing = */ true, ev->relayed_invite,
+                             ev->r_cseq));
 }
 
-void CallLeg::onB2BReplace(ReplaceLegEvent *e)
+void CallLeg::onB2BReplace(ReplaceLegEvent* e)
 {
   if (!e) {
     ERROR("BUG: invalid argument given\n");
@@ -728,14 +761,14 @@ void CallLeg::onB2BReplace(ReplaceLegEvent *e)
   }
   e->markAsProcessed();
 
-  ReconnectLegEvent *reconnect = e->getReconnectEvent();
+  ReconnectLegEvent* reconnect = e->getReconnectEvent();
   if (!reconnect) {
     ERROR("BUG: invalid ReconnectLegEvent\n");
     return;
   }
 
-  TRACE("handling ReplaceLegEvent, other: %s, connect to %s\n", 
-	getOtherId().c_str(), reconnect->session_tag.c_str());
+  TRACE("handling ReplaceLegEvent, other: %s, connect to %s\n",
+        getOtherId().c_str(), reconnect->session_tag.c_str());
 
   string id(getOtherId());
   if (id.empty()) {
@@ -748,7 +781,8 @@ void CallLeg::onB2BReplace(ReplaceLegEvent *e)
   }
 
   // send session ID of the other leg to the originator
-  AmSessionContainer::instance()->postEvent(reconnect->session_tag, new ReplaceInProgressEvent(id));
+  AmSessionContainer::instance()->postEvent(reconnect->session_tag,
+                                            new ReplaceInProgressEvent(id));
 
   // send the ReconnectLegEvent to the other leg
   AmSessionContainer::instance()->postEvent(id, reconnect);
@@ -757,12 +791,14 @@ void CallLeg::onB2BReplace(ReplaceLegEvent *e)
   removeOtherLeg(id);
 
   // commit suicide if our last B leg is stolen
-  if (other_legs.empty() && getOtherId().empty()) stopCall(StatusChangeCause::Other /* FIXME? */);
+  if (other_legs.empty() && getOtherId().empty())
+    stopCall(StatusChangeCause::Other /* FIXME? */);
 }
 
-void CallLeg::onB2BReplaceInProgress(ReplaceInProgressEvent *e)
+void CallLeg::onB2BReplaceInProgress(ReplaceInProgressEvent* e)
 {
-  for (vector<OtherLegInfo>::iterator i = other_legs.begin(); i != other_legs.end(); ++i) {
+  for (vector<OtherLegInfo>::iterator i = other_legs.begin();
+       i != other_legs.end(); ++i) {
     if (i->id.empty()) {
       // replace the temporary (invalid) session with the correct one
       i->id = e->dst_session;
@@ -778,14 +814,16 @@ void CallLeg::disconnect(bool hold_remote, bool preserve_media_session)
   switch (call_status) {
     case Disconnecting:
     case Disconnected:
-      DBG("trying to disconnect already disconnected (or disconnecting) call leg\n");
+      DBG("trying to disconnect already disconnected (or disconnecting) call "
+          "leg\n");
       return;
 
     case NoReply:
     case Ringing:
-      WARN("trying to disconnect in not connected state, terminating not connected legs in advance (was it intended?)\n");
+      WARN("trying to disconnect in not connected state, terminating not "
+           "connected legs in advance (was it intended?)\n");
       terminateNotConnectedLegs();
-      // do not break, continue with following state handling!
+    // do not break, continue with following state handling!
 
     case Connected:
       if (!preserve_media_session) {
@@ -797,28 +835,33 @@ void CallLeg::disconnect(bool hold_remote, bool preserve_media_session)
 
   // create new media session for us if needed
   if (getRtpRelayMode() != RTP_Direct && !preserve_media_session)
-    setMediaSession(new AmB2BMedia(a_leg ? this: NULL, a_leg ? NULL : this));
+    setMediaSession(new AmB2BMedia(a_leg ? this : NULL, a_leg ? NULL : this));
 
   clear_other();
   set_sip_relay_only(false); // we can't relay once disconnected
-  est_invite_cseq = 0; // attempt to invalidate though 0 is valid value
-  relayed_req.clear(); // do not forward anything back any more
+  est_invite_cseq = 0;       // attempt to invalidate though 0 is valid value
+  relayed_req.clear();       // do not forward anything back any more
 
-  if (!hold_remote || isOnHold()) updateCallStatus(Disconnected);
+  if (!hold_remote || isOnHold())
+    updateCallStatus(Disconnected);
   else {
     updateCallStatus(Disconnecting);
     putOnHold();
   }
 }
 
-static void sdp2body(const AmSdp &sdp, AmMimeBody &body)
+static void sdp2body(const AmSdp& sdp, AmMimeBody& body)
 {
   string body_str;
   sdp.print(body_str);
 
-  AmMimeBody *s = body.hasContentType(SIP_APPLICATION_SDP);
-  if (s) s->parse(SIP_APPLICATION_SDP, (const unsigned char*)body_str.c_str(), body_str.length());
-  else body.parse(SIP_APPLICATION_SDP, (const unsigned char*)body_str.c_str(), body_str.length());
+  AmMimeBody* s = body.hasContentType(SIP_APPLICATION_SDP);
+  if (s)
+    s->parse(SIP_APPLICATION_SDP, (const unsigned char*) body_str.c_str(),
+             body_str.length());
+  else
+    body.parse(SIP_APPLICATION_SDP, (const unsigned char*) body_str.c_str(),
+               body_str.length());
 }
 
 int CallLeg::putOnHoldImpl()
@@ -880,12 +923,12 @@ int CallLeg::resumeHeldImpl()
 
 void CallLeg::holdAccepted()
 {
-  DBG("hold accepted on %c leg\n", a_leg?'B':'A');
+  DBG("hold accepted on %c leg\n", a_leg ? 'B' : 'A');
   if (call_status == Disconnecting) updateCallStatus(Disconnected);
-  on_hold = true;
-  AmB2BMedia *ms = getMediaSession();
+  on_hold        = true;
+  AmB2BMedia* ms = getMediaSession();
   if (ms) {
-    DBG("holdAccepted - mute %c leg\n", a_leg?'B':'A');
+    DBG("holdAccepted - mute %c leg\n", a_leg ? 'B' : 'A');
     ms->mute(!a_leg); // mute the stream in other (!) leg
   }
 }
@@ -897,10 +940,11 @@ void CallLeg::holdRejected()
 
 void CallLeg::resumeAccepted()
 {
-  on_hold = false;
-  AmB2BMedia *ms = getMediaSession();
+  on_hold        = false;
+  AmB2BMedia* ms = getMediaSession();
   if (ms) ms->unmute(!a_leg); // unmute the stream in other (!) leg
-  DBG("%s: resuming held, unmuting media session %p(%s)\n", getLocalTag().c_str(), ms, !a_leg ? "A" : "B");
+  DBG("%s: resuming held, unmuting media session %p(%s)\n",
+      getLocalTag().c_str(), ms, !a_leg ? "A" : "B");
 }
 
 // was for caller only
@@ -912,7 +956,7 @@ void CallLeg::onInvite(const AmSipRequest& req)
   // (see AmB2BSession::onSipRequest)
 
   if (call_status == Disconnected) { // for initial INVITE only
-    est_invite_cseq = req.cseq; // remember initial CSeq
+    est_invite_cseq = req.cseq;      // remember initial CSeq
     // initialize RTP relay
 
     // relayed INVITE - we need to add the original INVITE to
@@ -923,58 +967,58 @@ void CallLeg::onInvite(const AmSipRequest& req)
 
 void CallLeg::onSipRequest(const AmSipRequest& req)
 {
-  TRACE("%s: SIP request %d %s received in %s state\n",
-      getLocalTag().c_str(),
-      req.cseq, req.method.c_str(), callStatus2str(call_status));
+  TRACE("%s: SIP request %d %s received in %s state\n", getLocalTag().c_str(),
+        req.cseq, req.method.c_str(), callStatus2str(call_status));
 
   // we need to handle cases if there is no other leg (for example call parking)
   // Note that setting sip_relay_only to false in this case doesn't solve the
   // problem because AmB2BSession always tries to relay the request into the
   // other leg.
   if ((getCallStatus() == Disconnected || getCallStatus() == Disconnecting)
-        && getOtherId().empty())
-  {
+      && getOtherId().empty()) {
     TRACE("handling request %s in disconnected state", req.method.c_str());
 
     // this is not correct but what is?
     // handle reINVITEs within B2B call with no other leg
-    if (req.method == SIP_METH_INVITE && dlg->getStatus() == AmBasicSipDialog::Connected) {
+    if (req.method == SIP_METH_INVITE
+        && dlg->getStatus() == AmBasicSipDialog::Connected) {
       try {
         dlg->reply(req, 500, SIP_REPLY_SERVER_INTERNAL_ERROR);
       }
-      catch(...) {
+      catch (...) {
         ERROR("exception when handling INVITE in disconnected state");
         dlg->reply(req, 500, SIP_REPLY_SERVER_INTERNAL_ERROR);
         // stop the call?
       }
     }
-    else AmSession::onSipRequest(req);
+    else
+      AmSession::onSipRequest(req);
 
     if (req.method == SIP_METH_BYE) {
       stopCall(&req); // is this needed?
     }
   }
   else {
-    if(getCallStatus() == Disconnected &&
-       req.method == SIP_METH_BYE) {
+    if (getCallStatus() == Disconnected && req.method == SIP_METH_BYE) {
       // seems that we have already sent/received a BYE
       // -> we'd better terminate this ASAP
       //    to avoid other confusions...
-      dlg->reply(req,200,"OK");
+      dlg->reply(req, 200, "OK");
     }
     else
       AmB2BSession::onSipRequest(req);
   }
 }
 
-void CallLeg::onSipReply(const AmSipRequest& req, const AmSipReply& reply, AmSipDialog::Status old_dlg_status)
+void CallLeg::onSipReply(const AmSipRequest& req, const AmSipReply& reply,
+                         AmSipDialog::Status old_dlg_status)
 {
-  TransMap::iterator t = relayed_req.find(reply.cseq);
-  bool relayed_request = (t != relayed_req.end());
+  TransMap::iterator t               = relayed_req.find(reply.cseq);
+  bool               relayed_request = (t != relayed_req.end());
 
-  TRACE("%s: SIP reply %d/%d %s (%s) received in %s state\n",
-      getLocalTag().c_str(),
-      reply.code, reply.cseq, reply.cseq_method.c_str(),
+  TRACE(
+      "%s: SIP reply %d/%d %s (%s) received in %s state\n",
+      getLocalTag().c_str(), reply.code, reply.cseq, reply.cseq_method.c_str(),
       (relayed_request ? "to relayed request" : "to locally generated request"),
       callStatus2str(call_status));
 
@@ -995,10 +1039,12 @@ void CallLeg::onSipReply(const AmSipRequest& req, const AmSipReply& reply, AmSip
     return;
   }
 #endif
-  if (reply.code >= 300 && reply.cseq_method == SIP_METH_INVITE) offerRejected();
+  if (reply.code >= 300 && reply.cseq_method == SIP_METH_INVITE)
+    offerRejected();
 
   // handle final replies of session updates in progress
-  if (!pending_updates.empty() && reply.code >= 200 && pending_updates.front()->hasCSeq(reply.cseq)) {
+  if (!pending_updates.empty() && reply.code >= 200
+      && pending_updates.front()->hasCSeq(reply.cseq)) {
     if (reply.code == 491) {
       pending_updates.front()->reset();
       double t = get491RetryTime();
@@ -1016,8 +1062,8 @@ void CallLeg::onSipReply(const AmSipRequest& req, const AmSipReply& reply, AmSip
 
   // update internal state and call related callbacks based on received reply
   // (i.e. B leg in case of initial INVITE)
-  if (reply.cseq == est_invite_cseq && reply.cseq_method == SIP_METH_INVITE &&
-    (call_status == NoReply || call_status == Ringing)) {
+  if (reply.cseq == est_invite_cseq && reply.cseq_method == SIP_METH_INVITE
+      && (call_status == NoReply || call_status == Ringing)) {
     // reply to the initial request
     if ((reply.code > 100) && (reply.code < 200)) {
       if (((call_status == NoReply)) && (!reply.to_tag.empty()))
@@ -1035,10 +1081,10 @@ void CallLeg::onSipReply(const AmSipRequest& req, const AmSipReply& reply, AmSip
 
   // update call registry (unfortunately has to be done always -
   // not possible to determine if learned in this reply (?))
-  if (!dlg->getRemoteTag().empty() && reply.code >= 200 && req.method == SIP_METH_INVITE) {
+  if (!dlg->getRemoteTag().empty() && reply.code >= 200
+      && req.method == SIP_METH_INVITE) {
     SBCCallRegistry::updateCall(getOtherId(), dlg->getRemoteTag());
   }
-
 }
 
 // was for caller only
@@ -1050,12 +1096,12 @@ void CallLeg::onInvite2xx(const AmSipReply& reply)
   // remember UPDATE cseq as well because SDP may change by it as well (used
   // when handling B2BSipReply in AmB2BSession to check if reINVITE should be
   // sent).
-  // 
+  //
   // est_invite_cseq = reply.cseq;
 
   // we don't want to handle the 2xx using AmSession so the following may be
   // unwanted for us:
-  // 
+  //
   AmB2BSession::onInvite2xx(reply);
 }
 
@@ -1073,13 +1119,10 @@ void CallLeg::onCancel(const AmSipRequest& req)
   }
 }
 
-void CallLeg::terminateLeg()
-{
-  AmB2BSession::terminateLeg();
-}
+void CallLeg::terminateLeg() { AmB2BSession::terminateLeg(); }
 
 // was for caller only
-void CallLeg::onRemoteDisappeared(const AmSipReply& reply) 
+void CallLeg::onRemoteDisappeared(const AmSipReply& reply)
 {
   if (call_status == Connected) {
     // only in case we are really connected
@@ -1087,7 +1130,7 @@ void CallLeg::onRemoteDisappeared(const AmSipReply& reply)
 
     DBG("remote unreachable, ending B2BUA call\n");
     // FIXME: shouldn't be cleared in AmB2BSession as well?
-    clearRtpReceiverRelay(); 
+    clearRtpReceiverRelay();
     AmB2BSession::onRemoteDisappeared(reply); // terminates the other leg
     updateCallStatus(Disconnected, &reply);
   }
@@ -1098,7 +1141,8 @@ void CallLeg::onBye(const AmSipRequest& req)
 {
   terminateNotConnectedLegs();
   updateCallStatus(Disconnected, &req);
-  clearRtpReceiverRelay(); // FIXME: shouldn't be cleared in AmB2BSession as well?
+  clearRtpReceiverRelay(); // FIXME: shouldn't be cleared in AmB2BSession as
+                           // well?
   AmB2BSession::onBye(req);
 }
 
@@ -1114,7 +1158,7 @@ void CallLeg::onNoAck(unsigned int cseq)
   AmB2BSession::onNoAck(cseq);
 }
 
-void CallLeg::onNoPrack(const AmSipRequest &req, const AmSipReply &rpl)
+void CallLeg::onNoPrack(const AmSipRequest& req, const AmSipReply& rpl)
 {
   updateCallStatus(Disconnected, StatusChangeCause::NoPrack);
   AmB2BSession::onNoPrack(req, rpl);
@@ -1132,24 +1176,24 @@ void CallLeg::onSessionTimeout()
   AmB2BSession::onSessionTimeout();
 }
 // AmMediaSession interface from AmMediaProcessor
-int CallLeg::readStreams(unsigned long long ts, unsigned char *buffer) {
+int CallLeg::readStreams(unsigned long long ts, unsigned char* buffer)
+{
   // skip RTP processing if in Relay mode
   // (but we want to process DTMF thus we may be in media processor)
-  if (getRtpRelayMode()==RTP_Relay)
-    return 0;
+  if (getRtpRelayMode() == RTP_Relay) return 0;
   return AmB2BSession::readStreams(ts, buffer);
 }
 
-int CallLeg::writeStreams(unsigned long long ts, unsigned char *buffer) {
+int CallLeg::writeStreams(unsigned long long ts, unsigned char* buffer)
+{
   // skip RTP processing if in Relay mode
   // (but we want to process DTMF thus we may be in media processor)
-  if (getRtpRelayMode()==RTP_Relay)
-    return 0;
+  if (getRtpRelayMode() == RTP_Relay) return 0;
   return AmB2BSession::writeStreams(ts, buffer);
 }
 
-void CallLeg::addNewCallee(CallLeg *callee, ConnectLegEvent *e,
-			   AmB2BSession::RTPRelayMode mode)
+void CallLeg::addNewCallee(CallLeg* callee, ConnectLegEvent* e,
+                           AmB2BSession::RTPRelayMode mode)
 {
   OtherLegInfo b;
   b.id = callee->getLocalTag();
@@ -1158,25 +1202,27 @@ void CallLeg::addNewCallee(CallLeg *callee, ConnectLegEvent *e,
   if (mode != RTP_Direct) {
     // do not initialise the media session with A leg to avoid unnecessary A leg
     // RTP stream creation in every B leg's media session
-    if (a_leg) b.media_session = new AmB2BMedia(NULL, callee);
-    else b.media_session = new AmB2BMedia(callee, NULL);
+    if (a_leg)
+      b.media_session = new AmB2BMedia(NULL, callee);
+    else
+      b.media_session = new AmB2BMedia(callee, NULL);
     b.media_session->addReference(); // new reference for me
     callee->setMediaSession(b.media_session);
   }
-  else b.media_session = NULL;
+  else
+    b.media_session = NULL;
   other_legs.push_back(b);
 
   if (AmConfig::LogSessions) {
     TRACE("Starting B2B callee session %s\n",
-	 callee->getLocalTag().c_str()/*, invite_req.cmd.c_str()*/);
+          callee->getLocalTag().c_str() /*, invite_req.cmd.c_str()*/);
   }
 
   AmSipDialog* callee_dlg = callee->dlg;
-  MONITORING_LOG4(b.id.c_str(),
-		  "dir",  "out",
-		  "from", callee_dlg->getLocalParty().c_str(),
-		  "to",   callee_dlg->getRemoteParty().c_str(),
-		  "ruri", callee_dlg->getRemoteUri().c_str());
+  MONITORING_LOG4(b.id.c_str(), "dir", "out", "from",
+                  callee_dlg->getLocalParty().c_str(), "to",
+                  callee_dlg->getRemoteParty().c_str(), "ruri",
+                  callee_dlg->getRemoteUri().c_str());
 
   callee->start();
 
@@ -1196,43 +1242,38 @@ void CallLeg::addNewCallee(CallLeg *callee, ConnectLegEvent *e,
   if (call_status == Disconnected) updateCallStatus(NoReply);
 }
 
-void CallLeg::setCallStatus(CallStatus new_status)
-{
-  call_status = new_status;
-}
+void CallLeg::setCallStatus(CallStatus new_status) { call_status = new_status; }
 
-const char* CallLeg::getCallStatusStr() {
-  switch(getCallStatus()) {
-  case Disconnected : return "Disconnected";
-  case NoReply : return "NoReply";
-  case Ringing : return "Ringing";
-  case Connected : return "Connected";
-  case Disconnecting : return "Disconnecting";
-  default: return "Unknown";
+const char* CallLeg::getCallStatusStr()
+{
+  switch (getCallStatus()) {
+    case Disconnected: return "Disconnected";
+    case NoReply: return "NoReply";
+    case Ringing: return "Ringing";
+    case Connected: return "Connected";
+    case Disconnecting: return "Disconnecting";
+    default: return "Unknown";
   };
 }
 
-void CallLeg::updateCallStatus(CallStatus new_status, const StatusChangeCause &cause)
+void CallLeg::updateCallStatus(CallStatus               new_status,
+                               const StatusChangeCause& cause)
 {
   if (new_status == Connected)
     TRACE("%s leg %s changing status from %s to %s with %s\n",
-        a_leg ? "A" : "B",
-        getLocalTag().c_str(),
-        callStatus2str(call_status),
-        callStatus2str(new_status),
-        getOtherId().c_str());
+          a_leg ? "A" : "B", getLocalTag().c_str(), callStatus2str(call_status),
+          callStatus2str(new_status), getOtherId().c_str());
   else
-    TRACE("%s leg %s changing status from %s to %s\n",
-        a_leg ? "A" : "B",
-        getLocalTag().c_str(),
-        callStatus2str(call_status),
-        callStatus2str(new_status));
+    TRACE("%s leg %s changing status from %s to %s\n", a_leg ? "A" : "B",
+          getLocalTag().c_str(), callStatus2str(call_status),
+          callStatus2str(new_status));
 
   setCallStatus(new_status);
   onCallStatusChange(cause);
 }
 
-void CallLeg::addExistingCallee(const string &session_tag, ReconnectLegEvent *ev)
+void CallLeg::addExistingCallee(const string&      session_tag,
+                                ReconnectLegEvent* ev)
 {
   // add existing session as our B leg
 
@@ -1244,7 +1285,8 @@ void CallLeg::addExistingCallee(const string &session_tag, ReconnectLegEvent *ev
     b.media_session = new AmB2BMedia(NULL, NULL);
     b.media_session->addReference(); // new reference for me
   }
-  else b.media_session = NULL;
+  else
+    b.media_session = NULL;
 
   // generate connect event to the newly added leg
   TRACE("relaying re-connect leg event to the B leg\n");
@@ -1264,12 +1306,14 @@ void CallLeg::addExistingCallee(const string &session_tag, ReconnectLegEvent *ev
   if (call_status == Disconnected) updateCallStatus(NoReply);
 }
 
-void CallLeg::addCallee(const string &session_tag, const AmSipRequest &relayed_invite)
+void CallLeg::addCallee(const string&       session_tag,
+                        const AmSipRequest& relayed_invite)
 {
-  addExistingCallee(session_tag, new ReconnectLegEvent(getLocalTag(), relayed_invite));
+  addExistingCallee(session_tag,
+                    new ReconnectLegEvent(getLocalTag(), relayed_invite));
 }
 
-void CallLeg::addCallee(CallLeg *callee, const string &hdrs)
+void CallLeg::addCallee(CallLeg* callee, const string& hdrs)
 {
   if (!non_hold_sdp.media.empty()) {
     // use non-hold SDP if possible
@@ -1277,15 +1321,18 @@ void CallLeg::addCallee(CallLeg *callee, const string &hdrs)
     sdp2body(non_hold_sdp, body);
     addNewCallee(callee, new ConnectLegEvent(hdrs, body));
   }
-  else addNewCallee(callee, new ConnectLegEvent(hdrs, established_body));
+  else
+    addNewCallee(callee, new ConnectLegEvent(hdrs, established_body));
 }
 
-/*void CallLeg::addCallee(CallLeg *callee, const string &hdrs, AmB2BSession::RTPRelayMode mode)
+/*void CallLeg::addCallee(CallLeg *callee, const string &hdrs,
+AmB2BSession::RTPRelayMode mode)
 {
   addNewCallee(callee, new ConnectLegEvent(hdrs, established_body), mode);
 }*/
 
-void CallLeg::replaceExistingLeg(const string &session_tag, const AmSipRequest &relayed_invite)
+void CallLeg::replaceExistingLeg(const string&       session_tag,
+                                 const AmSipRequest& relayed_invite)
 {
   // add existing session as our B leg
 
@@ -1296,13 +1343,16 @@ void CallLeg::replaceExistingLeg(const string &session_tag, const AmSipRequest &
     b.media_session = new AmB2BMedia(NULL, NULL);
     b.media_session->addReference(); // new reference for me
   }
-  else b.media_session = NULL;
+  else
+    b.media_session = NULL;
 
-  ReplaceLegEvent *ev = new ReplaceLegEvent(getLocalTag(), relayed_invite, b.media_session, rtp_relay_mode);
+  ReplaceLegEvent* ev = new ReplaceLegEvent(getLocalTag(), relayed_invite,
+                                            b.media_session, rtp_relay_mode);
   // TODO: what about the RTP relay and other settings? send them as well?
   if (!AmSessionContainer::instance()->postEvent(session_tag, ev)) {
     // session doesn't exist - can't connect
-    INFO("the call leg to be replaced (%s) doesn't exist\n", session_tag.c_str());
+    INFO("the call leg to be replaced (%s) doesn't exist\n",
+         session_tag.c_str());
     if (b.media_session) {
       b.media_session->releaseReference();
       b.media_session = NULL;
@@ -1311,10 +1361,11 @@ void CallLeg::replaceExistingLeg(const string &session_tag, const AmSipRequest &
   }
 
   other_legs.push_back(b);
-  if (call_status == Disconnected) updateCallStatus(NoReply); // we are something like connected to another leg
+  if (call_status == Disconnected)
+    updateCallStatus(NoReply); // we are something like connected to another leg
 }
 
-void CallLeg::replaceExistingLeg(const string &session_tag, const string &hdrs)
+void CallLeg::replaceExistingLeg(const string& session_tag, const string& hdrs)
 {
   // add existing session as our B leg
 
@@ -1325,15 +1376,19 @@ void CallLeg::replaceExistingLeg(const string &session_tag, const string &hdrs)
     b.media_session = new AmB2BMedia(NULL, NULL);
     b.media_session->addReference(); // new reference for me
   }
-  else b.media_session = NULL;
+  else
+    b.media_session = NULL;
 
-  ReconnectLegEvent *rev = new ReconnectLegEvent(a_leg ? ReconnectLegEvent::B : ReconnectLegEvent::A, getLocalTag(), hdrs, established_body);
+  ReconnectLegEvent* rev =
+      new ReconnectLegEvent(a_leg ? ReconnectLegEvent::B : ReconnectLegEvent::A,
+                            getLocalTag(), hdrs, established_body);
   rev->setMedia(b.media_session, rtp_relay_mode);
-  ReplaceLegEvent *ev = new ReplaceLegEvent(getLocalTag(), rev);
+  ReplaceLegEvent* ev = new ReplaceLegEvent(getLocalTag(), rev);
   // TODO: what about the RTP relay and other settings? send them as well?
   if (!AmSessionContainer::instance()->postEvent(session_tag, ev)) {
     // session doesn't exist - can't connect
-    INFO("the call leg to be replaced (%s) doesn't exist\n", session_tag.c_str());
+    INFO("the call leg to be replaced (%s) doesn't exist\n",
+         session_tag.c_str());
     if (b.media_session) {
       b.media_session->releaseReference();
       b.media_session = NULL;
@@ -1342,7 +1397,8 @@ void CallLeg::replaceExistingLeg(const string &session_tag, const string &hdrs)
   }
 
   other_legs.push_back(b);
-  if (call_status == Disconnected) updateCallStatus(NoReply); // we are something like connected to another leg
+  if (call_status == Disconnected)
+    updateCallStatus(NoReply); // we are something like connected to another leg
 }
 
 void CallLeg::clear_other()
@@ -1351,7 +1407,8 @@ void CallLeg::clear_other()
   AmB2BSession::clear_other();
 }
 
-void CallLeg::stopCall(const StatusChangeCause &cause) {
+void CallLeg::stopCall(const StatusChangeCause& cause)
+{
   if (getCallStatus() != Disconnected) updateCallStatus(Disconnected, cause);
   terminateNotConnectedLegs();
   terminateOtherLeg();
@@ -1376,7 +1433,8 @@ void CallLeg::changeRtpMode(RTPRelayMode new_mode)
     case CallLeg::Disconnecting:
     case CallLeg::Disconnected:
       if (new_mode == RTP_Relay || new_mode == RTP_Transcoding)
-        setMediaSession(new AmB2BMedia(a_leg ? this: NULL, a_leg ? NULL : this));
+        setMediaSession(
+            new AmB2BMedia(a_leg ? this : NULL, a_leg ? NULL : this));
       if (!getOtherId().empty())
         relayEvent(new ChangeRtpModeEvent(new_mode, getMediaSession()));
       break;
@@ -1414,11 +1472,12 @@ void CallLeg::changeRtpMode(RTPRelayMode new_mode)
       TRACE("changing RTP mode after offer was received\n");
       break;
 
-    case AmOfferAnswer::__max_OA: break; // grrrr
+    case AmOfferAnswer::__max_OA:
+      break; // grrrr
   }
 }
 
-void CallLeg::changeRtpMode(RTPRelayMode new_mode, AmB2BMedia *new_media)
+void CallLeg::changeRtpMode(RTPRelayMode new_mode, AmB2BMedia* new_media)
 {
   // we need to process regardless old RTP mode (at least new B2B media session
   // has to be used)
@@ -1431,9 +1490,7 @@ void CallLeg::changeRtpMode(RTPRelayMode new_mode, AmB2BMedia *new_media)
   switch (getCallStatus()) {
     case CallLeg::Connected:
     case CallLeg::Disconnecting:
-    case CallLeg::Disconnected:
-      setMediaSession(new_media);
-      break;
+    case CallLeg::Disconnected: setMediaSession(new_media); break;
 
     case CallLeg::NoReply:
     case CallLeg::Ringing:
@@ -1450,7 +1507,7 @@ void CallLeg::changeRtpMode(RTPRelayMode new_mode, AmB2BMedia *new_media)
       break;
   }
 
-  AmB2BMedia *m = getMediaSession();
+  AmB2BMedia* m = getMediaSession();
   if (m) m->changeSession(a_leg, this);
 
   switch (dlg->getOAState()) {
@@ -1461,7 +1518,8 @@ void CallLeg::changeRtpMode(RTPRelayMode new_mode, AmB2BMedia *new_media)
       break;
 
     case AmOfferAnswer::OA_OfferSent:
-      TRACE("changing RTP mode/media session after offer was sent: reINVITE needed\n");
+      TRACE("changing RTP mode/media session after offer was sent: reINVITE "
+            "needed\n");
       // TODO: plan a reINVITE
       ERROR("%s: not implemented\n", getLocalTag().c_str());
       break;
@@ -1470,16 +1528,17 @@ void CallLeg::changeRtpMode(RTPRelayMode new_mode, AmB2BMedia *new_media)
       TRACE("changing RTP mode/media session after offer was received\n");
       break;
 
-    case AmOfferAnswer::__max_OA: break; // grrrr
+    case AmOfferAnswer::__max_OA:
+      break; // grrrr
   }
-
 }
 
 void CallLeg::changeOtherLegsRtpMode(RTPRelayMode new_mode)
 {
   // change RTP relay mode and media session for all in other_legs
-  const string &other = getOtherId();
-  for (vector<OtherLegInfo>::iterator i = other_legs.begin(); i != other_legs.end(); ++i) {
+  const string& other = getOtherId();
+  for (vector<OtherLegInfo>::iterator i = other_legs.begin();
+       i != other_legs.end(); ++i) {
     i->releaseMediaSession();
 
     if (new_mode != RTP_Direct) {
@@ -1494,48 +1553,53 @@ void CallLeg::changeOtherLegsRtpMode(RTPRelayMode new_mode)
       }
     }
 
-    AmSessionContainer::instance()->postEvent(i->id, new ChangeRtpModeEvent(new_mode, i->media_session));
+    AmSessionContainer::instance()->postEvent(
+        i->id, new ChangeRtpModeEvent(new_mode, i->media_session));
   }
 }
 
-void CallLeg::acceptPendingInvite(AmSipRequest *invite)
+void CallLeg::acceptPendingInvite(AmSipRequest* invite)
 {
   // reply the INVITE with fake 200 reply
 
-  AmMimeBody *sdp = invite->body.hasContentType(SIP_APPLICATION_SDP);
-  AmSdp s;
-  if (!sdp || s.parse((const char*)sdp->getPayload())) {
+  AmMimeBody* sdp = invite->body.hasContentType(SIP_APPLICATION_SDP);
+  AmSdp       s;
+  if (!sdp || s.parse((const char*) sdp->getPayload())) {
     // no offer in the INVITE (or can't be parsed), we have to append fake offer
     // into the reply
-    s.version = 0;
-    s.origin.user = "sems";
-    s.sessionName = "sems";
-    s.conn.network = NT_IN;
+    s.version       = 0;
+    s.origin.user   = "sems";
+    s.sessionName   = "sems";
+    s.conn.network  = NT_IN;
     s.conn.addrType = AT_V4;
-    s.conn.address = "0.0.0.0";
+    s.conn.address  = "0.0.0.0";
 
     s.media.push_back(SdpMedia());
-    SdpMedia &m = s.media.back();
-    m.type = MT_AUDIO;
+    SdpMedia& m = s.media.back();
+    m.type      = MT_AUDIO;
     m.transport = TP_RTPAVP;
-    m.send = false;
-    m.recv = false;
+    m.send      = false;
+    m.recv      = false;
     m.payloads.push_back(SdpPayload(0));
   }
 
   if (!s.conn.address.empty()) s.conn.address = "0.0.0.0";
-  for (vector<SdpMedia>::iterator i = s.media.begin(); i != s.media.end(); ++i) {
-    //i->port = 0;
+  for (vector<SdpMedia>::iterator i = s.media.begin(); i != s.media.end();
+       ++i) {
+    // i->port = 0;
     if (!i->conn.address.empty()) i->conn.address = "0.0.0.0";
   }
 
   AmMimeBody body;
-  string body_str;
+  string     body_str;
   s.print(body_str);
-  body.parse(SIP_APPLICATION_SDP, (const unsigned char*)body_str.c_str(), body_str.length());
+  body.parse(SIP_APPLICATION_SDP, (const unsigned char*) body_str.c_str(),
+             body_str.length());
   try {
     updateLocalBody(body);
-  } catch (...) { /* throw ? */  }
+  }
+  catch (...) { /* throw ? */
+  }
 
   TRACE("replying pending INVITE with body: %s\n", body_str.c_str());
   dlg->reply(*invite, 200, "OK", &body);
@@ -1543,14 +1607,18 @@ void CallLeg::acceptPendingInvite(AmSipRequest *invite)
   if (getCallStatus() != Connected) updateCallStatus(Connected);
 }
 
-int CallLeg::reinvite(const string &hdrs, const AmMimeBody &body, bool relayed, unsigned r_cseq, bool establishing)
+int CallLeg::reinvite(const string& hdrs, const AmMimeBody& body, bool relayed,
+                      unsigned r_cseq, bool establishing)
 {
   int res;
   try {
     AmMimeBody r_body(body);
     updateLocalBody(r_body);
     res = dlg->sendRequest(SIP_METH_INVITE, &r_body, hdrs, SIP_FLAGS_VERBATIM);
-  } catch (const string& s) { res = -500; }
+  }
+  catch (const string& s) {
+    res = -500;
+  }
 
   if (res < 0) {
     if (relayed) {
@@ -1565,12 +1633,13 @@ int CallLeg::reinvite(const string &hdrs, const AmMimeBody &body, bool relayed, 
 
   if (relayed) {
     AmSipRequest fake_req;
-    fake_req.method = SIP_METH_INVITE;
-    fake_req.cseq = r_cseq;
+    fake_req.method            = SIP_METH_INVITE;
+    fake_req.cseq              = r_cseq;
     relayed_req[dlg->cseq - 1] = fake_req;
-    est_invite_other_cseq = r_cseq;
+    est_invite_other_cseq      = r_cseq;
   }
-  else est_invite_other_cseq = 0;
+  else
+    est_invite_other_cseq = 0;
 
   saveSessionDescription(body);
 
@@ -1581,7 +1650,7 @@ int CallLeg::reinvite(const string &hdrs, const AmMimeBody &body, bool relayed, 
   return dlg->cseq - 1;
 }
 
-void CallLeg::adjustOffer(AmSdp &sdp)
+void CallLeg::adjustOffer(AmSdp& sdp)
 {
   if (hold != PreserveHoldStatus) {
     DBG("local hold/unhold request");
@@ -1593,8 +1662,8 @@ void CallLeg::adjustOffer(AmSdp &sdp)
     // handling B2B SDP, check for hold/unhold
 
     HoldMethod hm;
-    // if hold request, transform to requested kind of hold and remember that hold
-    // was requested with this offer
+    // if hold request, transform to requested kind of hold and remember that
+    // hold was requested with this offer
     if (isHoldRequest(sdp, hm)) {
       DBG("B2b hold request");
       holdRequested();
@@ -1612,17 +1681,17 @@ void CallLeg::adjustOffer(AmSdp &sdp)
   }
 }
 
-void CallLeg::updateLocalSdp(AmSdp &sdp)
+void CallLeg::updateLocalSdp(AmSdp& sdp)
 {
-  TRACE("%s: updateLocalSdp (OA: %d)\n", getLocalTag().c_str(), dlg->getOAState());
+  TRACE("%s: updateLocalSdp (OA: %d)\n", getLocalTag().c_str(),
+        dlg->getOAState());
   // handle the body based on current offer-answer status
   // (possibly update the body before sending to remote)
 
   // FIXME: repeated SDP (183, 200) will cause false match in OA_Completed
   // (need not to be expected with re-INVITEs asking for hold)
-  if (dlg->getOAState() == AmOfferAnswer::OA_None ||
-      dlg->getOAState() == AmOfferAnswer::OA_Completed)
-  {
+  if (dlg->getOAState() == AmOfferAnswer::OA_None
+      || dlg->getOAState() == AmOfferAnswer::OA_Completed) {
     // handling offer
     adjustOffer(sdp);
   }
@@ -1646,12 +1715,13 @@ void CallLeg::offerRejected()
   hold = PreserveHoldStatus;
 }
 
-void CallLeg::createResumeRequest(AmSdp &sdp)
+void CallLeg::createResumeRequest(AmSdp& sdp)
 {
   // use stored non-hold SDP
   // Note: this SDP doesn't need to be correct, but established_body need not to
   // be good enough for unholding (might be held already with zero conncetions)
-  if (!non_hold_sdp.media.empty()) sdp = non_hold_sdp;
+  if (!non_hold_sdp.media.empty())
+    sdp = non_hold_sdp;
   else {
     // no stored non-hold SDP
     ERROR("no stored non-hold SDP, but local resume requested\n");
@@ -1672,7 +1742,7 @@ void CallLeg::debug()
   DBG("\ton hold: %s\n", on_hold ? "yes" : "no");
   DBG("\toffer/answer status: %d, hold: %d\n", dlg->getOAState(), hold);
 
-  AmB2BMedia *ms = getMediaSession();
+  AmB2BMedia* ms = getMediaSession();
   if (ms) ms->debug();
 }
 
@@ -1703,7 +1773,7 @@ void CallLeg::applyPendingUpdate()
   TRACE("applying pending updates");
 
   do {
-    SessionUpdate *u = pending_updates.front();
+    SessionUpdate* u = pending_updates.front();
     u->apply(this);
     if (u->hasCSeq()) {
       // SIP transaction started, wait for finishing it
@@ -1723,7 +1793,8 @@ void CallLeg::onTransFinished()
   TRACE("UAC/UAS transaction finished");
   AmB2BSession::onTransFinished();
 
-  if (pending_updates.empty() || !canUpdateSession()) return; // there is nothing we can do now
+  if (pending_updates.empty() || !canUpdateSession())
+    return; // there is nothing we can do now
 
   if (pending_updates_timer.started()) {
     TRACE("UAC/UAS transaction finished, but waiting for planned updates");
@@ -1731,10 +1802,11 @@ void CallLeg::onTransFinished()
   }
 
   TRACE("UAC/UAS transaction finished, try to apply pending updates");
-  AmSessionContainer::instance()->postEvent(getLocalTag(), new ApplyPendingUpdatesEvent());
+  AmSessionContainer::instance()->postEvent(getLocalTag(),
+                                            new ApplyPendingUpdatesEvent());
 }
 
-void CallLeg::updateSession(SessionUpdate *u)
+void CallLeg::updateSession(SessionUpdate* u)
 {
   if (!canUpdateSession() || !pending_updates.empty()) {
     TRACE("planning session update for later");
@@ -1743,17 +1815,13 @@ void CallLeg::updateSession(SessionUpdate *u)
   else {
     u->apply(this);
 
-    if (u->hasCSeq()) pending_updates.push_back(u); // store for failover
-    else delete u; // finished
+    if (u->hasCSeq())
+      pending_updates.push_back(u); // store for failover
+    else
+      delete u; // finished
   }
 }
 
-void CallLeg::putOnHold()
-{
-  updateSession(new PutOnHold());
-}
+void CallLeg::putOnHold() { updateSession(new PutOnHold()); }
 
-void CallLeg::resumeHeld()
-{
-  updateSession(new ResumeHeld());
-}
+void CallLeg::resumeHeld() { updateSession(new ResumeHeld()); }

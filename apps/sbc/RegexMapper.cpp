@@ -26,9 +26,11 @@
 #include "log.h"
 
 bool RegexMapper::mapRegex(const string& mapping_name, const char* test_s,
-			   string& result) {
+                           string& result)
+{
   lock();
-  std::map<string, RegexMappingVector>::iterator it=regex_mappings.find(mapping_name);
+  std::map<string, RegexMappingVector>::iterator it =
+      regex_mappings.find(mapping_name);
   if (it == regex_mappings.end()) {
     unlock();
     ERROR("regex mapping '%s' is not loaded!\n", mapping_name.c_str());
@@ -40,12 +42,15 @@ bool RegexMapper::mapRegex(const string& mapping_name, const char* test_s,
   return res;
 }
 
-void RegexMapper::setRegexMap(const string& mapping_name, const RegexMappingVector& r) {
+void RegexMapper::setRegexMap(const string&             mapping_name,
+                              const RegexMappingVector& r)
+{
   lock();
-  std::map<string, RegexMappingVector>::iterator it=regex_mappings.find(mapping_name);
+  std::map<string, RegexMappingVector>::iterator it =
+      regex_mappings.find(mapping_name);
   if (it != regex_mappings.end()) {
-    for (RegexMappingVector::iterator r_it =
-	   it->second.begin(); r_it != it->second.end(); r_it++) {
+    for (RegexMappingVector::iterator r_it = it->second.begin();
+         r_it != it->second.end(); r_it++) {
       regfree(&r_it->first);
     }
   }
@@ -53,13 +58,14 @@ void RegexMapper::setRegexMap(const string& mapping_name, const RegexMappingVect
   unlock();
 }
 
-std::vector<std::string> RegexMapper::getNames() {
+std::vector<std::string> RegexMapper::getNames()
+{
   std::vector<std::string> res;
   lock();
-  for (std::map<string, RegexMappingVector>::iterator it=
-	 regex_mappings.begin(); it != regex_mappings.end(); it++)
+  for (std::map<string, RegexMappingVector>::iterator it =
+           regex_mappings.begin();
+       it != regex_mappings.end(); it++)
     res.push_back(it->first);
   unlock();
   return res;
 }
-

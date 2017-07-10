@@ -15,10 +15,12 @@
 
 using std::string;
 
-MWI*         MWI::_instance      = 0;
-AmDynInvoke* MWI::MessageStorage = 0;
+#define MOD_NAME "mwi"
 
 EXPORT_PLUGIN_CLASS_FACTORY(MWI, MOD_NAME);
+
+MWI*         MWI::_instance      = 0;
+AmDynInvoke* MWI::MessageStorage = 0;
 
 MWI::MWI(const string& name)
     : AmDynInvokeFactory(name)

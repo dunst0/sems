@@ -26,9 +26,10 @@
 #ifndef _RTPParameters_h_
 #define _RTPParameters_h_
 
-struct iana_rtp_payload {
-  const char* payload_name;
-  bool is_audio;
+struct iana_rtp_payload
+{
+  const char*  payload_name;
+  bool         is_audio;
   unsigned int clock_rate;
   unsigned int channels;
 };
