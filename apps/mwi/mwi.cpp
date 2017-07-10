@@ -6,12 +6,14 @@
 */
 
 #include "mwi.h"
+
 #include "AmConfigReader.h"
 #include "AmPlugIn.h"
 #include "AmSession.h"
 #include "AmUtils.h"
 #include "log.h"
-#include <string>
+
+using std::string;
 
 MWI*         MWI::_instance      = 0;
 AmDynInvoke* MWI::MessageStorage = 0;
@@ -50,8 +52,9 @@ int MWI::onLoad()
   };
 
   presence_server = cfg.getParameter("presence_server");
-  if (presence_server.length())
+  if (presence_server.length()) {
     DBG("set presence server '%s'\n", presence_server.c_str());
+  }
   else {
     ERROR("parameter 'presence_server' did not found in the configuration "
           "file\n");
@@ -85,10 +88,13 @@ void MWI::publish(const string& user, const string& domain)
   for (size_t i = 0; i < ret.get(1).size(); i++) {
     AmArg& elem = ret.get(1).get(i);
 
-    if (elem.get(2).asInt()) // skip empty messages
+    if (elem.get(2).asInt()) {
+      // skip empty messages
       new_msgs += elem.get(1).asInt();
-    else
+    }
+    else {
       all_msgs--;
+    }
   };
 
   DBG("Found %d new and %d old messages\n", new_msgs, all_msgs - new_msgs);
@@ -97,10 +103,12 @@ void MWI::publish(const string& user, const string& domain)
   headers = "Event: message-summary\r\n";
   headers += "Subscription-State: active\r\n";
 
-  if (new_msgs > 0)
+  if (new_msgs > 0) {
     body = "Messages-Waiting: yes\r\n";
-  else
+  }
+  else {
     body = "Messages-Waiting: no\r\n";
+  }
 
   body += "Message-Account: sip:" + user + "@" + domain + "\r\n";
   body += "Voice-Message: " + vm_buf + " (" + vm_buf + ")\r\n";
