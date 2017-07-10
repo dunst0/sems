@@ -60,6 +60,7 @@ SBC - feature-wishlist
 using std::map;
 using std::vector;
 using std::string;
+using std::unique_ptr;
 
 #define MOD_NAME "sbc"
 
