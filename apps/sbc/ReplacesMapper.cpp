@@ -29,6 +29,7 @@
 #include "AmUtils.h"
 
 using std::string;
+using std::vector;
 
 bool findTag(const string replaces, const string& tag, size_t& p1, size_t& len);
 
