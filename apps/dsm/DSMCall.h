@@ -52,7 +52,9 @@ class DSMCall
   std::string         startDiagName;
   AmPlaylist          playlist;
 
-  bool run_invite_event;
+  // UNUSED
+  // bool run_invite_event;
+  // UNUSED_END
 
   bool process_invite;
   bool process_sessionstart;

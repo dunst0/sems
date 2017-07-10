@@ -45,8 +45,10 @@ using std::set;
 DSMCall::DSMCall(const DSMScriptConfig& config, AmPromptCollection* prompts,
                  DSMStateDiagramCollection& diags, const string& startDiagName,
                  UACAuthCred* credentials)
-    : run_invite_event(config.RunInviteEvent)
-    , prompts(prompts)
+    // UNUSED
+    // : run_invite_event(config.RunInviteEvent)
+    // UNUSED_END
+    : prompts(prompts)
     , default_prompts(prompts)
     , startDiagName(startDiagName)
     , playlist(this)
