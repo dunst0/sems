@@ -34,6 +34,7 @@
 
 using std::string;
 using std::map;
+using std::vector;
 
 EXPORT_SESSION_FACTORY(CallBackFactory, MOD_NAME);
 string CallBackFactory::gw_user;
