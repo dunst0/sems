@@ -14,6 +14,7 @@
 using std::pair;
 using std::make_pair;
 using std::vector;
+using std::string;
 
 #define REG_CACHE_CYCLE 10L /* 10 seconds to expire all buckets */
 

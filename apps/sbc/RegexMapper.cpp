@@ -67,8 +67,7 @@ vector<string> RegexMapper::getNames()
 {
   vector<string> res;
   lock();
-  for (map<string, RegexMappingVector>::iterator it =
-           regex_mappings.begin();
+  for (map<string, RegexMappingVector>::iterator it = regex_mappings.begin();
        it != regex_mappings.end(); it++)
     res.push_back(it->first);
   unlock();
