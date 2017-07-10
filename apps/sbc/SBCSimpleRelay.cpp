@@ -9,6 +9,7 @@
 #include "SBC.h"
 
 using std::string;
+using std::pair;
 
 /**
  * SimpleRelayDialog
