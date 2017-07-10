@@ -145,7 +145,7 @@ class dns_ip_entry : public dns_entry
   dns_base_entry* get_rr(dns_record* rr, u_char* begin, u_char* end);
   int next_ip(dns_handle* h, sockaddr_storage* sa);
 
-  int fill_ip_list(const list<sip_destination>& ip_list);
+  int fill_ip_list(const std::list<sip_destination>& ip_list);
 };
 
 class dns_srv_entry;
