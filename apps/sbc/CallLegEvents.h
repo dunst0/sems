@@ -1,5 +1,5 @@
-#ifndef __CALL_LEG_EVENTS_H
-#define __CALL_LEG_EVENTS_H
+#ifndef _CALLLEGEVENTS_H_
+#define _CALLLEGEVENTS_H_
 
 // TODO: global event numbering
 enum
@@ -19,7 +19,7 @@ enum
 struct ConnectLegEvent : public B2BEvent
 {
   AmMimeBody body;
-  string     hdrs;
+  std::string     hdrs;
 
   unsigned int r_cseq;
   bool         relayed_invite;
@@ -35,7 +35,7 @@ struct ConnectLegEvent : public B2BEvent
   }
 
   // constructor from generated INVITE (for example blind call transfer)
-  ConnectLegEvent(const string& _hdrs, const AmMimeBody& _body)
+  ConnectLegEvent(const std::string& _hdrs, const AmMimeBody& _body)
       : B2BEvent(ConnectLeg)
       , body(_body)
       , hdrs(_hdrs)
@@ -58,7 +58,7 @@ struct ReliableB2BEvent : public B2BEvent
                                // was not processed
   B2BEvent*
          processed_reply; //< event sent back if the original event was processed
-  string sender;          // sender will be filled when sending the event out
+  std::string sender;          // sender will be filled when sending the event out
 
  public:
   ReliableB2BEvent(int ev_id, B2BEvent* _processed, B2BEvent* _unprocessed)
@@ -77,21 +77,21 @@ struct ReliableB2BEvent : public B2BEvent
   {
   }
   void markAsProcessed() { processed = true; }
-  void setSender(const string& tag) { sender = tag; }
+  void setSender(const std::string& tag) { sender = tag; }
   virtual ~ReliableB2BEvent();
 };
 
 struct ReconnectLegEvent : public ReliableB2BEvent
 {
   AmMimeBody body;
-  string     hdrs;
+  std::string     hdrs;
 
   unsigned int r_cseq;
   bool         relayed_invite;
 
   AmB2BMedia*                media; // avoid direct access to this
   AmB2BSession::RTPRelayMode rtp_mode;
-  string                     session_tag;
+  std::string                     session_tag;
   enum Role
   {
     A,
@@ -105,7 +105,7 @@ struct ReconnectLegEvent : public ReliableB2BEvent
     rtp_mode = _mode;
   }
 
-  ReconnectLegEvent(const string& tag, const AmSipRequest& relayed_invite)
+  ReconnectLegEvent(const std::string& tag, const AmSipRequest& relayed_invite)
       : ReliableB2BEvent(
             ReconnectLeg, NULL,
             new B2BEvent(B2BTerminateLeg) /* TODO: choose a better one */)
@@ -122,7 +122,7 @@ struct ReconnectLegEvent : public ReliableB2BEvent
     setSender(tag);
   }
 
-  ReconnectLegEvent(Role _role, const string& tag, const string& _hdrs,
+  ReconnectLegEvent(Role _role, const std::string& tag, const std::string& _hdrs,
                     const AmMimeBody& _body)
       : ReliableB2BEvent(
             ReconnectLeg, NULL,
@@ -154,7 +154,7 @@ struct ReplaceLegEvent : public ReliableB2BEvent
   ReconnectLegEvent* ev;
 
  public:
-  ReplaceLegEvent(const string& tag, const AmSipRequest& relayed_invite,
+  ReplaceLegEvent(const std::string& tag, const AmSipRequest& relayed_invite,
                   AmB2BMedia* m, AmB2BSession::RTPRelayMode mode)
       : ReliableB2BEvent(ReplaceLeg, NULL, new B2BEvent(B2BTerminateLeg))
   {
@@ -163,7 +163,7 @@ struct ReplaceLegEvent : public ReliableB2BEvent
     setSender(tag);
   }
 
-  ReplaceLegEvent(const string& tag, ReconnectLegEvent* e)
+  ReplaceLegEvent(const std::string& tag, ReconnectLegEvent* e)
       : ReliableB2BEvent(ReplaceLeg, NULL, new B2BEvent(B2BTerminateLeg))
       , ev(e)
   {
@@ -184,9 +184,9 @@ struct ReplaceLegEvent : public ReliableB2BEvent
 
 struct ReplaceInProgressEvent : public B2BEvent
 {
-  string dst_session; // session to be connected to
+  std::string dst_session; // session to be connected to
 
-  ReplaceInProgressEvent(const string& _dst_session)
+  ReplaceInProgressEvent(const std::string& _dst_session)
       : B2BEvent(ReplaceInProgress)
       , dst_session(_dst_session)
   {

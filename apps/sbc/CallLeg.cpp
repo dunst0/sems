@@ -1237,7 +1237,7 @@ void CallLeg::onSessionTimeout()
   AmB2BSession::onSessionTimeout();
 }
 // AmMediaSession interface from AmMediaProcessor
-int CallLeg::readStreams(unsigned long long ts, unsigned char* buffer)
+int CallLeg::readStreams(unsigned long long int ts, unsigned char* buffer)
 {
   // skip RTP processing if in Relay mode
   // (but we want to process DTMF thus we may be in media processor)
@@ -1245,7 +1245,7 @@ int CallLeg::readStreams(unsigned long long ts, unsigned char* buffer)
   return AmB2BSession::readStreams(ts, buffer);
 }
 
-int CallLeg::writeStreams(unsigned long long ts, unsigned char* buffer)
+int CallLeg::writeStreams(unsigned long long int ts, unsigned char* buffer)
 {
   // skip RTP processing if in Relay mode
   // (but we want to process DTMF thus we may be in media processor)
