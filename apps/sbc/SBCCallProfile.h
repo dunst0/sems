@@ -23,8 +23,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _SBCCallProfile_h
-#define _SBCCallProfile_h
+#ifndef _SBCCALLPROFILE_H_
+#define _SBCCALLPROFILE_H_
 
 #include "AmConfigReader.h"
 #include "HeaderFilter.h"
@@ -38,22 +38,17 @@
 #include <set>
 #include <string>
 
-using std::string;
-using std::map;
-using std::set;
-using std::pair;
-
-typedef map<string, AmArg> SBCVarMapT;
+typedef std::map<std::string, AmArg> SBCVarMapT;
 typedef SBCVarMapT::iterator       SBCVarMapIteratorT;
 typedef SBCVarMapT::const_iterator SBCVarMapConstIteratorT;
 
 struct CCInterface
 {
-  string cc_name;
-  string cc_module;
-  map<string, string> cc_values;
+  std::string cc_name;
+  std::string cc_module;
+  std::map<std::string, std::string> cc_values;
 
-  CCInterface(string cc_name)
+  CCInterface(std::string cc_name)
       : cc_name(cc_name)
   {
   }
@@ -120,29 +115,29 @@ class PayloadDesc
   bool read(const std::string& s);
 };
 
-typedef pair<unsigned int, std::string>        ReplyCodeReasonPair;
-typedef map<unsigned int, ReplyCodeReasonPair> ReplyTranslationMap;
+typedef pair<unsigned int, std::string>             ReplyCodeReasonPair;
+typedef std::map<unsigned int, ReplyCodeReasonPair> ReplyTranslationMap;
 
 struct SBCCallProfile : public AmObject
 {
-  string md5hash;
-  string profile_file;
+  std::string md5hash;
+  std::string profile_file;
 
-  string ruri;      /* updated if set */
-  string ruri_host; /* updated if set */
-  string from;      /* updated if set */
-  string to;        /* updated if set */
+  std::string ruri;      /* updated if set */
+  std::string ruri_host; /* updated if set */
+  std::string from;      /* updated if set */
+  std::string to;        /* updated if set */
 
   struct Contact
   {
-    string displayname;
-    string user;
-    string host;
-    string port;
+    std::string displayname;
+    std::string user;
+    std::string host;
+    std::string port;
 
-    bool   hiding;
-    string hiding_prefix;
-    string hiding_vars;
+    bool        hiding;
+    std::string hiding_prefix;
+    std::string hiding_vars;
   };
 
   Contact contact;
@@ -155,27 +150,27 @@ struct SBCCallProfile : public AmObject
     void infoPrint() const;
   } bleg_contact;
 
-  string callid;
+  std::string callid;
 
-  string dlg_contact_params;
+  std::string dlg_contact_params;
 
   bool transparent_dlg_id;
   bool dlg_nat_handling;
   bool keep_vias;
   bool bleg_keep_vias;
 
-  string outbound_proxy;
-  bool   force_outbound_proxy;
+  std::string outbound_proxy;
+  bool        force_outbound_proxy;
 
-  string aleg_outbound_proxy;
-  bool   aleg_force_outbound_proxy;
+  std::string aleg_outbound_proxy;
+  bool        aleg_force_outbound_proxy;
 
-  string next_hop;
-  bool   next_hop_1st_req;
-  bool   patch_ruri_next_hop;
-  bool   next_hop_fixed;
+  std::string next_hop;
+  bool        next_hop_1st_req;
+  bool        patch_ruri_next_hop;
+  bool        next_hop_fixed;
 
-  string aleg_next_hop;
+  std::string aleg_next_hop;
 
   bool allow_subless_notify;
 
@@ -189,14 +184,14 @@ struct SBCCallProfile : public AmObject
   vector<FilterEntry> sdpalinesfilter;
   vector<FilterEntry> mediafilter;
 
-  string         sst_enabled;
+  std::string    sst_enabled;
   bool           sst_enabled_value;
-  string         sst_aleg_enabled;
+  std::string    sst_aleg_enabled;
   AmConfigReader sst_a_cfg; // SST config (A leg)
   AmConfigReader sst_b_cfg; // SST config (B leg)
 
-  string fix_replaces_inv;
-  string fix_replaces_ref;
+  std::string fix_replaces_inv;
+  std::string fix_replaces_ref;
 
   bool        auth_enabled;
   UACAuthCred auth_credentials;
@@ -212,18 +207,18 @@ struct SBCCallProfile : public AmObject
 
   ReplyTranslationMap reply_translations;
 
-  string append_headers;
-  string append_headers_req;
-  string aleg_append_headers_req;
+  std::string append_headers;
+  std::string append_headers_req;
+  std::string aleg_append_headers_req;
 
-  string refuse_with;
+  std::string refuse_with;
 
-  string rtprelay_enabled;
-  bool   rtprelay_enabled_value;
-  string force_symmetric_rtp;
-  string aleg_force_symmetric_rtp;
-  bool   force_symmetric_rtp_value;
-  bool   aleg_force_symmetric_rtp_value;
+  std::string rtprelay_enabled;
+  bool        rtprelay_enabled_value;
+  std::string force_symmetric_rtp;
+  std::string aleg_force_symmetric_rtp;
+  bool        force_symmetric_rtp_value;
+  bool        aleg_force_symmetric_rtp_value;
 
   bool msgflags_symmetric_rtp;
   bool rtprelay_transparent_seqno;
@@ -231,29 +226,29 @@ struct SBCCallProfile : public AmObject
   bool rtprelay_dtmf_filtering;
   bool rtprelay_dtmf_detection;
 
-  string rtprelay_interface;
-  int    rtprelay_interface_value;
-  string aleg_rtprelay_interface;
-  int    aleg_rtprelay_interface_value;
+  std::string rtprelay_interface;
+  int         rtprelay_interface_value;
+  std::string aleg_rtprelay_interface;
+  int         aleg_rtprelay_interface_value;
 
   int rtprelay_bw_limit_rate;
   int rtprelay_bw_limit_peak;
 
-  list<atomic_int*> aleg_rtp_counters;
-  list<atomic_int*> bleg_rtp_counters;
+  std::list<atomic_int*> aleg_rtp_counters;
+  std::list<atomic_int*> bleg_rtp_counters;
 
-  string outbound_interface;
-  int    outbound_interface_value;
+  std::string outbound_interface;
+  int         outbound_interface_value;
 
-  string aleg_outbound_interface;
-  int    aleg_outbound_interface_value;
+  std::string aleg_outbound_interface;
+  int         aleg_outbound_interface_value;
 
   struct TranscoderSettings
   {
     // non-replaced parameters
-    string callee_codec_capabilities_str, audio_codecs_str, transcoder_mode_str,
-        lowfi_codecs_str, dtmf_mode_str, audio_codecs_norelay_str,
-        audio_codecs_norelay_aleg_str;
+    std::string callee_codec_capabilities_str, audio_codecs_str,
+        transcoder_mode_str, lowfi_codecs_str, dtmf_mode_str,
+        audio_codecs_norelay_str, audio_codecs_norelay_aleg_str;
 
     std::vector<PayloadDesc> callee_codec_capabilities;
     std::vector<SdpPayload>  audio_codecs;
@@ -282,7 +277,7 @@ struct SBCCallProfile : public AmObject
     bool readConfig(AmConfigReader& cfg);
     void infoPrint() const;
     bool operator==(const TranscoderSettings& rhs) const;
-    string print() const;
+    std::string print() const;
 
     bool isActive() { return enabled; }
     TranscoderSettings()
@@ -295,8 +290,8 @@ struct SBCCallProfile : public AmObject
   struct CodecPreferences
   {
     // non-replaced parameters
-    string aleg_prefer_existing_payloads_str, aleg_payload_order_str;
-    string bleg_prefer_existing_payloads_str, bleg_payload_order_str;
+    std::string aleg_prefer_existing_payloads_str, aleg_payload_order_str;
+    std::string bleg_prefer_existing_payloads_str, bleg_payload_order_str;
 
     /** when reordering payloads in relayed SDP from B leg to A leg prefer
      * already present payloads to the added ones by transcoder; i.e. transcoder
@@ -313,7 +308,7 @@ struct SBCCallProfile : public AmObject
     bool readConfig(AmConfigReader& cfg);
     void infoPrint() const;
     bool operator==(const CodecPreferences& rhs) const;
-    string print() const;
+    std::string print() const;
 
     void orderSDP(AmSdp& sdp, bool a_leg); // do the SDP changes
     bool
@@ -336,9 +331,9 @@ struct SBCCallProfile : public AmObject
     }
   } codec_prefs;
 
-  bool   contact_hiding;
-  string contact_hiding_prefix;
-  string contact_hiding_vars;
+  bool        contact_hiding;
+  std::string contact_hiding_prefix;
+  std::string contact_hiding_vars;
 
   bool         reg_caching;
   unsigned int min_reg_expires;
@@ -362,14 +357,14 @@ struct SBCCallProfile : public AmObject
     struct HoldParams
     {
       // non-replaced params
-      string mark_zero_connection_str, activity_str, alter_b2b_str;
+      std::string mark_zero_connection_str, activity_str, alter_b2b_str;
 
       bool     mark_zero_connection;
       Activity activity;
       bool
           alter_b2b; // transform B2B hold requests (not locally generated ones)
 
-      bool setActivity(const string& s);
+      bool setActivity(const std::string& s);
       HoldParams()
           : mark_zero_connection(false)
           , activity(sendonly)
@@ -387,7 +382,7 @@ struct SBCCallProfile : public AmObject
     {
       return a_leg ? aleg.activity : bleg.activity;
     }
-    const string& activity_str(bool a_leg)
+    const std::string& activity_str(bool a_leg)
     {
       return a_leg ? aleg.activity_str : bleg.activity_str;
     }
@@ -406,7 +401,7 @@ struct SBCCallProfile : public AmObject
 
  private:
   // message logging feature
-  string                      msg_logger_path;
+  std::string                 msg_logger_path;
   ref_counted_ptr<msg_logger> logger;
 
   void create_logger(const AmSipRequest& req);
@@ -417,7 +412,7 @@ struct SBCCallProfile : public AmObject
   bool        has_logger() { return logger.get() != NULL; }
   msg_logger* get_logger(const AmSipRequest& req);
   void set_logger_path(const std::string path) { msg_logger_path = path; }
-  const string& get_logger_path() { return msg_logger_path; }
+  const std::string& get_logger_path() { return msg_logger_path; }
 
   SBCCallProfile()
       : auth_enabled(false)
@@ -451,11 +446,11 @@ struct SBCCallProfile : public AmObject
 
   ~SBCCallProfile() {}
 
-  bool readFromConfiguration(const string& name,
-                             const string  profile_file_name);
+  bool readFromConfiguration(const std::string& name,
+                             const std::string  profile_file_name);
 
   bool operator==(const SBCCallProfile& rhs) const;
-  string print() const;
+  std::string print() const;
 
   int refuse(ParamReplacerCtx& ctx, const AmSipRequest& req) const;
 
@@ -493,7 +488,7 @@ struct SBCCallProfile : public AmObject
    * - sets next-hop & outbound_interface on the given dialog
    * @return retargeted R-URI
    */
-  string retarget(const string& alias, AmBasicSipDialog& dlg) const;
+  std::string retarget(const std::string& alias, AmBasicSipDialog& dlg) const;
 
   /**
    * Reg-cache lookup:
@@ -501,7 +496,7 @@ struct SBCCallProfile : public AmObject
    * - sets next-hop & outbound_interface in this profile
    * @return retargeted R-URI
    */
-  string retarget(const string& alias);
+  std::string retarget(const std::string& alias);
 };
 
 #endif // _SBCCallProfile_h

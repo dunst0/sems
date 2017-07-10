@@ -24,20 +24,22 @@
  */
 
 #include "SBCCallProfile.h"
-#include "SBC.h"
-#include <algorithm>
 
 #include "AmConfig.h"
 #include "AmPlugIn.h"
 #include "AmUtils.h"
-#include "log.h"
-
 #include "RTPParameters.h"
 #include "RegisterCache.h"
+#include "SBC.h"
 #include "SBCCallControlAPI.h"
 #include "SDPFilter.h"
-
+#include "log.h"
 #include "sip/pcap_logger.h"
+
+#include <algorithm>
+
+using std::vector;
+using std::string;
 
 typedef vector<SdpPayload>::iterator PayloadIterator;
 static string payload2str(const SdpPayload& p);
