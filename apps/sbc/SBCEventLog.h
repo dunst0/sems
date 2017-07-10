@@ -42,7 +42,7 @@ struct SBCEventLogHandler
 
 class _SBCEventLog
 {
-  unique_ptr<SBCEventLogHandler> log_handler;
+  std::unique_ptr<SBCEventLogHandler> log_handler;
 
  protected:
   _SBCEventLog() {}
