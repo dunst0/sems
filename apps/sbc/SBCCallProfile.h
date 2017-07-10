@@ -115,7 +115,7 @@ class PayloadDesc
   bool read(const std::string& s);
 };
 
-typedef pair<unsigned int, std::string>             ReplyCodeReasonPair;
+typedef std::pair<unsigned int, std::string>             ReplyCodeReasonPair;
 typedef std::map<unsigned int, ReplyCodeReasonPair> ReplyTranslationMap;
 
 struct SBCCallProfile : public AmObject
