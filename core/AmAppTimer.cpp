@@ -31,6 +31,7 @@
 #include "log.h"
 
 using std::map;
+using std::string;
 
 #define MAX_TIMER_SECONDS 365 * 24 * 3600 // one year, well below 1<<31
 
