@@ -26,8 +26,6 @@
 
 #include "SBCCallLeg.h"
 
-#include "SBCCallControlAPI.h"
-
 #include "AmAudio.h"
 #include "AmConfigReader.h"
 #include "AmMediaProcessor.h"
@@ -35,29 +33,32 @@
 #include "AmSessionContainer.h"
 #include "AmSipHeaders.h"
 #include "AmUtils.h"
+#include "HeaderFilter.h"
+#include "ParamReplacer.h"
 #include "RegisterDialog.h"
+#include "ReplacesMapper.h"
+#include "SBC.h"
+#include "SBCCallControlAPI.h"
+#include "SBCEventLog.h"
 #include "SBCSimpleRelay.h"
+#include "SDPFilter.h"
 #include "SubscriptionDialog.h"
 #include "log.h"
-
 #include "sip/pcap_logger.h"
 #include "sip/sip_parser.h"
 #include "sip/sip_trans.h"
 
-#include "HeaderFilter.h"
-#include "ParamReplacer.h"
-#include "ReplacesMapper.h"
-#include "SBC.h"
-#include "SBCEventLog.h"
-#include "SDPFilter.h"
-
 #include <algorithm>
+
+using std::string;
+using std::vector;
+using std::map;
 
 #define TRACE DBG
 
 // helper functions
 
-static const SdpPayload* findPayload(const std::vector<SdpPayload>& payloads,
+static const SdpPayload* findPayload(const vector<SdpPayload>& payloads,
                                      const SdpPayload& payload, int transport)
 {
   string pname = payload.encoding_name;
@@ -86,7 +87,7 @@ static const SdpPayload* findPayload(const std::vector<SdpPayload>& payloads,
   return NULL;
 }
 
-static bool containsPayload(const std::vector<SdpPayload>& payloads,
+static bool containsPayload(const vector<SdpPayload>& payloads,
                             const SdpPayload& payload, int transport)
 {
   return findPayload(payloads, payload, transport) != NULL;
@@ -106,7 +107,7 @@ void PayloadIdMapping::map(int stream_index, int payload_index, int payload_id)
 
 int PayloadIdMapping::get(int stream_index, int payload_index)
 {
-  std::map<int, int>::iterator i =
+  map<int, int>::iterator i =
       mapping.find(MAP_INDEXES(stream_index, payload_index));
   if (i != mapping.end())
     return i->second;
@@ -1448,7 +1449,7 @@ void SBCCallLeg::logCallStart(const AmSipReply& reply)
 
 void SBCCallLeg::logCanceledCall()
 {
-  std::map<int, AmSipRequest>::iterator t_req = recvd_req.find(est_invite_cseq);
+  map<int, AmSipRequest>::iterator t_req = recvd_req.find(est_invite_cseq);
   if (t_req != recvd_req.end()) {
     SBCEventLog::instance()->logCallStart(t_req->second, getLocalTag(), "", "",
                                           0, "canceled");
@@ -1651,9 +1652,8 @@ void SBCCallLeg::appendTranscoderCodecs(AmSdp& sdp)
 
 void SBCCallLeg::savePayloadIDs(AmSdp& sdp)
 {
-  unsigned                 stream_idx = 0;
-  std::vector<SdpPayload>& transcoder_codecs =
-      call_profile.transcoder.audio_codecs;
+  unsigned            stream_idx        = 0;
+  vector<SdpPayload>& transcoder_codecs = call_profile.transcoder.audio_codecs;
   for (vector<SdpMedia>::iterator m = sdp.media.begin(); m != sdp.media.end();
        ++m) {
     if (m->type != MT_AUDIO) continue;
