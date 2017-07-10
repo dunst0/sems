@@ -58,15 +58,13 @@ class AnnounceTransferDialog : public AmSession
 
   unsigned int status;
 
-  // UNUSED
-  // enum
-  // {
-  //   Disconnected = 0,
-  //   Announcing,
-  //   Transfering,
-  //   Hangup // remote hangup
-  // } AnnounceStatus;
-  // UNUSED_END
+  enum
+  {
+    Disconnected = 0,
+    Announcing,
+    Transfering,
+    Hangup // remote hangup
+  };
 
  public:
   AnnounceTransferDialog(const std::string& filename);
