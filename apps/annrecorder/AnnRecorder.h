@@ -86,7 +86,7 @@ class AnnRecorderDialog
   AmPromptCollection& prompts;
   AmPlaylist          playlist;
   // we need only one separator in queue
-  unique_ptr<AmPlaylistSeparator> playlist_separator;
+  std::unique_ptr<AmPlaylistSeparator> playlist_separator;
 
   AmAudioFile wav_file;
   std::map<std::string, std::string> params;
