@@ -43,6 +43,7 @@ using std::pair;
 using std::string;
 using std::exception;
 using std::unique_ptr;
+using std::map;
 
 AmSessionContainer* AmSessionContainer::_instance = NULL;
 
