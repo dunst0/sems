@@ -485,7 +485,7 @@ int SBCCallLeg::relayEvent(AmEvent* ev)
         }
 
         // reply translations
-        map<unsigned int, pair<unsigned int, string>>::iterator it =
+        std::map<unsigned int, pair<unsigned int, string>>::iterator it =
             call_profile.reply_translations.find(reply_ev->reply.code);
 
         if (it != call_profile.reply_translations.end()) {
@@ -1117,7 +1117,7 @@ void SBCCallLeg::clearCallTimers() { call_timers.clear(); }
 /** @return whether successful */
 bool SBCCallLeg::startCallTimers()
 {
-  for (map<int, double>::iterator it = call_timers.begin();
+  for (std::map<int, double>::iterator it = call_timers.begin();
        it != call_timers.end(); it++) {
     DBG("SBC: starting call timer %i of %f seconds\n", it->first, it->second);
     setTimer(it->first, it->second);
@@ -1128,7 +1128,7 @@ bool SBCCallLeg::startCallTimers()
 
 void SBCCallLeg::stopCallTimers()
 {
-  for (map<int, double>::iterator it = call_timers.begin();
+  for (std::map<int, double>::iterator it = call_timers.begin();
        it != call_timers.end(); it++) {
     DBG("SBC: removing call timer %i\n", it->first);
     removeTimer(it->first);
@@ -1158,7 +1158,7 @@ bool SBCCallLeg::CCStart(const AmSipRequest& req)
     di_args.push(AmArg());
     AmArg& vals = di_args.back();
     vals.assertStruct();
-    for (map<string, string>::iterator it = cc_if.cc_values.begin();
+    for (std::map<string, string>::iterator it = cc_if.cc_values.begin();
          it != cc_if.cc_values.end(); it++) {
       vals[it->first] = it->second;
     }
@@ -1454,7 +1454,7 @@ void SBCCallLeg::logCallStart(const AmSipReply& reply)
 
 void SBCCallLeg::logCanceledCall()
 {
-  map<int, AmSipRequest>::iterator t_req = recvd_req.find(est_invite_cseq);
+  std::map<int, AmSipRequest>::iterator t_req = recvd_req.find(est_invite_cseq);
   if (t_req != recvd_req.end()) {
     SBCEventLog::instance()->logCallStart(t_req->second, getLocalTag(), "", "",
                                           0, "canceled");
