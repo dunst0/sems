@@ -1,5 +1,8 @@
-
 #include "AmUACAuth.h"
+
+#include <string>
+
+using std::string;
 
 UACAuthCred::UACAuthCred() {}
 UACAuthCred::UACAuthCred(const string& realm, const string& user,

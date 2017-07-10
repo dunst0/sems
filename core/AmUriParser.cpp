@@ -36,6 +36,9 @@
 
 #include <iostream>
 
+using std::string;
+using std::map;
+
 bool AmUriParser::isEqual(const AmUriParser& c) const
 {
   return (uri_user == c.uri_user)

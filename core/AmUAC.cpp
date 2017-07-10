@@ -26,10 +26,13 @@
  */
 
 #include "AmUAC.h"
+
 #include "AmConfig.h"
 #include "AmSession.h"
 #include "AmSessionContainer.h"
 #include "AmSipMsg.h"
+
+using std::string;
 
 string AmUAC::dialout(const string& user, const string& app_name,
                       const string& r_uri, const string& from,

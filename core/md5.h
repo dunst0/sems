@@ -23,19 +23,14 @@
     documentation and/or software.
 */
 
-//TODO: md5global.h is unnessesary
-//TODO: maybe remove these stupid typedefs
-
 #ifndef _MD5_H_
 #define _MD5_H_
-
-#include "md5global.h"
 
 /* MD5 context. */
 typedef struct
 {
-  UINT4         state[4];   /* state (ABCD) */
-  UINT4         count[2];   /* number of bits, modulo 2^64 (lsb first) */
+  unsigned int  state[4];   /* state (ABCD) */
+  unsigned int  count[2];   /* number of bits, modulo 2^64 (lsb first) */
   unsigned char buffer[64]; /* input buffer */
 } MD5_CTX;
 

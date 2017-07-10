@@ -33,7 +33,10 @@
 #include "AmEventProcessingThread.h"
 #include "AmSipSubscription.h"
 
-typedef map<string, AmSipSubscriptionDialog*> AmSipSubscriptionMap;
+#include <map>
+#include <string>
+
+typedef std::map<std::string, AmSipSubscriptionDialog*> AmSipSubscriptionMap;
 typedef AmSipSubscriptionMap::iterator AmSipSubscriptionMapIter;
 
 class _AmSipSubscriptionContainer : public AmEventProcessingThread
@@ -48,14 +51,14 @@ class _AmSipSubscriptionContainer : public AmEventProcessingThread
   _AmSipSubscriptionContainer();
   ~_AmSipSubscriptionContainer();
 
-  string createSubscription(const AmSipSubscriptionInfo& info,
-                            const string&                sess_link,
-                            unsigned int                 wanted_expires = 0);
+  std::string createSubscription(const AmSipSubscriptionInfo& info,
+                                 const std::string&           sess_link,
+                                 unsigned int wanted_expires = 0);
 
-  bool refreshSubscription(const string& sub_handle,
-                           unsigned int  wanted_expires = 0);
+  bool refreshSubscription(const std::string& sub_handle,
+                           unsigned int       wanted_expires = 0);
 
-  void removeSubscription(const string& sub_handle);
+  void removeSubscription(const std::string& sub_handle);
 
   // AmEventProcessingThread
   void onEvent(AmEvent* event);

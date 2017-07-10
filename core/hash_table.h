@@ -35,16 +35,13 @@
 
 #include <list>
 #include <map>
-using std::list;
-using std::map;
-using std::less;
 
 template <class Value> class ht_bucket : public AmMutex
 {
  public:
-  typedef list<Value*> value_list;
+  typedef std::list<Value*> value_list;
 
-  ht_bucket(unsigned long id)
+  ht_bucket(unsigned long int id)
       : id(id)
   {
   }
@@ -82,7 +79,7 @@ template <class Value> class ht_bucket : public AmMutex
    * Returns the bucket id, which should be an index
    * into the corresponding hash table.
    */
-  unsigned long get_id() const { return id; }
+  unsigned long int get_id() const { return id; }
 
   // debug method
   void dump() const
@@ -114,8 +111,8 @@ template <class Value> class ht_bucket : public AmMutex
     return it;
   }
 
-  unsigned long id;
-  value_list    elmts;
+  unsigned long int id;
+  value_list        elmts;
 };
 
 template <class Value> class ht_delete
@@ -137,14 +134,14 @@ template <class Value> class ht_ref_cnt
 };
 
 template <class Key, class Value, class ElmtAlloc = ht_delete<Value>,
-          class ElmtCompare = less<Key>>
+          class ElmtCompare = std::less<Key>>
 class ht_map_bucket : public AmMutex
 {
  public:
-  typedef map<Key, Value*, ElmtCompare> value_map;
+  typedef std::map<Key, Value*, ElmtCompare> value_map;
   typedef ElmtAlloc allocator;
 
-  ht_map_bucket(unsigned long id)
+  ht_map_bucket(unsigned long int id)
       : id(id)
   {
   }
@@ -203,7 +200,7 @@ class ht_map_bucket : public AmMutex
    * Returns the bucket id, which should be an index
    * into the corresponding hash table.
    */
-  unsigned long get_id() const { return id; }
+  unsigned long int get_id() const { return id; }
 
   // debug method
   void dump() const
@@ -223,43 +220,46 @@ class ht_map_bucket : public AmMutex
  protected:
   typename value_map::iterator find(const Key& k) { return elmts.find(k); }
 
-  unsigned long id;
-  value_map     elmts;
+  unsigned long int id;
+  value_map         elmts;
 };
 
 template <class Bucket> class hash_table
 {
-  unsigned long size;
-  Bucket**      _table;
+  unsigned long int size;
+  Bucket**          _table;
 
  public:
-  hash_table(unsigned long size)
+  hash_table(unsigned long int size)
       : size(size)
   {
     _table = new Bucket*[size];
-    for (unsigned long i = 0; i < size; i++) _table[i] = new Bucket(i);
+    for (unsigned long int i = 0; i < size; i++) _table[i] = new Bucket(i);
   }
 
   ~hash_table()
   {
-    for (unsigned long i = 0; i < size; i++) delete _table[i];
+    for (unsigned long int i = 0; i < size; i++) delete _table[i];
     delete[] _table;
   }
 
-  Bucket* operator[](unsigned long hash) const { return get_bucket(hash); }
+  Bucket* operator[](unsigned long int hash) const { return get_bucket(hash); }
 
-  Bucket* get_bucket(unsigned long hash) const { return _table[hash % size]; }
+  Bucket* get_bucket(unsigned long int hash) const
+  {
+    return _table[hash % size];
+  }
 
   void dump() const
   {
-    for (unsigned long l = 0; l < size; l++) {
+    for (unsigned long int l = 0; l < size; l++) {
       _table[l]->lock();
       _table[l]->dump();
       _table[l]->unlock();
     }
   }
 
-  unsigned long get_size() { return size; }
+  unsigned long int get_size() { return size; }
 };
 
 #endif

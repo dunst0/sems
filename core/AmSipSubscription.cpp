@@ -26,19 +26,20 @@
  */
 
 #include "AmSipSubscription.h"
+
 #include "AmAppTimer.h"
 #include "AmEventQueue.h"
+#include "AmSession.h" // getNewId()
+#include "AmSessionContainer.h"
 #include "AmSipHeaders.h"
 #include "AmUtils.h"
 #include "jsonArg.h"
-
-#include "AmSession.h" // getNewId()
-#include "AmSessionContainer.h"
-
 #include "log.h"
 #include "sip/sip_timers.h"
 
 #include <assert.h>
+
+using std::string;
 
 #define DEFAULT_SUB_EXPIRES 600
 

@@ -29,15 +29,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void LowcFE::convertsf(short* f, Float* t, int cnt)
+void LowcFE::convertsf(short int* f, Float* t, int cnt)
 {
   for (int i = 0; i < cnt; i++) t[i] = (Float) f[i];
 }
 
-void LowcFE::convertfs(Float* f, short* t, int cnt)
+void LowcFE::convertfs(Float* f, short int* t, int cnt)
 {
   for (int i = 0; i < cnt; i++) {
-    t[i] = (short) f[i];
+    t[i] = (short int) f[i];
   }
 }
 
@@ -46,12 +46,12 @@ void LowcFE::copyf(Float* f, Float* t, int cnt)
   for (int i = 0; i < cnt; i++) t[i] = f[i];
 }
 
-void LowcFE::copys(short* f, short* t, int cnt)
+void LowcFE::copys(short int* f, short int* t, int cnt)
 {
   for (int i = 0; i < cnt; i++) t[i] = f[i];
 }
 
-void LowcFE::zeros(short* s, int cnt)
+void LowcFE::zeros(short int* s, int cnt)
 {
   for (int i = 0; i < cnt; i++) s[i] = 0;
 }
@@ -63,7 +63,7 @@ LowcFE::LowcFE(unsigned int sample_rate)
 {
   pitchbuf = new Float[HISTORYLEN];
   lastq    = new Float[POVERLAPMAX];
-  history  = new short[HISTORYLEN];
+  history  = new short int[HISTORYLEN];
   memset(pitchbuf, 0, sizeof(Float) * HISTORYLEN);
   memset(lastq, 0, sizeof(Float) * POVERLAPMAX);
   zeros(history, HISTORYLEN);
@@ -80,7 +80,7 @@ LowcFE::~LowcFE()
  * Save a frames worth of new speech in the history buffer.
  * Return the output speech delayed by POVERLAPMAX.
  */
-void LowcFE::savespeech(short* s)
+void LowcFE::savespeech(short int* s)
 {
   /* make room for new signal */
   copys(&history[FRAMESZ], history, HISTORYLEN - FRAMESZ);
@@ -95,10 +95,10 @@ void LowcFE::savespeech(short* s)
  * If right after an erasure, do an overlap add with the synthetic signal.
  * Add the frame to history buffer.
  */
-void LowcFE::addtohistory(short* s)
+void LowcFE::addtohistory(short int* s)
 {
   if (erasecnt) {
-    short overlapbuf[FRAMESZ];
+    short int overlapbuf[FRAMESZ];
     /*
      * longer erasures require longer overlaps
      * to smooth the transition between the synthetic
@@ -123,7 +123,7 @@ void LowcFE::addtohistory(short* s)
  * of an erasure, do an OLA with the start of the first good frame.
  * The gain decays as the erasure gets longer.
  */
-void LowcFE::dofe(short* out)
+void LowcFE::dofe(short int* out)
 {
   pitchbufend = &pitchbuf[HISTORYLEN];
 
@@ -145,9 +145,9 @@ void LowcFE::dofe(short* out)
   }
   else if (erasecnt == 1 || erasecnt == 2) {
     /* tail of previous pitch estimate */
-    short tmp[POVERLAPMAX];
-    int   saveoffset = poffset; /* save offset for OLA */
-    getfespeech(tmp, poverlap); /* continue with old pitchbuf */
+    short int tmp[POVERLAPMAX];
+    int       saveoffset = poffset; /* save offset for OLA */
+    getfespeech(tmp, poverlap);     /* continue with old pitchbuf */
     /* add periods to the pitch buffer */
     poffset = saveoffset;
     while (poffset > pitch) poffset -= pitch;
@@ -256,7 +256,7 @@ int LowcFE::findpitch()
  * Get samples from the circular pitch buffer. Update poffset so
  * when subsequent frames are erased the signal continues.
  */
-void LowcFE::getfespeech(short* out, int sz)
+void LowcFE::getfespeech(short int* out, int sz)
 {
   while (sz) {
     int cnt           = pitchblen - poffset;
@@ -269,11 +269,11 @@ void LowcFE::getfespeech(short* out, int sz)
   }
 }
 
-void LowcFE::scalespeech(short* out)
+void LowcFE::scalespeech(short int* out)
 {
   Float g = (Float) 1. - (erasecnt - 1) * ATTENFAC;
   for (unsigned int i = 0; i < FRAMESZ; i++) {
-    out[i] = (short) (out[i] * g);
+    out[i] = (short int) (out[i] * g);
     g -= ATTENINCR;
   }
 }
@@ -298,7 +298,7 @@ void LowcFE::overlapadd(Float* l, Float* r, Float* o, int cnt)
   }
 }
 
-void LowcFE::overlapadd(short* l, short* r, short* o, int cnt)
+void LowcFE::overlapadd(short int* l, short int* r, short int* o, int cnt)
 {
   Float incr = (Float) 1. / cnt;
   Float lw   = (Float) 1. - incr;
@@ -309,7 +309,7 @@ void LowcFE::overlapadd(short* l, short* r, short* o, int cnt)
       t = 32767.;
     else if (t < -32768.)
       t  = -32768.;
-    o[i] = (short) t;
+    o[i] = (short int) t;
     lw -= incr;
     rw += incr;
   }
@@ -319,7 +319,7 @@ void LowcFE::overlapadd(short* l, short* r, short* o, int cnt)
  * Overlap add the erasure tail with the start of the first good frame
  * Scale the synthetic speech by the gain factor before the OLA.
  */
-void LowcFE::overlapaddatend(short* s, short* f, int cnt)
+void LowcFE::overlapaddatend(short int* s, short int* f, int cnt)
 {
   Float incr          = (Float) 1. / cnt;
   Float gain          = (Float) 1. - (erasecnt - 1) * ATTENFAC;
@@ -333,7 +333,7 @@ void LowcFE::overlapaddatend(short* s, short* f, int cnt)
       t = 32767.;
     else if (t < -32768.)
       t  = -32768.;
-    s[i] = (short) t;
+    s[i] = (short int) t;
     lw -= incrg;
     rw += incr;
   }

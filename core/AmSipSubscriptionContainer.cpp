@@ -28,8 +28,11 @@
  */
 
 #include "AmSipSubscriptionContainer.h"
+
 #include "AmEventDispatcher.h"
 #include "AmSession.h"
+
+using std::string;
 
 #define SUBSCRIPTION_CONTAINER_EVQ_ID "_subscription_container_"
 

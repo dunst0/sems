@@ -25,9 +25,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _SampleArray_cc_
-#define _SampleArray_cc_
-
 #include "log.h"
 #include <string.h>
 
@@ -182,5 +179,3 @@ void SampleArray<T>::get(unsigned int ts, T* buffer, unsigned int size)
     read(ts, buffer, size);
   }
 }
-
-#endif

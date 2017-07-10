@@ -37,8 +37,7 @@
 #include <list>
 #include <map>
 #include <memory>
-using std::map;
-using std::list;
+#include <string>
 
 class AmBasicSipDialog;
 class AmEventQueue;
@@ -47,11 +46,11 @@ class SingleSubscription;
 
 struct SingleSubTimeoutEvent : public AmEvent
 {
-  string              ltag;
+  std::string         ltag;
   int                 timer_id;
   SingleSubscription* sub;
 
-  SingleSubTimeoutEvent(const string& ltag, int timer_id,
+  SingleSubTimeoutEvent(const std::string& ltag, int timer_id,
                         SingleSubscription* sub)
       : AmEvent(E_SIP_SUBSCRIPTION)
       , ltag(ltag)
@@ -128,12 +127,12 @@ class SingleSubscription
   };
 
   // identifiers
-  string event;
-  string id;
-  Role   role;
+  std::string event;
+  std::string id;
+  Role        role;
 
-  SingleSubscription(AmSipSubscription* subs, Role role, const string& event,
-                     const string& id);
+  SingleSubscription(AmSipSubscription* subs, Role role,
+                     const std::string& event, const std::string& id);
 
   virtual ~SingleSubscription();
 
@@ -150,7 +149,7 @@ class SingleSubscription
   void terminate();
   bool terminated();
 
-  string to_str();
+  std::string to_str();
 };
 
 /**
@@ -162,8 +161,8 @@ class SingleSubscription
 class AmSipSubscription
 {
  protected:
-  typedef list<SingleSubscription*> Subscriptions;
-  typedef map<unsigned int, Subscriptions::iterator> CSeqMap;
+  typedef std::list<SingleSubscription*> Subscriptions;
+  typedef std::map<unsigned int, Subscriptions::iterator> CSeqMap;
 
   AmBasicSipDialog* dlg;
   AmEventQueue*     ev_q;
@@ -177,16 +176,16 @@ class AmSipSubscription
   Subscriptions::iterator createSubscription(const AmSipRequest& req, bool uac);
   Subscriptions::iterator matchSubscription(const AmSipRequest& req, bool uac);
   Subscriptions::iterator findSubscription(SingleSubscription::Role role,
-                                           const string&            event,
-                                           const string&            id);
+                                           const std::string&       event,
+                                           const std::string&       id);
   void removeSubFromUACCSeqMap(Subscriptions::iterator sub);
   void removeSubFromUASCSeqMap(Subscriptions::iterator sub);
 
   virtual void removeSubscription(Subscriptions::iterator sub);
 
   virtual SingleSubscription*
-  newSingleSubscription(SingleSubscription::Role role, const string& event,
-                        const string& id);
+  newSingleSubscription(SingleSubscription::Role role, const std::string& event,
+                        const std::string& id);
 
   friend class SingleSubscription;
 
@@ -212,8 +211,8 @@ class AmSipSubscription
   /**
    * Check if a subscription exists
    */
-  bool subscriptionExists(SingleSubscription::Role role, const string& event,
-                          const string& id);
+  bool subscriptionExists(SingleSubscription::Role role,
+                          const std::string& event, const std::string& id);
 
   bool onRequestIn(const AmSipRequest& req);
   void onRequestSent(const AmSipRequest& req);
@@ -240,34 +239,34 @@ struct SIPSubscriptionEvent : public AmEvent
     SubscriptionTimeout
   };
 
-  string                      handle;
+  std::string                 handle;
   unsigned int                code;
-  string                      reason;
+  std::string                 reason;
   SubscriptionStatus          status;
   unsigned int                expires;
   std::unique_ptr<AmMimeBody> notify_body;
 
-  SIPSubscriptionEvent(SubscriptionStatus status, const string& handle,
+  SIPSubscriptionEvent(SubscriptionStatus status, const std::string& handle,
                        unsigned int expires = 0, unsigned int code = 0,
-                       const string& reason = "");
+                       const std::string& reason = "");
 
   const char* getStatusText();
 };
 
 struct AmSipSubscriptionInfo
 {
-  string domain;
-  string user;
-  string from_user;
-  string pwd;
-  string proxy;
-  string event;
-  string accept;
-  string id;
+  std::string domain;
+  std::string user;
+  std::string from_user;
+  std::string pwd;
+  std::string proxy;
+  std::string event;
+  std::string accept;
+  std::string id;
 
-  AmSipSubscriptionInfo(const string& domain, const string& user,
-                        const string& from_user, const string& pwd,
-                        const string& proxy, const string& event)
+  AmSipSubscriptionInfo(const std::string& domain, const std::string& user,
+                        const std::string& from_user, const std::string& pwd,
+                        const std::string& proxy, const std::string& event)
       : domain(domain)
       , user(user)
       , from_user(from_user)
@@ -283,18 +282,19 @@ class AmSipSubscriptionDialog
     , public AmBasicSipEventHandler
     , public AmSipSubscription
 {
-  string event;
-  string event_id;
-  string accept;
-  string sess_link;
+  std::string event;
+  std::string event_id;
+  std::string accept;
+  std::string sess_link;
 
  public:
   AmSipSubscriptionDialog(const AmSipSubscriptionInfo& info,
-                          const string& sess_link, AmEventQueue* ev_q = NULL);
+                          const std::string&           sess_link,
+                          AmEventQueue*                ev_q = NULL);
 
   int subscribe(int expires);
 
-  string getDescription();
+  std::string getDescription();
 
   /** AmSipSubscription interface */
   void onNotify(const AmSipRequest& req, SingleSubscription* sub);

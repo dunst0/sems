@@ -34,17 +34,18 @@
 #include "AmThread.h"
 
 #include <string>
-using std::string;
 
 /** \brief API for UAC support */
 class AmUAC
 {
  public:
-  static string dialout(const string& user, const string& app_name,
-                        const string& r_uri, const string& from,
-                        const string& from_uri, const string& to,
-                        const string& local_tag = "", const string& hdrs = "",
-                        AmArg* session_params = NULL);
+  static std::string dialout(const std::string& user,
+                             const std::string& app_name,
+                             const std::string& r_uri, const std::string& from,
+                             const std::string& from_uri, const std::string& to,
+                             const std::string& local_tag      = "",
+                             const std::string& hdrs           = "",
+                             AmArg*             session_params = NULL);
 };
 
 #endif

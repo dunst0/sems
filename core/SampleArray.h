@@ -87,6 +87,4 @@ typedef SampleArray<ShortSample> SampleArrayShort;
 
 typedef short ShortSample;
 
-#include "SampleArray.cc" //TODO: wtf?
-
 #endif

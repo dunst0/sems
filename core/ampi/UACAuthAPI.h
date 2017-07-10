@@ -33,8 +33,6 @@
 
 #include <string>
 
-using std::string;
-
 class DialogControl : public virtual AmObject
 {
  public:
@@ -44,11 +42,11 @@ class DialogControl : public virtual AmObject
 class UACAuthCred : public AmObject
 {
  public:
-  string realm;
-  string user;
-  string pwd;
+  std::string realm;
+  std::string user;
+  std::string pwd;
   UACAuthCred();
-  UACAuthCred(const string& realm, const string& user, const string& pwd);
+  UACAuthCred(const std::string& realm, const std::string& user, const std::string& pwd);
 };
 
 class CredentialHolder : public virtual AmObject

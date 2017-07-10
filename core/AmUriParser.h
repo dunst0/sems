@@ -31,50 +31,47 @@
 #include <map>
 #include <string>
 
-using std::map;
-using std::string;
-
 struct AmUriParser
 {
-  string display_name;
-  string uri;
+  std::string display_name;
+  std::string uri;
 
-  string uri_user;
-  string uri_host;
-  string uri_port;
-  string uri_headers;
-  string uri_param; // <sip:user@host;uri_param>
-                    // <sip:user;user_param@host>
+  std::string uri_user;
+  std::string uri_host;
+  std::string uri_port;
+  std::string uri_headers;
+  std::string uri_param; // <sip:user@host;uri_param>
+                         // <sip:user;user_param@host>
 
-  map<string, string> params; // <sip:user;@host>;params
+  std::map<std::string, std::string> params; // <sip:user;@host>;params
 
   bool isEqual(const AmUriParser& c) const;
   /** parse nameaddr from pos
        @return true on success
        @return end of current nameaddr */
-  bool parse_contact(const string& line, size_t pos, size_t& end);
+  bool parse_contact(const std::string& line, size_t pos, size_t& end);
   /** parse a name-addr @return true on success */
-  bool parse_nameaddr(const string& line);
+  bool parse_nameaddr(const std::string& line);
 
   /** @return true on success */
   bool parse_uri();
-  bool parse_params(const string& line, int& pos);
+  bool parse_params(const std::string& line, int& pos);
 
   /** param_string is semicolon separated list of parameters with or without
    * value. method can be used to add/replace param for uri and user parameters
    */
-  static string add_param_to_param_list(const string& param_name,
-                                        const string& param_value,
-                                        const string& param_list);
+  static std::string add_param_to_param_list(const std::string& param_name,
+                                             const std::string& param_value,
+                                             const std::string& param_list);
 
-  void   dump() const;
-  string uri_str() const;
-  string canon_uri_str() const;
-  string nameaddr_str() const;
+  void        dump() const;
+  std::string uri_str() const;
+  std::string canon_uri_str() const;
+  std::string nameaddr_str() const;
 
   AmUriParser() {}
 
-  string print() const;
+  std::string print() const;
 };
 
 #endif

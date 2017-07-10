@@ -26,6 +26,7 @@
  */
 
 #include "AmThread.h"
+
 #include "log.h"
 
 #include "errno.h"
