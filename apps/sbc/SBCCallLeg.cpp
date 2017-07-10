@@ -109,7 +109,7 @@ void PayloadIdMapping::map(int stream_index, int payload_index, int payload_id)
 
 int PayloadIdMapping::get(int stream_index, int payload_index)
 {
-  map<int, int>::iterator i =
+  (map<int, int>)::iterator i =
       mapping.find(MAP_INDEXES(stream_index, payload_index));
 
   if (i != mapping.end()) {
