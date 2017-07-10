@@ -8,7 +8,11 @@
 #include "sip/parse_nameaddr.h"
 
 #include <algorithm>
+
 using std::make_pair;
+using std::string;
+using std::vector;
+using std::list;
 
 #define DEFAULT_REG_EXPIRES 3600
 
