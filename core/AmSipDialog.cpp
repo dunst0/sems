@@ -39,6 +39,7 @@
 #include "sip/parse_uri.h"
 
 using std::vector;
+using std::string;
 
 static void addTranscoderStats(string& hdrs)
 {
