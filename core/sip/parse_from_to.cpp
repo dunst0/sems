@@ -32,6 +32,10 @@
 #include "log.h"
 #include "parse_common.h"
 
+#include <list>
+
+using std::list;
+
 #define case_FT_PARAM(st1, ch1, ch2, st2)                                      \
   case st1:                                                                    \
     switch (*c) {                                                              \
