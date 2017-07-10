@@ -10,6 +10,7 @@
 
 using std::string;
 using std::pair;
+using std::list;
 
 /**
  * SimpleRelayDialog
