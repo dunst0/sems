@@ -25,8 +25,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _JSON_RPC_H_
-#define _JSON_RPC_H_
+#ifndef _JSONRPC_H_
+#define _JSONRPC_H_
+
 #include "AmApi.h"
 #include "RpcServerLoop.h"
 
