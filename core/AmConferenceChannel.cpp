@@ -8,6 +8,7 @@
 #include <fstream>
 
 using std::ofstream;
+using std::string;
 
 AmConferenceChannel::AmConferenceChannel(AmConferenceStatus* status,
                                          int channel_id, string channel_tag,

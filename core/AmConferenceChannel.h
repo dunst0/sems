@@ -34,6 +34,8 @@
 
 #include "sip/async_file.h"
 
+#include <string>
+
 class ChannelWritingFile : public async_file
 {
   FILE* fp;
