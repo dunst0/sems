@@ -29,11 +29,10 @@
 #include "JsonRPC.h"
 #include "JsonRPCEvents.h"
 #include "JsonRPCServer.h"
-
 #include "AmEventDispatcher.h"
 #include "AmSession.h"
-
 #include "log.h"
+#include "RpcPeer.h"
 
 #include <arpa/inet.h>
 #include <err.h>
@@ -49,7 +48,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "RpcPeer.h"
+using std::map;
+using std::string;
+using std::vector;
 
 ev_io               ev_accept;
 ev_async            JsonRPCServerLoop::async_w;
@@ -57,7 +58,7 @@ struct ev_loop*     JsonRPCServerLoop::loop      = 0;
 JsonRPCServerLoop*  JsonRPCServerLoop::_instance = NULL;
 RpcServerThreadpool JsonRPCServerLoop::threadpool;
 
-std::map<string, JsonrpcPeerConnection*> JsonRPCServerLoop::connections;
+map<string, JsonrpcPeerConnection*> JsonRPCServerLoop::connections;
 AmMutex JsonRPCServerLoop::connections_mut;
 
 vector<JsonServerEvent*> JsonRPCServerLoop::pending_events;
@@ -463,7 +464,7 @@ bool JsonRPCServerLoop::removeConnection(const string& id)
 {
   bool res = false;
   connections_mut.lock();
-  std::map<string, JsonrpcPeerConnection*>::iterator it = connections.find(id);
+  map<string, JsonrpcPeerConnection*>::iterator it = connections.find(id);
   if (it != connections.end()) {
     res = true;
     connections.erase(it);
@@ -477,7 +478,7 @@ JsonrpcPeerConnection* JsonRPCServerLoop::getConnection(const string& id)
 {
   JsonrpcPeerConnection* res = NULL;
   connections_mut.lock();
-  std::map<string, JsonrpcPeerConnection*>::iterator it = connections.find(id);
+  map<string, JsonrpcPeerConnection*>::iterator it = connections.find(id);
   if (it != connections.end()) res = it->second;
   connections_mut.unlock();
   return res;
