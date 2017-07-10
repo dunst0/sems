@@ -14,6 +14,7 @@ using std::string;
 using std::vector;
 using std::list;
 using std::map;
+using std::pair;
 
 #define DEFAULT_REG_EXPIRES 3600
 
