@@ -41,6 +41,7 @@
 using std::vector;
 using std::string;
 using std::pair;
+using std::set;
 
 typedef vector<SdpPayload>::iterator PayloadIterator;
 static string payload2str(const SdpPayload& p);
