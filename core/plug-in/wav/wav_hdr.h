@@ -25,8 +25,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _wav_hdr_h_
-#define _wav_hdr_h_
+#ifndef _WAV_HDR_H_
+#define _WAV_HDR_H_
 
 #include "amci.h"
 

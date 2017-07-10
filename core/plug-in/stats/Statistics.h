@@ -30,15 +30,13 @@
 
 #include <string>
 
-using std::string;
-
 #define MOD_NAME "stats"
 
 /** \brief starts the stats UDP server */
 class StatsFactory : public AmPluginFactory
 {
  public:
-  StatsFactory(const string& _app_name);
+  StatsFactory(const std::string& _app_name);
 
   // AmPluginFactory interface
   int onLoad();

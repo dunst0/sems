@@ -46,7 +46,8 @@ class UACAuthCred : public AmObject
   std::string user;
   std::string pwd;
   UACAuthCred();
-  UACAuthCred(const std::string& realm, const std::string& user, const std::string& pwd);
+  UACAuthCred(const std::string& realm, const std::string& user,
+              const std::string& pwd);
 };
 
 class CredentialHolder : public virtual AmObject

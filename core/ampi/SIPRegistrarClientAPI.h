@@ -25,16 +25,14 @@
 
 #include <string>
 
-using std::string;
-
 struct SIPRegistrationEvent : public AmEvent
 {
-  string       handle;
+  std::string  handle;
   unsigned int code;
-  string       reason;
+  std::string  reason;
 
-  SIPRegistrationEvent(int t, const string& handle, unsigned int code = 0,
-                       const string& reason = "")
+  SIPRegistrationEvent(int t, const std::string& handle, unsigned int code = 0,
+                       const std::string& reason = "")
       : AmEvent(t)
       , handle(handle)
       , code(code)

@@ -35,6 +35,9 @@
 #include <algorithm>
 #include <cctype>
 
+using std::string;
+using std::map;
+
 #define MOD_NAME "uac_auth"
 
 EXPORT_SESSION_EVENT_HANDLER_FACTORY(UACAuthFactory, MOD_NAME);

@@ -34,6 +34,9 @@
 #include "AmSession.h"
 #include "log.h"
 
+using std::string;
+using std::map;
+
 #define STAR_SWITCHES_PLAYOUTBUFFER
 
 EXPORT_SESSION_FACTORY(EchoFactory, "echo");

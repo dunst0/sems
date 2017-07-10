@@ -32,9 +32,6 @@
 #include <map>
 #include <string>
 
-using std::string;
-using std::map;
-
 #define MODULE_NAME "echo"
 
 /** \brief Factory for echo sessions */
@@ -44,10 +41,10 @@ class EchoFactory : public AmSessionFactory
   AmConfigReader                conf;
 
  public:
-  EchoFactory(const string& _app_name);
+  EchoFactory(const std::string& _app_name);
   virtual int        onLoad();
-  virtual AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-                              const map<string, string>& app_params);
+  virtual AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
+                              const std::map<std::string, std::string>& app_params);
 };
 
 /** \brief echo session logic implementation */

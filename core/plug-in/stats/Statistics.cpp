@@ -27,6 +27,8 @@
 
 #include "StatsUDPServer.h"
 
+using std::string;
+
 EXPORT_PLUGIN_FACTORY(StatsFactory, MOD_NAME);
 
 StatsFactory::StatsFactory(const string& _app_name)
