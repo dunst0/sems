@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #ifndef _StateDiagramReader_H
@@ -33,21 +33,20 @@
 using std::string;
 class DSMModule;
 
-class DSMStateDiagramCollection  
-: public DSMElemContainer
+class DSMStateDiagramCollection : public DSMElemContainer
 {
   vector<DSMStateDiagram> diags;
-  vector<DSMModule*> mods;
+  vector<DSMModule*>      mods;
 
- public: 
+ public:
   DSMStateDiagramCollection();
   ~DSMStateDiagramCollection();
 
-  bool readFile(const string& filename, const string& name, 
-		const string& load_path, string& s);
-  bool loadFile(const string& filename, const string& name, 
-		const string& load_path,
-		const string& mod_path, bool debug_dsm, bool check_dsm);
+  bool readFile(const string& filename, const string& name,
+                const string& load_path, string& s);
+  bool loadFile(const string& filename, const string& name,
+                const string& load_path, const string& mod_path, bool debug_dsm,
+                bool check_dsm);
   void addToEngine(DSMStateEngine* e);
   bool hasDiagram(const string& name);
   vector<string> getDiagramNames();

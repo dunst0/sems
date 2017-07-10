@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -32,10 +32,10 @@
 
 #include "AmPromptCollection.h"
 
-#include "DSMStateEngine.h"
-#include "DSMStateDiagramCollection.h"
-#include "DSMSession.h"
 #include "DSMChartReader.h"
+#include "DSMSession.h"
+#include "DSMStateDiagramCollection.h"
+#include "DSMStateEngine.h"
 
 #include <string>
 using std::string;
@@ -44,25 +44,26 @@ using std::string;
 
 #include <set>
 
-enum MonSelectType {
-  MonSelect_NONE, 
-  MonSelect_RURI, 
-  MonSelect_TO, 
-  MonSelect_FROM, 
+enum MonSelectType
+{
+  MonSelect_NONE,
+  MonSelect_RURI,
+  MonSelect_TO,
+  MonSelect_FROM,
   MonSelect_PAI
-}; 
+};
 
 class DSMCall;
 class DSMModule;
 /** \brief Factory for announcement sessions */
 class DSMFactory
-  : public AmSessionFactory,
-    public AmDynInvoke,
-    public AmDynInvokeFactory,
-    public AmEventQueueInterface
+    : public AmSessionFactory
+    , public AmDynInvoke
+    , public AmDynInvokeFactory
+    , public AmEventQueueInterface
 {
   AmPromptCollection prompts;
-  AmMutex main_diags_mut;
+  AmMutex            main_diags_mut;
 
   std::set<DSMStateDiagramCollection*> old_diags;
 
@@ -80,9 +81,9 @@ class DSMFactory
   AmMutex ScriptConfigs_mut;
 
 #ifdef USE_MONITORING
-  static MonSelectType MonSelectCaller;
-  static MonSelectType MonSelectCallee;
-  static string MonSelectFallback;
+  static MonSelectType  MonSelectCaller;
+  static MonSelectType  MonSelectCallee;
+  static string         MonSelectFallback;
   static vector<string> MonSelectFilters;
 
 #endif // USE_MONITORING
@@ -90,26 +91,26 @@ class DSMFactory
   static DSMFactory* _instance;
   DSMFactory(const string& _app_name);
   ~DSMFactory();
-  bool loaded;
+  bool           loaded;
   AmConfigReader cfg;
 
   int preloadModules(AmConfigReader& cfg, string& res, const string& ModPath);
-  bool loadConfig(const string& conf_file_name, const string& conf_name, 
-		  bool live_reload, DSMStateDiagramCollection* m_diags);
+  bool loadConfig(const string& conf_file_name, const string& conf_name,
+                  bool live_reload, DSMStateDiagramCollection* m_diags);
   bool loadDiags(AmConfigReader& cfg, DSMStateDiagramCollection* m_diags);
-  bool registerApps(AmConfigReader& cfg, DSMStateDiagramCollection* m_diags, 
-		    vector<string>& register_names /* out */);
+  bool registerApps(AmConfigReader& cfg, DSMStateDiagramCollection* m_diags,
+                    vector<string>& register_names /* out */);
   bool loadPromptSets(AmConfigReader& cfg);
   bool loadPrompts(AmConfigReader& cfg);
   bool hasDSM(const string& dsm_name, const string& conf_name);
 
-  map<string, AmPromptCollection*> prompt_sets; 
+  map<string, AmPromptCollection*> prompt_sets;
   void prepareSession(DSMCall* s);
   void addVariables(DSMCall* s, const string& prefix,
-		    map<string, string>& vars);
+                    map<string, string>&      vars);
   void addParams(DSMCall* s, const string& hdrs);
-  void runMonitorAppSelect(const AmSipRequest& req, 
-			   string& start_diag, map<string, string>& vars);
+  void runMonitorAppSelect(const AmSipRequest& req, string& start_diag,
+                           map<string, string>&             vars);
 
   DSMChartReader preload_reader;
 
@@ -126,7 +127,7 @@ class DSMFactory
   AmSessionEventHandlerFactory* session_timer_f;
   void setupSessionTimer(AmSession* s);
 
-public:
+ public:
   static DSMFactory* instance();
 
 #ifdef USE_MONITORING
@@ -134,36 +135,32 @@ public:
   static bool MonitoringFullTransitions;
 #endif // USE_MONITORING
 
-
-  int onLoad();
+  int        onLoad();
   AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-		      const map<string,string>& app_params);
+                      const map<string, string>&             app_params);
   AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-		      AmArg& session_params);
+                      AmArg& session_params);
   // DI
   // DI factory
   AmDynInvoke* getInstance() { return instance(); }
   // DI API
-  void invoke(const string& method, 
-	      const AmArg& args, AmArg& ret);
+  void invoke(const string& method, const AmArg& args, AmArg& ret);
 
   void postEvent(AmEvent* e);
 
-  bool createSystemDSM(const string& config_name, const string& start_diag, bool reload, string& status);
+  bool createSystemDSM(const string& config_name, const string& start_diag,
+                       bool reload, string& status);
 
   /**
      add script diags from config set to DSM engine
-     @return true on success (config set found) 
+     @return true on success (config set found)
   */
-  bool addScriptDiagsToEngine(const string& config_set,
-			      DSMStateEngine* engine,
-			      map<string,string>& config_vars,
-			      bool& SetParamVariables);
-
+  bool addScriptDiagsToEngine(const string& config_set, DSMStateEngine* engine,
+                              map<string, string>& config_vars,
+                              bool& SetParamVariables);
 };
 
 #endif
 // Local Variables:
 // mode:C++
 // End:
-

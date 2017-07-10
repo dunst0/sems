@@ -21,65 +21,66 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _DSM_CALL_H
-#define _DSM_CALL_H
+
+#ifndef _DSMCALL_H_
+#define _DSMCALL_H_
+
 #include "AmB2BSession.h"
 #include "AmPromptCollection.h"
 #include "AmUACAuth.h"
-
 #include "DSMSession.h"
-#include "DSMStateEngine.h"
 #include "DSMStateDiagramCollection.h"
+#include "DSMStateEngine.h"
 
 #include <set>
+
 /** implementation of the actual session in DSM */
-class DSMCall : public AmB2BCallerSession,
-		  public DSMSession,
-		  public CredentialHolder
+class DSMCall
+    : public AmB2BCallerSession
+    , public DSMSession
+    , public CredentialHolder
 {
   std::unique_ptr<UACAuthCred> cred;
-  
-  DSMStateEngine engine;
+
+  DSMStateEngine      engine;
   AmPromptCollection* prompts;
   AmPromptCollection* default_prompts;
-  string startDiagName;
-  AmPlaylist playlist;
+  std::string         startDiagName;
+  AmPlaylist          playlist;
 
   bool run_invite_event;
 
   bool process_invite;
   bool process_sessionstart;
 
-  vector<AmAudio*> audiofiles;
-  AmAudioFile* rec_file;
-  map<string, AmPromptCollection*> prompt_sets;
+  std :.vector<AmAudio*> audiofiles;
+  AmAudioFile*           rec_file;
+  std::map<std::string, AmPromptCollection*> prompt_sets;
   std::set<AmPromptCollection*> used_prompt_sets;
 
   // owned by this instance
   std::set<DSMDisposable*> gc_trash;
-  
-  bool checkVar(const string& var_name, const string& var_val);
-  string getVar(const string& var_name);
 
-public:
-  DSMCall(const DSMScriptConfig& config,
-	  AmPromptCollection* prompts,
-	  DSMStateDiagramCollection& diags,
-	  const string& startDiagName,
-	  UACAuthCred* credentials = NULL);
+  bool checkVar(const std::string& var_name, const std::string& var_val);
+  std::string getVar(const std::string& var_name);
+
+ public:
+  DSMCall(const DSMScriptConfig& config, AmPromptCollection* prompts,
+          DSMStateDiagramCollection& diags, const std::string& startDiagName,
+          UACAuthCred* credentials = NULL);
   ~DSMCall();
 
   void onStart();
   void onInvite(const AmSipRequest& req);
-  void onOutgoingInvite(const string& headers);
+  void onOutgoingInvite(const std::string& headers);
   void onRinging(const AmSipReply& reply);
   void onEarlySessionStart();
   void onSessionStart();
-  int  onSdpCompleted(const AmSdp& offer, const AmSdp& answer);
+  int onSdpCompleted(const AmSdp& offer, const AmSdp& answer);
   void startSession();
   void onCancel(const AmSipRequest& cancel);
   void onBye(const AmSipRequest& req);
@@ -91,9 +92,8 @@ public:
   void onRemoteDisappeared(const AmSipReply& reply);
 
   void onSipRequest(const AmSipRequest& req);
-  void onSipReply(const AmSipRequest& req,
-		  const AmSipReply& reply, 
-		  AmBasicSipDialog::Status old_dlg_status);
+  void onSipReply(const AmSipRequest& req, const AmSipReply& reply,
+                  AmBasicSipDialog::Status old_dlg_status);
 
   bool getSdpOffer(AmSdp& offer);
   bool getSdpAnswer(const AmSdp& offer, AmSdp& answer);
@@ -103,34 +103,38 @@ public:
   void onSystemEvent(AmSystemEvent* ev);
 
 #ifdef WITH_ZRTP
-  void onZRTPProtocolEvent(zrtp_protocol_event_t event, zrtp_stream_t *stream_ctx);
-  void onZRTPSecurityEvent(zrtp_security_event_t event, zrtp_stream_t *stream_ctx);
+  void onZRTPProtocolEvent(zrtp_protocol_event_t event,
+                           zrtp_stream_t*        stream_ctx);
+  void onZRTPSecurityEvent(zrtp_security_event_t event,
+                           zrtp_stream_t*        stream_ctx);
 #endif
 
   void process(AmEvent* event);
 
   UACAuthCred* getCredentials();
 
-  void addPromptSet(const string& name, AmPromptCollection* prompt_set);
-  void setPromptSets(map<string, AmPromptCollection*>& new_prompt_sets);
+  void addPromptSet(const std::string& name, AmPromptCollection* prompt_set);
+  void
+  setPromptSets(std::map<std::string, AmPromptCollection*>& new_prompt_sets);
 
   // DSMSession interface
-  void playPrompt(const string& name, bool loop = false, bool front = false);
+  void playPrompt(const std::string& name, bool loop = false,
+                  bool front = false);
   void flushPlaylist();
   void addToPlaylist(AmPlaylistItem* item, bool front = false);
-  void playFile(const string& name, bool loop, bool front=false);
-  void playSilence(unsigned int length, bool front=false);
+  void playFile(const std::string& name, bool loop, bool front = false);
+  void playSilence(unsigned int length, bool front = false);
   void playRingtone(int length, int on, int off, int f, int f2, bool front);
-  void recordFile(const string& name);
+  void recordFile(const std::string& name);
   unsigned int getRecordLength();
   unsigned int getRecordDataSize();
-  void stopRecord();
-  void setInOutPlaylist();
-  void setInputPlaylist();
-  void setOutputPlaylist();
+  void         stopRecord();
+  void         setInOutPlaylist();
+  void         setInputPlaylist();
+  void         setOutputPlaylist();
 
-  void setPromptSet(const string& name);
-  void addSeparator(const string& name, bool front = false);
+  void setPromptSet(const std::string& name);
+  void addSeparator(const std::string& name, bool front = false);
   void connectMedia();
   void disconnectMedia();
   void mute();
@@ -138,51 +142,48 @@ public:
 
   void transferOwnership(DSMDisposable* d);
   void releaseOwnership(DSMDisposable* d);
-  
-protected:
+
+ protected:
   // AmB2BSession methods
   bool onOtherBye(const AmSipRequest& req);
   bool onOtherReply(const AmSipReply& reply);
-public:
+
+ public:
   AmB2BCalleeSession* newCalleeSession();
 
   void B2BterminateOtherLeg();
-  void B2BconnectCallee(const string& remote_party,
-			const string& remote_uri,
-			bool relayed_invite = false);
+  void B2BconnectCallee(const std::string& remote_party,
+                        const std::string& remote_uri,
+                        bool               relayed_invite = false);
 
   void B2BaddReceivedRequest(const AmSipRequest& req);
   void B2BsetRelayEarlyMediaSDP(bool enabled);
-  void B2BsetHeaders(const string& hdr, bool replaceCRLF);
+  void B2BsetHeaders(const std::string& hdr, bool replaceCRLF);
   void B2BclearHeaders();
-  void B2BaddHeader(const string& hdr);
-  void B2BremoveHeader(const string& hdr);
+  void B2BaddHeader(const std::string& hdr);
+  void B2BremoveHeader(const std::string& hdr);
 };
 
-class DSMCallCalleeSession : public AmB2BCalleeSession,
-			     public CredentialHolder
+class DSMCallCalleeSession
+    : public AmB2BCalleeSession
+    , public CredentialHolder
 {
-  std::unique_ptr<UACAuthCred> cred;
+  std::unique_ptr<UACAuthCred>           cred;
   std::unique_ptr<AmSessionEventHandler> auth;
 
-
-protected:
-
+ protected:
   void onSendRequest(AmSipRequest& req, int& flags);
   void onSipReply(const AmSipRequest& req, const AmSipReply& reply,
-		  AmBasicSipDialog::Status old_dlg_status);
+                  AmBasicSipDialog::Status old_dlg_status);
 
-public:
-  DSMCallCalleeSession(const string& other_local_tag);
+ public:
+  DSMCallCalleeSession(const std::string& other_local_tag);
   DSMCallCalleeSession(const AmB2BCallerSession* caller);
 
-  void setCredentials(const string& realm, const string& user, const string& pwd);
+  void setCredentials(const std::string& realm, const std::string& user,
+                      const std::string& pwd);
   UACAuthCred* getCredentials();
   void setAuthHandler(AmSessionEventHandler* h);
-
 };
 
 #endif
-// Local Variables:
-// mode:C++
-// End:

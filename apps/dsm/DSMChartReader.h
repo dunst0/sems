@@ -20,45 +20,48 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #ifndef _DSMChartReader_h_
 #define _DSMChartReader_h_
 
-#include "DSMStateEngine.h"
 #include "DSMCoreModule.h"
 #include "DSMElemContainer.h"
+#include "DSMStateEngine.h"
 
 #include <string>
 using std::string;
 
-class NamedAction : public DSMAction {
+class NamedAction : public DSMAction
+{
  public:
-  NamedAction(const string& m_name) {
-    name = m_name;
-  }
-  bool execute(AmSession* sess, DSMSession* sc_sess, 
-	       DSMCondition::EventType event, 
-	       map<string,string>* event_params) {
+  NamedAction(const string& m_name) { name = m_name; }
+  bool execute(AmSession* sess, DSMSession* sc_sess,
+               DSMCondition::EventType event, map<string, string>* event_params)
+  {
     return false;
   };
 };
 
-class AttribInitial : public DSMElement {
+class AttribInitial : public DSMElement
+{
  public:
-  AttribInitial() { }
+  AttribInitial() {}
 };
 
-class AttribName : public DSMElement {
+class AttribName : public DSMElement
+{
  public:
   AttribName(const string& m_name) { name = m_name; }
 };
 
-class ActionList : public DSMElement {
+class ActionList : public DSMElement
+{
  public:
-  enum AL_type {
+  enum AL_type
+  {
     AL_enter,
     AL_exit,
     AL_trans,
@@ -69,23 +72,31 @@ class ActionList : public DSMElement {
   };
 
   AL_type al_type;
-  
- ActionList(AL_type al_type) 
-   : al_type(al_type) { }
+
+  ActionList(AL_type al_type)
+      : al_type(al_type)
+  {
+  }
 
   vector<DSMElement*> actions;
 };
 
-struct DSMConditionList : public DSMElement {
- DSMConditionList() : invert_next(false), is_exception(false), is_if(false) { }
+struct DSMConditionList : public DSMElement
+{
+  DSMConditionList()
+      : invert_next(false)
+      , is_exception(false)
+      , is_if(false)
+  {
+  }
   vector<DSMCondition*> conditions;
-  bool invert_next;
-  bool is_exception;
-  bool is_if;
+  bool                  invert_next;
+  bool                  is_exception;
+  bool                  is_if;
 };
 
-class DSMChartReader {
-
+class DSMChartReader
+{
   bool is_wsp(const char c);
   bool is_snt(const char c);
 
@@ -97,16 +108,15 @@ class DSMChartReader {
 
   bool importModule(const string& mod_cmd, const string& mod_path);
   vector<DSMModule*> mods;
-  DSMCoreModule core_mod;
+  DSMCoreModule      core_mod;
 
   vector<DSMFunction*> funcs;
 
  public:
   DSMChartReader();
   ~DSMChartReader();
-  bool decode(DSMStateDiagram* e, const string& chart, 
-	      const string& mod_path, DSMElemContainer* owner,
-	      vector<DSMModule*>& out_mods);
+  bool decode(DSMStateDiagram* e, const string& chart, const string& mod_path,
+              DSMElemContainer* owner, vector<DSMModule*>& out_mods);
 
   friend class DSMFactory;
   void cleanup();

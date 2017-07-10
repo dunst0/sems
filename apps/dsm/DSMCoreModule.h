@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #ifndef _DSM_CORE_MODULE_H
@@ -37,12 +37,11 @@ using std::map;
 class AmSession;
 class DSMSession;
 
-class DSMCoreModule 
-: public DSMModule {
-
+class DSMCoreModule : public DSMModule
+{
  public:
   DSMCoreModule();
-    
+
   DSMAction* getAction(const string& from_str);
   DSMCondition* getCondition(const string& from_str);
 };
@@ -142,21 +141,23 @@ DEF_ACTION_1P(SCTrackObjectAction);
 DEF_ACTION_1P(SCReleaseObjectAction);
 DEF_ACTION_1P(SCFreeObjectAction);
 
-class SCDIAction					
-: public DSMAction {
+class SCDIAction : public DSMAction
+{
   vector<string> params;
-  bool get_res;
+  bool           get_res;
+
  public:
   SCDIAction(const string& arg, bool get_res);
   bool execute(AmSession* sess, DSMSession* sc_sess,
-	       DSMCondition::EventType event,
-	       map<string,string>* event_params);
-};									
+               DSMCondition::EventType event,
+               map<string, string>* event_params);
+};
 
-// TODO: replace with real expression matching 
-class TestDSMCondition 
-: public DSMCondition {
-  enum CondType {
+// TODO: replace with real expression matching
+class TestDSMCondition : public DSMCondition
+{
+  enum CondType
+  {
     None,
     Always,
     Eq,
@@ -164,18 +165,18 @@ class TestDSMCondition
     Less,
     Gt
   };
-  string lhs;
-  string rhs;
+  string   lhs;
+  string   rhs;
   CondType ttype;
 
  public:
   TestDSMCondition(const string& expr, DSMCondition::EventType e);
-  bool match(AmSession* sess, DSMSession* sc_sess, DSMCondition::EventType event,
-	     map<string,string>* event_params);
+  bool match(AmSession* sess, DSMSession* sc_sess,
+             DSMCondition::EventType event, map<string, string>* event_params);
 };
 
 /** return string q with variables/params/selects replaced */
 string replaceParams(const string& q, AmSession* sess, DSMSession* sc_sess,
-		     map<string,string>* event_params);
+                     map<string, string>* event_params);
 
 #endif
