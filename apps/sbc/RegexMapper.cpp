@@ -23,13 +23,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "RegexMapper.h"
+
 #include "log.h"
+
+using std::string;
+using std::vector;
+using std::map;
 
 bool RegexMapper::mapRegex(const string& mapping_name, const char* test_s,
                            string& result)
 {
   lock();
-  std::map<string, RegexMappingVector>::iterator it =
+  map<string, RegexMappingVector>::iterator it =
       regex_mappings.find(mapping_name);
   if (it == regex_mappings.end()) {
     unlock();
@@ -46,7 +51,7 @@ void RegexMapper::setRegexMap(const string&             mapping_name,
                               const RegexMappingVector& r)
 {
   lock();
-  std::map<string, RegexMappingVector>::iterator it =
+  map<string, RegexMappingVector>::iterator it =
       regex_mappings.find(mapping_name);
   if (it != regex_mappings.end()) {
     for (RegexMappingVector::iterator r_it = it->second.begin();
@@ -58,11 +63,11 @@ void RegexMapper::setRegexMap(const string&             mapping_name,
   unlock();
 }
 
-std::vector<std::string> RegexMapper::getNames()
+vector<string> RegexMapper::getNames()
 {
-  std::vector<std::string> res;
+  vector<string> res;
   lock();
-  for (std::map<string, RegexMappingVector>::iterator it =
+  for (map<string, RegexMappingVector>::iterator it =
            regex_mappings.begin();
        it != regex_mappings.end(); it++)
     res.push_back(it->first);
