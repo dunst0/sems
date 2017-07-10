@@ -84,7 +84,7 @@ class SBCCallLeg
   SBCCallProfile call_profile;
 
   // Rate limiting
-  unique_ptr<RateLimit> rtp_relay_rate_limit;
+  std::unique_ptr<RateLimit> rtp_relay_rate_limit;
 
   // Measurements
   std::list<atomic_int*> rtp_pegs;
