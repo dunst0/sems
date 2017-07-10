@@ -32,6 +32,8 @@
 #include "AmEvent.h"
 #include "AmSession.h"
 
+#include <string>
+
 #define MOD_NAME "session_timer"
 
 #define TIMER_OPTION_TAG "timer"
@@ -57,7 +59,7 @@ class SessionTimerFactory : public AmSessionEventHandlerFactory
   bool checkSessionExpires(const AmSipRequest& req, AmConfigReader& cfg);
 
  public:
-  SessionTimerFactory(const string& name)
+  SessionTimerFactory(const std::string& name)
       : AmSessionEventHandlerFactory(name)
   {
   }
@@ -86,13 +88,13 @@ class AmSessionTimerConfig
 
   /** Session Timer: Enable Session Timer?
       returns 0 on invalid value */
-  int setEnableSessionTimer(const string& enable);
+  int setEnableSessionTimer(const std::string& enable);
   /** Session Timer: Setter for Desired Session-Expires,
       returns 0 on invalid value */
-  int setSessionExpires(const string& se);
+  int setSessionExpires(const std::string& se);
   /** Session Timer: Setter for Minimum Session-Expires,
       returns 0 on invalid value */
-  int setMinimumTimer(const string& minse);
+  int setMinimumTimer(const std::string& minse);
 
   void setEnableSessionTimer(bool enable) { EnableSessionTimer = enable; }
   void setSessionExpires(unsigned int se) { SessionExpires = se; }
@@ -145,8 +147,8 @@ class SessionTimer : public AmSessionEventHandler
   void retryRefreshTimer(AmSession* s);
   void removeTimers(AmSession* s);
 
-  string getReplyHeaders(const AmSipRequest& req);
-  string getRequestHeaders(const string& method);
+  std::string getReplyHeaders(const AmSipRequest& req);
+  std::string getRequestHeaders(const std::string& method);
 
   /* Session Timer: -ssa */
 
@@ -174,12 +176,12 @@ class SessionTimer : public AmSessionEventHandler
 /** \brief contains necessary information for UAC auth of a SIP request */
 struct SIPRequestInfo
 {
-  string     method;
+  std::string     method;
   AmMimeBody body;
-  string     hdrs;
+  std::string     hdrs;
 
-  SIPRequestInfo(const string& method, const AmMimeBody* body,
-                 const string& hdrs)
+  SIPRequestInfo(const std::string& method, const AmMimeBody* body,
+                 const std::string& hdrs)
       : method(method)
       , hdrs(hdrs)
   {

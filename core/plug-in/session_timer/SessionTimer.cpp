@@ -30,6 +30,8 @@
 #include "AmSipHeaders.h"
 #include "AmUtils.h"
 
+using std::string;
+
 EXPORT_SESSION_EVENT_HANDLER_FACTORY(SessionTimerFactory, MOD_NAME);
 
 int SessionTimerFactory::onLoad() { return 0; }
