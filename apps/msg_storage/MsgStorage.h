@@ -1,49 +1,50 @@
-#ifndef _MSG_STORAGE_H
-#define _MSG_STORAGE_H
+#ifndef _MSGSTORAGE_H_
+#define _MSGSTORAGE_H_
 
 #include "AmApi.h"
 
 #include <map>
-using std::map;
 
-class MsgStorage : public AmDynInvokeFactory, 
-		   public AmDynInvoke
+class MsgStorage
+    : public AmDynInvokeFactory
+    , public AmDynInvoke
 {
-
   static MsgStorage* _instance;
 
-  string msg_dir;
+  std::string msg_dir;
 
-  typedef map<AmDynInvoke*,string> Listeners;
-  Listeners  listeners;
-  AmMutex    listeners_mut;
-  
-  int msg_new(string domain, string user, string msg_name, FILE* data);
-  void msg_get(string domain, string user, string msg_name, AmArg& ret);
-  int msg_markread(string domain, string user, string msg_name);
-  int msg_delete(string domain, string user, string msg_name);
+  typedef std::map<AmDynInvoke*, std::string> Listeners;
 
-  void userdir_open(string domain, string user, AmArg& ret);
-  int userdir_close(string domain, string user);
-  void userdir_getcount(string domain, string user, AmArg& ret);
+  Listeners listeners;
+  AmMutex   listeners_mut;
 
-  void events_subscribe(AmDynInvoke* event_sink, string method);
+  int msg_new(std::string domain, std::string user, std::string msg_name,
+              FILE* data);
+  void msg_get(std::string domain, std::string user, std::string msg_name,
+               AmArg& ret);
+  int msg_markread(std::string domain, std::string user, std::string msg_name);
+  int msg_delete(std::string domain, std::string user, std::string msg_name);
+
+  void userdir_open(std::string domain, std::string user, AmArg& ret);
+  int userdir_close(std::string domain, std::string user);
+  void userdir_getcount(std::string domain, std::string user, AmArg& ret);
+
+  void events_subscribe(AmDynInvoke* event_sink, std::string method);
   void events_unsubscribe(AmDynInvoke* event_sink);
 
-  void event_notify(const string& domain, 
-		    const string& user, 
-		    const string& event);
+  void event_notify(const std::string& domain, const std::string& user,
+                    const std::string& event);
 
   inline void filecopy(FILE* ifp, FILE* ofp);
 
  public:
-  MsgStorage(const string& name);
+  MsgStorage(const std::string& name);
   ~MsgStorage();
 
-  AmDynInvoke* getInstance(){ return _instance; }
+  AmDynInvoke* getInstance() { return _instance; }
 
-  int onLoad();
-  void invoke(const string& method, const AmArg& args, AmArg& ret);
+  int  onLoad();
+  void invoke(const std::string& method, const AmArg& args, AmArg& ret);
 };
 
 #endif
