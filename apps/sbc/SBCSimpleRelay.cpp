@@ -8,6 +8,8 @@
 #include "ReplacesMapper.h"
 #include "SBC.h"
 
+using std::string;
+
 /**
  * SimpleRelayDialog
  */
