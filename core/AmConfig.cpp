@@ -58,6 +58,7 @@ using std::map;
 using std::multimap;
 using std::string;
 using std::vector;
+using std::list;
 
 string AmConfig::ConfigurationFile = CONFIG_FILE;
 string AmConfig::ModConfigPath     = MOD_CFG_PATH;
