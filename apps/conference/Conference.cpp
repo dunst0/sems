@@ -25,15 +25,14 @@
  */
 
 #include "Conference.h"
+
 #include "AmConferenceStatus.h"
 #include "AmConfig.h"
 #include "AmConfigReader.h"
 #include "AmUtils.h"
-
 #include "AmMediaProcessor.h"
 #include "AmSessionContainer.h"
 #include "ampi/MonitoringAPI.h"
-
 #include "log.h"
 #include "sems.h"
 
@@ -46,6 +45,9 @@
 #define JOIN_SOUND "join_snd"
 #define DROP_SOUND "drop_snd"
 #endif
+
+using std::string;
+using std::map;
 
 #define APP_NAME "conference"
 
