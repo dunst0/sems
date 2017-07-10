@@ -34,6 +34,8 @@
 #include "sip_parser.h"
 #include "sip_trans.h"
 
+#include <string>
+
 class trans_ticket;
 
 class sip_ua
@@ -42,7 +44,7 @@ class sip_ua
   virtual ~sip_ua() {}
 
   virtual void handle_sip_request(const trans_ticket& tt, sip_msg* msg) = 0;
-  virtual void handle_sip_reply(const string& dialog_id, sip_msg* msg)  = 0;
+  virtual void handle_sip_reply(const std::string& dialog_id, sip_msg* msg)  = 0;
 
   // virtual void handle_request_timeout(const sip_msg *msg)=0;
   virtual void handle_reply_timeout(AmSipTimeoutEvent::EvType evt,
