@@ -18,8 +18,8 @@ enum
 
 struct ConnectLegEvent : public B2BEvent
 {
-  AmMimeBody body;
-  std::string     hdrs;
+  AmMimeBody  body;
+  std::string hdrs;
 
   unsigned int r_cseq;
   bool         relayed_invite;
@@ -57,8 +57,8 @@ struct ReliableB2BEvent : public B2BEvent
   B2BEvent* unprocessed_reply; //< reply to be sent back if the original event
                                // was not processed
   B2BEvent*
-         processed_reply; //< event sent back if the original event was processed
-  std::string sender;          // sender will be filled when sending the event out
+              processed_reply; //< event sent back if the original event was processed
+  std::string sender; // sender will be filled when sending the event out
 
  public:
   ReliableB2BEvent(int ev_id, B2BEvent* _processed, B2BEvent* _unprocessed)
@@ -83,15 +83,15 @@ struct ReliableB2BEvent : public B2BEvent
 
 struct ReconnectLegEvent : public ReliableB2BEvent
 {
-  AmMimeBody body;
-  std::string     hdrs;
+  AmMimeBody  body;
+  std::string hdrs;
 
   unsigned int r_cseq;
   bool         relayed_invite;
 
   AmB2BMedia*                media; // avoid direct access to this
   AmB2BSession::RTPRelayMode rtp_mode;
-  std::string                     session_tag;
+  std::string                session_tag;
   enum Role
   {
     A,
@@ -122,8 +122,8 @@ struct ReconnectLegEvent : public ReliableB2BEvent
     setSender(tag);
   }
 
-  ReconnectLegEvent(Role _role, const std::string& tag, const std::string& _hdrs,
-                    const AmMimeBody& _body)
+  ReconnectLegEvent(Role _role, const std::string& tag,
+                    const std::string& _hdrs, const AmMimeBody& _body)
       : ReliableB2BEvent(
             ReconnectLeg, NULL,
             new B2BEvent(B2BTerminateLeg) /* TODO: choose a better one */)

@@ -12,10 +12,6 @@
 #include <memory>
 #include <string>
 
-using std::string;
-using std::map;
-using std::unique_ptr;
-
 #define REG_CACHE_TABLE_POWER 10
 #define REG_CACHE_TABLE_ENTRIES (1 << REG_CACHE_TABLE_POWER)
 
@@ -37,7 +33,7 @@ struct RegBinding
   long int reg_expire;
 
   // unique-id used as contact user toward the registrar
-  string alias;
+  std::string alias;
 
   RegBinding()
       : reg_expire(0)
@@ -46,24 +42,24 @@ struct RegBinding
 };
 
 // Contact-URI/Public-IP -> RegBinding
-typedef map<string, RegBinding*> AorEntry;
+typedef std::map<std::string, RegBinding*> AorEntry;
 
 struct AliasEntry : public DirectAppTimer
 {
-  string aor;
-  string contact_uri;
-  string alias;
+  std::string aor;
+  std::string contact_uri;
+  std::string alias;
 
   // saved state for NAT handling
-  string         source_ip;
-  unsigned short source_port;
-  string         trsp;
+  std::string        source_ip;
+  unsigned short int source_port;
+  std::string        trsp;
 
   // sticky interface
-  unsigned short local_if;
+  unsigned short int local_if;
 
   // User-Agent
-  string remote_ua;
+  std::string remote_ua;
 
   // Absolute timestamp representing
   // the expiration timer at the
@@ -83,28 +79,28 @@ struct AliasEntry : public DirectAppTimer
 
 struct RegCacheStorageHandler
 {
-  virtual void onDelete(const string& aor, const string& uri,
-                        const string& alias)
+  virtual void onDelete(const std::string& aor, const std::string& uri,
+                        const std::string& alias)
   {
   }
 
-  virtual void onUpdate(const string& canon_aor, const string& alias,
+  virtual void onUpdate(const std::string& canon_aor, const std::string& alias,
                         long int expires, const AliasEntry& alias_update)
   {
   }
 
-  virtual void onUpdate(const string& alias, long int ua_expires) {}
+  virtual void onUpdate(const std::string& alias, long int ua_expires) {}
 };
 
 /**
  * Hash-table bucket:
  *   AoR -> AorEntry
  */
-class AorBucket : public ht_map_bucket<string, AorEntry>
+class AorBucket : public ht_map_bucket<std::string, AorEntry>
 {
  public:
   AorBucket(unsigned long id)
-      : ht_map_bucket<string, AorEntry>(id)
+      : ht_map_bucket<std::string, AorEntry>(id)
   {
   }
 
@@ -112,55 +108,60 @@ class AorBucket : public ht_map_bucket<string, AorEntry>
    * Match and retrieve the cache entry associated with the AOR passed.
    * aor: canonicalized AOR
    */
-  AorEntry* get(const string& aor);
+  AorEntry* get(const std::string& aor);
 
   /* Maintenance stuff */
 
-  void gbc(RegCacheStorageHandler* h, long int now, list<string>& alias_list);
-  void dump_elmt(const string& aor, const AorEntry* p_aor_entry) const;
+  void gbc(RegCacheStorageHandler* h, long int now,
+           std::list<std::string>& alias_list);
+  void dump_elmt(const std::string& aor, const AorEntry* p_aor_entry) const;
 };
 
 /**
  * Hash-table bucket:
  *   Alias -> Contact-URI
  */
-class AliasBucket : public ht_map_bucket<string, AliasEntry>
+class AliasBucket : public ht_map_bucket<std::string, AliasEntry>
 {
  public:
   AliasBucket(unsigned long int id)
-      : ht_map_bucket<string, AliasEntry>(id)
+      : ht_map_bucket<std::string, AliasEntry>(id)
   {
   }
 
-  AliasEntry* getContact(const string& alias);
+  AliasEntry* getContact(const std::string& alias);
 
-  void dump_elmt(const string& alias, const AliasEntry* ae) const;
+  void dump_elmt(const std::string& alias, const AliasEntry* ae) const;
 };
 
-class ContactBucket : public ht_map_bucket<string, string>
+class ContactBucket : public ht_map_bucket<std::string, std::string>
 {
-  typedef ht_map_bucket<string, string> Bucket;
+  typedef ht_map_bucket<std::string, std::string> Bucket;
 
-  bool insert(const string& k, string* v) { return Bucket::insert(k, v); }
+  bool insert(const std::string& k, std::string* v)
+  {
+    return Bucket::insert(k, v);
+  }
 
-  bool remove(const string& k) { return Bucket::remove(k); }
+  bool remove(const std::string& k) { return Bucket::remove(k); }
 
  public:
   ContactBucket(unsigned long int id)
-      : ht_map_bucket<string, string>(id)
+      : ht_map_bucket<std::string, std::string>(id)
   {
   }
 
-  void insert(const string& contact_uri, const string& remote_ip,
-              unsigned short remote_port, const string& alias);
+  void insert(const std::string& contact_uri, const std::string& remote_ip,
+              unsigned short int remote_port, const std::string& alias);
 
-  string getAlias(const string& contact_uri, const string& remote_ip,
-                  unsigned short remote_port);
+  std::string getAlias(const std::string& contact_uri,
+                       const std::string& remote_ip,
+                       unsigned short int remote_port);
 
-  void remove(const string& contact_uri, const string& remote_ip,
-              unsigned short remote_port);
+  void remove(const std::string& contact_uri, const std::string& remote_ip,
+              unsigned short int remote_port);
 
-  void dump_elmt(const string& key, const string* alias) const;
+  void dump_elmt(const std::string& key, const std::string* alias) const;
 };
 
 /**
@@ -169,11 +170,11 @@ class ContactBucket : public ht_map_bucket<string, string>
  */
 struct RegisterCacheCtx : public AmObject
 {
-  string from_aor;
-  bool   aor_parsed;
+  std::string from_aor;
+  bool        aor_parsed;
 
-  vector<AmUriParser> contacts;
-  bool                contacts_parsed;
+  std::vector<AmUriParser> contacts;
+  bool                     contacts_parsed;
 
   unsigned int requested_expires;
   bool         expires_parsed;
@@ -198,7 +199,7 @@ class _RegisterCache : public AmThread
   hash_table<AliasBucket>   id_idx;
   hash_table<ContactBucket> contact_idx;
 
-  unique_ptr<RegCacheStorageHandler> storage_handler;
+  std::unique_ptr<RegCacheStorageHandler> storage_handler;
 
   unsigned int gbc_bucket_id;
 
@@ -208,7 +209,7 @@ class _RegisterCache : public AmThread
   atomic_int active_regs;
 
   void gbc(unsigned int bucket_id);
-  void removeAlias(const string& alias, bool generate_event);
+  void removeAlias(const std::string& alias, bool generate_event);
 
  protected:
   _RegisterCache();
@@ -216,14 +217,8 @@ class _RegisterCache : public AmThread
 
   void dispose()
   {
-    stop();
-
-    // TODO dunst0: there should be a better way
-    bool thread_stopped = true;
-    do {
-      usleep(10000);
-      thread_stopped = is_stopped();
-    } while (!thread_stopped);
+    stop(false);
+    join();
   }
 
   /* AmThread interface */
@@ -234,20 +229,20 @@ class _RegisterCache : public AmThread
    * Returns the bucket associated with the passed contact-uri
    * aor: canonicalized AOR
    */
-  AorBucket* getAorBucket(const string& aor);
+  AorBucket* getAorBucket(const std::string& aor);
 
   /**
    * Returns the bucket associated with the alias given
    * alias: Contact-user
    */
-  AliasBucket* getAliasBucket(const string& alias);
+  AliasBucket* getAliasBucket(const std::string& alias);
 
   /**
    * Returns the bucket associated with the contact-URI given
    */
-  ContactBucket* getContactBucket(const string&  contact_uri,
-                                  const string&  remote_ip,
-                                  unsigned short remote_port);
+  ContactBucket* getContactBucket(const std::string& contact_uri,
+                                  const std::string& remote_ip,
+                                  unsigned short int remote_port);
 
   int parseAoR(RegisterCacheCtx& ctx, const AmSipRequest& req,
                msg_logger* logger);
@@ -260,9 +255,10 @@ class _RegisterCache : public AmThread
   void removeAliasUATimer(AliasEntry* alias_e);
 
  public:
-  static string canonicalize_aor(const string& aor);
-  static string compute_alias_hash(const string& aor, const string& contact_uri,
-                                   const string& public_ip);
+  static std::string canonicalize_aor(const std::string& aor);
+  static std::string compute_alias_hash(const std::string& aor,
+                                        const std::string& contact_uri,
+                                        const std::string& public_ip);
 
   void setStorageHandler(RegCacheStorageHandler* h)
   {
@@ -278,8 +274,8 @@ class _RegisterCache : public AmThread
    * aor: canonical Address-of-Record
    * uri: Contact-URI
    */
-  bool getAlias(const string& aor, const string& uri, const string& public_ip,
-                RegBinding& out_binding);
+  bool getAlias(const std::string& aor, const std::string& uri,
+                const std::string& public_ip, RegBinding& out_binding);
 
   /**
    * Update contact cache entry and alias map entries.
@@ -292,12 +288,12 @@ class _RegisterCache : public AmThread
    * uri: Contact-URI
    * alias:
    */
-  void update(const string& alias, long int reg_expires,
+  void update(const std::string& alias, long int reg_expires,
               const AliasEntry& alias_update);
 
   void update(long int reg_expires, const AliasEntry& alias_update);
 
-  bool updateAliasExpires(const string& alias, long int ua_expires);
+  bool updateAliasExpires(const std::string& alias, long int ua_expires);
 
   /**
    * Remove contact cache entry and alias map entries.
@@ -310,9 +306,10 @@ class _RegisterCache : public AmThread
    * uri: Contact-URI
    * alias:
    */
-  void remove(const string& aor, const string& uri, const string& alias);
+  void remove(const std::string& aor, const std::string& uri,
+              const std::string& alias);
 
-  void remove(const string& aor);
+  void remove(const std::string& aor);
 
   /**
    * Retrieve an alias map containing all entries related
@@ -325,18 +322,20 @@ class _RegisterCache : public AmThread
    * aor: canonical Address-of-Record
    * alias_map: alias -> contact
    */
-  bool getAorAliasMap(const string& aor, map<string, string>& alias_map);
+  bool getAorAliasMap(const std::string& aor,
+                      std::map<std::string, std::string>& alias_map);
 
   /**
    * Retrieve the alias entry related to the given alias
    */
-  bool findAliasEntry(const string& alias, AliasEntry& alias_entry);
+  bool findAliasEntry(const std::string& alias, AliasEntry& alias_entry);
 
   /**
    * Retrieve the alias entry related to the given contact-URI, remote-IP & port
    */
-  bool findAEByContact(const string& contact_uri, const string& remote_ip,
-                       unsigned short remote_port, AliasEntry& ae);
+  bool findAEByContact(const std::string& contact_uri,
+                       const std::string& remote_ip,
+                       unsigned short int remote_port, AliasEntry& ae);
 
   /**
    * Throttle REGISTER requests

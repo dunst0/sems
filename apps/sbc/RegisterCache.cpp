@@ -13,6 +13,7 @@
 
 using std::pair;
 using std::make_pair;
+using std::std::vector;
 
 #define REG_CACHE_CYCLE 10L /* 10 seconds to expire all buckets */
 
@@ -126,7 +127,7 @@ void AliasEntry::fire()
   ev["from-ua"]  = remote_ua;
 
   DBG("Alias expired (UA/%li): '%s' -> '%s'\n",
-      (long) (AmAppTimer::instance()->unix_clock.get() - ua_expire),
+      (long int) (AmAppTimer::instance()->unix_clock.get() - ua_expire),
       alias.c_str(), aor.c_str());
 
   SBCEventLog::instance()->logEvent(alias, "ua-reg-expired", ev);
@@ -137,9 +138,9 @@ void AliasBucket::dump_elmt(const string& alias, const AliasEntry* p_ae) const
   DBG("'%s' -> '%s'", alias.c_str(), p_ae ? p_ae->contact_uri.c_str() : "NULL");
 }
 
-string ContactBucket::getAlias(const string&  contact_uri,
-                               const string&  remote_ip,
-                               unsigned short remote_port)
+string ContactBucket::getAlias(const string&      contact_uri,
+                               const string&      remote_ip,
+                               unsigned short int remote_port)
 {
   string key = contact_uri + "/" + remote_ip + ":" + int2str(remote_port);
 
@@ -151,7 +152,7 @@ string ContactBucket::getAlias(const string&  contact_uri,
 }
 
 void ContactBucket::remove(const string& contact_uri, const string& remote_ip,
-                           unsigned short remote_port)
+                           unsigned short int remote_port)
 {
   string k = contact_uri + "/" + remote_ip + ":" + int2str(remote_port);
   elmts.erase(k);
@@ -295,7 +296,7 @@ AorBucket* _RegisterCache::getAorBucket(const string& aor)
 }
 
 void ContactBucket::insert(const string& contact_uri, const string& remote_ip,
-                           unsigned short remote_port, const string& alias)
+                           unsigned short int remote_port, const string& alias)
 {
   string k = contact_uri + "/" + remote_ip + ":" + int2str(remote_port);
   insert(k, new string(alias));
@@ -332,9 +333,9 @@ AliasBucket* _RegisterCache::getAliasBucket(const string& alias)
   return id_idx.get_bucket(hash_1str(alias));
 }
 
-ContactBucket* _RegisterCache::getContactBucket(const string&  contact_uri,
-                                                const string&  remote_ip,
-                                                unsigned short remote_port)
+ContactBucket* _RegisterCache::getContactBucket(const string&      contact_uri,
+                                                const string&      remote_ip,
+                                                unsigned short int remote_port)
 {
   unsigned int h = hash_2str_1int(contact_uri, remote_ip, remote_port);
   return contact_idx.get_bucket(h);
@@ -686,7 +687,7 @@ void _RegisterCache::removeAlias(const string& alias, bool generate_event)
       ev["from-ua"]  = ae->remote_ua;
 
       DBG("Alias expired @registrar (UA/%li): '%s' -> '%s'\n",
-          (long) (AmAppTimer::instance()->unix_clock.get() - ae->ua_expire),
+          (long int) (AmAppTimer::instance()->unix_clock.get() - ae->ua_expire),
           ae->alias.c_str(), ae->aor.c_str());
 
       SBCEventLog::instance()->logEvent(ae->alias, "reg-expired", ev);
@@ -751,9 +752,10 @@ bool _RegisterCache::findAliasEntry(const string& alias,
   return res;
 }
 
-bool _RegisterCache::findAEByContact(const string&  contact_uri,
-                                     const string&  remote_ip,
-                                     unsigned short remote_port, AliasEntry& ae)
+bool _RegisterCache::findAEByContact(const string&      contact_uri,
+                                     const string&      remote_ip,
+                                     unsigned short int remote_port,
+                                     AliasEntry&        ae)
 {
   bool res = false;
 
