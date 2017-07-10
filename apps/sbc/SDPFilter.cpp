@@ -24,10 +24,14 @@
  */
 
 #include "SDPFilter.h"
+
 #include "AmUtils.h"
 #include "RTPParameters.h"
 #include "log.h"
+
 #include <algorithm>
+
+using std::vector;
 
 int filterSDP(AmSdp& sdp, const vector<FilterEntry>& filter_list)
 {
