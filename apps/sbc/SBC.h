@@ -74,8 +74,8 @@ class SBCFactory
 
   bool core_options_handling;
 
-  unique_ptr<CallLegCreator>     callLegCreator;
-  unique_ptr<SimpleRelayCreator> simpleRelayCreator;
+  std::unique_ptr<CallLegCreator>     callLegCreator;
+  std::unique_ptr<SimpleRelayCreator> simpleRelayCreator;
 
   void listProfiles(const AmArg& args, AmArg& ret);
   void reloadProfiles(const AmArg& args, AmArg& ret);
