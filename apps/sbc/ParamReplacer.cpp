@@ -38,6 +38,7 @@
 #include <algorithm>
 
 using std::string;
+using std::list;
 
 int replaceParsedParam(const string& s, size_t p, const AmUriParser& parsed,
                        string& res)
