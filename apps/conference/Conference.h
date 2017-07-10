@@ -39,9 +39,9 @@
 #include "AmThread.h"
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 class ConferenceStatus;
 class ConferenceStatusContainer;
@@ -118,14 +118,14 @@ class ConferenceDialog : public AmSession
   std::unique_ptr<AmRingTone>  RingTone;
   std::unique_ptr<AmRingTone>  ErrorTone;
 
-  std::string                         conf_id;
+  std::string                          conf_id;
   std::unique_ptr<AmConferenceChannel> channel;
 
-  int                                 state;
-  std::string                         dtmf_seq;
-  bool                                dialedout;
-  std::string                         dialout_suffix;
-  std::string                         dialout_id;
+  int                                  state;
+  std::string                          dtmf_seq;
+  bool                                 dialedout;
+  std::string                          dialout_suffix;
+  std::string                          dialout_id;
   std::unique_ptr<AmConferenceChannel> dialout_channel;
 
   bool allow_dialout;
