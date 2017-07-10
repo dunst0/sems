@@ -24,6 +24,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #include "AmConfigReader.h"
 
 #include "AmConfig.h"
@@ -39,6 +40,7 @@ using std::string;
 using std::ifstream;
 using std::ios;
 using std::istreambuf_iterator;
+using std::map;
 
 #define IS_SPACE(c) ((c == ' ') || (c == '\t'))
 
