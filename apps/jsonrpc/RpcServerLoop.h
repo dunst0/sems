@@ -28,10 +28,10 @@
 #ifndef _RPCSERVERLOOP_H_
 #define _RPCSERVERLOOP_H_
 
+#include "AmArg.h"
 #include "AmEvent.h"
 #include "AmEventQueue.h"
 #include "AmThread.h"
-#include "AmArg.h"
 #include "JsonRPCEvents.h"
 #include "RpcPeer.h"
 #include "RpcServerThread.h"
@@ -71,8 +71,9 @@ class JsonRPCServerLoop
   static void execRpc(const std::string& evq_link,
                       const std::string& notificationReceiver,
                       const std::string& requestReceiver, int flags,
-                      const std::string& host, int port, const std::string& method,
-                      const AmArg& params, const AmArg& udata, AmArg& ret);
+                      const std::string& host, int port,
+                      const std::string& method, const AmArg& params,
+                      const AmArg& udata, AmArg& ret);
 
   static void sendMessage(const std::string& connection_id, int msg_type,
                           const std::string& method, const std::string& id,
@@ -88,7 +89,8 @@ class JsonRPCServerLoop
      add connection with id
      @return whether connection with this id existed before
   */
-  static bool registerConnection(JsonrpcPeerConnection* peer, const std::string& id);
+  static bool registerConnection(JsonrpcPeerConnection* peer,
+                                 const std::string&     id);
 
   /**
      remove a connection with id

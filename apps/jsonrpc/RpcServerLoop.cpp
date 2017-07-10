@@ -26,13 +26,13 @@
  */
 
 #include "RpcServerLoop.h"
+#include "AmEventDispatcher.h"
+#include "AmSession.h"
 #include "JsonRPC.h"
 #include "JsonRPCEvents.h"
 #include "JsonRPCServer.h"
-#include "AmEventDispatcher.h"
-#include "AmSession.h"
-#include "log.h"
 #include "RpcPeer.h"
+#include "log.h"
 
 #include <arpa/inet.h>
 #include <err.h>
