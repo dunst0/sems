@@ -49,7 +49,9 @@ class CallBackFactory
 {
   AmPromptCollection prompts;
 
-  bool configured;
+  // UNUSED
+  // bool configured;
+  // UNUSED_END
 
   regex_t accept_caller_re;
 
