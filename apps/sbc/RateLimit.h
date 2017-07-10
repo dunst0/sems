@@ -1,8 +1,9 @@
-#ifndef _RateLimit_h_
-#define _RateLimit_h_
+#ifndef _RATELIMIT_H_
+#define _RATELIMIT_H_
 
 #include "AmThread.h"
 #include "atomic_types.h"
+
 #include <sys/types.h>
 
 class DynRateLimit : protected AmMutex

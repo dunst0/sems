@@ -1,5 +1,5 @@
-#ifndef __EXTENDED_CC_INTERFACE
-#define __EXTENDED_CC_INTERFACE
+#ifndef _EXTENDEDCCINTERFACE_H_
+#define _EXTENDEDCCINTERFACE_H_
 
 #include "CallLeg.h"
 #include "sbc_events.h"
@@ -10,15 +10,16 @@ class SimpleRelayDialog;
 
 struct InitialInviteHandlerParams
 {
-  string              remote_party;
-  string              remote_uri;
-  string              from;
+  std::string         remote_party;
+  std::string         remote_uri;
+  std::string         from;
   const AmSipRequest* original_invite;
   AmSipRequest*       modified_invite;
 
-  InitialInviteHandlerParams(const string& to, const string& ruri,
-                             const string& _from, const AmSipRequest* original,
-                             AmSipRequest* modified)
+  InitialInviteHandlerParams(const std::string& to, const std::string& ruri,
+                             const std::string&  _from,
+                             const AmSipRequest* original,
+                             AmSipRequest*       modified)
       : remote_party(to)
       , remote_uri(ruri)
       , from(_from)
@@ -45,7 +46,8 @@ class ExtendedCCInterface
   /** First method called from extended CC module interface.
    * It should initialize CC module internals (values from sbcprofile.conf can
    * be used for evaluating CC module parameters). */
-  virtual bool init(SBCCallLeg* call, const map<string, string>& values)
+  virtual bool init(SBCCallLeg* call,
+                    const std::map<std::string, std::string>& values)
   {
     return true;
   }

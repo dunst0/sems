@@ -22,19 +22,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _HeaderFilter_h_
-#define _HeaderFilter_h_
+
+#ifndef _HEADERFILTER_H_
+#define _HEADERFILTER_H_
 
 #include "AmConfigReader.h"
 
-#include <string>
-using std::string;
-
 #include <set>
-using std::set;
-
+#include <string>
 #include <vector>
-using std::vector;
 
 enum FilterType
 {
@@ -46,8 +42,8 @@ enum FilterType
 
 struct FilterEntry
 {
-  FilterType  filter_type;
-  set<string> filter_list;
+  FilterType            filter_type;
+  std::set<std::string> filter_list;
 
   bool operator==(const FilterEntry& rhs) const
   {
@@ -56,7 +52,7 @@ struct FilterEntry
 };
 
 bool readFilter(AmConfigReader& cfg, const char* cfg_key_filter,
-                const char* cfg_key_list, vector<FilterEntry>& filter_list,
+                const char* cfg_key_list, std::vector<FilterEntry>& filter_list,
                 bool keep_transparent_entry);
 
 /** string to Filter type, Undefined if not found */
@@ -68,6 +64,7 @@ bool isActiveFilter(FilterType ft);
 const char* FilterType2String(FilterType ft);
 int skip_header(const std::string& hdr, size_t start_pos, size_t& name_end,
                 size_t& val_begin, size_t& val_end, size_t& hdr_end);
-int inplaceHeaderFilter(string& hdrs, const vector<FilterEntry>& filter_list);
+int inplaceHeaderFilter(std::string&                    hdrs,
+                        const std::vector<FilterEntry>& filter_list);
 
 #endif

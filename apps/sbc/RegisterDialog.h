@@ -1,5 +1,5 @@
-#ifndef _RegisterDialog_h_
-#define _RegisterDialog_h_
+#ifndef _REGISTERDIALOG_H_
+#define _REGISTERDIALOG_H_
 
 #include "AmUriParser.h"
 #include "SBCSimpleRelay.h"
@@ -7,19 +7,19 @@
 class RegisterDialog : public SimpleRelayDialog
 {
   // Contacts as sent
-  vector<AmUriParser> uac_contacts;
-  bool                star_contact;
+  std::vector<AmUriParser> uac_contacts;
+  bool                     star_contact;
 
   bool contact_hiding;
 
   bool reg_caching;
-  map<string, AmUriParser> alias_map;
-  string         aor; // From-URI
-  string         source_ip;
-  unsigned short source_port;
-  string         transport;
-  unsigned short local_if;
-  string         from_ua;
+  std::map<std::string, AmUriParser> alias_map;
+  std::string        aor; // From-URI
+  std::string        source_ip;
+  unsigned short int source_port;
+  std::string        transport;
+  unsigned short int local_if;
+  std::string        from_ua;
 
   // Max 'Expire' value returned to
   // registering UAC.
@@ -58,7 +58,8 @@ class RegisterDialog : public SimpleRelayDialog
   int removeTransport(AmUriParser& uri);
 
  public:
-  RegisterDialog(SBCCallProfile& profile, vector<AmDynInvoke*>& cc_modules);
+  RegisterDialog(SBCCallProfile&            profile,
+                 std::vector<AmDynInvoke*>& cc_modules);
   ~RegisterDialog();
 
   // SimpleRelayDialog interface
@@ -69,13 +70,15 @@ class RegisterDialog : public SimpleRelayDialog
                   AmBasicSipDialog::Status old_dlg_status);
 
   // Utility static methods
-  static string encodeUsername(const AmUriParser&    original_contact,
-                               const AmSipRequest&   req,
-                               const SBCCallProfile& cp, ParamReplacerCtx& ctx);
+  static std::string encodeUsername(const AmUriParser&    original_contact,
+                                    const AmSipRequest&   req,
+                                    const SBCCallProfile& cp,
+                                    ParamReplacerCtx&     ctx);
 
-  static bool decodeUsername(const string& encoded_user, AmUriParser& uri);
+  static bool decodeUsername(const std::string& encoded_user, AmUriParser& uri);
 
-  static int parseContacts(const string& contacts, vector<AmUriParser>& cv);
+  static int parseContacts(const std::string&        contacts,
+                           std::vector<AmUriParser>& cv);
 };
 
 #endif

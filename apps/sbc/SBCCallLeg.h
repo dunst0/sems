@@ -24,8 +24,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __SBCCALL_LEG_H
-#define __SBCCALL_LEG_H
+#ifndef _SBCCALLLEG_H_
+#define _SBCCALL_LEG_H_
 
 #include "ExtendedCCInterface.h"
 #include "RateLimit.h"
@@ -57,11 +57,11 @@ class SBCCallLeg
 
   int m_state;
 
-  map<int, double> call_timers;
+  std::map<int, double> call_timers;
 
   // call control
-  vector<AmDynInvoke*>         cc_modules;
-  vector<ExtendedCCInterface*> cc_ext;
+  std::vector<AmDynInvoke*>         cc_modules;
+  std::vector<ExtendedCCInterface*> cc_ext;
 
   // modules to initialize
   CCInterfaceListT cc_module_queue;
@@ -87,14 +87,14 @@ class SBCCallLeg
   unique_ptr<RateLimit> rtp_relay_rate_limit;
 
   // Measurements
-  list<atomic_int*> rtp_pegs;
+  std::list<atomic_int*> rtp_pegs;
 
   /** common logger for RTP/RTCP and SIP packets */
   msg_logger* logger;
 
   void setLogger(msg_logger* _logger);
 
-  void fixupCCInterface(const string& val, CCInterface& cc_if);
+  void fixupCCInterface(const std::string& val, CCInterface& cc_if);
 
   /** handler called when call is stopped (see AmSession) */
   virtual void onStop();
@@ -107,11 +107,12 @@ class SBCCallLeg
   void CCEnd();
   void CCEnd(const CCInterfaceListIteratorT& end_interface);
 
-  void connectCallee(const string& remote_party, const string& remote_uri,
-                     const string& from, const AmSipRequest& original_invite,
+  void connectCallee(const std::string& remote_party,
+                     const std::string& remote_uri, const std::string& from,
+                     const AmSipRequest& original_invite,
                      const AmSipRequest& invite_req);
 
-  int filterSdp(AmMimeBody& body, const string& method);
+  int filterSdp(AmMimeBody& body, const std::string& method);
   void appendTranscoderCodecs(AmSdp& sdp);
   void savePayloadIDs(AmSdp& sdp);
 
@@ -163,11 +164,13 @@ class SBCCallLeg
   void setAuthHandler(AmSessionEventHandler* h) { auth = h; }
   void setAuthDI(AmDynInvoke* di_inst) { auth_di = di_inst; }
 
-  bool initCCExtModules(const CCInterfaceListT&     cc_module_list,
-                        const vector<AmDynInvoke*>& cc_module_di);
+  bool initCCExtModules(const CCInterfaceListT&          cc_module_list,
+                        const std::vector<AmDynInvoke*>& cc_module_di);
   bool initPendingCCExtModules();
-  void addPendingCCExtModule(const string& cc_name, const string& cc_module,
-                             const map<string, string>&           cc_values);
+  void
+  addPendingCCExtModule(const std::string& cc_name,
+                        const std::string& cc_module,
+                        const std::map<std::string, std::string>& cc_values);
 
   /** save call timer; only effective before call is connected */
   void saveCallTimer(int timer, double timeout);
@@ -178,13 +181,13 @@ class SBCCallLeg
 
   // SBC interface usable from CC modules
 
-  void setLocalParty(const string& party, const string& uri)
+  void setLocalParty(const std::string& party, const std::string& uri)
   {
     dlg->setLocalParty(party);
     dlg->setLocalUri(uri);
   }
 
-  void setRemoteParty(const string& party, const string& uri)
+  void setRemoteParty(const std::string& party, const std::string& uri)
   {
     dlg->setRemoteParty(party);
     dlg->setRemoteUri(uri);
@@ -193,7 +196,7 @@ class SBCCallLeg
   SBCCallProfile& getCallProfile() { return call_profile; }
   CallStatus      getCallStatus() { return CallLeg::getCallStatus(); }
 
-  void setRTPMeasurements(const list<atomic_int*>& rtp_meas)
+  void setRTPMeasurements(const std::list<atomic_int*>& rtp_meas)
   {
     rtp_pegs = rtp_meas;
   }
@@ -236,7 +239,10 @@ class SBCCallLeg
   struct timeval call_end_ts;
 
   void setOtherId(const AmSipReply& reply);
-  void setOtherId(const string& n_other_id) { CallLeg::setOtherId(n_other_id); }
+  void setOtherId(const std::string& n_other_id)
+  {
+    CallLeg::setOtherId(n_other_id);
+  }
 
   void onSipReply(const AmSipRequest& req, const AmSipReply& reply,
                   AmSipDialog::Status old_dlg_status);
@@ -248,20 +254,20 @@ class SBCCallLeg
   void onBye(const AmSipRequest& req);
   bool onOtherBye(const AmSipRequest& req);
 
-  void onControlCmd(string& cmd, AmArg& params);
+  void onControlCmd(std::string& cmd, AmArg& params);
 
   /* set call timer (if enabled) */
   virtual bool startCallTimers();
   /* clear call timer */
   virtual void stopCallTimers();
 
-  const map<int, double> getCallTimers() { return call_timers; }
+  const std::map<int, double> getCallTimers() { return call_timers; }
 
   void createCalleeSession();
 
   /** initialize call control module interfaces @return sucess or not*/
-  bool                  getCCInterfaces();
-  vector<AmDynInvoke*>& getCCModules() { return cc_modules; }
+  bool                       getCCInterfaces();
+  std::vector<AmDynInvoke*>& getCCModules() { return cc_modules; }
 
   virtual void createHoldRequest(AmSdp& sdp);
   virtual void alterHoldRequest(AmSdp& sdp);

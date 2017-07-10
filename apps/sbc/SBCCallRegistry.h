@@ -23,24 +23,23 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _SBCCallRegistry_H
-#define _SBCCallRegistry_H
+#ifndef _SBCCALLREGISTRY_H_
+#define _SBCCALLREGISTRY_H_
 
 #include "AmThread.h"
 
-#include <string>
-using std::string;
 #include <map>
+#include <string>
 
 struct SBCCallRegistryEntry
 {
-  string ltag;
-  string rtag;
-  string callid;
+  std::string ltag;
+  std::string rtag;
+  std::string callid;
 
   SBCCallRegistryEntry() {}
-  SBCCallRegistryEntry(const string& callid, const string& ltag,
-                       const string& rtag)
+  SBCCallRegistryEntry(const std::string& callid, const std::string& ltag,
+                       const std::string& rtag)
       : ltag(ltag)
       , rtag(rtag)
       , callid(callid)
@@ -51,17 +50,19 @@ struct SBCCallRegistryEntry
 class SBCCallRegistry
 {
   static AmMutex registry_mutex;
-  static std::map<string, SBCCallRegistryEntry> registry;
+  static std::map<std::string, SBCCallRegistryEntry> registry;
 
  public:
   SBCCallRegistry() {}
   ~SBCCallRegistry() {}
 
-  static void addCall(const string&               ltag,
+  static void addCall(const std::string&          ltag,
                       const SBCCallRegistryEntry& other_dlg);
-  static void updateCall(const string& ltag, const string& other_rtag);
-  static bool lookupCall(const string& ltag, SBCCallRegistryEntry& other_dlg);
-  static void removeCall(const string& ltag);
+  static void updateCall(const std::string& ltag,
+                         const std::string& other_rtag);
+  static bool lookupCall(const std::string&    ltag,
+                         SBCCallRegistryEntry& other_dlg);
+  static void removeCall(const std::string& ltag);
 };
 
 #endif

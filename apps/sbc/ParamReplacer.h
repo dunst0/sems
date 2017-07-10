@@ -23,28 +23,27 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _ParamReplacer_h_
-#define _ParamReplacer_h_
-
-#include <string>
-using std::string;
+#ifndef _PARAMREPLACER_H_
+#define _PARAMREPLACER_H_
 
 #include "AmSipMsg.h"
 #include "AmUriParser.h"
 
+#include <string>
+
 struct SBCCallProfile;
 
 // $xy parameters replacement
-string replaceParameters(const string& s, const char* r_type,
-                         const AmSipRequest&   req,
-                         const SBCCallProfile* call_profile,
-                         const string& app_param, AmUriParser& ruri_parser,
-                         AmUriParser& from_parser, AmUriParser& to_parser,
-                         bool rebuild_ruri, bool rebuild_from, bool rebuild_to);
+std::string
+replaceParameters(const std::string& s, const char* r_type,
+                  const AmSipRequest& req, const SBCCallProfile* call_profile,
+                  const std::string& app_param, AmUriParser& ruri_parser,
+                  AmUriParser& from_parser, AmUriParser& to_parser,
+                  bool rebuild_ruri, bool rebuild_from, bool rebuild_to);
 
 struct ParamReplacerCtx
 {
-  string      app_param;
+  std::string app_param;
   AmUriParser ruri_parser;
   AmUriParser from_parser;
   AmUriParser to_parser;
@@ -63,8 +62,8 @@ struct ParamReplacerCtx
   {
   }
 
-  string replaceParameters(const string& s, const char* r_type,
-                           const AmSipRequest& req)
+  std::string replaceParameters(const std::string& s, const char* r_type,
+                                const AmSipRequest& req)
   {
     return ::replaceParameters(s, r_type, req, call_profile, app_param,
                                ruri_parser, from_parser, to_parser,

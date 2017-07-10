@@ -115,7 +115,7 @@ class SBCFactory
   }
 
   AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
-                      const std::map<std::string, std::string>&        app_params);
+                      const std::map<std::string, std::string>&   app_params);
 
   void onOoDRequest(const AmSipRequest& req);
 

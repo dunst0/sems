@@ -24,22 +24,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _SBCSimpleRelay_h_
-#define _SBCSimpleRelay_h_
+
+#ifndef _SBCSIMPLERELAY_H_
+#define _SBCSIMPLERELAY_H_
 
 #include "AmBasicSipDialog.h"
 #include "AmEventQueue.h"
 #include "AmSipSubscription.h"
-#include "atomic_types.h"
-
 #include "ExtendedCCInterface.h"
 #include "SBC.h"
-
 #include "ampi/UACAuthAPI.h"
+#include "atomic_types.h"
 
 #include <list>
 #include <map>
-using std::map;
 
 class SimpleRelayDialog
     : public AmBasicSipDialog
@@ -50,15 +48,15 @@ class SimpleRelayDialog
     , public CredentialHolder
 {
   atomic_ref_cnt* parent_obj;
-  string          other_dlg;
+  std::string     other_dlg;
 
   // mediation stuff
-  vector<FilterEntry> headerfilter;
-  string              append_headers;
-  ReplyTranslationMap reply_translations;
-  bool                transparent_dlg_id;
-  bool                keep_vias;
-  bool                fix_replaces_ref;
+  std::vector<FilterEntry> headerfilter;
+  std::string              append_headers;
+  ReplyTranslationMap      reply_translations;
+  bool                     transparent_dlg_id;
+  bool                     keep_vias;
+  bool                     fix_replaces_ref;
 
   bool finished;
 
@@ -81,7 +79,7 @@ class SimpleRelayDialog
   int relayReply(const AmSipReply& reply);
 
  protected:
-  typedef map<unsigned int, unsigned int> RelayMap;
+  typedef std::map<unsigned int, unsigned int> RelayMap;
   RelayMap relayed_reqs;
 
   // AmEventHandler
@@ -90,7 +88,8 @@ class SimpleRelayDialog
   // AmEventQueue
   bool processingCycle();
 
-  void initCCModules(SBCCallProfile& profile, vector<AmDynInvoke*>& cc_modules);
+  void initCCModules(SBCCallProfile&            profile,
+                     std::vector<AmDynInvoke*>& cc_modules);
 
   virtual void onB2BRequest(const AmSipRequest& req);
   virtual void onB2BReply(const AmSipReply& reply);
@@ -100,8 +99,9 @@ class SimpleRelayDialog
   virtual void terminate() { finished = true; }
 
  public:
-  SimpleRelayDialog(SBCCallProfile& profile, vector<AmDynInvoke*>& cc_modules,
-                    atomic_ref_cnt* parent_obj = NULL);
+  SimpleRelayDialog(SBCCallProfile&            profile,
+                    std::vector<AmDynInvoke*>& cc_modules,
+                    atomic_ref_cnt*            parent_obj = NULL);
   SimpleRelayDialog(atomic_ref_cnt* parent_obj = NULL);
   ~SimpleRelayDialog();
 
@@ -112,19 +112,22 @@ class SimpleRelayDialog
     parent_obj = p_obj;
   }
 
-  void setOtherDlg(const string& dlg) { other_dlg = dlg; }
+  void setOtherDlg(const std::string& dlg) { other_dlg = dlg; }
 
-  const string& getOtherDlg() { return other_dlg; }
+  const std::string& getOtherDlg() { return other_dlg; }
 
   void setKeepVias(bool kv) { keep_vias = kv; }
 
   bool getKeepVias() { return keep_vias; }
 
-  vector<FilterEntry>&       getHeaderFilter() { return headerfilter; }
-  const vector<FilterEntry>& getHeaderFilter() const { return headerfilter; }
+  std::vector<FilterEntry>&       getHeaderFilter() { return headerfilter; }
+  const std::vector<FilterEntry>& getHeaderFilter() const
+  {
+    return headerfilter;
+  }
 
-  string&       getAppendHeaders() { return append_headers; }
-  const string& getAppendHeaders() const { return append_headers; }
+  std::string&       getAppendHeaders() { return append_headers; }
+  const std::string& getAppendHeaders() const { return append_headers; }
 
   ReplyTranslationMap& getReplyTranslations() { return reply_translations; }
   const ReplyTranslationMap& getReplyTranslations() const

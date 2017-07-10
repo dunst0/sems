@@ -1,5 +1,5 @@
-#ifndef __SBC_EVENTS_H
-#define __SBC_EVENTS_H
+#ifndef _SBC_EVENTS_H_
+#define _SBC_EVENTS_H_
 
 #include "CallLeg.h"
 

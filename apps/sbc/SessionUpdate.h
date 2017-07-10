@@ -1,8 +1,9 @@
-#ifndef __SESSION_UPDATE_H
-#define __SESSION_UPDATE_H
+#ifndef _SESSIONUPDATE_H_
+#define _SESSIONUPDATE_H_
 
 #include "AmAppTimer.h"
 #include "AmMimeBody.h"
+
 #include <string>
 
 class CallLeg;

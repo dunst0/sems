@@ -1,5 +1,5 @@
-#ifndef _SBCCallControlAPI_h_
-#define _SBCCallControlAPI_h_
+#ifndef _SBCCALLCONTROLAPI_H_
+#define _SBCCALLCONTROLAPI_H_
 
 #include "AmEvent.h"
 
@@ -74,17 +74,17 @@ struct SBCCallTimerEvent : public AmEvent
 #define SBCControlEvent_ID -564
 struct SBCControlEvent : public AmEvent
 {
-  string cmd;
-  AmArg  params;
+  std::string cmd;
+  AmArg       params;
 
-  SBCControlEvent(const string& cmd, const AmArg& params)
+  SBCControlEvent(const std::string& cmd, const AmArg& params)
       : AmEvent(SBCControlEvent_ID)
       , cmd(cmd)
       , params(params)
   {
   }
 
-  SBCControlEvent(const string& cmd)
+  SBCControlEvent(const std::string& cmd)
       : AmEvent(SBCControlEvent_ID)
       , cmd(cmd)
   {

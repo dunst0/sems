@@ -23,8 +23,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _ReplacesMapper_H
-#define _ReplacesMapper_H
+#ifndef _REPLACESMAPPER_H_
+#define _REPLACESMAPPER_H_
 
 #include "AmSipMsg.h"
 #include "SBCCallRegistry.h"
