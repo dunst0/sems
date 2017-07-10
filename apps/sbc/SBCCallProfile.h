@@ -177,10 +177,10 @@ struct SBCCallProfile : public AmObject
   std::vector<FilterEntry> headerfilter;
   std::vector<FilterEntry> messagefilter;
 
-  bool                anonymize_sdp;
+  bool                     anonymize_sdp;
   std::vector<FilterEntry> sdpfilter;
   std::vector<FilterEntry> aleg_sdpfilter;
-  bool                have_aleg_sdpfilter;
+  bool                     have_aleg_sdpfilter;
   std::vector<FilterEntry> sdpalinesfilter;
   std::vector<FilterEntry> mediafilter;
 

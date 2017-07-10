@@ -40,6 +40,7 @@
 
 using std::vector;
 using std::string;
+using std::pair;
 
 typedef vector<SdpPayload>::iterator PayloadIterator;
 static string payload2str(const SdpPayload& p);
@@ -620,7 +621,7 @@ bool SBCCallProfile::readFromConfiguration(const string& name,
 
     if (reply_translations.size()) {
       string reply_trans_codes;
-      for (map<unsigned int, std::pair<unsigned int, string>>::iterator it =
+      for (std::map<unsigned int, pair<unsigned int, string>>::iterator it =
                reply_translations.begin();
            it != reply_translations.end(); it++)
         reply_trans_codes += int2str(it->first) + ", ";
