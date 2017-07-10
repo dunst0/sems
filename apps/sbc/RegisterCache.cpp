@@ -13,7 +13,7 @@
 
 using std::pair;
 using std::make_pair;
-using std::std::vector;
+using std::vector;
 
 #define REG_CACHE_CYCLE 10L /* 10 seconds to expire all buckets */
 
