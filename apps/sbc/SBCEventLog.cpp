@@ -23,12 +23,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "SBCEventLog.h"
-#include "AmAppTimer.h"
 
+#include "AmAppTimer.h"
 #include "AmArg.h"
 #include "AmSessionContainer.h" // monitoring ptr
 #include "AmUriParser.h"
 #include "ampi/MonitoringAPI.h"
+
+using std::string;
 
 struct MonitoringEventLogHandler : public SBCEventLogHandler
 {
