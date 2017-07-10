@@ -174,15 +174,15 @@ struct SBCCallProfile : public AmObject
 
   bool allow_subless_notify;
 
-  vector<FilterEntry> headerfilter;
-  vector<FilterEntry> messagefilter;
+  std::vector<FilterEntry> headerfilter;
+  std::vector<FilterEntry> messagefilter;
 
   bool                anonymize_sdp;
-  vector<FilterEntry> sdpfilter;
-  vector<FilterEntry> aleg_sdpfilter;
+  std::vector<FilterEntry> sdpfilter;
+  std::vector<FilterEntry> aleg_sdpfilter;
   bool                have_aleg_sdpfilter;
-  vector<FilterEntry> sdpalinesfilter;
-  vector<FilterEntry> mediafilter;
+  std::vector<FilterEntry> sdpalinesfilter;
+  std::vector<FilterEntry> mediafilter;
 
   std::string    sst_enabled;
   bool           sst_enabled_value;
