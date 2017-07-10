@@ -147,7 +147,7 @@ template <typename T> class SampleArray
   /**
    * @param buf_size buffer size in [samples].
    */
-  void get(unsigned int ts, T* buffer, unsigned int buf_size)
+  void get(unsigned int ts, T* buffer, unsigned int size)
   {
     // assert(size <= SIZE_MIX_BUFFER);
 
