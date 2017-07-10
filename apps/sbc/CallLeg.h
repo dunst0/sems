@@ -23,8 +23,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef __AMB2BCALL_H
-#define __AMB2BCALL_H
+
+#ifndef _CALLLEG_H_
+#define _CALLLEG_H_
 
 #include "AmB2BSession.h"
 #include "AmSessionContainer.h"
@@ -108,26 +109,31 @@ class CallLeg : public AmB2BSession
       const AmSipRequest* request;
       const char*         desc;
     } param;
+
     StatusChangeCause(const AmSipReply* r)
         : reason(SipReply)
     {
       param.reply = r;
     }
+
     StatusChangeCause(const AmSipRequest* r)
         : reason(SipRequest)
     {
       param.request = r;
     }
+
     StatusChangeCause()
         : reason(Other)
     {
       param.desc = NULL;
     }
+
     StatusChangeCause(const char* desc)
         : reason(Other)
     {
       param.desc = desc;
     }
+
     StatusChangeCause(const Reason r)
         : reason(r)
     {
@@ -142,7 +148,7 @@ class CallLeg : public AmB2BSession
   struct OtherLegInfo
   {
     /** local tag of the B leg */
-    string id;
+    std::string id;
 
     /** once the B leg gets connected to the A leg A leg starts to use its
      * corresponding media_session created when the B leg is added to the list
@@ -184,7 +190,7 @@ class CallLeg : public AmB2BSession
   // generate re-INVITE with given parameters (establishing means that the
   // INVITE is establishing a connection between two legs)
   // returns the request CSeq or -1 upon error
-  int reinvite(const string& hdrs, const AmMimeBody& body, bool relayed,
+  int reinvite(const std::string& hdrs, const AmMimeBody& body, bool relayed,
                unsigned r_cseq, bool establishing);
 
   // put on hold directly, returns CSeq of hold request or -1 if no request
@@ -216,10 +222,10 @@ class CallLeg : public AmB2BSession
   void terminateNotConnectedLegs();
 
   /** choose given B leg from the list of other B legs */
-  bool setOther(const string& id, bool use_initial_sdp);
+  bool setOther(const std::string& id, bool use_initial_sdp);
 
   /** remove given leg from the list of other legs */
-  void removeOtherLeg(const string& id);
+  void removeOtherLeg(const std::string& id);
 
   void updateCallStatus(CallStatus               new_status,
                         const StatusChangeCause& cause = StatusChangeCause());
@@ -261,7 +267,7 @@ class CallLeg : public AmB2BSession
   void addNewCallee(CallLeg* callee, ConnectLegEvent* e,
                     AmB2BSession::RTPRelayMode mode);
 
-  void addExistingCallee(const string& session_tag, ReconnectLegEvent* e);
+  void addExistingCallee(const std::string& session_tag, ReconnectLegEvent* e);
 
   /** Clears other leg, eventually removes it from the list of other legs if
    * it is there. It neither updates call state nor sip_relay_only flag! */
@@ -395,8 +401,9 @@ class CallLeg : public AmB2BSession
   }
 
   /** add given already existing session as our B leg */
-  void addCallee(const string& session_tag, const AmSipRequest& relayed_invite);
-  void addCallee(const string& session_tag, const string& hdrs)
+  void addCallee(const std::string&  session_tag,
+                 const AmSipRequest& relayed_invite);
+  void addCallee(const std::string& session_tag, const std::string& hdrs)
   {
     addExistingCallee(session_tag,
                       new ReconnectLegEvent(
@@ -409,16 +416,17 @@ class CallLeg : public AmB2BSession
    * Can be used in A leg and B leg as well.
    * Additional headers may be specified - these are used in outgoing INVITE
    * to the callee's destination. */
-  void addCallee(CallLeg* callee, const string& hdrs);
+  void addCallee(CallLeg* callee, const std::string& hdrs);
   //    void addCallee(CallLeg *callee, const string &hdrs,
   //    AmB2BSession::RTPRelayMode mode) { addNewCallee(callee, new
   //    ConnectLegEvent(hdrs, established_body), mode); }
 
   /** Replace given already existing session in a B2B call. We become new
    * A leg there regardless if we are replacing original A or B leg. */
-  void replaceExistingLeg(const string&       session_tag,
+  void replaceExistingLeg(const std::string&  session_tag,
                           const AmSipRequest& relayed_invite);
-  void replaceExistingLeg(const string& session_tag, const string& hdrs);
+  void replaceExistingLeg(const std::string& session_tag,
+                          const std::string& hdrs);
 
   /** generate debug information into log with overall call leg status */
   void debug();
