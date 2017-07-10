@@ -44,7 +44,9 @@ string CallBackFactory::auth_pwd;
 
 CallBackFactory::CallBackFactory(const string& _app_name)
     : AmSessionFactory(_app_name)
-    , configured(false)
+    // UNUSED
+    // , configured(false)
+    // UNUSED_END
 {
 }
 
