@@ -59,7 +59,7 @@ class DSMCall
   bool process_invite;
   bool process_sessionstart;
 
-  std :.vector<AmAudio*> audiofiles;
+  std::vector<AmAudio*> audiofiles;
   AmAudioFile*           rec_file;
   std::map<std::string, AmPromptCollection*> prompt_sets;
   std::set<AmPromptCollection*> used_prompt_sets;
