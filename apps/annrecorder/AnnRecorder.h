@@ -26,80 +26,79 @@
 #ifndef _ANNRECORDER_H_
 #define _ANNRECORDER_H_
 
-#include "AmSession.h"
 #include "AmAudioFile.h"
 #include "AmConfigReader.h"
-
+#include "AmPromptCollection.h"
+#include "AmSession.h"
 #include "AmUACAuth.h"
 
-#include "AmPromptCollection.h"
-
-#include <string>
-using std::string;
 #include <map>
-
 #include <memory>
+#include <string>
 
 // prompts used
 
 //"Welcome to iptel dot org voip service."
-#define WELCOME              "welcome"
+#define WELCOME "welcome"
 // "Your auto attendant greeting sounds like this: -"
-#define YOUR_PROMPT           "your_prompt"
-// "To record a new auto attendant greeting, press any key. End recording with any key. -"
-#define TO_RECORD       "to_record"
+#define YOUR_PROMPT "your_prompt"
+// "To record a new auto attendant greeting, press any key. End recording with
+// any key. -"
+#define TO_RECORD "to_record"
 //"Press one to keep the new greeting, or two to record a new one. -"
-#define CONFIRM               "confirm"
+#define CONFIRM "confirm"
 // "Your new auto attendant greeting has been set."
-#define GREETING_SET          "greeting_set"
+#define GREETING_SET "greeting_set"
 // "Thank you for using the iptel dot org service. Good Bye. - "
-#define BYE                   "bye"
-#define BEEP                  "beep"
+#define BYE "bye"
+#define BEEP "beep"
 
 #define ANNREC_ANNOUNCE_PATH "/usr/local/lib/sems/audio/annrecorder/"
 
 /** \brief Factory for announcement sessions */
-class AnnRecorderFactory: public AmSessionFactory
+class AnnRecorderFactory : public AmSessionFactory
 {
-  void getAppParams(const AmSipRequest& req, std::map<string, string>& params);
+  void getAppParams(const AmSipRequest& req,
+                    std::map<std::string, std::string>& params);
   AmPromptCollection prompts;
 
-public:
+ public:
   static AmDynInvokeFactory* message_storage_fact;
 
-  static string AnnouncePath;
-  static string DefaultAnnounce;
-  static bool   SimpleMode;
+  static std::string AnnouncePath;
+  static std::string DefaultAnnounce;
+  static bool        SimpleMode;
 
-  AnnRecorderFactory(const string& _app_name);
+  AnnRecorderFactory(const std::string& _app_name);
 
-  int onLoad();
-  AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-		      const map<string,string>& app_params);
-  AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-		      AmArg& session_params);
-
+  int        onLoad();
+  AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
+                      const std::map<std::string, std::string>&   app_params);
+  AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
+                      AmArg& session_params);
 };
 
 /**\brief  announcement session logic implementation */
-class AnnRecorderDialog : public AmSession,
-			  public CredentialHolder
+class AnnRecorderDialog
+    : public AmSession
+    , public CredentialHolder
 {
   AmPromptCollection& prompts;
-  AmPlaylist playlist;
+  AmPlaylist          playlist;
   // we need only one separator in queue
   unique_ptr<AmPlaylistSeparator> playlist_separator;
 
   AmAudioFile wav_file;
-  std::map<string, string> params;
+  std::map<std::string, std::string> params;
 
-  string msg_filename; // recorded file
+  std::string msg_filename; // recorded file
 
   AmDynInvoke* msg_storage;
 
   std::unique_ptr<UACAuthCred> cred;
 
-  enum AnnRecorderState {
+  enum AnnRecorderState
+  {
     S_WAIT_START,
     S_BYE,
     S_RECORDING,
@@ -107,18 +106,18 @@ class AnnRecorderDialog : public AmSession,
   };
 
   AnnRecorderState state;
-  void enqueueCurrent();
-  void saveAndConfirm();
-  void replayRecording();
+  void             enqueueCurrent();
+  void             saveAndConfirm();
+  void             replayRecording();
   void enqueueSeparator(int id);
 
   FILE* getCurrentMessage();
   void saveMessage(FILE* fp);
 
-public:
-  AnnRecorderDialog(const std::map<string, string>& params,
-		    AmPromptCollection& prompts,
-		    UACAuthCred* credentials = NULL);
+ public:
+  AnnRecorderDialog(const std::map<std::string, std::string>& params,
+                    AmPromptCollection& prompts,
+                    UACAuthCred*        credentials = NULL);
   ~AnnRecorderDialog();
 
   void onSessionStart();

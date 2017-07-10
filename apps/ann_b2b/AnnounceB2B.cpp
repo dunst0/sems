@@ -95,8 +95,8 @@ AmSession* AnnounceB2BFactory::onInvite(const AmSipRequest& req,
 }
 
 AnnounceCallerDialog::AnnounceCallerDialog(const string& filename)
-    : filename(filename)
-    , AmB2BCallerSession()
+    : AmB2BCallerSession()
+    , filename(filename)
 {
   // we want to answer
   //  the call ourself

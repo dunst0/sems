@@ -19,52 +19,55 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef _ANNOUNCETRANSFER_H_
 #define _ANNOUNCETRANSFER_H_
 
-#include "AmSession.h"
 #include "AmAudioFile.h"
 #include "AmConfigReader.h"
+#include "AmSession.h"
 
+#include <map>
 #include <string>
-using std::string;
 
 /** \brief session factory for announce_transfer sessions */
-class AnnounceTransferFactory: public AmSessionFactory
+class AnnounceTransferFactory : public AmSessionFactory
 {
-public:
-  static string AnnouncePath;
-  static string AnnounceFile;
+ public:
+  static std::string AnnouncePath;
+  static std::string AnnounceFile;
 
-  AnnounceTransferFactory(const string& _app_name);
+  AnnounceTransferFactory(const std::string& _app_name);
 
-  int onLoad();
-  AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-		      const map<string,string>& app_params);
+  int        onLoad();
+  AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
+                      const std::map<std::string, std::string>&   app_params);
 };
 
 /** \brief session logic implementation for announce_transfer sessions */
 class AnnounceTransferDialog : public AmSession
 {
-  string callee_uri;
+  std::string callee_uri;
 
   AmAudioFile wav_file;
-  string filename;
+  std::string filename;
 
   unsigned int status;
 
-  enum  { Disconnected = 0,
-	  Announcing,
-	  Transfering,
-	  Hangup        // remote hangup 
-  } AnnounceStatus; 
-public:
-  AnnounceTransferDialog(const string& filename);
+  enum
+  {
+    Disconnected = 0,
+    Announcing,
+    Transfering,
+    Hangup // remote hangup
+  } AnnounceStatus;
+
+ public:
+  AnnounceTransferDialog(const std::string& filename);
   ~AnnounceTransferDialog();
 
   void onInvite(const AmSipRequest& req);
@@ -72,15 +75,11 @@ public:
   void startSession();
   void onBye(const AmSipRequest& req);
   void onSipRequest(const AmSipRequest& req);
-  void onSipReply(const AmSipRequest& req, const AmSipReply& rep, 
-		  AmBasicSipDialog::Status old_dlg_status);
+  void onSipReply(const AmSipRequest& req, const AmSipReply& rep,
+                  AmBasicSipDialog::Status old_dlg_status);
   void onDtmf(int event, int duration_msec) {}
 
   void process(AmEvent* event);
 };
 
 #endif
-// Local Variables:
-// mode:C++
-// End:
-
