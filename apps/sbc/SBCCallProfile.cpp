@@ -110,7 +110,7 @@ static string payload2str(const SdpPayload& p);
     if (what == "default")                                                     \
       iface = 0;                                                               \
     else {                                                                     \
-      map<string, unsigned short>::iterator name_it =                          \
+      std::map<string, unsigned short int>::iterator name_it =                          \
           AmConfig::RTP_If_names.find(what);                                   \
       if (name_it != AmConfig::RTP_If_names.end())                             \
         iface = name_it->second;                                               \
@@ -133,7 +133,7 @@ static string payload2str(const SdpPayload& p);
         if (what == "default")                                                 \
           iface = 0;                                                           \
         else {                                                                 \
-          map<string, unsigned short>::iterator name_it =                      \
+          std::map<string, unsigned short int>::iterator name_it =                      \
               AmConfig::SIP_If_names.find(what);                               \
           if (name_it != AmConfig::RTP_If_names.end())                         \
             iface = name_it->second;                                           \
@@ -764,7 +764,7 @@ string SBCCallProfile::print() const
 
   if (reply_translations.size()) {
     string reply_trans_codes;
-    for (map<unsigned int, std::pair<unsigned int, string>>::const_iterator it =
+    for (std::map<unsigned int, pair<unsigned int, string>>::const_iterator it =
              reply_translations.begin();
          it != reply_translations.end(); it++)
       reply_trans_codes += int2str(it->first) + "=>" + int2str(it->second.first)
@@ -933,7 +933,7 @@ bool SBCCallProfile::evaluateOutboundInterface()
     outbound_interface_value = 0;
   }
   else {
-    map<string, unsigned short>::iterator name_it =
+    std::map<string, unsigned short int>::iterator name_it =
         AmConfig::SIP_If_names.find(outbound_interface);
     if (name_it != AmConfig::RTP_If_names.end()) {
       outbound_interface_value = name_it->second;
@@ -968,7 +968,7 @@ static int apply_outbound_interface(const string& oi, AmBasicSipDialog& dlg)
   if (oi == "default")
     dlg.setOutboundInterface(0);
   else {
-    map<string, unsigned short>::iterator name_it =
+    std::map<string, unsigned short int>::iterator name_it =
         AmConfig::SIP_If_names.find(oi);
     if (name_it != AmConfig::SIP_If_names.end()) {
       dlg.setOutboundInterface(name_it->second);
@@ -1104,7 +1104,7 @@ void SBCCallProfile::replace_cc_values(ParamReplacerCtx&   ctx,
     DBG("processing replacements for call control interface '%s'\n",
         cc_if.cc_name.c_str());
 
-    for (map<string, string>::iterator it = cc_if.cc_values.begin();
+    for (std::map<string, string>::iterator it = cc_if.cc_values.begin();
          it != cc_if.cc_values.end(); it++) {
       it->second = ctx.replaceParameters(it->second, it->first.c_str(), req);
       if (values) (*values)[it->first] = it->second;
@@ -1952,8 +1952,8 @@ bool SBCCallProfile::BLegContact::evaluate(ParamReplacerCtx&   ctx,
   REPLACE_NONEMPTY_STR(uri_param);
   REPLACE_NONEMPTY_STR(display_name);
 
-  for (map<string, string>::iterator it = params.begin(); it != params.end();
-       ++it) {
+  for (std::map<string, string>::iterator it = params.begin(); it != params.end();
+       it++) {
     REPLACE_NONEMPTY_STR(it->second);
   }
   return true;
