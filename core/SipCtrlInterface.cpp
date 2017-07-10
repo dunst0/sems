@@ -56,6 +56,8 @@
 
 #include <assert.h>
 
+using std::string;
+
 bool _SipCtrlInterface::log_parsed_messages = true;
 int  _SipCtrlInterface::udp_rcvbuf          = -1;
 
