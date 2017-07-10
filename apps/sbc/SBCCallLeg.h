@@ -25,7 +25,7 @@
  */
 
 #ifndef _SBCCALLLEG_H_
-#define _SBCCALL_LEG_H_
+#define _SBCCALLLEG_H_
 
 #include "ExtendedCCInterface.h"
 #include "RateLimit.h"
