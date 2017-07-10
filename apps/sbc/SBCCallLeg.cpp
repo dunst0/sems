@@ -53,6 +53,7 @@
 using std::string;
 using std::vector;
 using std::map;
+using std::pair;
 
 #define TRACE DBG
 
@@ -109,10 +110,13 @@ int PayloadIdMapping::get(int stream_index, int payload_index)
 {
   map<int, int>::iterator i =
       mapping.find(MAP_INDEXES(stream_index, payload_index));
-  if (i != mapping.end())
+
+  if (i != mapping.end()) {
     return i->second;
-  else
+  }
+  else {
     return -1;
+  }
 }
 
 void PayloadIdMapping::reset() { mapping.clear(); }
