@@ -232,10 +232,10 @@ AmSession* AnnRecorderFactory::onInvite(const AmSipRequest& req,
 AnnRecorderDialog::AnnRecorderDialog(const map<string, string>& params,
                                      AmPromptCollection& prompts,
                                      UACAuthCred*        credentials)
-    : params(params)
-    , prompts(prompts)
-    , cred(credentials)
+    : prompts(prompts)
     , playlist(this)
+    , params(params)
+    , cred(credentials)
 {
   msg_storage = AnnRecorderFactory::message_storage_fact->getInstance();
   if (!msg_storage) {
