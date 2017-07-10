@@ -32,6 +32,7 @@
 #include <algorithm>
 
 using std::vector;
+using std::string;
 
 int filterSDP(AmSdp& sdp, const vector<FilterEntry>& filter_list)
 {
