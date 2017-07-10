@@ -26,6 +26,7 @@
  */
 
 #include "SubscriptionDialog.h"
+
 #include "AmB2BSession.h"
 #include "AmEventDispatcher.h"
 #include "AmEventQueueProcessor.h"
@@ -78,7 +79,7 @@ bool SubscriptionDialog::terminated() { return !(getUsages() > 0); }
 bool SubscriptionDialog::getMappedReferID(unsigned int  refer_id,
                                           unsigned int& mapped_id) const
 {
-  map<unsigned int, unsigned int>::const_iterator id_it =
+  std::map<unsigned int, unsigned int>::const_iterator id_it =
       refer_id_map.find(refer_id);
   if (id_it != refer_id_map.end()) {
     mapped_id = id_it->second;
