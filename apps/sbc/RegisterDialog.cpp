@@ -13,6 +13,7 @@ using std::make_pair;
 using std::string;
 using std::vector;
 using std::list;
+using std::map;
 
 #define DEFAULT_REG_EXPIRES 3600
 
