@@ -50,6 +50,7 @@ using std::string;
 using std::stable_sort;
 using std::vector;
 using std::unique_ptr;
+using std::map;
 
 volatile unsigned int           AmSession::session_num = 0;
 AmMutex                         AmSession::session_num_mut;
