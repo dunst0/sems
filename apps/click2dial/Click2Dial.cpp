@@ -37,6 +37,7 @@
 
 using std::map;
 using std::string;
+using std::vector;
 
 #define MOD_NAME "click2dial"
 
