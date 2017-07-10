@@ -104,12 +104,16 @@ class SCStrArgAction : public DSMAction
 #define DEF_SCModSEStrArgAction(CL_Name)                                       \
   class CL_Name : public SCStrArgAction                                        \
   {                                                                            \
+    /* UNUSED                                                                  \
     bool is_evaluated;                                                         \
+    UNUSED_END */                                                              \
                                                                                \
    public:                                                                     \
     CL_Name(const string& arg)                                                 \
         : SCStrArgAction(arg)                                                  \
-        , is_evaluated(false)                                                  \
+    /* UNUSED                                                                  \
+    , is_evaluated(false)                                                      \
+    UNUSED_END */                                                              \
     {                                                                          \
     }                                                                          \
     bool execute(AmSession* sess, DSMSession* sc_sess,                         \
