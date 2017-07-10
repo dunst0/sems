@@ -32,6 +32,8 @@
 #include "SBC.h"
 #include "sbc_events.h"
 
+#include <map>
+
 class PayloadIdMapping
 {
  private:

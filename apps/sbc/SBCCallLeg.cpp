@@ -54,6 +54,7 @@ using std::string;
 using std::vector;
 using std::map;
 using std::pair;
+using std::list;
 
 #define TRACE DBG
 
