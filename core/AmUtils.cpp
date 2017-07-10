@@ -53,6 +53,7 @@
 
 using std::string;
 using std::vector;
+using std::map;
 
 static char _int2str_lookup[] = {'0', '1', '2', '3', '4',
                                  '5', '6', '7', '8', '9'};
