@@ -36,8 +36,6 @@
 
 #include <list>
 
-using std::list;
-
 inline int copy_hdr_len(sip_header* hdr)
 {
   return hdr->name.len + hdr->value.len + 4; /* ': ' + CRLF */
@@ -174,11 +172,11 @@ inline void content_type_wr(char** c, const cstring& len)
   *((*c)++) = LF;
 }
 
-int copy_hdrs_len(const list<sip_header*>& hdrs);
-int copy_hdrs_len_no_via_contact(const list<sip_header*>& hdrs);
+int copy_hdrs_len(const std::list<sip_header*>& hdrs);
+int copy_hdrs_len_no_via_contact(const std::list<sip_header*>& hdrs);
 
-void copy_hdrs_wr(char** c, const list<sip_header*>& hdrs);
-void copy_hdrs_wr_no_via(char** c, const list<sip_header*>& hdrs);
-void copy_hdrs_wr_no_via_contact(char** c, const list<sip_header*>& hdrs);
+void copy_hdrs_wr(char** c, const std::list<sip_header*>& hdrs);
+void copy_hdrs_wr_no_via(char** c, const std::list<sip_header*>& hdrs);
+void copy_hdrs_wr_no_via_contact(char** c, const std::list<sip_header*>& hdrs);
 
 #endif

@@ -29,6 +29,8 @@
 
 #include "msg_hdrs.h"
 
+using std::list;
+
 int copy_hdrs_len(const list<sip_header*>& hdrs)
 {
   int ret = 0;

@@ -37,6 +37,8 @@
 #include <netinet/in.h>
 #include <sys/time.h>
 
+using std::string;
+
 // per RFC this is 5000ms, but in reality then
 // one needs to wait 5 sec on the first keypress
 // (e.g. due to a bug on recent snoms)
