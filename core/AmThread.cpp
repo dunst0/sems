@@ -103,7 +103,7 @@ void AmThread::start()
   // DBG("Thread %lu is just created.\n", (unsigned long int) _pid);
 }
 
-void AmThread::stop()
+void AmThread::stop(bool detach = true)
 {
   _m_td.lock();
 
@@ -122,25 +122,25 @@ void AmThread::stop()
   catch (...) {
   }
 
-  int res;
-  if ((res = pthread_detach(_td)) != 0) {
-    if (res == EINVAL) {
-      WARN("pthread_detach failed with code EINVAL: thread already in detached "
-           "state.\n");
+  if (detach) {
+    int res;
+    if ((res = pthread_detach(_td)) != 0) {
+      if (res == EINVAL) {
+        WARN("pthread_detach failed with code EINVAL: thread already in "
+             "detached state.\n");
+      }
+      else if (res == ESRCH) {
+        WARN("pthread_detach failed with code ESRCH: thread could not be "
+             "found.\n");
+      }
+      else {
+        WARN("pthread_detach failed with code %i\n", res);
+      }
     }
-    else if (res == ESRCH) {
-      WARN("pthread_detach failed with code ESRCH: thread could not be "
-           "found.\n");
-    }
-    else {
-      WARN("pthread_detach failed with code %i\n", res);
-    }
+
+    DBG("Thread %lu (%lu) finished detach.\n", (unsigned long int) _pid,
+        (unsigned long int) _td);
   }
-
-  DBG("Thread %lu (%lu) finished detach.\n", (unsigned long int) _pid,
-      (unsigned long int) _td);
-
-  // pthread_cancel(_td);
 
   _m_td.unlock();
 }
@@ -161,9 +161,32 @@ void AmThread::cancel()
   _m_td.unlock();
 }
 
+void AmThread::detach()
+{
+  if (!is_stopped()) {
+    int res;
+
+    if ((res = pthread_detach(_td)) != 0) {
+      if (res == EINVAL) {
+        WARN("pthread_detach failed with code EINVAL: thread already in "
+             "detached state.\n");
+      }
+      else if (res == ESRCH) {
+        WARN("pthread_detach failed with code ESRCH: thread could not be "
+             "found.\n");
+      }
+      else {
+        WARN("pthread_detach failed with code %i\n", res);
+      }
+    }
+  }
+}
+
 void AmThread::join()
 {
-  if (!is_stopped()) pthread_join(_td, NULL);
+  if (!is_stopped()) {
+    pthread_join(_td, NULL);
+  }
 }
 
 int AmThread::setRealtime()

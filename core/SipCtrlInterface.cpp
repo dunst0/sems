@@ -29,11 +29,16 @@
 
 #include "SipCtrlInterface.h"
 
+#include "AmApi.h"
+#include "AmConfigReader.h"
+#include "AmEventDispatcher.h"
 #include "AmMimeBody.h"
+#include "AmSipDispatcher.h"
+#include "AmSipEvent.h"
 #include "AmSipHeaders.h"
 #include "AmSipMsg.h"
 #include "AmUtils.h"
-
+#include "log.h"
 #include "sip/ip_util.h"
 #include "sip/msg_hdrs.h"
 #include "sip/parse_100rel.h"
@@ -49,15 +54,7 @@
 #include "sip/udp_trsp.h"
 #include "sip/wheeltimer.h"
 
-#include "log.h"
-
 #include <assert.h>
-
-#include "AmApi.h"
-#include "AmConfigReader.h"
-#include "AmEventDispatcher.h"
-#include "AmSipDispatcher.h"
-#include "AmSipEvent.h"
 
 bool _SipCtrlInterface::log_parsed_messages = true;
 int  _SipCtrlInterface::udp_rcvbuf          = -1;
@@ -409,7 +406,7 @@ void _SipCtrlInterface::cleanup()
 
   if (NULL != udp_servers) {
     for (int i = 0; i < nr_udp_servers; i++) {
-      udp_servers[i]->stop();
+      udp_servers[i]->stop(false);
       udp_servers[i]->join();
       delete udp_servers[i];
     }
@@ -421,7 +418,7 @@ void _SipCtrlInterface::cleanup()
 
   if (NULL != tcp_servers) {
     for (int i = 0; i < nr_tcp_servers; i++) {
-      tcp_servers[i]->stop();
+      tcp_servers[i]->stop(false);
       tcp_servers[i]->join();
       delete tcp_servers[i];
     }

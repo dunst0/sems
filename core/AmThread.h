@@ -223,9 +223,11 @@ class AmThread
   /** Start it ! */
   void start();
   /** Stop it ! */
-  void stop();
+  void stop(bool detach = true);
   /** @return true if this thread doesn't run. */
   bool is_stopped() { return _stopped.get(); }
+  /** detach this thread, after that the thread can't be joined */
+  void detach();
   /** Wait for this thread to finish */
   void join();
   /** kill the thread (if pthread_setcancelstate(PTHREAD_CANCEL_ENABLED) has

@@ -35,8 +35,6 @@
 
 #include <list>
 #include <string>
-using std::string;
-using std::list;
 
 class AmSipRequest;
 class AmSipReply;
@@ -57,8 +55,10 @@ class _SipCtrlInterface : public sip_ua
                           AmSipRequest& request);
   bool sip_msg2am_reply(sip_msg* msg, AmSipReply& reply);
 
-  void prepare_routes_uac(const list<sip_header*>& routes, string& route_field);
-  void prepare_routes_uas(const list<sip_header*>& routes, string& route_field);
+  void prepare_routes_uac(const std::list<sip_header*>& routes,
+                          std::string&                  route_field);
+  void prepare_routes_uas(const std::list<sip_header*>& routes,
+                          std::string&                  route_field);
 
   friend class udp_trsp;
 
@@ -83,7 +83,7 @@ class _SipCtrlInterface : public sip_ua
   int init_tcp_servers(int if_num);
 
  public:
-  static string       outbound_host;
+  static std::string  outbound_host;
   static unsigned int outbound_port;
   static bool         log_parsed_messages;
   static int          udp_rcvbuf;
@@ -103,8 +103,8 @@ class _SipCtrlInterface : public sip_ua
    * @param req The request to send. If the request creates a transaction,
    *            its ticket is written into req.tt.
    */
-  static int send(AmSipRequest& req, const string& dialog_id,
-                  const string& next_hop = "", int outbound_interface = -1,
+  static int send(AmSipRequest& req, const std::string& dialog_id,
+                  const std::string& next_hop = "", int outbound_interface = -1,
                   unsigned int flags = 0, msg_logger* logger = NULL);
 
   /**
@@ -113,7 +113,7 @@ class _SipCtrlInterface : public sip_ua
    * @param rep The reply to be sent. 'rep.tt' should be set to transaction
    *            ticket included in the SIP request.
    */
-  static int send(const AmSipReply& rep, const string& dialog_id,
+  static int send(const AmSipReply& rep, const std::string& dialog_id,
                   msg_logger* logger = NULL);
 
   /**
@@ -121,14 +121,14 @@ class _SipCtrlInterface : public sip_ua
    *
    * @param tt transaction ticket of the request to cancel.
    */
-  static int cancel(trans_ticket* tt, const string& dialog_id,
-                    unsigned int inv_cseq, const string& hdrs);
+  static int cancel(trans_ticket* tt, const std::string& dialog_id,
+                    unsigned int inv_cseq, const std::string& hdrs);
 
   /**
    * From sip_ua
    */
   void handle_sip_request(const trans_ticket& tt, sip_msg* msg);
-  void handle_sip_reply(const string& dialog_id, sip_msg* msg);
+  void handle_sip_reply(const std::string& dialog_id, sip_msg* msg);
   void handle_reply_timeout(AmSipTimeoutEvent::EvType evt, sip_trans* tr,
                             trans_bucket* buk = 0);
 };
