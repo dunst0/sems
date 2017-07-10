@@ -173,10 +173,10 @@ AmSession* Click2DialFactory::onInvite(const AmSipRequest& req,
 C2DCallerDialog::C2DCallerDialog(const AmSipRequest& req,
                                  const string& filename, const string& c_uri,
                                  UACAuthCred* credentials)
-    : filename(filename)
+    : AmB2BCallerSession()
+    , filename(filename)
     , callee_uri(c_uri)
     , cred(credentials)
-    , AmB2BCallerSession()
 {
   set_sip_relay_only(false);
   set_sip_relay_early_media_sdp(Click2DialFactory::relay_early_media_sdp);
