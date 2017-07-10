@@ -110,7 +110,7 @@ static string payload2str(const SdpPayload& p);
     if (what == "default")                                                     \
       iface = 0;                                                               \
     else {                                                                     \
-      std::map<string, unsigned short int>::iterator name_it =                          \
+      std::map<string, unsigned short int>::iterator name_it =                 \
           AmConfig::RTP_If_names.find(what);                                   \
       if (name_it != AmConfig::RTP_If_names.end())                             \
         iface = name_it->second;                                               \
@@ -133,7 +133,7 @@ static string payload2str(const SdpPayload& p);
         if (what == "default")                                                 \
           iface = 0;                                                           \
         else {                                                                 \
-          std::map<string, unsigned short int>::iterator name_it =                      \
+          std::map<string, unsigned short int>::iterator name_it =             \
               AmConfig::SIP_If_names.find(what);                               \
           if (name_it != AmConfig::RTP_If_names.end())                         \
             iface = name_it->second;                                           \
@@ -1952,8 +1952,8 @@ bool SBCCallProfile::BLegContact::evaluate(ParamReplacerCtx&   ctx,
   REPLACE_NONEMPTY_STR(uri_param);
   REPLACE_NONEMPTY_STR(display_name);
 
-  for (std::map<string, string>::iterator it = params.begin(); it != params.end();
-       it++) {
+  for (std::map<string, string>::iterator it = params.begin();
+       it != params.end(); it++) {
     REPLACE_NONEMPTY_STR(it->second);
   }
   return true;

@@ -24,10 +24,14 @@
  */
 
 #include "SBCCallRegistry.h"
+
 #include "log.h"
 
+using std::map;
+using std::string;
+
 AmMutex SBCCallRegistry::registry_mutex;
-std::map<string, SBCCallRegistryEntry> SBCCallRegistry::registry;
+map<string, SBCCallRegistryEntry> SBCCallRegistry::registry;
 
 void SBCCallRegistry::addCall(const string&               ltag,
                               const SBCCallRegistryEntry& other_dlg)
