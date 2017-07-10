@@ -24,16 +24,20 @@
  */
 
 #include "ParamReplacer.h"
-#include "RegisterCache.h"
-#include "sip/parse_common.h"
-#include "sip/parse_next_hop.h"
 
 #include "AmSipHeaders.h"
 #include "AmUtils.h"
+#include "RegisterCache.h"
 #include "SBC.h" // for RegexMapper SBCFactory::regex_mappings
 #include "log.h"
-#include <algorithm>
+#include "sip/parse_common.h"
+#include "sip/parse_next_hop.h"
+
 #include <stdlib.h>
+
+#include <algorithm>
+
+using std::string;
 
 int replaceParsedParam(const string& s, size_t p, const AmUriParser& parsed,
                        string& res)
