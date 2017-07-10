@@ -35,6 +35,7 @@
 #include "AmSipDialog.h"
 #include "AmUtils.h"
 
+#include <list>
 #include <map>
 #include <string>
 #include <utility>
@@ -158,8 +159,8 @@ struct AmConfig
 
   struct SysIntf
   {
-    std::string  name;
-    list<IPAddr> addrs;
+    std::string       name;
+    std::list<IPAddr> addrs;
     // identical to those returned by SIOCGIFFLAGS
     unsigned int flags;
     unsigned int mtu;
