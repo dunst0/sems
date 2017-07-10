@@ -40,8 +40,9 @@ typedef float Float;
 #define NDEC 2                                   /* 2:1 decimation */
 #define CORRLEN 20 * sample_rate / 1000  /* 20 msec correlation length */
 #define CORRBUFLEN (CORRLEN + PITCH_MAX) /* correlation buffer length */
-#define CORRMINPOWER (((Float) 250.) * (sample_rate / 8000)) /* minimum power  \
-                                                              */
+#define CORRMINPOWER                                                           \
+  (((Float) 250.) * (sample_rate / 8000)) /* minimum power                     \
+                                           */
 #define EOVERLAPINCR 32                   /* end OLA increment per frame,4 ms */
 #define FRAMESZ (10 * sample_rate / 1000) /* 10 msec */
 #define ATTENFAC ((Float) .2)             /* attenu. factor per 10 ms frame */

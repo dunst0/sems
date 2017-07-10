@@ -271,7 +271,7 @@ class _resolver : AmThread
    * converting IPs into a sockaddr_storage.
    */
   int resolve_targets(const std::list<sip_destination>& dest_list,
-                      sip_target_set*              targets);
+                      sip_target_set*                   targets);
 
  protected:
   _resolver();

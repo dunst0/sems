@@ -34,6 +34,8 @@
 #include "AmOfferAnswer.h"
 #include "AmSdp.h"
 
+#include <string>
+
 class AmSipTimeoutEvent;
 class AmSipDialogEventHandler;
 
@@ -102,37 +104,37 @@ class AmSipDialog : public AmBasicSipDialog
 
   /** @return 0 on success */
   int send_200_ack(unsigned int inv_cseq, const AmMimeBody* body = NULL,
-                   const string& hdrs = "", int flags = 0);
+                   const std::string& hdrs = "", int flags = 0);
 
   /** @return 0 on success */
-  int bye(const string& hdrs = "", int flags = 0);
+  int bye(const std::string& hdrs = "", int flags = 0);
 
   /** @return 0 on success */
   int cancel();
-  int cancel(const string& hdrs);
+  int cancel(const std::string& hdrs);
 
   /** @return 0 on success */
   int prack(const AmSipReply& reply1xx, const AmMimeBody* body,
-            const string& hdrs);
+            const std::string& hdrs);
 
   /** @return 0 on success */
-  int update(const AmMimeBody* body, const string& hdrs);
+  int update(const AmMimeBody* body, const std::string& hdrs);
 
   /** @return 0 on success */
-  int reinvite(const string& hdrs, const AmMimeBody* body, int flags = 0);
+  int reinvite(const std::string& hdrs, const AmMimeBody* body, int flags = 0);
 
   /** @return 0 on success */
-  int invite(const string& hdrs, const AmMimeBody* body);
+  int invite(const std::string& hdrs, const AmMimeBody* body);
 
   /** @return 0 on success */
-  int refer(const string& refer_to, int expires = -1,
-            const string& referred_by = "");
+  int refer(const std::string& refer_to, int expires = -1,
+            const std::string& referred_by = "");
 
   /** @return 0 on success */
-  int info(const string& hdrs, const AmMimeBody* body);
+  int info(const std::string& hdrs, const AmMimeBody* body);
 
   /** @return 0 on success */
-  int transfer(const string& target);
+  int transfer(const std::string& target);
   int drop();
 };
 
