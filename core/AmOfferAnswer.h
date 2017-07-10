@@ -32,6 +32,8 @@
 #include "AmSdp.h"
 #include "AmSipMsg.h"
 
+#include <string>
+
 class AmSipDialog;
 
 class AmOfferAnswer
@@ -63,7 +65,7 @@ class AmOfferAnswer
   int onRxSdp(unsigned int m_cseq, const AmMimeBody& body,
               const char** err_txt);
   int onTxSdp(unsigned int m_cseq, const AmMimeBody& body);
-  int getSdpBody(string& sdp_body);
+  int getSdpBody(std::string& sdp_body);
 
  public:
   /** Constructor */
