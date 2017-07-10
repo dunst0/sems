@@ -28,6 +28,8 @@
 #include "AmUriParser.h"
 #include "AmUtils.h"
 
+using std::string;
+
 bool findTag(const string replaces, const string& tag, size_t& p1, size_t& len);
 
 void fixReplaces(string& req_hdrs, bool is_invite)
