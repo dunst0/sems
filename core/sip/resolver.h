@@ -219,8 +219,8 @@ struct sip_target
 
 struct sip_target_set
 {
-  list<sip_target>           dest_list;
-  list<sip_target>::iterator dest_list_it;
+  std::list<sip_target>           dest_list;
+  std::list<sip_target>::iterator dest_list_it;
 
   sip_target_set();
 
@@ -270,7 +270,7 @@ class _resolver : AmThread
    * a target set, thus resolving all DNS names and
    * converting IPs into a sockaddr_storage.
    */
-  int resolve_targets(const list<sip_destination>& dest_list,
+  int resolve_targets(const std::list<sip_destination>& dest_list,
                       sip_target_set*              targets);
 
  protected:
