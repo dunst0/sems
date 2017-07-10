@@ -103,7 +103,7 @@ void AmThread::start()
   // DBG("Thread %lu is just created.\n", (unsigned long int) _pid);
 }
 
-void AmThread::stop(bool detach = true)
+void AmThread::stop(bool detach)
 {
   _m_td.lock();
 
