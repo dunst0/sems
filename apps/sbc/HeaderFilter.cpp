@@ -32,6 +32,7 @@
 
 using std::vector;
 using std::string;
+using std::set;
 
 const char* FilterType2String(FilterType ft)
 {
