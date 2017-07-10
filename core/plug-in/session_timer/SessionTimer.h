@@ -176,9 +176,9 @@ class SessionTimer : public AmSessionEventHandler
 /** \brief contains necessary information for UAC auth of a SIP request */
 struct SIPRequestInfo
 {
-  std::string     method;
-  AmMimeBody body;
-  std::string     hdrs;
+  std::string method;
+  AmMimeBody  body;
+  std::string hdrs;
 
   SIPRequestInfo(const std::string& method, const AmMimeBody* body,
                  const std::string& hdrs)
