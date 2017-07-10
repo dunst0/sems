@@ -33,6 +33,8 @@
 #include "AmSession.h"
 #include "SBC.h"
 
+using std::string;
+
 /**
  * SubscriptionDialog
  */
