@@ -29,6 +29,6 @@
 #include "AmSipMsg.h"
 #include "SBCCallRegistry.h"
 
-void fixReplaces(string& req_hdrs, bool is_invite);
+void fixReplaces(std::string& req_hdrs, bool is_invite);
 
 #endif
