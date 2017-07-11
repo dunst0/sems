@@ -110,6 +110,10 @@ void EventQueueWorker::run()
   while (!stop_requested.get()) {
     runcond.wait_for();
 
+    if (stop_requested.get()) {
+      continue;
+    }
+
     DBG("running processing loop\n");
     process_queues_mut.lock();
     while (!process_queues.empty()) {
