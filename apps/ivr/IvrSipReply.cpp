@@ -95,7 +95,7 @@ static PyGetSetDef IvrSipReply_getset[] = {
      NULL},
     {(char*) "hdrs", (getter) IvrSipReply_gethdrs, NULL, (char*) "hdrs", NULL},
     //{(char*)"body",     (getter)IvrSipReply_getbody, NULL, (char*)"body",
-    //NULL},
+    // NULL},
     {(char*) "from_tag", (getter) IvrSipReply_getfrom_tag, NULL,
      (char*) "from_tag", NULL},
     {(char*) "to_tag", (getter) IvrSipReply_getto_tag, NULL, (char*) "to_tag",

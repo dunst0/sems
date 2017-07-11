@@ -24,15 +24,18 @@
  */
 
 #include "RegistrationAgent.h"
+
 #include "AmConfig.h"
 #include "AmPlugIn.h"
 #include "AmUtils.h"
-
+#include "ampi/SIPRegistrarClientAPI.h"
 #include "log.h"
 #include "sems.h"
 
-#include "ampi/SIPRegistrarClientAPI.h"
 #include <unistd.h>
+
+using std::string;
+using std::map;
 
 #define MOD_NAME "reg_agent"
 
@@ -56,8 +59,9 @@ RegistrationAgentFactory::RegistrationAgentFactory(const string& _app_name)
 int RegistrationAgentFactory::onLoad()
 {
   AmConfigReader cfg;
-  if (cfg.loadFile(AmConfig::ModConfigPath + string(MOD_NAME ".conf")))
+  if (cfg.loadFile(AmConfig::ModConfigPath + string(MOD_NAME ".conf"))) {
     return -1;
+  }
 
   // get application specific global parameters
   configureModule(cfg);
@@ -84,8 +88,10 @@ int RegistrationAgentFactory::onLoad()
       break;
     }
 
-    if (!ri.auth_user.length()) // easier to config
+    if (!ri.auth_user.length()) {
+      // easier to config
       ri.auth_user = ri.user;
+    }
 
     dialer.add_reg(ri);
     DBG("Adding registration account #%d (%s %s %s %s %s %s)\n", i,

@@ -453,7 +453,7 @@ int mISDNStack::init()
     /* L2 */
     act.prim = DL_ESTABLISH | REQUEST;
     //	                act.addr = (mISDNport->upper_id & ~LAYER_ID_MASK) | 4 |
-    //FLG_MSG_DOWN;
+    // FLG_MSG_DOWN;
     act.addr  = mISDNport->upper_id | FLG_MSG_DOWN;
     act.dinfo = 0;
     act.len   = 0;
@@ -525,7 +525,7 @@ void mISDNStack::run()
           "SERIOUS BUG, dinfo == 0xffffffff, prim == PH_DATA | CONFIRM !!!!\n");
     }
     //		DBG("Got something msg_buf_s=%d prim=0x%08x addr=0x%08x
-    //dinfo=0x%08x\n",msg_buf_s,frame->prim,frame->addr,frame->dinfo);
+    // dinfo=0x%08x\n",msg_buf_s,frame->prim,frame->addr,frame->dinfo);
     port = mISDNport_first;
     while (port) {
       if ((frame->addr & MASTER_ID_MASK)
@@ -541,7 +541,7 @@ void mISDNStack::run()
     }
     if (frame->addr & FLG_CHILD_STACK) { /* child stack */
                                          /* b-channel data and messages */
-                                         //                    DBG("processing child stack for %s (%d) prim(0x%x)
+      //                    DBG("processing child stack for %s (%d) prim(0x%x)
       //                    addr(0x%x) dinfo=0x%x msg->len(%d) \n",port->name,
       //                    port->portnum, frame->prim,
       //                    frame->addr,frame->dinfo, msg_buf_s);

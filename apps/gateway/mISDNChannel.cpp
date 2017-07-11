@@ -37,7 +37,7 @@ static char* flip_buf_bits(char* buf, int len)
 int mISDNChannel::read(unsigned int user_ts, unsigned int size)
 {
   //	DBG("mISDNChannel::read user_ts=%d size=%d
-  //buffersize=%d\n",user_ts,size,fromISDN_buffer.size());  i know this is not
+  // buffersize=%d\n",user_ts,size,fromISDN_buffer.size());  i know this is not
   // fastest implementation but its short and works
   fromISDN_buffer.copy((char*) ((unsigned char*) samples), size);
   fromISDN_buffer.erase(0, size);
@@ -50,8 +50,8 @@ int mISDNChannel::write(unsigned int user_ts, unsigned int size)
   int              ret;
   //    DBG("mISDNChannel::write user_ts=%d size=%d\n",user_ts,size);
   if (m_BC == 0) {
-    //		DBG("bchannel is already detached or not yet initialised\n"); //we
-    //silently discard this to avoid log flooding
+    //		DBG("bchannel is already detached or not yet initialised\n");
+    ////we  silently discard this to avoid log flooding
     return 0;
   }
   if (size >= 4096) {
@@ -67,7 +67,7 @@ int mISDNChannel::write(unsigned int user_ts, unsigned int size)
   ret          = mISDN::mISDN_write(mISDNStack::instance()->m_mISDNdevice, buf,
                            frame->len + mISDN_HEADER_LEN, 8000);
   //	DBG("mISDNChannel::write: sending packet directly to isdn 0x%x 0x%x %d
-  //ret=%d\n",frame->addr, frame->prim,frame->len,ret);
+  // ret=%d\n",frame->addr, frame->prim,frame->len,ret);
   return ret;
 }
 void mISDNChannel::bchan_receive(char* msg_buf, int msg_buf_s)
@@ -94,8 +94,8 @@ void mISDNChannel::bchan_receive(char* msg_buf, int msg_buf_s)
 //	frame->dinfo = 0;
 //	frame->len = PLAY_SIZE;
 //	ret = mISDN::mISDN_write(mISDNStack::instance()->m_mISDNdevice, buf,
-//PLAY_SIZE+mISDN_HEADER_LEN, 8000); 	DBG("mISDNChannel::bchannel_send
-//write=%d\n",ret); 	return;
+// PLAY_SIZE+mISDN_HEADER_LEN, 8000); 	DBG("mISDNChannel::bchannel_send
+// write=%d\n",ret); 	return;
 //}
 
 // some code borrowed from Linux Call Router
@@ -349,8 +349,8 @@ int mISDNChannel::call()
   p += ret;
   ret = mISDN_AddIE(qi, p, IE_BEARER,
                     (unsigned char*) "\x3\x90\x90\xa3"); /* Audio */
-                                                         //	ret = mISDN_AddIE(qi, p, IE_BEARER, (unsigned char*)"\x2\x88\x90"); /*
-  //default Datatransmission 64k */
+  //	ret = mISDN_AddIE(qi, p, IE_BEARER, (unsigned char*)"\x2\x88\x90"); /*
+  // default Datatransmission 64k */
   if (ret < 0) {
     ERROR("mISDNChannel::call Add IE_BEARER error %d\n", ret);
     return FAIL;
@@ -474,15 +474,15 @@ int mISDNChannel::processMsg(char* msg_buf, int msg_buf_s)
                              "Isdn side state is: DISCONNECTING");
         // maybe this would be better
         //			    throw AmSession::Exception(487, "call
-        //terminated");
+        // terminated");
       }
       else {
         DBG("Sip side already connected sending bye\n");
         m_session->dlg.bye();
       }
       //			mISDN::mISDN_write_frame(stack->m_mISDNdevice,
-      //buf, m_port->upper_id | FLG_MSG_DOWN, CC_RELEASE | REQUEST, m_CR, 0,
-      //NULL, TIMEOUT_1SEC);
+      // buf, m_port->upper_id | FLG_MSG_DOWN, CC_RELEASE | REQUEST, m_CR, 0,
+      // NULL, TIMEOUT_1SEC);
       frame->prim  = CC_RELEASE | REQUEST;
       frame->addr  = m_port->upper_id | FLG_MSG_DOWN;
       frame->dinfo = m_CR;
@@ -496,8 +496,8 @@ int mISDNChannel::processMsg(char* msg_buf, int msg_buf_s)
     case CC_RELEASE_COMPLETE | INDICATION:
       DBG("CC_RELEASE(_COMPLETE) | INDICATION for CR=0x%04x \n", m_CR);
       //			mISDN::mISDN_write_frame(stack->m_mISDNdevice,
-      //buf, m_port->upper_id | FLG_MSG_DOWN, CC_RELEASE_COMPLETE | REQUEST,
-      //m_CR, 0, NULL, TIMEOUT_1SEC);
+      // buf, m_port->upper_id | FLG_MSG_DOWN, CC_RELEASE_COMPLETE | REQUEST,
+      // m_CR, 0, NULL, TIMEOUT_1SEC);
       frame->prim  = CC_RELEASE_COMPLETE | REQUEST;
       frame->addr  = m_port->upper_id | FLG_MSG_DOWN;
       frame->dinfo = m_CR;
@@ -781,7 +781,7 @@ int mISDNChannel::bchan_create()
   //	pid.protocol[4] = ISDN_PID_L4_B_USER;
   pid.layermask = ISDN_LAYER((1)) | ISDN_LAYER((2)) | ISDN_LAYER((3));
   //	pid.layermask = ISDN_LAYER((1)) | ISDN_LAYER((2)) | ISDN_LAYER((3)) |
-  //ISDN_LAYER((4));
+  // ISDN_LAYER((4));
   ret = mISDN_set_stack(stack->m_mISDNdevice, m_port->b_stid[m_bchannel - 1],
                         &pid);
   if (ret) {

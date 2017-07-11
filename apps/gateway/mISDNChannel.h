@@ -28,17 +28,17 @@ class mISDNChannel : public AmAudio
   mISDNport* m_port;
   char       m_bchannel;
 
-  char                m_last_msg[MAX_MSG_SIZE]; // we copy here packet from kernel
-  int                 m_last_msg_s;
-  mISDN::iframe_t*    m_frame; // there are pointers to places in m_last_msg buffer
-  mISDN::Q931_info_t* m_qi;    //
+  char             m_last_msg[MAX_MSG_SIZE]; // we copy here packet from kernel
+  int              m_last_msg_s;
+  mISDN::iframe_t* m_frame; // there are pointers to places in m_last_msg buffer
+  mISDN::Q931_info_t* m_qi; //
   char*               m_ie_data; //
 
   std::string m_caller; // caller number
   int         m_TON_r, m_NPI_r, m_Screening_r,
-      m_Presentation_r; // caler number attributes
-  std::string m_called; // calee number
-  int m_TON_d, m_NPI_d; // calee number attributes
+      m_Presentation_r;         // caler number attributes
+  std::string m_called;         // calee number
+  int         m_TON_d, m_NPI_d; // calee number attributes
 
   mISDNChannel(); /* constructor */
   mISDNChannel(mISDNport* port);
