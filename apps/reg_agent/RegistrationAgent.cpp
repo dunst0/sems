@@ -36,6 +36,7 @@
 
 using std::string;
 using std::map;
+using std::vector;
 
 #define MOD_NAME "reg_agent"
 
