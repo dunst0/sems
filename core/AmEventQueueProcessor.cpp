@@ -29,6 +29,7 @@
 #include "AmEventQueue.h"
 
 #include <deque>
+
 using std::deque;
 
 AmEventQueueProcessor::AmEventQueueProcessor() { threads_it = threads.begin(); }

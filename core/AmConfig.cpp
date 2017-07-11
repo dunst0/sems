@@ -1222,7 +1222,7 @@ int AmConfig::finalizeIPConfig()
   }
 
   if (!RTP_Ifs.size()) {
-    RTP_interface intf;
+    RTP_interface *intf = new RTP_interface();
     intf.LocalIP = SIP_Ifs[0].LocalIP;
     if (intf.LocalIP.empty()) {
       ERROR("could not determine default media IP.");
