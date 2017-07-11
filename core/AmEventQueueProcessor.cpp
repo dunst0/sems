@@ -133,6 +133,8 @@ void EventQueueWorker::run()
     runcond.set(false);
     process_queues_mut.unlock();
   }
+
+  INFO("mäh");
 }
 
 void EventQueueWorker::on_stop()
