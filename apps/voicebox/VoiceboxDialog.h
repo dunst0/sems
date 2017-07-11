@@ -9,21 +9,17 @@
 #include "PromptOptions.h"
 
 #include <list>
-#include <map>
 #include <string>
-using std::map;
-using std::string;
-using std::list;
 
 struct Message
 {
-  string name;
-  int    size;
+  std::string name;
+  int         size;
 
   int operator<(const Message& b) const { return name < b.name; }
 
   Message() {}
-  Message(string n, int s)
+  Message(std::string n, int s)
       : name(n)
       , size(s)
   {
@@ -51,11 +47,11 @@ class VoiceboxDialog : public AmSession
   PromptOptions                   prompt_options;
 
   VoiceboxCallState state;
-  string            entered_pin;
+  std::string       entered_pin;
 
-  string user;
-  string domain;
-  string pin;
+  std::string user;
+  std::string domain;
+  std::string pin;
 
   void  openMailbox();
   void  closeMailbox();
@@ -80,24 +76,25 @@ class VoiceboxDialog : public AmSession
   inline bool isAtLastMsg();
   inline void gotoFirstSavedMessage();
 
-  list<Message> new_msgs;
-  list<Message> saved_msgs;
+  std::list<Message> new_msgs;
+  std::list<Message> saved_msgs;
 
   // list of the messages that come be in the msg list the next round
-  list<Message> edited_msgs;
+  std::list<Message> edited_msgs;
 
   bool userdir_open;    // have we opened the user dir?
   bool do_save_cur_msg; // saving of current message possible?
 
-  list<Message>::iterator cur_msg;
-  bool                    in_saved_msgs;
-  AmAudioFile             message; // message file being played
+  std::list<Message>::iterator cur_msg;
+  bool                         in_saved_msgs;
+  AmAudioFile                  message; // message file being played
 
   AmDynInvoke* msg_storage;
 
  public:
-  VoiceboxDialog(const string& user, const string& domain, const string& pin,
-                 AmPromptCollection* prompts, PromptOptions prompt_options);
+  VoiceboxDialog(const std::string& user, const std::string& domain,
+                 const std::string& pin, AmPromptCollection* prompts,
+                 PromptOptions prompt_options);
   ~VoiceboxDialog();
 
   void onSessionStart();

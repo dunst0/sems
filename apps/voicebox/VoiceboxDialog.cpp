@@ -22,12 +22,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#include "AmUtils.h"
 
-#include "Voicebox.h"
 #include "VoiceboxDialog.h"
 
 #include "../msg_storage/MsgStorageAPI.h" // error codes
+#include "AmUtils.h"
+#include "Voicebox.h"
+
+using std::string;
 
 #define enqueueFront(msg)                                                      \
   prompts->addToPlaylist(msg, (long) this, play_list, true)
