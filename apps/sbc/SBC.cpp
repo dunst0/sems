@@ -504,7 +504,7 @@ void SBCFactory::invoke(const string& method, const AmArg& args, AmArg& ret)
 void SBCFactory::listProfiles(const AmArg& args, AmArg& ret)
 {
   profiles_mut.lock();
-  for (std::map<string, SBCCallProfile>::iterator it = call_profiles.begin();
+  for (map<string, SBCCallProfile>::iterator it = call_profiles.begin();
        it != call_profiles.end(); it++) {
     AmArg p;
     p["name"] = it->first;
