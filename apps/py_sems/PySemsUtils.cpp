@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2002-2003 Fhg Fokus
  *
  * This file is part of SEMS, a free SIP media server.
@@ -20,29 +20,25 @@
 
 #include "PySemsUtils.h"
 
-PyObject *
-type_error(const char *msg)
+PyObject* type_error(const char* msg)
 {
   PyErr_SetString(PyExc_TypeError, msg);
   return NULL;
 }
 
-PyObject *
-null_error(void)
+PyObject* null_error(void)
 {
   if (!PyErr_Occurred())
-    PyErr_SetString(PyExc_SystemError,
-		    "null argument to internal routine");
+    PyErr_SetString(PyExc_SystemError, "null argument to internal routine");
   return NULL;
 }
 
-PyObject *
-PyObject_VaCallMethod(PyObject *o, char *name, char *format, va_list va)
+PyObject* PyObject_VaCallMethod(PyObject* o, char* name, char* format,
+                                va_list va)
 {
   PyObject *args, *func = 0, *retval;
 
-  if (o == NULL || name == NULL)
-    return null_error();
+  if (o == NULL || name == NULL) return null_error();
 
   func = PyObject_GetAttrString(o, name);
   if (func == NULL) {
@@ -59,17 +55,14 @@ PyObject_VaCallMethod(PyObject *o, char *name, char *format, va_list va)
   else
     args = PyTuple_New(0);
 
-  if (!args)
-    return NULL;
+  if (!args) return NULL;
 
   if (!PyTuple_Check(args)) {
-    PyObject *a;
+    PyObject* a;
 
     a = PyTuple_New(1);
-    if (a == NULL)
-      return NULL;
-    if (PyTuple_SetItem(a, 0, args) < 0)
-      return NULL;
+    if (a == NULL) return NULL;
+    if (PyTuple_SetItem(a, 0, args) < 0) return NULL;
     args = a;
   }
 

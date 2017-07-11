@@ -27,22 +27,23 @@
  */
 
 #include "AmApi.h"
-#include "AmSession.h"
 #include "AmAudio.h"
 #include "AmConferenceChannel.h"
 #include "AmPlaylist.h"
 #include "AmPromptCollection.h"
-#include "AmUACAuth.h"
 #include "AmRingTone.h"
+#include "AmSession.h"
+#include "AmUACAuth.h"
 
 class WebConferenceFactory;
 
 class WebConferenceDialog
-  : public AmSession,
-    public CredentialHolder
+    : public AmSession
+    , public CredentialHolder
 {
-public:
-  enum WebConferenceState {
+ public:
+  enum WebConferenceState
+  {
     None = 0,
     EnteringPin,
     EnteringConference,
@@ -52,8 +53,8 @@ public:
     PlayErrorFinish
   };
 
-private:
-  AmPlaylist  play_list;
+ private:
+  AmPlaylist          play_list;
   AmPlaylistSeparator separator;
 
   AmPromptCollection& prompts;
@@ -63,8 +64,8 @@ private:
 
   // our connection to the conference
   unique_ptr<AmConferenceChannel> channel;
-  string  conf_id;
-  string pin_str;
+  string                          conf_id;
+  string                          pin_str;
 
   void connectConference(const string& room);
   void disconnectConference();
@@ -75,8 +76,8 @@ private:
   WebConferenceState state;
 
   WebConferenceFactory* factory;
-  bool is_dialout;
-  UACAuthCred* cred;
+  bool                  is_dialout;
+  UACAuthCred*          cred;
 
   bool muted;
 
@@ -86,25 +87,22 @@ private:
   // ID from X-ParticipantID header
   string participant_id;
 
-  AmAudio *local_input;
+  AmAudio* local_input;
   void setLocalInput(AmAudio* in);
 
   /** flag to indicate whether user was joined by anyone in the room */
   bool lonely_user;
 
-public:
-  WebConferenceDialog(AmPromptCollection& prompts,
-		      WebConferenceFactory* my_f,
-		      UACAuthCred* cred);
-  WebConferenceDialog(AmPromptCollection& prompts,
-		      WebConferenceFactory* my_f,
-		      const string& room);
+ public:
+  WebConferenceDialog(AmPromptCollection& prompts, WebConferenceFactory* my_f,
+                      UACAuthCred* cred);
+  WebConferenceDialog(AmPromptCollection& prompts, WebConferenceFactory* my_f,
+                      const string& room);
   ~WebConferenceDialog();
 
   void process(AmEvent* ev);
-  void onSipReply(const AmSipRequest& req,
-		  const AmSipReply& reply,
-		  AmBasicSipDialog::Status old_dlg_status);
+  void onSipReply(const AmSipRequest& req, const AmSipReply& reply,
+                  AmBasicSipDialog::Status old_dlg_status);
 
   void onInvite(const AmSipRequest& req);
 
@@ -121,7 +119,7 @@ public:
   UACAuthCred* getCredentials() { return cred; }
 
   // overriden media processing (local_input)
-  virtual int readStreams(unsigned long long ts, unsigned char *buffer);
+  virtual int readStreams(unsigned long long ts, unsigned char* buffer);
   virtual bool isAudioSet();
   virtual void clearAudio();
 };

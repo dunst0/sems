@@ -18,8 +18,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -31,64 +31,70 @@
 
 #include <sys/time.h>
 
-#include "log.h"
 #include "AmThread.h"
+#include "log.h"
 
-#define TIMER_BUCKET_LENGTH 10     // 10 sec
-#define TIMER_BUCKETS       40000  // 40000 buckets (400000 sec, 111 hrs)
+#define TIMER_BUCKET_LENGTH 10 // 10 sec
+#define TIMER_BUCKETS 40000    // 40000 buckets (400000 sec, 111 hrs)
 
 // 100 ms == 100000 us
 #define TIMER_RESOLUTION 100000
 
 class RegTimer;
-typedef void (*timer_cb)(RegTimer*, long /*data1*/,int /*data2*/);
+typedef void (*timer_cb)(RegTimer*, long /*data1*/, int /*data2*/);
 
 class RegTimerBucket;
 
-class RegTimer {
+class RegTimer
+{
  public:
-    time_t expires;
+  time_t expires;
 
-    timer_cb       cb;
-    long           data1;
-    int            data2;
+  timer_cb cb;
+  long     data1;
+  int      data2;
 
-    RegTimer()
-      : expires(0), cb(0), data1(0), data2(0) { }
+  RegTimer()
+      : expires(0)
+      , cb(0)
+      , data1(0)
+      , data2(0)
+  {
+  }
 };
 
-class RegTimerBucket {
+class RegTimerBucket
+{
  public:
   std::list<RegTimer*> timers;
 
- RegTimerBucket() { }
+  RegTimerBucket() {}
 };
 
 /**
   Additionally to normal timer operation (setting and removing timer,
-  fire the timer when it is expired), this RegistrationTimer timers 
-  class needs to support insert_timer_leastloaded() which should insert 
+  fire the timer when it is expired), this RegistrationTimer timers
+  class needs to support insert_timer_leastloaded() which should insert
   the timer in some least loaded interval between from_time and to_time
   in order to flatten out re-register spikes (due to restart etc).
 
   Timer granularity is seconds.
 
   Timers are saved in buckets of TIMER_BUCKET_LENGTH seconds. the buckets
-  array is a circular one, the current bucket starts from the time 
+  array is a circular one, the current bucket starts from the time
   current_bucket_start (in seconds as in time(2)).
 
   The timer object is owned by the caller, and MUST be valid until it is
   fired or removed.
  */
 
-class RegistrationTimer
-: public AmThread
+class RegistrationTimer : public AmThread
 {
   time_t current_bucket_start;
   // every bucket contains TIMER_BUCKET_LENGTH seconds of timers
   RegTimerBucket buckets[TIMER_BUCKETS];
-  unsigned int current_bucket;
-  AmMutex buckets_mut;
+  unsigned int   current_bucket;
+  AmMutex        buckets_mut;
 
   int get_bucket_index(time_t tv);
   void place_timer(RegTimer* timer, int bucket_index);
@@ -103,11 +109,10 @@ class RegistrationTimer
   bool insert_timer(RegTimer* timer);
   bool remove_timer(RegTimer* timer);
 
-  bool insert_timer_leastloaded(RegTimer* timer,
-				time_t from_time,
-				time_t to_time);
+  bool insert_timer_leastloaded(RegTimer* timer, time_t from_time,
+                                time_t to_time);
 
-  RegistrationTimer(); 
+  RegistrationTimer();
   bool _timer_thread_running;
   bool _shutdown_finished;
 };

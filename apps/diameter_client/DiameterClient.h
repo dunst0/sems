@@ -32,16 +32,15 @@
 
 #include "ServerConnection.h"
 
-#include <string>
 #include <map>
+#include <string>
 using std::string;
 using std::multimap;
 
-class DiameterClient  
-: public AmDynInvokeFactory,
-  public AmDynInvoke
+class DiameterClient
+    : public AmDynInvokeFactory
+    , public AmDynInvoke
 {
-
   static DiameterClient* _instance;
 
   multimap<string, ServerConnection*> connections;
@@ -59,11 +58,10 @@ class DiameterClient
 
   // DI API
   static DiameterClient* instance();
-  void invoke(const string& method, 
-	      const AmArg& args, AmArg& ret);
+  void invoke(const string& method, const AmArg& args, AmArg& ret);
 
   // DI-factory
-  int onLoad();	
+  int onLoad();
 };
 
 #endif

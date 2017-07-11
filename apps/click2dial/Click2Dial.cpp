@@ -28,10 +28,10 @@
 
 #include "AmApi.h"
 #include "AmConfig.h"
+#include "AmMediaProcessor.h"
 #include "AmPlugIn.h"
 #include "AmSessionContainer.h"
 #include "AmUtils.h"
-#include "AmMediaProcessor.h"
 #include "log.h"
 #include "sems.h"
 

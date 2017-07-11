@@ -44,8 +44,9 @@ PrecodedFactory::PrecodedFactory(const string& _app_name)
 int PrecodedFactory::onLoad()
 {
   AmConfigReader cfg;
-  if (cfg.loadFile(AmConfig::ModConfigPath + string(MOD_NAME ".conf"))){
-    return -1;}
+  if (cfg.loadFile(AmConfig::ModConfigPath + string(MOD_NAME ".conf"))) {
+    return -1;
+  }
 
   if (precoded_file.open(cfg.getParameter("announcement_file")) < 0) {
     ERROR("loading precoded file");

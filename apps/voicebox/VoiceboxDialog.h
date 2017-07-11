@@ -2,60 +2,63 @@
 #define _VOICEBOX_DIALOG_H_
 
 #include "AmApi.h"
-#include "AmSession.h"
 #include "AmAudio.h"
 #include "AmPlaylist.h"
 #include "AmPromptCollection.h"
+#include "AmSession.h"
 #include "PromptOptions.h"
 
+#include <list>
 #include <map>
 #include <string>
-#include <list>
 using std::map;
 using std::string;
 using std::list;
 
-struct Message {
+struct Message
+{
   string name;
-  int size;
+  int    size;
 
-  int operator<(const Message& b) const
-  { return name < b.name; }
+  int operator<(const Message& b) const { return name < b.name; }
 
-  Message() { }
+  Message() {}
   Message(string n, int s)
-    : name(n), size(s) { }
+      : name(n)
+      , size(s)
+  {
+  }
 };
 
-class VoiceboxDialog
-  : public AmSession
+class VoiceboxDialog : public AmSession
 {
-public:
-  enum VoiceboxCallState {
+ public:
+  enum VoiceboxCallState
+  {
     None,           // starting
     EnteringPin,    // checking mailbox pin
     Prompting,      // playing prompt (not in message yet)
     MsgAction,      // accepting action on message
     PromptTurnover, // prompting to turn over to first message
     Bye             // term dialog
-  }; 
+  };
 
-private:
-  AmPlaylist  play_list;
+ private:
+  AmPlaylist play_list;
   // we need only one separator in queue
   unique_ptr<AmPlaylistSeparator> playlist_separator;
-  AmPromptCollection* prompts;
-  PromptOptions prompt_options;
+  AmPromptCollection*             prompts;
+  PromptOptions                   prompt_options;
 
   VoiceboxCallState state;
-  string entered_pin;
+  string            entered_pin;
 
   string user;
   string domain;
   string pin;
 
-  void openMailbox();
-  void closeMailbox();
+  void  openMailbox();
+  void  closeMailbox();
   FILE* getCurrentMessage();
 
   // logic ops
@@ -83,20 +86,18 @@ private:
   // list of the messages that come be in the msg list the next round
   list<Message> edited_msgs;
 
-  bool userdir_open;       // have we opened the user dir?
-  bool do_save_cur_msg;    // saving of current message possible?
+  bool userdir_open;    // have we opened the user dir?
+  bool do_save_cur_msg; // saving of current message possible?
 
   list<Message>::iterator cur_msg;
-  bool in_saved_msgs;
-  AmAudioFile message; // message file being played
+  bool                    in_saved_msgs;
+  AmAudioFile             message; // message file being played
 
   AmDynInvoke* msg_storage;
-public:
-  VoiceboxDialog(const string& user,
-		 const string& domain,
-		 const string& pin,
-		 AmPromptCollection* prompts,
-		 PromptOptions prompt_options);
+
+ public:
+  VoiceboxDialog(const string& user, const string& domain, const string& pin,
+                 AmPromptCollection* prompts, PromptOptions prompt_options);
   ~VoiceboxDialog();
 
   void onSessionStart();
@@ -105,9 +106,7 @@ public:
   void process(AmEvent* ev);
 };
 
-
 #endif
-
 
 // Local Variables:
 // mode:C++ // Stroustrup?

@@ -3,7 +3,7 @@
 #define ROOM_INFO_H
 
 #include <string>
-using std::string;       
+using std::string;
 
 #include <list>
 using std::list;
@@ -11,14 +11,15 @@ using std::list;
 #include <vector>
 using std::vector;
 
-#include <sys/time.h> 
-
+#include <sys/time.h>
 
 #include "AmArg.h"
 #include "AmThread.h"
 
-struct ConferenceRoomParticipant {
-  enum ParticipantStatus {
+struct ConferenceRoomParticipant
+{
+  enum ParticipantStatus
+  {
     Disconnected = 0,
     Connecting,
     Ringing,
@@ -27,43 +28,46 @@ struct ConferenceRoomParticipant {
     Finished
   };
 
-  string localtag;
-  string number;
+  string            localtag;
+  string            number;
   ParticipantStatus status;
-  string last_reason; 
-  string participant_id;
+  string            last_reason;
+  string            participant_id;
 
   int muted;
-  
+
   struct timeval last_access_time;
 
-  ConferenceRoomParticipant() 
-    : status(Disconnected), muted(0) { }
+  ConferenceRoomParticipant()
+      : status(Disconnected)
+      , muted(0)
+  {
+  }
 
-  ~ConferenceRoomParticipant() { }
+  ~ConferenceRoomParticipant() {}
 
   inline void updateAccess(const struct timeval& now);
   inline bool expired(const struct timeval& now);
 
-  inline void updateStatus(ParticipantStatus new_status, 
-			   const string& reason,
-			   struct timeval& now);
+  inline void updateStatus(ParticipantStatus new_status, const string& reason,
+                           struct timeval& now);
 
   inline void setMuted(int mute);
-  
+
   AmArg asArgArray();
 };
 
-struct ConferenceRoom {
+struct ConferenceRoom
+{
   string adminpin;
 
   struct timeval last_access_time;
-  time_t expiry_time;
+  time_t         expiry_time;
 
   list<ConferenceRoomParticipant> participants;
 
   ConferenceRoom();
-  ~ConferenceRoom() { }
+  ~ConferenceRoom() {}
 
   void cleanExpired();
 
@@ -72,11 +76,11 @@ struct ConferenceRoom {
   vector<string> participantLtags();
 
   void newParticipant(const string& localtag, const string& number,
-		      const string& participant_id);
+                      const string& participant_id);
 
-  bool updateStatus(const string& part_tag, 
-		    ConferenceRoomParticipant::ParticipantStatus newstatus, 
-		    const string& reason);
+  bool updateStatus(const string&                                part_tag,
+                    ConferenceRoomParticipant::ParticipantStatus newstatus,
+                    const string&                                reason);
 
   bool hasParticipant(const string& localtag);
 
@@ -90,6 +94,5 @@ struct ConferenceRoom {
 
   bool hard_expired(const struct timeval& now);
 };
-
 
 #endif

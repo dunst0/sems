@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2002-2003 Fhg Fokus
  *
  * This file is part of SEMS, a free SIP media server.
@@ -18,55 +18,53 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "PySemsAudio.h"
 #include "PySems.h"
+#include "PySemsAudio.h"
 
-#include "AmConfigReader.h"
-#include "AmConfig.h"
-#include "log.h"
 #include "AmApi.h"
-#include "AmUtils.h"
+#include "AmConfig.h"
+#include "AmConfigReader.h"
 #include "AmPlugIn.h"
+#include "AmUtils.h"
+#include "log.h"
 
-#include "PySemsDialog.h"
-#include "PySemsB2BDialog.h"
 #include "PySemsB2ABDialog.h"
+#include "PySemsB2BDialog.h"
+#include "PySemsDialog.h"
 #include "PySemsUtils.h"
 
-#include <sip.h>
 #include "sip/sipAPIpy_sems_lib.h"
+#include <sip.h>
 
 // earlier than 4.7.6, include headers:
 #if SIP_VERSION < 0x040706
-#include "sip/sippy_sems_libPySemsDialog.h"
-#include "sip/sippy_sems_libPySemsB2BDialog.h"
 #include "sip/sippy_sems_libPySemsB2ABDialog.h"
+#include "sip/sippy_sems_libPySemsB2BDialog.h"
+#include "sip/sippy_sems_libPySemsDialog.h"
 #endif
 
 #if SIP_VERSION < 0x040901
 #define SIP_USE_OLD_CLASS_CONVERSION 1
 #endif
 
-#include <unistd.h>
+#include <dirent.h>
 #include <pthread.h>
 #include <regex.h>
-#include <dirent.h>
+#include <unistd.h>
 
 #include <set>
 using std::set;
 
-
 #define PYFILE_REGEX "(.+)\\.(py|pyc|pyo)$"
 
-
-EXPORT_SESSION_FACTORY(PySemsFactory,MOD_NAME);
+EXPORT_SESSION_FACTORY(PySemsFactory, MOD_NAME);
 
 PyMODINIT_FUNC initpy_sems_lib();
 
-/** 
+/**
  * \brief gets python global interpreter lock (GIL)
- * 
- * structure to acquire the python global interpreter lock (GIL) 
+ *
+ * structure to acquire the python global interpreter lock (GIL)
  * while the structure is allocated.
  */
 struct PythonGIL
@@ -74,11 +72,10 @@ struct PythonGIL
   PyGILState_STATE gst;
 
   PythonGIL() { gst = PyGILState_Ensure(); }
-  ~PythonGIL(){ PyGILState_Release(gst);   }
+  ~PythonGIL() { PyGILState_Release(gst); }
 };
 
-
-// This must be the first declaration of every 
+// This must be the first declaration of every
 // function using Python C-API.
 // But this is not necessary in function which
 // will get called from Python
@@ -86,41 +83,40 @@ struct PythonGIL
 
 extern "C" {
 
-  static PyObject* py_sems_log(PyObject*, PyObject* args)
-  {
-    int level;
-    char *msg;
+static PyObject* py_sems_log(PyObject*, PyObject* args)
+{
+  int   level;
+  char* msg;
 
-    if(!PyArg_ParseTuple(args,"is",&level,&msg))
-      return NULL;
+  if (!PyArg_ParseTuple(args, "is", &level, &msg)) return NULL;
 
-    _LOG(level, "%s", msg);
-	
-    Py_INCREF(Py_None);
-    return Py_None;
-  }
+  _LOG(level, "%s", msg);
 
-  static PyObject* py_sems_getHeader(PyObject*, PyObject* args)
-  {
-    char* headers;
-    char* header_name;
-    if(!PyArg_ParseTuple(args,"ss",&headers,&header_name))
-      return NULL;
+  Py_INCREF(Py_None);
+  return Py_None;
+}
 
-    string res = getHeader(headers,header_name, true);
-    return PyString_FromString(res.c_str());
-  }
+static PyObject* py_sems_getHeader(PyObject*, PyObject* args)
+{
+  char* headers;
+  char* header_name;
+  if (!PyArg_ParseTuple(args, "ss", &headers, &header_name)) return NULL;
 
+  string res = getHeader(headers, header_name, true);
+  return PyString_FromString(res.c_str());
+}
 
-  static PyMethodDef py_sems_methods[] = {
-    {"log", (PyCFunction)py_sems_log, METH_VARARGS,"Log a message using Sems' logging system"},
-    {"getHeader", (PyCFunction)py_sems_getHeader, METH_VARARGS,"Python getHeader wrapper"},
-    {NULL}  /* Sentinel */
-  };
+static PyMethodDef py_sems_methods[] = {
+    {"log", (PyCFunction) py_sems_log, METH_VARARGS,
+     "Log a message using Sems' logging system"},
+    {"getHeader", (PyCFunction) py_sems_getHeader, METH_VARARGS,
+     "Python getHeader wrapper"},
+    {NULL} /* Sentinel */
+};
 }
 
 PySemsFactory::PySemsFactory(const string& _app_name)
-  : AmSessionFactory(_app_name)
+    : AmSessionFactory(_app_name)
 {
 }
 
@@ -137,29 +133,29 @@ PySemsFactory::PySemsFactory(const string& _app_name)
 
 void PySemsFactory::import_object(PyObject* m, char* name, PyTypeObject* type)
 {
-  if (PyType_Ready(type) < 0){
+  if (PyType_Ready(type) < 0) {
     ERROR("PyType_Ready failed !\n");
     return;
   }
   Py_INCREF(type);
-  PyModule_AddObject(m, name, (PyObject *)type);
+  PyModule_AddObject(m, name, (PyObject*) type);
 }
 
 void PySemsFactory::import_py_sems_builtins()
 {
   // py_sems module - start
   PyImport_AddModule("py_sems");
-  py_sems_module = Py_InitModule("py_sems",py_sems_methods);
+  py_sems_module = Py_InitModule("py_sems", py_sems_methods);
 
   // PySemsAudioFile
-  import_object(py_sems_module,"PySemsAudioFile",&PySemsAudioFileType);
+  import_object(py_sems_module, "PySemsAudioFile", &PySemsAudioFileType);
 
-  PyModule_AddIntConstant(py_sems_module, "AUDIO_READ",AUDIO_READ);
-  PyModule_AddIntConstant(py_sems_module, "AUDIO_WRITE",AUDIO_WRITE);
+  PyModule_AddIntConstant(py_sems_module, "AUDIO_READ", AUDIO_READ);
+  PyModule_AddIntConstant(py_sems_module, "AUDIO_WRITE", AUDIO_WRITE);
   // py_sems module - end
 
   // add log level for the log module
-  PyModule_AddIntConstant(py_sems_module, "SEMS_LOG_LEVEL",log_level);
+  PyModule_AddIntConstant(py_sems_module, "SEMS_LOG_LEVEL", log_level);
 
   import_module("py_sems_log");
   initpy_sems_lib();
@@ -168,19 +164,19 @@ void PySemsFactory::import_py_sems_builtins()
 void PySemsFactory::set_sys_path(const string& script_path)
 {
   PyObject* py_mod = import_module("sys");
-  if(!py_mod)	return;
+  if (!py_mod) return;
 
   PyObject* sys_path_str = PyString_FromString("path");
-  PyObject* sys_path = PyObject_GetAttr(py_mod,sys_path_str);
+  PyObject* sys_path     = PyObject_GetAttr(py_mod, sys_path_str);
   Py_DECREF(sys_path_str);
 
-  if(!sys_path){
+  if (!sys_path) {
     PyErr_Print();
     Py_DECREF(py_mod);
     return;
   }
 
-  if(!PyList_Insert(sys_path,0,PyString_FromString(script_path.c_str()))){
+  if (!PyList_Insert(sys_path, 0, PyString_FromString(script_path.c_str()))) {
     PyErr_Print();
   }
 }
@@ -188,24 +184,23 @@ void PySemsFactory::set_sys_path(const string& script_path)
 PyObject* PySemsFactory::import_module(const char* modname)
 {
   PyObject* py_mod_name = PyString_FromString(modname);
-  PyObject* py_mod = PyImport_Import(py_mod_name);
+  PyObject* py_mod      = PyImport_Import(py_mod_name);
   Py_DECREF(py_mod_name);
-    
-  if(!py_mod){
+
+  if (!py_mod) {
     PyErr_Print();
-    ERROR("PySemsFactory: could not find python module '%s'.\n",modname);
+    ERROR("PySemsFactory: could not find python module '%s'.\n", modname);
     ERROR("PySemsFactory: please check your installation.\n");
     return NULL;
   }
-    
+
   return py_mod;
 }
 
 void PySemsFactory::init_python_interpreter(const string& script_path)
 {
-  if(!Py_IsInitialized()){
-
-    add_env_path("PYTHONPATH",AmConfig::PlugInPath);
+  if (!Py_IsInitialized()) {
+    add_env_path("PYTHONPATH", AmConfig::PlugInPath);
     Py_Initialize();
   }
 
@@ -219,172 +214,177 @@ AmSession* PySemsFactory::newDlg(const string& name)
 {
   PYLOCK;
 
-  map<string,PySemsScriptDesc>::iterator mod_it = mod_reg.find(name);
-  if(mod_it == mod_reg.end()){
+  map<string, PySemsScriptDesc>::iterator mod_it = mod_reg.find(name);
+  if (mod_it == mod_reg.end()) {
     ERROR("Unknown script name '%s'\n", name.c_str());
-    throw AmSession::Exception(500,"Unknown Application");
+    throw AmSession::Exception(500, "Unknown Application");
   }
 
   PySemsScriptDesc& mod_desc = mod_it->second;
 
-  PyObject* dlg_inst = PyObject_Call(mod_desc.dlg_class,PyTuple_New(0),NULL);
-  if(!dlg_inst){
-	
+  PyObject* dlg_inst = PyObject_Call(mod_desc.dlg_class, PyTuple_New(0), NULL);
+  if (!dlg_inst) {
     PyErr_Print();
     ERROR("PySemsFactory: while loading \"%s\": could not create instance\n",
-	  name.c_str());
-    throw AmSession::Exception(500,"Internal error in PY_SEMS plug-in.");
-	
+          name.c_str());
+    throw AmSession::Exception(500, "Internal error in PY_SEMS plug-in.");
+
     return NULL;
   }
 
-  int err=0;
+  int err = 0;
 
-  AmSession* sess = NULL;
-  PySemsDialogBase* dlg_base  = NULL;
+  AmSession*        sess     = NULL;
+  PySemsDialogBase* dlg_base = NULL;
 
-  switch(mod_desc.dt) {
-  case PySemsScriptDesc::None: {
-    ERROR("wrong script type: None.\n");
-  }; break;
-  case PySemsScriptDesc::Dialog: {
-    PySemsDialog* dlg = (PySemsDialog*)
+  switch (mod_desc.dt) {
+    case PySemsScriptDesc::None: {
+      ERROR("wrong script type: None.\n");
+    }; break;
+    case PySemsScriptDesc::Dialog: {
+      PySemsDialog* dlg = (PySemsDialog*)
 #ifdef SIP_USE_OLD_CLASS_CONVERSION
-      sipForceConvertTo_PySemsDialog(dlg_inst,&err);
+          sipForceConvertTo_PySemsDialog(dlg_inst, &err);
 #else
-      sipForceConvertToType(dlg_inst, sipType_PySemsDialog, NULL, SIP_NO_CONVERTORS, NULL, &err);
+          sipForceConvertToType(dlg_inst, sipType_PySemsDialog, NULL,
+                                SIP_NO_CONVERTORS, NULL, &err);
 #endif
-    sess = dlg;
-    dlg_base = dlg;
-  }; break;
+      sess     = dlg;
+      dlg_base = dlg;
+    }; break;
 
-  case PySemsScriptDesc::B2BDialog: {
-    PySemsB2BDialog* b2b_dlg = (PySemsB2BDialog*)
+    case PySemsScriptDesc::B2BDialog: {
+      PySemsB2BDialog* b2b_dlg = (PySemsB2BDialog*)
 #ifdef SIP_USE_OLD_CLASS_CONVERSION
-      sipForceConvertTo_PySemsB2BDialog(dlg_inst,&err);
+          sipForceConvertTo_PySemsB2BDialog(dlg_inst, &err);
 #else
-      sipForceConvertToType(dlg_inst, sipType_PySemsB2BDialog, NULL, SIP_NO_CONVERTORS, NULL, &err);
+          sipForceConvertToType(dlg_inst, sipType_PySemsB2BDialog, NULL,
+                                SIP_NO_CONVERTORS, NULL, &err);
 #endif
-    sess = b2b_dlg;
-    dlg_base = b2b_dlg;
-  }; break;
+      sess     = b2b_dlg;
+      dlg_base = b2b_dlg;
+    }; break;
 
-  case PySemsScriptDesc::B2ABDialog: {
-    PySemsB2ABDialog* b2ab_dlg = (PySemsB2ABDialog*)
+    case PySemsScriptDesc::B2ABDialog: {
+      PySemsB2ABDialog* b2ab_dlg = (PySemsB2ABDialog*)
 #ifdef SIP_USE_OLD_CLASS_CONVERSION
-      sipForceConvertTo_PySemsB2ABDialog(dlg_inst,&err);
+          sipForceConvertTo_PySemsB2ABDialog(dlg_inst, &err);
 #else
-      sipForceConvertToType(dlg_inst, sipType_PySemsB2ABDialog, NULL, SIP_NO_CONVERTORS, NULL, &err);
+          sipForceConvertToType(dlg_inst, sipType_PySemsB2ABDialog, NULL,
+                                SIP_NO_CONVERTORS, NULL, &err);
 #endif
-    sess = b2ab_dlg;
-    dlg_base = b2ab_dlg;
+      sess     = b2ab_dlg;
+      dlg_base = b2ab_dlg;
 
-  }; break;
+    }; break;
   }
 
   if (err || !dlg_base) {
     // no luck
     PyErr_Print();
-    ERROR("PySemsFactory: while loading \"%s\": could not retrieve a PySems*Dialog ptr.\n",
-	  name.c_str());
-    throw AmSession::Exception(500,"Internal error in PY_SEMS plug-in.");
+    ERROR("PySemsFactory: while loading \"%s\": could not retrieve a "
+          "PySems*Dialog ptr.\n",
+          name.c_str());
+    throw AmSession::Exception(500, "Internal error in PY_SEMS plug-in.");
     Py_DECREF(dlg_inst);
     return NULL;
   }
 
-
   // take the ownership over dlg
-  sipTransferTo(dlg_inst,dlg_inst);
+  sipTransferTo(dlg_inst, dlg_inst);
   Py_DECREF(dlg_inst);
-  dlg_base->setPyPtrs(NULL,dlg_inst);
+  dlg_base->setPyPtrs(NULL, dlg_inst);
   return sess;
 }
 
 bool PySemsFactory::loadScript(const string& path)
 {
   PYLOCK;
-    
-  PyObject *modName,*mod,*dict, *dlg_class, *config=NULL;
-  PySemsScriptDesc::DialogType dt = PySemsScriptDesc::None;
 
+  PyObject *                   modName, *mod, *dict, *dlg_class, *config = NULL;
+  PySemsScriptDesc::DialogType dt = PySemsScriptDesc::None;
 
   modName = PyString_FromString(path.c_str());
   mod     = PyImport_Import(modName);
 
   AmConfigReader cfg;
-  string cfg_file = add2path(AmConfig::ModConfigPath,1,(path + ".conf").c_str());
+  string         cfg_file =
+      add2path(AmConfig::ModConfigPath, 1, (path + ".conf").c_str());
 
   Py_DECREF(modName);
 
-  if(!mod){
+  if (!mod) {
     PyErr_Print();
     WARN("PySemsFactory: Failed to load \"%s\"\n", path.c_str());
 
     dict = PyImport_GetModuleDict();
     Py_INCREF(dict);
-    PyDict_DelItemString(dict,path.c_str());
+    PyDict_DelItemString(dict, path.c_str());
     Py_DECREF(dict);
 
     return false;
   }
 
-  dict = PyModule_GetDict(mod);
+  dict      = PyModule_GetDict(mod);
   dlg_class = PyDict_GetItemString(dict, "PySemsScript");
 
-  if(!dlg_class){
-
+  if (!dlg_class) {
     PyErr_Print();
-    WARN("PySemsFactory: class PySemsDialog not found in \"%s\"\n", path.c_str());
+    WARN("PySemsFactory: class PySemsDialog not found in \"%s\"\n",
+         path.c_str());
     goto error1;
   }
 
   Py_INCREF(dlg_class);
-    
-  if(PyObject_IsSubclass(dlg_class,(PyObject *)sipClass_PySemsDialog)) {
+
+  if (PyObject_IsSubclass(dlg_class, (PyObject*) sipClass_PySemsDialog)) {
     dt = PySemsScriptDesc::Dialog;
     DBG("Loaded a Dialog Script.\n");
-  } else if (PyObject_IsSubclass(dlg_class,(PyObject *)sipClass_PySemsB2BDialog)) {
+  }
+  else if (PyObject_IsSubclass(dlg_class,
+                               (PyObject*) sipClass_PySemsB2BDialog)) {
     DBG("Loaded a B2BDialog Script.\n");
     dt = PySemsScriptDesc::B2BDialog;
-  } else if (PyObject_IsSubclass(dlg_class,(PyObject *)sipClass_PySemsB2ABDialog)) {
+  }
+  else if (PyObject_IsSubclass(dlg_class,
+                               (PyObject*) sipClass_PySemsB2ABDialog)) {
     DBG("Loaded a B2ABDialog Script.\n");
     dt = PySemsScriptDesc::B2ABDialog;
-  } else {
+  }
+  else {
     WARN("PySemsFactory: in \"%s\": PySemsScript is not a "
-	 "subtype of PySemsDialog\n", path.c_str());
+         "subtype of PySemsDialog\n",
+         path.c_str());
 
     goto error2;
   }
 
-  if(cfg.loadFile(cfg_file)){
-    ERROR("could not load config file at %s\n",cfg_file.c_str());
+  if (cfg.loadFile(cfg_file)) {
+    ERROR("could not load config file at %s\n", cfg_file.c_str());
     goto error2;
   }
 
   config = PyDict_New();
-  if(!config){
+  if (!config) {
     ERROR("could not allocate new dict for config\n");
     goto error2;
   }
 
-  for(map<string,string>::const_iterator it = cfg.begin();
-      it != cfg.end(); it++){
-	
-    PyDict_SetItem(config, 
-		   PyString_FromString(it->first.c_str()),
-		   PyString_FromString(it->second.c_str()));
+  for (map<string, string>::const_iterator it = cfg.begin(); it != cfg.end();
+       it++) {
+    PyDict_SetItem(config, PyString_FromString(it->first.c_str()),
+                   PyString_FromString(it->second.c_str()));
   }
 
-  PyObject_SetAttrString(mod,"config",config);
+  PyObject_SetAttrString(mod, "config", config);
 
-  mod_reg.insert(std::make_pair(path,
-			        PySemsScriptDesc(mod,dlg_class, dt)));
+  mod_reg.insert(std::make_pair(path, PySemsScriptDesc(mod, dlg_class, dt)));
 
   return true;
 
- error2:
+error2:
   Py_DECREF(dlg_class);
- error1:
+error1:
   Py_DECREF(mod);
 
   return false;
@@ -397,7 +397,7 @@ int PySemsFactory::onLoad()
 {
   AmConfigReader cfg;
 
-  if(cfg.loadFile(add2path(AmConfig::ModConfigPath,1,MOD_NAME ".conf")))
+  if (cfg.loadFile(add2path(AmConfig::ModConfigPath, 1, MOD_NAME ".conf")))
     return -1;
 
   // get application specific global parameters
@@ -415,31 +415,29 @@ int PySemsFactory::onLoad()
   DBG("** PY_SEMS script path: \'%s\'\n", script_path.c_str());
 
   regex_t reg;
-  if(regcomp(&reg,PYFILE_REGEX,REG_EXTENDED)){
+  if (regcomp(&reg, PYFILE_REGEX, REG_EXTENDED)) {
     ERROR("while compiling regular expression\n");
     return -1;
   }
 
   DIR* dir = opendir(script_path.c_str());
-  if(!dir){
+  if (!dir) {
     regfree(&reg);
-    ERROR("PySems: script pre-loader (%s): %s\n",
-	  script_path.c_str(),strerror(errno));
+    ERROR("PySems: script pre-loader (%s): %s\n", script_path.c_str(),
+          strerror(errno));
     return -1;
   }
 
-  DBG("directory '%s' opened\n",script_path.c_str());
+  DBG("directory '%s' opened\n", script_path.c_str());
 
   set<string> unique_entries;
   regmatch_t  pmatch[2];
 
-  struct dirent* entry=0;
-  while((entry = readdir(dir)) != NULL){
-
-    if(!regexec(&reg,entry->d_name,2,pmatch,0)){
-
+  struct dirent* entry = 0;
+  while ((entry = readdir(dir)) != NULL) {
+    if (!regexec(&reg, entry->d_name, 2, pmatch, 0)) {
       string name(entry->d_name + pmatch[1].rm_so,
-		  pmatch[1].rm_eo - pmatch[1].rm_so);
+                  pmatch[1].rm_eo - pmatch[1].rm_so);
 
       unique_entries.insert(name);
     }
@@ -448,14 +446,11 @@ int PySemsFactory::onLoad()
   regfree(&reg);
 
   AmPlugIn* plugin = AmPlugIn::instance();
-  for(set<string>::iterator it = unique_entries.begin();
-      it != unique_entries.end(); it++) {
-
-    if(loadScript(*it)){
-      bool res = plugin->registerFactory4App(*it,this);
-      if(res)
-	INFO("Application script registered: %s.\n",
-	     it->c_str());
+  for (set<string>::iterator it = unique_entries.begin();
+       it != unique_entries.end(); it++) {
+    if (loadScript(*it)) {
+      bool res = plugin->registerFactory4App(*it, this);
+      if (res) INFO("Application script registered: %s.\n", it->c_str());
     }
   }
 
@@ -468,25 +463,26 @@ int PySemsFactory::onLoad()
  */
 AmSession* PySemsFactory::onInvite(const AmSipRequest& req)
 {
-  if(req.cmd != MOD_NAME)
+  if (req.cmd != MOD_NAME)
     return newDlg(req.cmd);
   else
     return newDlg(req.user);
 }
 
 // PySemsDialogBase - base class for all possible PySemsDialog classes
-PySemsDialogBase::PySemsDialogBase() 
-  :  py_mod(NULL), 
-     py_dlg(NULL)
+PySemsDialogBase::PySemsDialogBase()
+    : py_mod(NULL)
+    , py_dlg(NULL)
 {
 }
 
-PySemsDialogBase::~PySemsDialogBase() {
+PySemsDialogBase::~PySemsDialogBase()
+{
   PYLOCK;
   Py_XDECREF(py_dlg);
 }
 
-void PySemsDialogBase::setPyPtrs(PyObject *mod, PyObject *dlg)
+void PySemsDialogBase::setPyPtrs(PyObject* mod, PyObject* dlg)
 {
   PYLOCK;
   Py_XDECREF(py_dlg);
@@ -495,33 +491,30 @@ void PySemsDialogBase::setPyPtrs(PyObject *mod, PyObject *dlg)
 
 bool PySemsDialogBase::callPyEventHandler(char* name, char* fmt, ...)
 {
-  bool ret=false;
+  bool    ret = false;
   va_list va;
 
   PYLOCK;
 
   va_start(va, fmt);
-  PyObject* o = PyObject_VaCallMethod(py_dlg,name,fmt,va);
+  PyObject* o = PyObject_VaCallMethod(py_dlg, name, fmt, va);
   va_end(va);
 
-  if(!o) {
-
-    if(PyErr_ExceptionMatches(PyExc_AttributeError)){
-
-      DBG("method %s is not implemented, trying default one\n",name);
+  if (!o) {
+    if (PyErr_ExceptionMatches(PyExc_AttributeError)) {
+      DBG("method %s is not implemented, trying default one\n", name);
       return true;
     }
 
     PyErr_Print();
   }
   else {
-    if(o && PyBool_Check(o) && (o == Py_True)) {
-
+    if (o && PyBool_Check(o) && (o == Py_True)) {
       ret = true;
     }
 
     Py_DECREF(o);
   }
-    
+
   return ret;
 }

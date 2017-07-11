@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -36,8 +36,7 @@ using std::string;
 
 #include "librtmp/rtmp.h"
 
-class RtmpSender
-  : public AmThread
+class RtmpSender : public AmThread
 {
   // sender queue
   queue<RTMPPacket> q_send;
@@ -52,14 +51,14 @@ class RtmpSender
 
   int SendChangeChunkSize();
 
-protected:
+ protected:
   void run();
   void on_stop();
 
-public:
+ public:
   RtmpSender(RTMP* r);
   ~RtmpSender();
-  
+
   // adds a packet to the sender queue
   int push_back(const RTMPPacket& p);
 
@@ -77,7 +76,6 @@ public:
 
   int SendCallStatus(int status);
   int NotifyIncomingCall(const string& uri);
-
 };
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2002-2003 Fhg Fokus
  * Copyright (C) 2006 iptego GmbH
  *
@@ -23,16 +23,16 @@
 
 #include <Python.h>
 
-#include "AmSession.h"
 #include "AmApi.h"
 #include "AmPlaylist.h"
+#include "AmSession.h"
 #include "PySems.h"
 
 /** \brief implementation of session logic/script execution in pySems */
-class PySemsDialog  :  public AmSession, 
-  public PySemsDialogBase
+class PySemsDialog
+    : public AmSession
+    , public PySemsDialogBase
 {
-
  public:
   AmPlaylist playlist;
 
@@ -43,7 +43,6 @@ class PySemsDialog  :  public AmSession,
 
   // @see AmEventHandler
   void process(AmEvent* event);
-
 };
 
 #endif

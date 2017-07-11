@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -31,32 +31,30 @@
 #include "AmThread.h"
 #include "singleton.h"
 
-#include <sys/socket.h>
 #include <poll.h>
+#include <sys/socket.h>
 
-#define MAX_CONNECTIONS   16
+#define MAX_CONNECTIONS 16
 #define DEFAULT_RTMP_PORT 1935
 
-class _RtmpServer
-  : public AmThread
+class _RtmpServer : public AmThread
 {
   sockaddr_storage listen_addr;
-  struct pollfd fds[MAX_CONNECTIONS];
-  unsigned int fds_num;
+  struct pollfd    fds[MAX_CONNECTIONS];
+  unsigned int     fds_num;
 
-public:
+ public:
   _RtmpServer();
   ~_RtmpServer();
 
   int listen(const char* ip, unsigned short port);
 
-protected:
+ protected:
   void run();
   void on_stop();
   void dispose();
 };
 
 typedef singleton<_RtmpServer> RtmpServer;
-
 
 #endif

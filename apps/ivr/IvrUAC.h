@@ -22,12 +22,12 @@
 #define IvrUAC_h
 
 // Python stuff
-#include <Python.h>
 #include "structmember.h"
+#include <Python.h>
 
 /** \brief python IVR wrapper for AmUAC functions */
-typedef struct {
-    
+typedef struct
+{
   PyObject_HEAD
   //    AmSession* session;
 

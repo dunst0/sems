@@ -4,8 +4,8 @@
 #include <string>
 using std::string;
 
-class WCCCallStats {
-
+class WCCCallStats
+{
   string filename;
 
   unsigned int total;
@@ -18,15 +18,14 @@ class WCCCallStats {
   void load();
 
  public:
- 
- WCCCallStats(const string& stats_dir);
- ~WCCCallStats();
+  WCCCallStats(const string& stats_dir);
+  ~WCCCallStats();
 
- /** return statistics summary */
- string getSummary();
+  /** return statistics summary */
+  string getSummary();
 
- /** add a call - success and connect seconds */
- void addCall(bool success, unsigned int connect_t);
+  /** add a call - success and connect seconds */
+  void addCall(bool success, unsigned int connect_t);
 };
 
 #endif

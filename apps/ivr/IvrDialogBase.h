@@ -2,8 +2,8 @@
 #define IvrDialogBase_h
 
 // Python stuff
-#include <Python.h>
 #include "structmember.h"
+#include <Python.h>
 
 extern PyTypeObject IvrDialogBaseType;
 
