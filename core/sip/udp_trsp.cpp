@@ -313,7 +313,8 @@ void udp_trsp::run()
   INFO("Started SIP server UDP transport on %s:%i\n", sock->get_ip(),
        sock->get_port());
 
-  while (true) {
+  _stopped.set(false);
+  while (!_stopped.get()) {
     // DBG("before recvmsg (%s:%i)\n",sock->get_ip(),sock->get_port());
 
     buf_len = recvmsg(sock->get_sd(), &msg, 0);
@@ -380,4 +381,7 @@ void udp_trsp::run()
 }
 
 /** @see AmThread */
-void udp_trsp::on_stop() {}
+void udp_trsp::on_stop() {
+  DBG("udp trsp on stop");
+  _stopped.set(true);
+}
