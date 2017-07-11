@@ -42,9 +42,9 @@ class VoiceboxDialog : public AmSession
  private:
   AmPlaylist play_list;
   // we need only one separator in queue
-  unique_ptr<AmPlaylistSeparator> playlist_separator;
-  AmPromptCollection*             prompts;
-  PromptOptions                   prompt_options;
+  std::unique_ptr<AmPlaylistSeparator> playlist_separator;
+  AmPromptCollection*                  prompts;
+  PromptOptions                        prompt_options;
 
   VoiceboxCallState state;
   std::string       entered_pin;
