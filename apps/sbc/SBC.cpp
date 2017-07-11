@@ -517,13 +517,13 @@ void SBCFactory::listProfiles(const AmArg& args, AmArg& ret)
 
 void SBCFactory::reloadProfiles(const AmArg& args, AmArg& ret)
 {
-  std::map<string, SBCCallProfile> new_call_profiles;
+  map<string, SBCCallProfile> new_call_profiles;
 
   bool   failed = false;
   string res    = "OK";
   AmArg  profile_list;
   profiles_mut.lock();
-  for (std::map<string, SBCCallProfile>::iterator it = call_profiles.begin();
+  for (map<string, SBCCallProfile>::iterator it = call_profiles.begin();
        it != call_profiles.end(); it++) {
     new_call_profiles[it->first] = SBCCallProfile();
     if (!new_call_profiles[it->first].readFromConfiguration(
@@ -565,7 +565,7 @@ void SBCFactory::reloadProfile(const AmArg& args, AmArg& ret)
   }
 
   profiles_mut.lock();
-  std::map<string, SBCCallProfile>::iterator it =
+  map<string, SBCCallProfile>::iterator it =
       call_profiles.find(args[0]["name"].asCStr());
   if (it == call_profiles.end()) {
     res    = "profile '" + string(args[0]["name"].asCStr()) + "' not found";
