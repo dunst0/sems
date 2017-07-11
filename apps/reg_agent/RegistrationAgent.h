@@ -47,7 +47,7 @@ struct RegInfo
 
 class RegThread : public AmThread
 {
-  vector<RegInfo> registrations;
+  std::vector<RegInfo> registrations;
 
   void create_registration(RegInfo& ri);
   bool check_registration(const RegInfo& ri);
