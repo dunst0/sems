@@ -126,7 +126,7 @@ void RtmpConnection::run()
   detachSession();
 
   // terminate the sender thread
-  sender->stop();
+  sender->stop(false);
   sender->join();
   delete sender;
   sender = NULL;
@@ -591,13 +591,13 @@ void RtmpConnection::rxAudio(RTMPPacket* packet)
   dump_audio();
 #endif
 
-  // soundType 	(byte & 0x01) » 0
+  // soundType 	(byte & 0x01) ï¿½ 0
   //   0: mono, 1: stereo
-  // soundSize 	(byte & 0x02) » 1
+  // soundSize 	(byte & 0x02) ï¿½ 1
   //   0: 8-bit, 1: 16-bit
-  // soundRate 	(byte & 0x0C) » 2
+  // soundRate 	(byte & 0x0C) ï¿½ 2
   //   0: 5.5 kHz, 1: 11 kHz, 2: 22 kHz, 3: 44 kHz
-  // soundFormat 	(byte & 0xf0) » 4
+  // soundFormat 	(byte & 0xf0) ï¿½ 4
   //   0: Uncompressed, 1: ADPCM, 2: MP3, 5: Nellymoser 8kHz mono, 6:
   //   Nellymoser, 11: Speex
 

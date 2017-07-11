@@ -686,7 +686,8 @@ void tcp_server_socket::start_threads()
 void tcp_server_socket::stop_threads()
 {
   for (unsigned int i = 0; i < workers.size(); i++) {
-    workers[i]->stop();
+    workers[i]->stop(stop);
+    workers[i]->join();
   }
 }
 

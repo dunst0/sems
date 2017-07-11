@@ -70,10 +70,10 @@ void AmSessionContainer::dispose()
 {
   if (_instance != NULL) {
     if (!_instance->is_stopped()) {
-      _instance->stop();
-
-      while (!_instance->is_stopped()) usleep(10000);
+      _instance->stop(false);
+      _instance->join();
     }
+
     // todo: add locking here
     delete _instance;
     _instance = NULL;

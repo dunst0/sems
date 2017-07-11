@@ -186,29 +186,21 @@ void AmMediaProcessor::removeFromProcessor(AmMediaSession* s,
 void AmMediaProcessor::stop()
 {
   assert(threads);
-  for (unsigned int i = 0; i < num_threads; i++) {
-    if (threads[i] != NULL) {
-      threads[i]->stop();
-    }
-  }
-  bool threads_stopped = true;
-  do {
-    usleep(10000); // 10ms
-    threads_stopped = true;
-    for (unsigned int i = 0; i < num_threads; i++) {
-      if ((threads[i] != NULL) && (!threads[i]->is_stopped())) {
-        threads_stopped = false;
-        break;
-      }
-    }
-  } while (!threads_stopped);
 
   for (unsigned int i = 0; i < num_threads; i++) {
     if (threads[i] != NULL) {
+      threads[i]->stop(false);
+    }
+  }
+
+  for (unsigned int i = 0; i < num_threads; i++) {
+    if (threads[i] != NULL) {
+      threads[i]->join();
       delete threads[i];
       threads[i] = NULL;
     }
   }
+
   delete[] threads;
   threads = NULL;
 }

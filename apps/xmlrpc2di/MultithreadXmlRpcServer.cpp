@@ -91,7 +91,7 @@ MultithreadXmlRpcServer::~MultithreadXmlRpcServer()
 {
   for (std::vector<WorkerThread*>::iterator it = workers.begin();
        it != workers.end(); it++) {
-    (*it)->stop();
+    (*it)->stop(false);
     (*it)->join();
     delete *it;
   }
