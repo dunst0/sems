@@ -26,14 +26,19 @@
  */
 
 #include "SIPRegistrarClient.h"
+
 #include "AmEventDispatcher.h"
 #include "AmPlugIn.h"
 #include "AmSessionContainer.h"
 #include "AmUtils.h"
 
-#define MOD_NAME "registrar_client"
-
 #include <unistd.h>
+
+using std::string;
+using std::map;
+using std::vector;
+
+#define MOD_NAME "registrar_client"
 
 // EXPORT_SIP_EVENT_HANDLER_FACTORY(SIPRegistrarClient, MOD_NAME);
 // EXPORT_PLUGIN_CLASS_FACTORY(SIPRegistrarClient, MOD_NAME);
@@ -147,8 +152,7 @@ void SIPRegistrarClient::onServerShutdown()
 {
   // TODO: properly wait until unregistered, with timeout
   DBG("shutdown SIP registrar client: deregistering\n");
-  for (std::map<std::string, AmSIPRegistration*>::iterator it =
-           registrations.begin();
+  for (map<string, AmSIPRegistration*>::iterator it = registrations.begin();
        it != registrations.end(); it++) {
     it->second->doUnregister();
     AmEventDispatcher::instance()->delEventQueue(it->first);

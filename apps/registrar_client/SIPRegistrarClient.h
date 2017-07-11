@@ -25,8 +25,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef RegisterClient_h
-#define RegisterClient_h
+#ifndef _SIPREGISTERCLIENT_H_
+#define _SIPREGISTERCLIENT_H_
 
 #include "AmApi.h"
 #include "AmSipRegistration.h"
@@ -35,8 +35,6 @@
 
 #include <map>
 #include <string>
-using std::map;
-using std::string;
 
 struct SIPNewRegistrationEvent;
 class SIPRemoveRegistrationEvent;
@@ -52,11 +50,11 @@ class SIPRegistrarClient
   AmMutex reg_mut;
   std::map<std::string, AmSIPRegistration*> registrations;
 
-  void add_reg(const string& reg_id, AmSIPRegistration* new_reg);
-  AmSIPRegistration* remove_reg(const string& reg_id);
-  AmSIPRegistration* remove_reg_unsafe(const string& reg_id);
-  AmSIPRegistration* get_reg(const string& reg_id);
-  AmSIPRegistration* get_reg_unsafe(const string& reg_id);
+  void add_reg(const std::string& reg_id, AmSIPRegistration* new_reg);
+  AmSIPRegistration* remove_reg(const std::string& reg_id);
+  AmSIPRegistration* remove_reg_unsafe(const std::string& reg_id);
+  AmSIPRegistration* get_reg(const std::string& reg_id);
+  AmSIPRegistration* get_reg_unsafe(const std::string& reg_id);
 
   void onSipReplyEvent(AmSipReplyEvent* ev);
   void onNewRegistration(SIPNewRegistrationEvent* new_reg);
@@ -72,12 +70,12 @@ class SIPRegistrarClient
   void              onServerShutdown();
 
  public:
-  SIPRegistrarClient(const string& name);
+  SIPRegistrarClient(const std::string& name);
   // DI factory
   AmDynInvoke* getInstance() { return instance(); }
   // DI API
   static SIPRegistrarClient* instance();
-  void invoke(const string& method, const AmArg& args, AmArg& ret);
+  void invoke(const std::string& method, const AmArg& args, AmArg& ret);
 
   bool onSipReply(const AmSipReply& rep, AmSipDialog::Status old_dlg_status);
   int onLoad();
@@ -87,16 +85,17 @@ class SIPRegistrarClient
   void process(AmEvent* ev);
 
   // API
-  string createRegistration(const string& domain, const string& user,
-                            const string& name, const string& auth_user,
-                            const string& pwd, const string& sess_link,
-                            const string& proxy, const string& contact,
-                            const string& handle);
-  void removeRegistration(const string& handle);
+  std::string
+  createRegistration(const std::string& domain, const std::string& user,
+                     const std::string& name, const std::string& auth_user,
+                     const std::string& pwd, const std::string& sess_link,
+                     const std::string& proxy, const std::string& contact,
+                     const std::string& handle);
+  void removeRegistration(const std::string& handle);
 
-  bool hasRegistration(const string& handle);
+  bool hasRegistration(const std::string& handle);
 
-  bool getRegistrationState(const string& handle, unsigned int& state,
+  bool getRegistrationState(const std::string& handle, unsigned int& state,
                             unsigned int& expires_left);
 
   enum
@@ -108,8 +107,9 @@ class SIPRegistrarClient
 
 struct SIPNewRegistrationEvent : public AmEvent
 {
-  SIPNewRegistrationEvent(const SIPRegistrationInfo& info, const string& handle,
-                          const string& sess_link)
+  SIPNewRegistrationEvent(const SIPRegistrationInfo& info,
+                          const std::string&         handle,
+                          const std::string&         sess_link)
       : info(info)
       , handle(handle)
       , sess_link(sess_link)
@@ -117,16 +117,16 @@ struct SIPNewRegistrationEvent : public AmEvent
   {
   }
 
-  string              handle;
-  string              sess_link;
+  std::string         handle;
+  std::string         sess_link;
   SIPRegistrationInfo info;
 };
 
 class SIPRemoveRegistrationEvent : public AmEvent
 {
  public:
-  string handle;
-  SIPRemoveRegistrationEvent(const string& handle)
+  std::string handle;
+  SIPRemoveRegistrationEvent(const std::string& handle)
       : handle(handle)
       , AmEvent(SIPRegistrarClient::RemoveRegistration)
   {
