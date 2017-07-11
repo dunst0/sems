@@ -24,21 +24,21 @@
  */
 
 #include "Voicebox.h"
+
 #include "../msg_storage/MsgStorageAPI.h"
 #include "AmPlugIn.h"
 #include "AmSessionContainer.h"
 #include "AmUriParser.h"
 #include "AmUtils.h"
-#include "log.h"
-
 #include "VoiceboxDialog.h"
+#include "log.h"
 
 #include <stdlib.h>
 
-#include <string>
-#include <vector>
 using std::string;
 using std::vector;
+using std::map;
+using std::list;
 
 #define APP_NAME "voicebox"
 
@@ -115,7 +115,7 @@ AmPromptCollection* VoiceboxFactory::loadPrompts(string prompt_base_path,
     return NULL;                                                               \
   }
 
-  //		Parts for the welcome text
+  // Parts for the welcome text
   ADD_DEF_PROMPT("pin_prompt");
   ADD_DEF_PROMPT("you_have");
   ADD_DEF_PROMPT("new_msgs");
@@ -123,12 +123,12 @@ AmPromptCollection* VoiceboxFactory::loadPrompts(string prompt_base_path,
   ADD_DEF_PROMPT("no_msg");
   ADD_DEF_PROMPT("in_your_voicebox");
   ADD_DEF_PROMPT("and");
-  //		Menu played after each message
+  // Menu played after each message
   ADD_DEF_PROMPT("msg_menu");
-  //		Menu played after last message
+  // Menu played after last message
   ADD_DEF_PROMPT("msg_end_menu");
 
-  //		Status acknowledgement
+  // Status acknowledgement
   ADD_DEF_PROMPT("msg_deleted");
   ADD_DEF_PROMPT("msg_saved");
 
@@ -139,7 +139,7 @@ AmPromptCollection* VoiceboxFactory::loadPrompts(string prompt_base_path,
   ADD_DEF_PROMPT("next_saved_msg");
 
   ADD_DEF_PROMPT("no_more_msg");
-  //	# End of conversation
+  // # End of conversation
   ADD_DEF_PROMPT("bye");
 
   if (load_digits) {
@@ -180,8 +180,9 @@ AmPromptCollection* VoiceboxFactory::loadPrompts(string prompt_base_path,
 int VoiceboxFactory::onLoad()
 {
   AmConfigReader cfg;
-  if (cfg.loadFile(AmConfig::ModConfigPath + string(APP_NAME) + ".conf"))
+  if (cfg.loadFile(AmConfig::ModConfigPath + string(APP_NAME) + ".conf")) {
     return -1;
+  }
 
   // get application specific global parameters
   configureModule(cfg);
