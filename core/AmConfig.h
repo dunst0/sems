@@ -134,7 +134,7 @@ struct AmConfig
   };
 
   static std::vector<SIP_interface> SIP_Ifs;
-  static std::vector<RTP_interface> RTP_Ifs;
+  static std::vector<RTP_interface*> RTP_Ifs;
   static std::map<std::string, unsigned short> SIP_If_names;
   static std::map<std::string, unsigned short> RTP_If_names;
   static std::map<std::string, unsigned short> LocalSIPIP2If;
