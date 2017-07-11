@@ -38,7 +38,7 @@ AmEventQueueProcessor::~AmEventQueueProcessor()
   threads_mut.lock();
   threads_it = threads.begin();
   while (threads_it != threads.end()) {
-    (*threads_it)->stop();
+    (*threads_it)->stop(false);
     (*threads_it)->join();
     delete (*threads_it);
     threads_it++;

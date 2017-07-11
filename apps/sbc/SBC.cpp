@@ -35,7 +35,6 @@ SBC - feature-wishlist
 
 #include "AmAudio.h"
 #include "AmConfigReader.h"
-#include "AmEventQueueProcessor.h"
 #include "AmMediaProcessor.h"
 #include "AmPlugIn.h"
 #include "AmSessionContainer.h"
@@ -652,6 +651,7 @@ void SBCFactory::setActiveProfile(const AmArg& args, AmArg& ret)
              "list>] ");
     return;
   }
+
   profiles_mut.lock();
   active_profile = explode(args[0]["active_profile"].asCStr(), ",");
   profiles_mut.unlock();
