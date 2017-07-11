@@ -15,8 +15,6 @@
 
 using std::string;
 
-#define MOD_NAME "mwi"
-
 EXPORT_PLUGIN_CLASS_FACTORY(MWI, MOD_NAME);
 
 MWI*         MWI::_instance      = 0;
