@@ -104,7 +104,3 @@ class VoiceboxDialog : public AmSession
 };
 
 #endif
-
-// Local Variables:
-// mode:C++ // Stroustrup?
-// End:

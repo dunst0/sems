@@ -1,6 +1,3 @@
-#ifndef _WebconferenceDialog_H_
-#define _WebconferenceDialog_H_
-
 /*
  * Copyright (C) 2007-2008 iptego GmbH
  *
@@ -25,6 +22,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
+#ifndef _WEBCONFERENCEDIALOG_H_
+#define _WEBCONFERENCEDIALOG_H_
 
 #include "AmApi.h"
 #include "AmAudio.h"
@@ -60,14 +60,14 @@ class WebConferenceDialog
   AmPromptCollection& prompts;
 
   // our ring tone
-  unique_ptr<AmRingTone> RingTone;
+  std::unique_ptr<AmRingTone> RingTone;
 
   // our connection to the conference
-  unique_ptr<AmConferenceChannel> channel;
-  string                          conf_id;
-  string                          pin_str;
+  std::unique_ptr<AmConferenceChannel> channel;
+  std::string                          conf_id;
+  std::string                          pin_str;
 
-  void connectConference(const string& room);
+  void connectConference(const std::string& room);
   void disconnectConference();
 
   void onKicked();
@@ -85,7 +85,7 @@ class WebConferenceDialog
   time_t disconnect_ts;
 
   // ID from X-ParticipantID header
-  string participant_id;
+  std::string participant_id;
 
   AmAudio* local_input;
   void setLocalInput(AmAudio* in);
@@ -97,7 +97,7 @@ class WebConferenceDialog
   WebConferenceDialog(AmPromptCollection& prompts, WebConferenceFactory* my_f,
                       UACAuthCred* cred);
   WebConferenceDialog(AmPromptCollection& prompts, WebConferenceFactory* my_f,
-                      const string& room);
+                      const std::string& room);
   ~WebConferenceDialog();
 
   void process(AmEvent* ev);
@@ -119,12 +119,9 @@ class WebConferenceDialog
   UACAuthCred* getCredentials() { return cred; }
 
   // overriden media processing (local_input)
-  virtual int readStreams(unsigned long long ts, unsigned char* buffer);
+  virtual int readStreams(unsigned long long int ts, unsigned char* buffer);
   virtual bool isAudioSet();
   virtual void clearAudio();
 };
 
 #endif
-// Local Variables:
-// mode:C++
-// End:

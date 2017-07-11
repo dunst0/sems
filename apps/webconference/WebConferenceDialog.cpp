@@ -24,9 +24,12 @@
  */
 
 #include "WebConferenceDialog.h"
+
 #include "AmMediaProcessor.h"
 #include "AmUtils.h"
 #include "WebConference.h"
+
+using std::string;
 
 #define LONELY_USER_TIMER_ID 50
 
