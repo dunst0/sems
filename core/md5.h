@@ -29,13 +29,13 @@
 /* MD5 context. */
 typedef struct
 {
-  unsigned int  state[4];   /* state (ABCD) */
-  unsigned int  count[2];   /* number of bits, modulo 2^64 (lsb first) */
+  uint32_t      state[4];   /* state (ABCD) */
+  uint32_t      count[2];   /* number of bits, modulo 2^64 (lsb first) */
   unsigned char buffer[64]; /* input buffer */
 } MD5_CTX;
 
-void MD5Init(MD5_CTX*);
-void MD5Update(MD5_CTX*, unsigned char*, unsigned int);
-void MD5Final(unsigned char[16], MD5_CTX*);
+void MD5Init(MD5_CTX* context);
+void MD5Update(MD5_CTX* context, unsigned char* input, uint32_t inputLen);
+void MD5Final(unsigned char digest[16], MD5_CTX* context);
 
 #endif

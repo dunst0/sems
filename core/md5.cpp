@@ -24,15 +24,13 @@ without express or implied warranty of any kind.
 
 These notices must be retained in any copies of any part of this
 documentation and/or software.
- */
+*/
 
 #include "md5.h"
 
 #include <string.h>
 
-/* Constants for MD5Transform routine.
- */
-
+/* Constants for MD5Transform routine. */
 #define S11 7
 #define S12 12
 #define S13 17
@@ -50,145 +48,55 @@ documentation and/or software.
 #define S43 15
 #define S44 21
 
-static void MD5Transform(unsigned int[4], unsigned char[64]);
-static void Encode(unsigned char*, unsigned int*, unsigned int);
-static void Decode(unsigned int*, unsigned char*, unsigned int);
-static void MD5_memcpy(unsigned char*, unsigned char*, unsigned int);
-static void MD5_memset(unsigned char*, int, unsigned int);
+/* F, G, H and I are basic MD5 functions. */
+#define F(x, y, z) (((x) & (y)) | ((~x) & (z)))
+#define G(x, y, z) (((x) & (z)) | ((y) & (~z)))
+#define H(x, y, z) ((x) ^ (y) ^ (z))
+#define I(x, y, z) ((y) ^ ((x) | (~z)))
+
+/* ROTATE_LEFT rotates x left n bits. */
+#define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
+
+/*
+  FF, GG, HH, and II transformations for rounds 1, 2, 3, and 4.
+  Rotation is separate from addition to prevent recomputation.
+ */
+#define FF(a, b, c, d, x, s, ac)                                               \
+  {                                                                            \
+    (a) += F((b), (c), (d)) + (x) + (uint32_t)(ac);                            \
+    (a) = ROTATE_LEFT((a), (s));                                               \
+    (a) += (b);                                                                \
+  }
+#define GG(a, b, c, d, x, s, ac)                                               \
+  {                                                                            \
+    (a) += G((b), (c), (d)) + (x) + (uint32_t)(ac);                            \
+    (a) = ROTATE_LEFT((a), (s));                                               \
+    (a) += (b);                                                                \
+  }
+#define HH(a, b, c, d, x, s, ac)                                               \
+  {                                                                            \
+    (a) += H((b), (c), (d)) + (x) + (uint32_t)(ac);                            \
+    (a) = ROTATE_LEFT((a), (s));                                               \
+    (a) += (b);                                                                \
+  }
+#define II(a, b, c, d, x, s, ac)                                               \
+  {                                                                            \
+    (a) += I((b), (c), (d)) + (x) + (uint32_t)(ac);                            \
+    (a) = ROTATE_LEFT((a), (s));                                               \
+    (a) += (b);                                                                \
+  }
 
 static unsigned char PADDING[64] = {
     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-/* F, G, H and I are basic MD5 functions.
+/*
+  MD5 basic transformation. Transforms state based on block.
  */
-#define F(x, y, z) (((x) & (y)) | ((~x) & (z)))
-#define G(x, y, z) (((x) & (z)) | ((y) & (~z)))
-#define H(x, y, z) ((x) ^ (y) ^ (z))
-#define I(x, y, z) ((y) ^ ((x) | (~z)))
-
-/* ROTATE_LEFT rotates x left n bits.
- */
-#define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
-
-/* FF, GG, HH, and II transformations for rounds 1, 2, 3, and 4.
-Rotation is separate from addition to prevent recomputation.
- */
-#define FF(a, b, c, d, x, s, ac)                                               \
-  {                                                                            \
-    (a) += F((b), (c), (d)) + (x) + (unsigned int) (ac);                       \
-    (a) = ROTATE_LEFT((a), (s));                                               \
-    (a) += (b);                                                                \
-  }
-#define GG(a, b, c, d, x, s, ac)                                               \
-  {                                                                            \
-    (a) += G((b), (c), (d)) + (x) + (unsigned int) (ac);                       \
-    (a) = ROTATE_LEFT((a), (s));                                               \
-    (a) += (b);                                                                \
-  }
-#define HH(a, b, c, d, x, s, ac)                                               \
-  {                                                                            \
-    (a) += H((b), (c), (d)) + (x) + (unsigned int) (ac);                       \
-    (a) = ROTATE_LEFT((a), (s));                                               \
-    (a) += (b);                                                                \
-  }
-#define II(a, b, c, d, x, s, ac)                                               \
-  {                                                                            \
-    (a) += I((b), (c), (d)) + (x) + (unsigned int) (ac);                       \
-    (a) = ROTATE_LEFT((a), (s));                                               \
-    (a) += (b);                                                                \
-  }
-
-/* MD5 initialization. Begins an MD5 operation, writing a new context.
- */
-void MD5Init(MD5_CTX* context)
+static void MD5Transform(uint32_t state[4], unsigned char block[64])
 {
-  context->count[0] = context->count[1] = 0;
-  /* Load magic initialization constants.
-   */
-  context->state[0] = 0x67452301;
-  context->state[1] = 0xefcdab89;
-  context->state[2] = 0x98badcfe;
-  context->state[3] = 0x10325476;
-}
-
-/* MD5 block update operation. Continues an MD5 message-digest
-  operation, processing another message block, and updating the
-  context.
- */
-void MD5Update(MD5_CTX*       context, /* context */
-               unsigned char* input,   /* input block */
-               unsigned int   inputLen /* length of input block */
-               )
-{
-  unsigned int i, index, partLen;
-
-  /* Compute number of bytes mod 64 */
-  index = (unsigned int) ((context->count[0] >> 3) & 0x3F);
-
-  /* Update number of bits */
-  if ((context->count[0] += ((unsigned int) inputLen << 3))
-
-      < ((unsigned int) inputLen << 3))
-    context->count[1]++;
-  context->count[1] += ((unsigned int) inputLen >> 29);
-
-  partLen = 64 - index;
-
-  /* Transform as many times as possible.
-   */
-  if (inputLen >= partLen) {
-    MD5_memcpy((unsigned char*) &context->buffer[index], (unsigned char*) input,
-               partLen);
-    MD5Transform(context->state, context->buffer);
-
-    for (i = partLen; i + 63 < inputLen; i += 64)
-      MD5Transform(context->state, &input[i]);
-
-    index = 0;
-  }
-  else
-    i = 0;
-
-  /* Buffer remaining input */
-  MD5_memcpy((unsigned char*) &context->buffer[index],
-             (unsigned char*) &input[i], inputLen - i);
-}
-
-/* MD5 finalization. Ends an MD5 message-digest operation, writing the
-  the message digest and zeroizing the context.
- */
-void MD5Final(unsigned char digest[16], MD5_CTX* context)
-{
-  unsigned char bits[8];
-  unsigned int  index, padLen;
-
-  /* Save number of bits */
-  Encode(bits, context->count, 8);
-
-  /* Pad out to 56 mod 64.
-   */
-  index  = (unsigned int) ((context->count[0] >> 3) & 0x3f);
-  padLen = (index < 56) ? (56 - index) : (120 - index);
-  MD5Update(context, PADDING, padLen);
-
-  /* Append length (before padding) */
-  MD5Update(context, bits, 8);
-
-  /* Store state in digest */
-  Encode(digest, context->state, 16);
-
-  /* Zeroize sensitive information.
-   */
-  MD5_memset((unsigned char*) context, 0, sizeof(*context));
-}
-
-/* MD5 basic transformation. Transforms state based on block.
- */
-static void MD5Transform(unsigned int state[4], unsigned char block[64])
-{
-  unsigned int a = state[0], b = state[1], c = state[2], d = state[3], x[16];
+  uint32_t a = state[0], b = state[1], c = state[2], d = state[3], x[16];
 
   Decode(x, block, 64);
 
@@ -269,17 +177,17 @@ static void MD5Transform(unsigned int state[4], unsigned char block[64])
   state[2] += c;
   state[3] += d;
 
-  /* Zeroize sensitive information.
-   */
-  MD5_memset((unsigned char*) x, 0, sizeof(x));
+  /* Zeroize sensitive information. */
+  memset((unsigned char*) x, 0, sizeof(x));
 }
 
-/* Encodes input (unsigned int) into output (unsigned char). Assumes len is
+/*
+  Encodes input (unsigned int) into output (unsigned char). Assumes len is
   a multiple of 4.
  */
-static void Encode(unsigned char* output, unsigned int* input, unsigned int len)
+static void Encode(unsigned char* output, uint32_t* input, uint32_t len)
 {
-  unsigned int i, j;
+  uint32_t i, j;
 
   for (i = 0, j = 0; j < len; i++, j += 4) {
     output[j]     = (unsigned char) (input[i] & 0xff);
@@ -289,26 +197,100 @@ static void Encode(unsigned char* output, unsigned int* input, unsigned int len)
   }
 }
 
-/* Decodes input (unsigned char) into output (unsigned int). Assumes len is
+/*
+  Decodes input (unsigned char) into output (unsigned int). Assumes len is
   a multiple of 4.
  */
-static void Decode(unsigned int* output, unsigned char* input, unsigned int len)
+static void Decode(uint32_t* output, unsigned char* input, uint32_t len)
 {
-  unsigned int i, j;
+  uint32_t i, j;
 
-  for (i = 0, j = 0; j < len; i++, j += 4)
-    output[i] = ((unsigned int) input[j]) | (((unsigned int) input[j + 1]) << 8)
-                | (((unsigned int) input[j + 2]) << 16)
-                | (((unsigned int) input[j + 3]) << 24);
+  for (i = 0, j = 0; j < len; i++, j += 4) {
+    output[i] = ((uint32_t) input[j]) | (((uint32_t) input[j + 1]) << 8)
+                | (((uint32_t) input[j + 2]) << 16)
+                | (((uint32_t) input[j + 3]) << 24);
+  }
 }
 
-static void MD5_memcpy(unsigned char* output, unsigned char* input,
-                       unsigned int len)
+/*
+  MD5 initialization. Begins an MD5 operation, writing a new context.
+ */
+void MD5Init(MD5_CTX* context)
 {
-  memcpy(output, input, len);
+  context->count[0] = context->count[1] = 0;
+
+  /* Load magic initialization constants. */
+  context->state[0] = 0x67452301;
+  context->state[1] = 0xefcdab89;
+  context->state[2] = 0x98badcfe;
+  context->state[3] = 0x10325476;
 }
 
-static void MD5_memset(unsigned char* output, int value, unsigned int len)
+/*
+  MD5 block update operation. Continues an MD5 message-digest
+  operation, processing another message block, and updating the
+  context.
+ */
+void MD5Update(MD5_CTX* context, unsigned char* input, uint32_t inputLen)
 {
-  memset(output, value, len);
+  uint32_t i, index, partLen;
+
+  /* Compute number of bytes mod 64 */
+  index = (uint32_t)((context->count[0] >> 3) & 0x3F);
+
+  /* Update number of bits */
+  if ((context->count[0] += ((uint32_t) inputLen << 3))
+      < ((uint32_t) inputLen << 3)) {
+    context->count[1]++;
+  }
+  context->count[1] += ((uint32_t) inputLen >> 29);
+
+  partLen = 64 - index;
+
+  /* Transform as many times as possible. */
+  if (inputLen >= partLen) {
+    memcpy((unsigned char*) &context->buffer[index], (unsigned char*) input,
+           partLen);
+    MD5Transform(context->state, context->buffer);
+
+    for (i = partLen; i + 63 < inputLen; i += 64) {
+      MD5Transform(context->state, &input[i]);
+    }
+
+    index = 0;
+  }
+  else {
+    i = 0;
+  }
+
+  /* Buffer remaining input */
+  memcpy((unsigned char*) &context->buffer[index], (unsigned char*) &input[i],
+         inputLen - i);
+}
+
+/*
+  MD5 finalization. Ends an MD5 message-digest operation, writing the
+  the message digest and zeroizing the context.
+ */
+void MD5Final(unsigned char digest[16], MD5_CTX* context)
+{
+  unsigned char bits[8];
+  uint32_t      index, padLen;
+
+  /* Save number of bits */
+  Encode(bits, context->count, 8);
+
+  /* Pad out to 56 mod 64. */
+  index  = (uint32_t)((context->count[0] >> 3) & 0x3f);
+  padLen = (index < 56) ? (56 - index) : (120 - index);
+  MD5Update(context, PADDING, padLen);
+
+  /* Append length (before padding) */
+  MD5Update(context, bits, 8);
+
+  /* Store state in digest */
+  Encode(digest, context->state, 16);
+
+  /* Zeroize sensitive information. */
+  memset((unsigned char*) context, 0, sizeof(*context));
 }
