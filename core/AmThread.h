@@ -84,6 +84,7 @@ template <class T> class AmSharedVar
       : t(_t)
   {
   }
+
   AmSharedVar() {}
 
   T get()
@@ -129,6 +130,7 @@ template <class T> class AmCondition
   {
     init_cond();
   }
+
   AmCondition(const T& _t)
       : t(_t)
   {
@@ -202,30 +204,30 @@ template <class T> class AmCondition
  */
 class AmThread
 {
-  pthread_t _td;
-  AmMutex   _m_td;
+ private:
+  pthread_t         thread_id;
+  AmMutex           thread_mutex;
+  unsigned long int pid;
 
-  AmSharedVar<bool> _stopped;
+  AmSharedVar<bool> running;
 
-  static void* _start(void*);
+  static void* threadStart(void* self);
 
  protected:
   virtual void run()     = 0;
   virtual void on_stop() = 0;
 
  public:
-  unsigned long _pid;
   AmThread();
   virtual ~AmThread() {}
-
   virtual void onIdle() {}
 
   /** Start it ! */
   void start();
   /** Stop it ! */
-  void stop(bool detach = true);
+  void stop();
   /** @return true if this thread doesn't run. */
-  bool is_stopped() { return _stopped.get(); }
+  bool isRunning();
   /** detach this thread, after that the thread can't be joined */
   void detach();
   /** Wait for this thread to finish */
@@ -233,6 +235,8 @@ class AmThread
   /** kill the thread (if pthread_setcancelstate(PTHREAD_CANCEL_ENABLED) has
    * been set) **/
   void cancel();
+
+  unsigned long int getPid();
 
   int setRealtime();
 };
@@ -248,14 +252,15 @@ class AmThread
  */
 class AmThreadWatcher : public AmThread
 {
+ private:
   static AmThreadWatcher* _instance;
-  static AmMutex          _inst_mut;
+  static AmMutex          _instance_mutex;
 
   std::queue<AmThread*> thread_queue;
-  AmMutex               q_mut;
+  AmMutex               thread_queue_mutex;
 
   /** the daemon only runs if this is true */
-  AmCondition<bool> _run_cond;
+  AmCondition<bool> run_condition;
 
   AmThreadWatcher();
   void run();
@@ -263,11 +268,12 @@ class AmThreadWatcher : public AmThread
 
  public:
   static AmThreadWatcher* instance();
-  void                    add(AmThread*);
+  void add(AmThread* thread);
 };
 
 template <class T> class AmThreadLocalStorage
 {
+ private:
   pthread_key_t key;
 
   static void __del_tls_obj(void* obj) { delete static_cast<T*>(obj); }
