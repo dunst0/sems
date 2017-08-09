@@ -33,22 +33,20 @@
 
 #include <deque>
 #include <vector>
-using std::deque;
-using std::vector;
 
-class EventQueueWorker
+class AmEventQueueWorker
     : public AmThread
     , public AmEventNotificationSink
 {
   AmSharedVar<bool> stop_requested;
+  AmCondition<bool>         run_condition;
 
-  AmCondition<bool>         runcond;
   std::deque<AmEventQueue*> process_queues;
-  AmMutex                   process_queues_mut;
+  AmMutex                   process_queues_mutex;
 
  public:
-  EventQueueWorker();
-  ~EventQueueWorker();
+  AmEventQueueWorker();
+  ~AmEventQueueWorker();
 
   // AmThread interface
   void run();
@@ -72,10 +70,10 @@ class EventQueueWorker
  */
 class AmEventQueueProcessor
 {
-  typedef vector<EventQueueWorker*> Workers;
+  typedef std::vector<AmEventQueueWorker*> Workers;
 
   Workers           threads;
-  AmMutex           threads_mut;
+  AmMutex           threads_mutex;
   Workers::iterator threads_it;
 
  public:
@@ -84,7 +82,7 @@ class AmEventQueueProcessor
 
   void addThreads(unsigned int num_threads);
 
-  EventQueueWorker* getWorker();
+  AmEventQueueWorker* getWorker();
   int startEventQueue(AmEventQueue* q);
 };
 

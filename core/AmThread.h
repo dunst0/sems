@@ -226,7 +226,7 @@ class AmThread
   void start();
   /** Stop it ! */
   void stop();
-  /** @return true if this thread doesn't run. */
+  /** @return true if this thread does run. */
   bool isRunning();
   /** detach this thread, after that the thread can't be joined */
   void detach();
@@ -263,6 +263,8 @@ class AmThreadWatcher : public AmThread
   AmCondition<bool> run_condition;
 
   AmThreadWatcher();
+
+ protected:
   void run();
   void on_stop();
 

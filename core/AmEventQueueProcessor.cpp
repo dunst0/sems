@@ -36,39 +36,43 @@ AmEventQueueProcessor::AmEventQueueProcessor() { threads_it = threads.begin(); }
 
 AmEventQueueProcessor::~AmEventQueueProcessor()
 {
-  threads_mut.lock();
+  threads_mutex.lock();
+
   threads_it = threads.begin();
   while (threads_it != threads.end()) {
-    (*threads_it)->stop(false);
+    (*threads_it)->stop();
     (*threads_it)->join();
     delete (*threads_it);
     threads_it++;
   }
-  threads_mut.unlock();
+
+  threads_mutex.unlock();
 }
 
-EventQueueWorker* AmEventQueueProcessor::getWorker()
+AmEventQueueWorker* AmEventQueueProcessor::getWorker()
 {
-  threads_mut.lock();
+  threads_mutex.lock();
+
   if (!threads.size()) {
     ERROR("requesting EventQueue processing thread but none available\n");
-    threads_mut.unlock();
+    threads_mutex.unlock();
     return NULL;
   }
 
   // round robin
   if (threads_it == threads.end()) threads_it = threads.begin();
 
-  EventQueueWorker* res = *threads_it;
+  AmEventQueueWorker* res = *threads_it;
   threads_it++;
-  threads_mut.unlock();
+
+  threads_mutex.unlock();
 
   return res;
 }
 
 int AmEventQueueProcessor::startEventQueue(AmEventQueue* q)
 {
-  EventQueueWorker* worker = getWorker();
+  AmEventQueueWorker* worker = getWorker();
   if (!worker) return -1;
 
   worker->startEventQueue(q);
@@ -78,18 +82,22 @@ int AmEventQueueProcessor::startEventQueue(AmEventQueue* q)
 void AmEventQueueProcessor::addThreads(unsigned int num_threads)
 {
   DBG("starting %u session processor threads\n", num_threads);
-  threads_mut.lock();
+
+  threads_mutex.lock();
+
   for (unsigned int i = 0; i < num_threads; i++) {
-    threads.push_back(new EventQueueWorker());
-    threads.back()->start();
+    AmEventQueueWorker *worker = new AmEventQueueWorker();
+    threads.push_back(worker);
+    worker->start();
   }
+
   threads_it = threads.begin();
   DBG("now %zd session processor threads running\n", threads.size());
-  threads_mut.unlock();
+  threads_mutex.unlock();
 }
 
 EventQueueWorker::EventQueueWorker()
-    : runcond(false)
+    : run_condition(false)
 {
 }
 
@@ -97,18 +105,19 @@ EventQueueWorker::~EventQueueWorker() {}
 
 void EventQueueWorker::notify(AmEventQueue* sender)
 {
-  process_queues_mut.lock();
+  process_queues_mutex.lock();
+
   process_queues.push_back(sender);
   inc_ref(sender);
-  runcond.set(true);
-  process_queues_mut.unlock();
+  run_condition.set(true);
+
+  process_queues_mutex.unlock();
 }
 
 void EventQueueWorker::run()
 {
-  stop_requested.set(false);
-  while (!stop_requested.get()) {
-    runcond.wait_for();
+  while (isRunning()) {
+    run_condition.wait_for();
 
     if (stop_requested.get()) {
       continue;

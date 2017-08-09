@@ -128,7 +128,6 @@ void AmThread::stop()
     return;
   }
 
-  // gives the thread a chance to clean up
   DBG("Thread %lu (%lu) calling on_stop, give it a chance to clean up.\n",
       (unsigned long int) pid, (unsigned long int) thread_id);
 
@@ -333,7 +332,7 @@ void AmThreadWatcher::run()
     if (thread_queue.empty()) {
       run_condition.set(false);
     }
-    
+
     thread_queue_mutex.unlock();
   }
 }
