@@ -35,7 +35,7 @@
 #include <map>
 #include <set>
 
-struct SchedRequest;
+struct AmSchedRequest;
 
 /** Interface for basic media session processing.
  *
@@ -186,7 +186,7 @@ class AmMediaProcessorThread
   AmMediaProcessorThread();
   ~AmMediaProcessorThread();
 
-  inline void postRequest(SchedRequest* sr);
+  inline void postRequest(AmSchedRequest* sr);
 
   unsigned int getLoad();
 };

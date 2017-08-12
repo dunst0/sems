@@ -42,11 +42,11 @@ using std::map;
 using std::multimap;
 
 /** \brief Request event to the MediaProcessor (remove,...) */
-struct SchedRequest : public AmEvent
+struct AmSchedRequest : public AmEvent
 {
   AmMediaSession* s;
 
-  SchedRequest(int id, AmMediaSession* s)
+  AmSchedRequest(int id, AmMediaSession* s)
       : AmEvent(id)
       , s(s)
   {
@@ -128,7 +128,7 @@ void AmMediaProcessor::addSession(AmMediaSession* s, const string& callgroup)
   group_mut.unlock();
 
   // add the session to selected thread
-  threads[sched_thread]->postRequest(new SchedRequest(InsertSession, s));
+  threads[sched_thread]->postRequest(new AmSchedRequest(InsertSession, s));
 }
 
 void AmMediaProcessor::clearSession(AmMediaSession* s)
@@ -190,7 +190,7 @@ void AmMediaProcessor::removeFromProcessor(AmMediaSession* s,
   session2callgroup.erase(s);
   group_mut.unlock();
 
-  threads[sched_thread]->postRequest(new SchedRequest(r_type, s));
+  threads[sched_thread]->postRequest(new AmSchedRequest(r_type, s));
 }
 
 void AmMediaProcessor::stop()
@@ -304,14 +304,14 @@ void AmMediaProcessorThread::processAudio(unsigned long long ts)
   for (set<AmMediaSession*>::iterator it = sessions.begin();
        it != sessions.end(); it++) {
     if ((*it)->readStreams(ts, buffer) < 0)
-      postRequest(new SchedRequest(AmMediaProcessor::ClearSession, *it));
+      postRequest(new AmSchedRequest(AmMediaProcessor::ClearSession, *it));
   }
 
   // sending
   for (set<AmMediaSession*>::iterator it = sessions.begin();
        it != sessions.end(); it++) {
     if ((*it)->writeStreams(ts, buffer) < 0)
-      postRequest(new SchedRequest(AmMediaProcessor::ClearSession, *it));
+      postRequest(new AmSchedRequest(AmMediaProcessor::ClearSession, *it));
   }
 }
 
@@ -319,7 +319,7 @@ void AmMediaProcessorThread::process(AmEvent* e)
 {
   AmLock lock(sessions_mutex);
 
-  SchedRequest* sr = dynamic_cast<SchedRequest*>(e);
+  AmSchedRequest* sr = dynamic_cast<AmSchedRequest*>(e);
   if (!sr) {
     ERROR("AmMediaProcessorThread::process: wrong event type\n");
     return;
@@ -373,7 +373,7 @@ unsigned int AmMediaProcessorThread::getLoad()
   return sessions.size();
 }
 
-inline void AmMediaProcessorThread::postRequest(SchedRequest* sr)
+inline void AmMediaProcessorThread::postRequest(AmSchedRequest* sr)
 {
   events.postEvent(sr);
 }
