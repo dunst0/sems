@@ -38,7 +38,7 @@ AmCallStatus::AmCallStatus() {}
 
 AmCallStatus::~AmCallStatus() {}
 
-AmCallStatus::dump() {}
+void AmCallStatus::dump() {}
 
 AmCallStatusUpdateEvent::AmCallStatusUpdateEvent(UpdateType t, const string& call_id)
     : AmEvent(t)
@@ -63,7 +63,7 @@ AmCallStatus* AmCallStatusUpdateEvent::get_init_status()
 
 AmCallWatcherGarbageCollector::AmCallWatcherGarbageCollector(CallStatusTimedMap& garbage, AmMutex& mutex)
  : garbage(garbage)
-      , mutex(mutex)
+      , garbage_mutex(mutex)
   {
   }
 

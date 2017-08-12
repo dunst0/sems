@@ -105,8 +105,9 @@ class AmCallStatusUpdateEvent : public AmEvent
  */
 class AmCallWatcherGarbageCollector : public AmThread
 {
-  AmMutex&                           mutex;
+
   CallStatusTimedMap& garbage;
+  AmMutex&                           garbage_mutex;
 
  protected:
   void run();
