@@ -51,7 +51,8 @@ class AmCallStatus;
 class AmCallStatusUpdateEvent;
 
 typedef std::map<std::string, AmCallStatus*> CallStatusMap;
-typedef std::map<std::string, std::pair<AmCallStatus*, time_t>> CallStatusTimedMap;
+typedef std::map<std::string, std::pair<AmCallStatus*, time_t>>
+    CallStatusTimedMap;
 
 /**
  * \brief interface for an update-able call status (AmCallWatcher)
@@ -67,7 +68,7 @@ class AmCallStatus
 
   /** get a copy of self with relevant data */
   virtual AmCallStatus* copy() = 0;
-  virtual void        dump();
+  virtual void          dump();
 };
 
 /**
@@ -88,11 +89,12 @@ class AmCallStatusUpdateEvent : public AmEvent
   };
 
   AmCallStatusUpdateEvent(UpdateType t, const std::string& call_id);
-  AmCallStatusUpdateEvent(const std::string& call_id, AmCallStatus* init_status);
+  AmCallStatusUpdateEvent(const std::string& call_id,
+                          AmCallStatus*      init_status);
 
   ~AmCallStatusUpdateEvent();
 
-  std::string get_call_id();
+  std::string   get_call_id();
   AmCallStatus* get_init_status();
 };
 
@@ -105,9 +107,8 @@ class AmCallStatusUpdateEvent : public AmEvent
  */
 class AmCallWatcherGarbageCollector : public AmThread
 {
-
   CallStatusTimedMap& garbage;
-  AmMutex&                           garbage_mutex;
+  AmMutex&            garbage_mutex;
 
  protected:
   void run();

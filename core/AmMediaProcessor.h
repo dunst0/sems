@@ -179,8 +179,8 @@ class AmMediaProcessorThread
 
  protected:
   // AmThread interface
-  void              run();
-  void              on_stop();
+  void run();
+  void on_stop();
 
  public:
   AmMediaProcessorThread();
@@ -202,7 +202,7 @@ class AmMediaProcessorThread
 class AmMediaProcessor
 {
   static AmMediaProcessor* _instance;
-  static AmMutex          _instance_mutex;
+  static AmMutex           _instance_mutex;
 
   unsigned int             num_threads;
   AmMediaProcessorThread** threads;

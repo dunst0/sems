@@ -56,7 +56,7 @@ struct SchedRequest : public AmEvent
 /*         session scheduler              */
 
 AmMediaProcessor* AmMediaProcessor::_instance = NULL;
-AmMutex          AmThreadWatcher::_instance_mutex;
+AmMutex           AmThreadWatcher::_instance_mutex;
 
 AmMediaProcessor::AmMediaProcessor()
     : num_threads(0)

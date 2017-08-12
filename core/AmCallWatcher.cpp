@@ -40,34 +40,35 @@ AmCallStatus::~AmCallStatus() {}
 
 void AmCallStatus::dump() {}
 
-AmCallStatusUpdateEvent::AmCallStatusUpdateEvent(UpdateType t, const string& call_id)
+AmCallStatusUpdateEvent::AmCallStatusUpdateEvent(UpdateType    t,
+                                                 const string& call_id)
     : AmEvent(t)
-    , call_id(call_id) {}
+    , call_id(call_id)
+{
+}
 
-AmCallStatusUpdateEvent::AmCallStatusUpdateEvent(const string& call_id, AmCallStatus* init_status)
+AmCallStatusUpdateEvent::AmCallStatusUpdateEvent(const string& call_id,
+                                                 AmCallStatus* init_status)
     : AmEvent(Initialize)
     , call_id(call_id)
-    , init_status(init_status) {}
+    , init_status(init_status)
+{
+}
 
 AmCallStatusUpdateEvent::~AmCallStatusUpdateEvent() {}
 
-string AmCallStatusUpdateEvent::get_call_id()
+string AmCallStatusUpdateEvent::get_call_id() { return call_id; }
+
+AmCallStatus* AmCallStatusUpdateEvent::get_init_status() { return init_status; }
+
+AmCallWatcherGarbageCollector::AmCallWatcherGarbageCollector(
+    CallStatusTimedMap& garbage, AmMutex& mutex)
+    : garbage(garbage)
+    , garbage_mutex(mutex)
 {
-  return call_id;
 }
 
-AmCallStatus* AmCallStatusUpdateEvent::get_init_status()
-{
-  return init_status;
-}
-
-AmCallWatcherGarbageCollector::AmCallWatcherGarbageCollector(CallStatusTimedMap& garbage, AmMutex& mutex)
- : garbage(garbage)
-      , garbage_mutex(mutex)
-  {
-  }
-
-AmCallWatcherGarbageCollector::on_stop() {}
+void AmCallWatcherGarbageCollector::on_stop() {}
 
 void AmCallWatcherGarbageCollector::run()
 {
@@ -81,7 +82,7 @@ void AmCallWatcherGarbageCollector::run()
 
     bool erased = false;
 
-    mutex.lock();
+    garbage_mutex.lock();
 
     CallStatusTimedMap::iterator it = garbage.begin();
     while (it != garbage.end()) {
@@ -102,7 +103,7 @@ void AmCallWatcherGarbageCollector::run()
           (unsigned int) garbage.size());
     }
 
-    mutex.unlock();
+    garbage_mutex.unlock();
   }
 }
 

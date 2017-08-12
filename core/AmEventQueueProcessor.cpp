@@ -86,7 +86,7 @@ void AmEventQueueProcessor::addThreads(unsigned int num_threads)
   threads_mutex.lock();
 
   for (unsigned int i = 0; i < num_threads; i++) {
-    AmEventQueueWorker *worker = new AmEventQueueWorker();
+    AmEventQueueWorker* worker = new AmEventQueueWorker();
     threads.push_back(worker);
     worker->start();
   }
@@ -141,10 +141,7 @@ void AmEventQueueWorker::run()
   }
 }
 
-void AmEventQueueWorker::on_stop()
-{
-  INFO("requesting worker to stop.\n");
-}
+void AmEventQueueWorker::on_stop() { INFO("requesting worker to stop.\n"); }
 
 void AmEventQueueWorker::startEventQueue(AmEventQueue* q)
 {

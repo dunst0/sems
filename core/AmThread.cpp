@@ -57,7 +57,8 @@ void AmMutex::lock() { pthread_mutex_lock(&m); }
 void AmMutex::unlock() { pthread_mutex_unlock(&m); }
 
 AmThread::AmThread()
-    : running(false), run_condition(false)
+    : running(false)
+    , run_condition(false)
 {
 }
 
@@ -73,10 +74,7 @@ void* AmThread::threadStart(void* self)
   return NULL;
 }
 
-AmCondition<bool> AmThread::getRunCondition()
-{
-  return run_condition;
-}
+AmCondition<bool> AmThread::getRunCondition() { return run_condition; }
 
 void AmThread::start()
 {

@@ -216,8 +216,8 @@ class AmThread
 
  protected:
   AmCondition<bool> getRunCondition();
-  virtual void run()     = 0;
-  virtual void on_stop() = 0;
+  virtual void      run()     = 0;
+  virtual void      on_stop() = 0;
 
  public:
   AmThread();

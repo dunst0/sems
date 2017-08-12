@@ -75,6 +75,7 @@ class AmRtpReceiverThread : public AmThread
 
   static void _rtp_receiver_read_cb(evutil_socket_t sd, short int what,
                                     void* arg);
+
  protected:
   void run();
   void on_stop();
