@@ -222,7 +222,6 @@ void AmMediaProcessor::dispose()
   if (_instance != NULL) {
     if (_instance->threads != NULL) {
       _instance->stop();
-      _instance->join();
     }
     delete _instance;
     _instance = NULL;
