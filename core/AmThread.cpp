@@ -109,7 +109,7 @@ void AmThread::start()
       ERROR("The value specified by attr is invalid");
     }
     else if (res == EPERM) {
-      ERROR("The caller does not have appropriate permission")
+      ERROR("The caller does not have appropriate permission");
     }
     else {
       ERROR("pthread create failed with code %i\n", res);
