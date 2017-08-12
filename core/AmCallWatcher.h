@@ -47,8 +47,8 @@
 #include <string>
 #include <utility>
 
-//class AmCallStatus;
-//class AmCallStatusUpdateEvent;
+class AmCallStatus;
+class AmCallStatusUpdateEvent;
 
 typedef std::map<std::string, AmCallStatus*> CallStatusMap;
 typedef std::map<std::string, std::pair<AmCallStatus*, time_t>> CallStatusTimedMap;
