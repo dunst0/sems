@@ -73,22 +73,18 @@ class AmRtpReceiverThread : public AmThread
   Streams streams;
   AmMutex streams_mut;
 
-  AmSharedVar<bool> stop_requested;
-
   static void _rtp_receiver_read_cb(evutil_socket_t sd, short int what,
                                     void* arg);
+ protected:
+  void run();
+  void on_stop();
 
  public:
   AmRtpReceiverThread();
   ~AmRtpReceiverThread();
 
-  void run();
-  void on_stop();
-
   void addStream(int sd, AmRtpStream* stream);
   void removeStream(int sd);
-
-  void stop_and_wait();
 };
 
 class _AmRtpReceiver

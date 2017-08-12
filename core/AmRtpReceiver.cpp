@@ -33,6 +33,7 @@
 #include "log.h"
 
 #include <errno.h>
+
 // Not on Solaris!
 #if !defined(__SVR4) && !defined(__sun)
 #include <strings.h>
@@ -47,7 +48,6 @@ _AmRtpReceiver::_AmRtpReceiver()
 _AmRtpReceiver::~_AmRtpReceiver() { delete[] receivers; }
 
 AmRtpReceiverThread::AmRtpReceiverThread()
-    : stop_requested(false)
 {
   // libevent event base
   ev_base = event_base_new();
@@ -65,19 +65,13 @@ void AmRtpReceiverThread::on_stop()
   event_base_loopbreak(ev_base);
 }
 
-void AmRtpReceiverThread::stop_and_wait()
-{
-  if (!is_stopped()) {
-    stop();
-
-    while (!is_stopped()) usleep(10000);
-  }
-}
-
 void _AmRtpReceiver::dispose()
 {
   for (unsigned int i = 0; i < n_receivers; i++) {
-    receivers[i].stop_and_wait();
+    if (receivers[i].isRunning()) {
+      receivers[i].stop();
+      receivers[i].join();
+    }
   }
 }
 
@@ -176,7 +170,9 @@ void AmRtpReceiverThread::removeStream(int sd)
 
 void _AmRtpReceiver::start()
 {
-  for (unsigned int i = 0; i < n_receivers; i++) receivers[i].start();
+  for (unsigned int i = 0; i < n_receivers; i++) {
+    receivers[i].start();
+  }
 }
 
 void _AmRtpReceiver::addStream(int sd, AmRtpStream* stream)

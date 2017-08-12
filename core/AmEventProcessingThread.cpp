@@ -51,16 +51,13 @@ void AmEventProcessingThread::postEvent(AmEvent* ev)
   }
 }
 
-void AmEventProcessingThread::on_stop()
-{
-  DBG("AmEventProcessingThread::on_stop\n");
-}
+void AmEventProcessingThread::on_stop() {}
 
 void AmEventProcessingThread::run()
 {
   DBG("AmEventProcessingThread running...\n");
 
-  while (processing_events) {
+  while (isRunning()) {
     waitForEvent();
     processEvents();
   }
@@ -71,7 +68,7 @@ void AmEventProcessingThread::run()
 void AmEventProcessingThread::stop_processing()
 {
   DBG("stop of event processing requested.\n");
-  processing_events = false;
+  stop();
 }
 
 void AmEventProcessingThread::process(AmEvent* ev)
@@ -79,12 +76,14 @@ void AmEventProcessingThread::process(AmEvent* ev)
   // check for shutdown
   if (ev->event_id == E_SYSTEM) {
     AmSystemEvent* sys_ev = dynamic_cast<AmSystemEvent*>(ev);
+
     if (sys_ev) {
       DBG("received system Event\n");
+
       if (sys_ev->sys_event == AmSystemEvent::ServerShutdown) {
         DBG("received system Event: ServerShutdown. Stopping event "
             "processing.\n");
-        processing_events = false;
+        stop();
       }
     }
   }

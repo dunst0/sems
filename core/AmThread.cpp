@@ -57,7 +57,7 @@ void AmMutex::lock() { pthread_mutex_lock(&m); }
 void AmMutex::unlock() { pthread_mutex_unlock(&m); }
 
 AmThread::AmThread()
-    : running(false)
+    : running(false), run_condition(false)
 {
 }
 
@@ -71,6 +71,11 @@ void* AmThread::threadStart(void* self)
   DBG("Thread %lu is ending.\n", (unsigned long int) _this->pid);
 
   return NULL;
+}
+
+AmCondition<bool> AmThread::getRunCondition()
+{
+  return run_condition;
 }
 
 void AmThread::start()
@@ -139,6 +144,7 @@ void AmThread::stop()
   }
 
   running.unsafe_set(false);
+  run_condition.set(true);
   running.unlock();
 }
 
@@ -245,13 +251,8 @@ int AmThread::setRealtime()
   return 0;
 }
 
-AmThreadWatcher* AmThreadWatcher::_instance = 0;
+AmThreadWatcher* AmThreadWatcher::_instance = NULL;
 AmMutex          AmThreadWatcher::_instance_mutex;
-
-AmThreadWatcher::AmThreadWatcher()
-    : run_condition(false)
-{
-}
 
 AmThreadWatcher* AmThreadWatcher::instance()
 {
@@ -272,19 +273,17 @@ void AmThreadWatcher::add(AmThread* thread)
 
   thread_queue_mutex.lock();
   thread_queue.push(thread);
-  run_condition.set(true);
+  getRunCondition().set(true);
   thread_queue_mutex.unlock();
 
   DBG("added thread %lu to thread watcher.\n",
       (unsigned long int) thread->getPid());
 }
 
-void AmThreadWatcher::on_stop() { run_condition.set(true); }
-
 void AmThreadWatcher::run()
 {
   while (isRunning()) {
-    run_condition.wait_for();
+    getRunCondition().wait_for();
     sleep(10); // Let the threads some time to stop
 
     thread_queue_mutex.lock();
@@ -330,7 +329,7 @@ void AmThreadWatcher::run()
     DBG("Thread watcher finished\n");
 
     if (thread_queue.empty()) {
-      run_condition.set(false);
+      getRunCondition().set(false);
     }
 
     thread_queue_mutex.unlock();

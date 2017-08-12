@@ -103,5 +103,3 @@ bool trsp_socket::match_addr(sockaddr_storage* other_addr) const
 int trsp_socket::get_sd() const { return sd; }
 
 unsigned short trsp_socket::get_if() const { return if_num; }
-
-transport::~transport() {}

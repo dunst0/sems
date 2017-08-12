@@ -75,7 +75,6 @@ void AmSessionProcessor::addThreads(unsigned int num_threads)
 
 AmSessionProcessorThread::AmSessionProcessorThread()
     : events(this)
-    , runcond(false)
 {
 }
 
@@ -84,21 +83,20 @@ AmSessionProcessorThread::~AmSessionProcessorThread() {}
 void AmSessionProcessorThread::notify(AmEventQueue* sender)
 {
   process_sessions_mut.lock();
-  runcond.set(true);
+  getRunCondition().set(true);
   process_sessions.insert(sender);
   process_sessions_mut.unlock();
 }
 
 void AmSessionProcessorThread::run()
 {
-  stop_requested = false;
-  while (!stop_requested.get()) {
-    runcond.wait_for();
+  while (isRunning()) {
+    getRunCondition().wait_for();
 
     DBG("running processing loop\n");
 
     process_sessions_mut.lock();
-    runcond.set(false);
+    getRunCondition().set(false);
     // get the list of session s that need processing
     set<AmEventQueue*> pending_process_sessions = process_sessions;
     process_sessions.clear();
@@ -156,11 +154,7 @@ void AmSessionProcessorThread::run()
   }
 }
 
-void AmSessionProcessorThread::on_stop()
-{
-  INFO("requesting session to stop.\n");
-  stop_requested.set(true);
-}
+void AmSessionProcessorThread::on_stop() {}
 
 // AmEventHandler interface
 void AmSessionProcessorThread::process(AmEvent* e)
@@ -188,7 +182,7 @@ void AmSessionProcessorThread::startSession(AmSession* s)
   notify(s);
 
   // wakeup the thread
-  runcond.set(true);
+  getRunCondition().set(true);
 }
 
 #endif

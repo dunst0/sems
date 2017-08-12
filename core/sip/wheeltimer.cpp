@@ -79,7 +79,7 @@ void _wheeltimer::run()
   gettimeofday(&now, NULL);
   timeradd(&tick, &now, &next_tick);
 
-  while (true) {
+  while (isRunning()) {
     gettimeofday(&now, NULL);
 
     if (timercmp(&now, &next_tick, <)) {

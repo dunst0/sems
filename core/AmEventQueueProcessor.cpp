@@ -96,14 +96,7 @@ void AmEventQueueProcessor::addThreads(unsigned int num_threads)
   threads_mutex.unlock();
 }
 
-EventQueueWorker::EventQueueWorker()
-    : run_condition(false)
-{
-}
-
-EventQueueWorker::~EventQueueWorker() {}
-
-void EventQueueWorker::notify(AmEventQueue* sender)
+void AmEventQueueWorker::notify(AmEventQueue* sender)
 {
   process_queues_mutex.lock();
 
@@ -114,13 +107,13 @@ void EventQueueWorker::notify(AmEventQueue* sender)
   process_queues_mutex.unlock();
 }
 
-void EventQueueWorker::run()
+void AmEventQueueWorker::run()
 {
   while (isRunning()) {
-    run_condition.wait_for();
+    getRunCondition().wait_for();
 
-    if (stop_requested.get()) {
-      continue;
+    if (!isRunning()) {
+      break;
     }
 
     DBG("running processing loop\n");
@@ -132,30 +125,31 @@ void EventQueueWorker::run()
 
       if (!ev_q->processingCycle()) {
         ev_q->setEventNotificationSink(NULL);
-        if (!ev_q->is_finalized()) ev_q->finalize();
+
+        if (!ev_q->is_finalized()) {
+          ev_q->finalize();
+        }
       }
+
       dec_ref(ev_q);
 
       process_queues_mut.lock();
     }
 
-    runcond.set(false);
+    getRunCondition().set(false);
     process_queues_mut.unlock();
   }
-
-  INFO("mäh");
 }
 
-void EventQueueWorker::on_stop()
+void AmEventQueueWorker::on_stop()
 {
   INFO("requesting worker to stop.\n");
-  stop_requested.set(true);
-  runcond.set(true);
 }
 
-void EventQueueWorker::startEventQueue(AmEventQueue* q)
+void AmEventQueueWorker::startEventQueue(AmEventQueue* q)
 {
-  if (q->startup())
+  if (q->startup()) {
     // register us to be notified if some event comes to the session
     q->setEventNotificationSink(this);
+  }
 }

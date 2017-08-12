@@ -46,13 +46,12 @@ using std::unique_ptr;
 using std::map;
 
 AmSessionContainer* AmSessionContainer::_instance = NULL;
+AmMutex             AmSessionContainer::_instance_mutex;
 
 _MONITORING_DECLARE_INTERFACE(AmSessionContainer);
 
 AmSessionContainer::AmSessionContainer()
-    : _container_closed(false)
-    , _run_cond(false)
-    , enable_unclean_shutdown(false)
+    : enable_unclean_shutdown(false)
     , max_cps(0)
     , CPSLimit(0)
     , CPSHardLimit(0)
@@ -61,23 +60,30 @@ AmSessionContainer::AmSessionContainer()
 
 AmSessionContainer* AmSessionContainer::instance()
 {
-  if (!_instance) _instance = new AmSessionContainer();
+  _instance_mutex.lock();
+  if (!_instance) {
+    _instance = new AmSessionContainer();
+  }
 
+  _instance_mutex.unlock();
   return _instance;
 }
 
 void AmSessionContainer::dispose()
 {
+  _instance_mutex.lock();
+
   if (_instance != NULL) {
-    if (!_instance->is_stopped()) {
+    if (_instance->isRunning()) {
       _instance->stop(false);
       _instance->join();
     }
 
-    // todo: add locking here
     delete _instance;
     _instance = NULL;
   }
+
+  _instance_mutex.unlock();
 }
 
 bool AmSessionContainer::clean_sessions()
@@ -120,8 +126,10 @@ bool AmSessionContainer::clean_sessions()
     throw; /* throw again as this is fatal (because unlocking the mutex fails!!
             */
   }
+
   bool more = !d_sessions.empty();
   ds_mut.unlock();
+
   return more;
 }
 
@@ -129,19 +137,22 @@ void AmSessionContainer::initMonitoring() { _MONITORING_INIT; }
 
 void AmSessionContainer::run()
 {
-  while (!_container_closed.get()) {
-    _run_cond.wait_for();
+  while (isRunning()) {
+    getRunCondition().wait_for();
 
-    if (_container_closed.get()) break;
-
+    if (!isRunning()) break;
     // Give the Sessions some time to stop by themselves
     sleep(5);
 
     bool more = clean_sessions();
 
     DBG("Session cleaner finished\n");
-    if (!more && (!_container_closed.get())) _run_cond.set(false);
+    getRunCondition().set(more);
   }
+
+  DBG("cleaning sessions...\n");
+  while (clean_sessions()) usleep(10000);
+
   DBG("Session cleaner terminating\n");
 }
 
@@ -155,8 +166,6 @@ void AmSessionContainer::broadcastShutdown()
 
 void AmSessionContainer::on_stop()
 {
-  _container_closed.set(true);
-
   if (enable_unclean_shutdown) {
     INFO("unclean shutdown requested - not broadcasting shutdown\n");
   }
@@ -165,22 +174,20 @@ void AmSessionContainer::on_stop()
 
     DBG("waiting for active event queues to stop...\n");
 
-    for (unsigned int i = 0;
-         (!AmEventDispatcher::instance()->empty()
-          && (!AmConfig::MaxShutdownTime
-              || i < AmConfig::MaxShutdownTime * 1000 / 10));
-         i++)
+    unsigned int i = 0;
+    while (!AmEventDispatcher::instance()->empty()) {
+      if (AmConfig::MaxShutdownTime && i < AmConfig::MaxShutdownTime * 100) {
+        break;
+      }
+
       usleep(10000);
+      i++;
+    }
 
     if (!AmEventDispatcher::instance()->empty()) {
       WARN("Not all calls cleanly ended!\n");
     }
-
-    DBG("cleaning sessions...\n");
-    while (clean_sessions()) usleep(10000);
   }
-
-  _run_cond.set(true); // so that thread stops
 }
 
 void AmSessionContainer::stopAndQueue(AmSession* s)
@@ -193,7 +200,7 @@ void AmSessionContainer::stopAndQueue(AmSession* s)
 
   ds_mut.lock();
   d_sessions.push(s);
-  _run_cond.set(true);
+  getRunCondition().set(true);
   ds_mut.unlock();
 }
 
@@ -215,6 +222,7 @@ string AmSessionContainer::startSessionUAC(const AmSipRequest& req,
                                            AmArg*              session_params)
 {
   unique_ptr<AmSession> session;
+
   try {
     session.reset(createSession(req, app_name, session_params));
     if (session.get() != 0) {
@@ -429,6 +437,7 @@ unsigned int AmSessionContainer::getMaxCPS()
   AmLock       lock(cps_mut);
   unsigned int res = max_cps;
   max_cps          = 0;
+
   return res;
 }
 
@@ -469,7 +478,7 @@ AmSession* AmSessionContainer::createSession(const AmSipRequest& req,
                                              AmArg*              session_params)
 {
   if (AmConfig::ShutdownMode) {
-    _run_cond.set(true); // so that thread stops
+    getRunCondition().set(true); // so that thread stops
     DBG("Shutdown mode. Not creating session.\n");
 
     AmSipDialog::reply_error(req, AmConfig::ShutdownModeErrCode,

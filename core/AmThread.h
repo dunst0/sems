@@ -210,10 +210,12 @@ class AmThread
   unsigned long int pid;
 
   AmSharedVar<bool> running;
+  AmCondition<bool> run_condition;
 
   static void* threadStart(void* self);
 
  protected:
+  AmCondition<bool> getRunCondition();
   virtual void run()     = 0;
   virtual void on_stop() = 0;
 
@@ -259,14 +261,11 @@ class AmThreadWatcher : public AmThread
   std::queue<AmThread*> thread_queue;
   AmMutex               thread_queue_mutex;
 
-  /** the daemon only runs if this is true */
-  AmCondition<bool> run_condition;
-
-  AmThreadWatcher();
+  AmThreadWatcher() {}
 
  protected:
   void run();
-  void on_stop();
+  void on_stop() {}
 
  public:
   static AmThreadWatcher* instance();

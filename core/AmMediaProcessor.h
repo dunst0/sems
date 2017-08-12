@@ -166,6 +166,7 @@ class AmMediaProcessorThread
   AmEventQueue              events;
   unsigned char             buffer[AUDIO_BUFFER_SIZE];
   std::set<AmMediaSession*> sessions;
+  AmMutex                   sessions_mutex;
 
   void processAudio(unsigned long long int ts);
   /**
@@ -173,13 +174,13 @@ class AmMediaProcessorThread
    */
   void processDtmfEvents();
 
+  // AmEventHandler interface
+  void process(AmEvent* e);
+
+ protected:
   // AmThread interface
   void              run();
   void              on_stop();
-  AmSharedVar<bool> stop_requested;
-
-  // AmEventHandler interface
-  void process(AmEvent* e);
 
  public:
   AmMediaProcessorThread();
@@ -201,6 +202,7 @@ class AmMediaProcessorThread
 class AmMediaProcessor
 {
   static AmMediaProcessor* _instance;
+  static AmMutex          _instance_mutex;
 
   unsigned int             num_threads;
   AmMediaProcessorThread** threads;

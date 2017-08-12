@@ -56,6 +56,7 @@ struct SchedRequest : public AmEvent
 /*         session scheduler              */
 
 AmMediaProcessor* AmMediaProcessor::_instance = NULL;
+AmMutex          AmThreadWatcher::_instance_mutex;
 
 AmMediaProcessor::AmMediaProcessor()
     : num_threads(0)
@@ -83,8 +84,12 @@ void AmMediaProcessor::init()
 
 AmMediaProcessor* AmMediaProcessor::instance()
 {
-  if (!_instance) _instance = new AmMediaProcessor();
+  _instance_mutex.lock();
+  if (!_instance) {
+    _instance = new AmMediaProcessor();
+  }
 
+  _instance_mutex.unlock();
   return _instance;
 }
 
@@ -156,10 +161,12 @@ void AmMediaProcessor::removeFromProcessor(AmMediaSession* s,
 {
   DBG("AmMediaProcessor::removeSession\n");
   group_mut.lock();
+
   // get scheduler
   string       callgroup    = session2callgroup[s];
   unsigned int sched_thread = callgroup2thread[callgroup];
   DBG("  callgroup is '%s', thread %u\n", callgroup.c_str(), sched_thread);
+
   // erase callgroup membership entry
   multimap<string, AmMediaSession*>::iterator it =
       callgroupmembers.lower_bound(callgroup);
@@ -169,13 +176,16 @@ void AmMediaProcessor::removeFromProcessor(AmMediaSession* s,
       callgroupmembers.erase(it);
       break;
     }
+
     it++;
   }
+
   // erase callgroup entry if empty
   if (!callgroupmembers.count(callgroup)) {
     callgroup2thread.erase(callgroup);
     DBG("callgroup empty, erasing it.\n");
   }
+
   // erase session entry
   session2callgroup.erase(s);
   group_mut.unlock();
@@ -189,7 +199,7 @@ void AmMediaProcessor::stop()
 
   for (unsigned int i = 0; i < num_threads; i++) {
     if (threads[i] != NULL) {
-      threads[i]->stop(false);
+      threads[i]->stop();
     }
   }
 
@@ -207,13 +217,18 @@ void AmMediaProcessor::stop()
 
 void AmMediaProcessor::dispose()
 {
+  _instance_mutex.lock();
+
   if (_instance != NULL) {
     if (_instance->threads != NULL) {
       _instance->stop();
+      _instance->join();
     }
     delete _instance;
     _instance = NULL;
   }
+
+  _instance_mutex.unlock();
 }
 
 /* the actual media processing thread */
@@ -228,7 +243,6 @@ AmMediaProcessorThread::~AmMediaProcessorThread() {}
 void AmMediaProcessorThread::on_stop()
 {
   INFO("requesting media processor to stop.\n");
-  stop_requested.set(true);
 }
 
 void AmMediaProcessorThread::run()
@@ -246,7 +260,7 @@ void AmMediaProcessorThread::run()
   gettimeofday(&now, NULL);
   timeradd(&tick, &now, &next_tick);
 
-  while (!stop_requested.get()) {
+  while (isRunning()) {
     gettimeofday(&now, NULL);
 
     if (timercmp(&now, &next_tick, <)) {
@@ -274,6 +288,8 @@ void AmMediaProcessorThread::run()
  */
 void AmMediaProcessorThread::processDtmfEvents()
 {
+  AmLock lock(sessions_mutex);
+
   for (set<AmMediaSession*>::iterator it = sessions.begin();
        it != sessions.end(); it++) {
     AmMediaSession* s = (*it);
@@ -283,6 +299,8 @@ void AmMediaProcessorThread::processDtmfEvents()
 
 void AmMediaProcessorThread::processAudio(unsigned long long ts)
 {
+  AmLock lock(sessions_mutex);
+
   // receiving
   for (set<AmMediaSession*>::iterator it = sessions.begin();
        it != sessions.end(); it++) {
@@ -300,6 +318,8 @@ void AmMediaProcessorThread::processAudio(unsigned long long ts)
 
 void AmMediaProcessorThread::process(AmEvent* e)
 {
+  AmLock lock(sessions_mutex);
+
   SchedRequest* sr = dynamic_cast<SchedRequest*>(e);
   if (!sr) {
     ERROR("AmMediaProcessorThread::process: wrong event type\n");
@@ -349,7 +369,8 @@ void AmMediaProcessorThread::process(AmEvent* e)
 
 unsigned int AmMediaProcessorThread::getLoad()
 {
-  // lock ?
+  AmLock lock(sessions_mutex);
+
   return sessions.size();
 }
 

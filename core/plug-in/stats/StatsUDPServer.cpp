@@ -216,7 +216,7 @@ void StatsUDPServer::run()
   char msg_buf[MSG_BUF_SIZE];
   int  msg_buf_s;
 
-  while (true) {
+  while (isRunning()) {
     msg_buf_s =
         recvfrom(sd, msg_buf, MSG_BUF_SIZE, 0, (sockaddr*) &addr, &addrlen);
     if (msg_buf_s == -1) {

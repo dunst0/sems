@@ -48,6 +48,7 @@
 class AmSessionContainer : public AmThread
 {
   static AmSessionContainer* _instance;
+  static AmMutex             _instance_mutex;
 
   typedef std::queue<AmSession*> SessionQueue;
 
@@ -55,12 +56,6 @@ class AmSessionContainer : public AmThread
   SessionQueue d_sessions;
   /** Mutex to protect the dead session container */
   AmMutex ds_mut;
-
-  /** is container closed for new sessions? */
-  AmCondition<bool> _container_closed;
-
-  /** the daemon only runs if this is true */
-  AmCondition<bool> _run_cond;
 
   /** We are a Singleton ! Avoid people to have their own instance. */
   AmSessionContainer();

@@ -164,7 +164,7 @@ class transport : public AmThread
       : sock(sock)
   {
   }
-  virtual ~transport();
+  virtual ~transport() {}
 };
 
 #endif

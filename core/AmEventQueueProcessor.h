@@ -38,19 +38,17 @@ class AmEventQueueWorker
     : public AmThread
     , public AmEventNotificationSink
 {
-  AmSharedVar<bool> stop_requested;
-  AmCondition<bool>         run_condition;
-
   std::deque<AmEventQueue*> process_queues;
   AmMutex                   process_queues_mutex;
 
- public:
-  AmEventQueueWorker();
-  ~AmEventQueueWorker();
-
+ protected:
   // AmThread interface
   void run();
   void on_stop();
+
+ public:
+  AmEventQueueWorker() {}
+  ~AmEventQueueWorker() {}
 
   // AmEventNotificationSink interface
   void notify(AmEventQueue* sender);

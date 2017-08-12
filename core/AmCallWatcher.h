@@ -26,8 +26,8 @@
  */
 /** @file AmCallWatcher.h */
 
-#ifndef _AMCALLWATCHER_H
-#define _AMCALLWATCHER_H
+#ifndef _AMCALLWATCHER_H_
+#define _AMCALLWATCHER_H_
 
 //
 // States are put into map on an Initialize event.
@@ -47,16 +47,37 @@
 #include <string>
 #include <utility>
 
-class CallStatus;
+//class AmCallStatus;
+//class AmCallStatusUpdateEvent;
+
+typedef std::map<std::string, AmCallStatus*> CallStatusMap;
+typedef std::map<std::string, std::pair<AmCallStatus*, time_t>> CallStatusTimedMap;
+
+/**
+ * \brief interface for an update-able call status (AmCallWatcher)
+ */
+class AmCallStatus
+{
+ public:
+  AmCallStatus();
+  virtual ~AmCallStatus();
+
+  /** update from an event */
+  virtual void update(AmCallStatusUpdateEvent* e) = 0;
+
+  /** get a copy of self with relevant data */
+  virtual AmCallStatus* copy() = 0;
+  virtual void        dump();
+};
 
 /**
  * \brief event that carries out call status update
  */
-class CallStatusUpdateEvent : public AmEvent
+class AmCallStatusUpdateEvent : public AmEvent
 {
   std::string call_id;
 
-  CallStatus* init_status;
+  AmCallStatus* init_status;
 
  public:
   enum UpdateType
@@ -66,44 +87,35 @@ class CallStatusUpdateEvent : public AmEvent
     Obsolete
   };
 
-  CallStatusUpdateEvent(UpdateType t, const std::string& call_id)
-      : AmEvent(t)
-      , call_id(call_id)
-  {
-  }
+  AmCallStatusUpdateEvent(UpdateType t, const std::string& call_id);
+  AmCallStatusUpdateEvent(const std::string& call_id, AmCallStatus* init_status);
 
-  // implicit: initialize
-  CallStatusUpdateEvent(const std::string& call_id, CallStatus* init_status)
-      : AmEvent(Initialize)
-      , call_id(call_id)
-      , init_status(init_status)
-  {
-  }
+  ~AmCallStatusUpdateEvent();
 
-  ~CallStatusUpdateEvent() {}
-
-  std::string get_call_id() { return call_id; }
-  CallStatus* get_init_status() { return init_status; }
+  std::string get_call_id();
+  AmCallStatus* get_init_status();
 };
 
 /**
- * \brief interface for an update-able call status (AmCallWatcher)
+ * \brief garbage collector for the AmCallWatcher
+ *
+ * checks garbage every two seconds.
+ * A bit inefficient with two threads, but AmCallWatcher
+ * shouldn't be blocked by event.
  */
-class CallStatus
+class AmCallWatcherGarbageCollector : public AmThread
 {
+  AmMutex&                           mutex;
+  CallStatusTimedMap& garbage;
+
+ protected:
+  void run();
+  void on_stop();
+
  public:
-  CallStatus() {}
-  virtual ~CallStatus() {}
-
-  /** update from an event */
-  virtual void update(CallStatusUpdateEvent* e) = 0;
-
-  /** get a copy of self with relevant data */
-  virtual CallStatus* copy() = 0;
-  virtual void        dump() {}
+  AmCallWatcherGarbageCollector(CallStatusTimedMap& garbage, AmMutex& mutex);
 };
 
-class AmCallWatcherGarbageCollector;
 /**
  * \brief manages call status to be queried by external processes
  * call watcher is an entity for managing call status
@@ -117,58 +129,29 @@ class AmCallWatcher
     , public AmEventQueue
     , public AmEventHandler
 {
- public:
-  typedef std::map<std::string, CallStatus*> CallStatusMap;
-  typedef std::map<std::string, std::pair<CallStatus*, time_t>>
-      CallStatusTimedMap;
-
  private:
   CallStatusMap states;
-  AmMutex       states_mut;
+  AmMutex       states_mutex;
 
   CallStatusTimedMap             soft_states;
-  AmMutex                        soft_states_mut;
+  AmMutex                        soft_states_mutex;
   AmCallWatcherGarbageCollector* garbage_collector;
+
+ protected:
+  void run();
+  void on_stop();
 
  public:
   AmCallWatcher();
   ~AmCallWatcher();
 
-  // thread
-  void run();
-  void on_stop();
-
   // eventhandler
   void process(AmEvent*);
 
-  CallStatus* getStatus(const std::string& call_id);
+  AmCallStatus* getStatus(const std::string& call_id);
 
   // dump all states
   void dump();
-};
-
-/**
- * \brief garbage collector for the AmCallWatcher
- *
- * checks garbage every two seconds.
- * A bit inefficient with two threads, but AmCallWatcher
- * shouldn't be blocked by event.
- */
-class AmCallWatcherGarbageCollector : public AmThread
-{
-  AmMutex&                           mut;
-  AmCallWatcher::CallStatusTimedMap& garbage;
-
- public:
-  AmCallWatcherGarbageCollector(AmMutex&                           mut,
-                                AmCallWatcher::CallStatusTimedMap& garbage)
-      : mut(mut)
-      , garbage(garbage)
-  {
-  }
-
-  void run();
-  void on_stop() {}
 };
 
 #endif
