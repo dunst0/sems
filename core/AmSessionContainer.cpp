@@ -196,7 +196,7 @@ void AmSessionContainer::stopAndQueue(AmSession* s)
     INFO("session cleaner about to stop %s\n", s->getLocalTag().c_str());
   }
 
-  s->stop(false);
+  s->stop();
 
   ds_mut.lock();
   d_sessions.push(s);
