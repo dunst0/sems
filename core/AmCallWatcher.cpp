@@ -110,7 +110,8 @@ void AmCallWatcherGarbageCollector::run()
 AmCallWatcher::AmCallWatcher()
     : AmEventQueue(this)
 {
-  garbage_collector = new AmCallWatcherGarbageCollector(soft_states, soft_states_mutex);
+  garbage_collector =
+      new AmCallWatcherGarbageCollector(soft_states, soft_states_mutex);
 }
 
 AmCallWatcher::~AmCallWatcher() {}

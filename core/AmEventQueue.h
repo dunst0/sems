@@ -35,14 +35,15 @@
 
 #include <queue>
 
+class AmEventQueue;
+
 class AmEventQueueInterface
 {
  public:
   virtual ~AmEventQueueInterface() {}
-  virtual void postEvent(AmEvent*) = 0;
+  virtual void postEvent(AmEvent* event) = 0;
 };
 
-class AmEventQueue;
 /** a receiver for notifications about
     the fact that events are pending */
 class AmEventNotificationSink
@@ -68,9 +69,9 @@ class AmEventQueue
   AmEventHandler*          handler;
   AmEventNotificationSink* wakeup_handler;
 
-  std::queue<AmEvent*> ev_queue;
-  AmMutex              m_queue;
-  AmCondition<bool>    ev_pending;
+  std::queue<AmEvent*> event_queue;
+  AmMutex              event_queue_mutex;
+  AmCondition<bool>    event_pending;
 
   bool finalized;
 
@@ -86,15 +87,14 @@ class AmEventQueue
 
   void setEventNotificationSink(AmEventNotificationSink* _wakeup_handler);
 
-  bool is_finalized() { return finalized; }
-
-  // return true to continue processing
-  virtual bool startup() { return true; }
   virtual bool processingCycle()
   {
     processEvents();
     return true;
   }
+
+  virtual bool startup() { return true; }
+  bool         isFinalized() { return finalized; }
   virtual void finalize() { finalized = true; }
 };
 

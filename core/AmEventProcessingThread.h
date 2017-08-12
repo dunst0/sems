@@ -63,8 +63,6 @@ class AmEventProcessingThread
   ~AmEventProcessingThread();
 
   void postEvent(AmEvent* ev);
-
-  void stop_processing();
 };
 
 #endif

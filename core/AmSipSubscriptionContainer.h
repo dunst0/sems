@@ -42,7 +42,7 @@ typedef AmSipSubscriptionMap::iterator AmSipSubscriptionMapIter;
 class _AmSipSubscriptionContainer : public AmEventProcessingThread
 {
   AmSipSubscriptionMap subscriptions;
-  AmMutex              subscriptions_mut;
+  AmMutex              subscriptions_mutex;
 
   void initialize();
   bool initialized;

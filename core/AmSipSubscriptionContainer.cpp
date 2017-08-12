@@ -64,18 +64,20 @@ string _AmSipSubscriptionContainer::createSubscription(
 
   string handle = new_sub->getLocalTag();
 
-  subscriptions_mut.lock();
+  subscriptions_mutex.lock();
+
   subscriptions[handle] = new_sub;
   AmEventDispatcher::instance()->addEventQueue(handle, this);
   if (new_sub->subscribe(wanted_expires) < 0) {
     DBG("subscribe failed - removing subscription\b");
     AmEventDispatcher::instance()->delEventQueue(handle);
     subscriptions.erase(handle);
-    subscriptions_mut.unlock();
+    subscriptions_mutex.unlock();
     delete new_sub;
     return "";
   }
-  subscriptions_mut.unlock();
+
+  subscriptions_mutex.unlock();
 
   return handle;
 }
@@ -84,7 +86,7 @@ bool _AmSipSubscriptionContainer::refreshSubscription(
     const string& sub_handle, unsigned int wanted_expires)
 {
   bool res = true;
-  subscriptions_mut.lock();
+  subscriptions_mutex.lock();
   AmSipSubscriptionMapIter it = subscriptions.find(sub_handle);
   if (it != subscriptions.end()) {
     DBG("refreshing subscription '%s'\n", sub_handle.c_str());
@@ -94,13 +96,13 @@ bool _AmSipSubscriptionContainer::refreshSubscription(
     DBG("subscription '%s' already removed\n", sub_handle.c_str());
     res = false;
   }
-  subscriptions_mut.unlock();
+  subscriptions_mutex.unlock();
   return res;
 }
 
 void _AmSipSubscriptionContainer::removeSubscription(const string& sub_handle)
 {
-  subscriptions_mut.lock();
+  subscriptions_mutex.lock();
   AmSipSubscriptionMapIter it = subscriptions.find(sub_handle);
   if (it != subscriptions.end()) {
     DBG("unsubscribing subscription '%s'\n", sub_handle.c_str());
@@ -109,7 +111,7 @@ void _AmSipSubscriptionContainer::removeSubscription(const string& sub_handle)
   else {
     DBG("subscription '%s' already removed - ignoring\n", sub_handle.c_str());
   }
-  subscriptions_mut.unlock();
+  subscriptions_mutex.unlock();
 }
 
 // AmEventProcessingThread
@@ -122,10 +124,10 @@ void _AmSipSubscriptionContainer::onEvent(AmEvent* event)
         sip_req_ev->req.r_uri.c_str());
     string ltag = sip_req_ev->req.to_tag;
 
-    subscriptions_mut.lock();
+    subscriptions_mutex.lock();
     AmSipSubscriptionMapIter it = subscriptions.find(ltag);
     if (it == subscriptions.end()) {
-      subscriptions_mut.unlock();
+      subscriptions_mutex.unlock();
       WARN("got SIP request '%s' for unknown subscription '%s'\n",
            sip_req_ev->req.print().c_str(), ltag.c_str());
       AmSipDialog::reply_error(sip_req_ev->req, 481, SIP_REPLY_NOT_EXIST);
@@ -139,7 +141,7 @@ void _AmSipSubscriptionContainer::onEvent(AmEvent* event)
       subscriptions.erase(it);
       AmEventDispatcher::instance()->delEventQueue(ltag);
     }
-    subscriptions_mut.unlock();
+    subscriptions_mutex.unlock();
     return;
   }
 
@@ -148,10 +150,10 @@ void _AmSipSubscriptionContainer::onEvent(AmEvent* event)
     DBG("got SIP reply: '%s'\n", sip_reply_ev->reply.print().c_str());
     string ltag = sip_reply_ev->reply.from_tag;
 
-    subscriptions_mut.lock();
+    subscriptions_mutex.lock();
     AmSipSubscriptionMapIter it = subscriptions.find(ltag);
     if (it == subscriptions.end()) {
-      subscriptions_mut.unlock();
+      subscriptions_mutex.unlock();
       WARN("got SIP reply '%s' for unknown subscription '%s'\n",
            sip_reply_ev->reply.print().c_str(), ltag.c_str());
 
@@ -165,7 +167,7 @@ void _AmSipSubscriptionContainer::onEvent(AmEvent* event)
       subscriptions.erase(it);
       AmEventDispatcher::instance()->delEventQueue(ltag);
     }
-    subscriptions_mut.unlock();
+    subscriptions_mutex.unlock();
     return;
   }
 
@@ -176,10 +178,10 @@ void _AmSipSubscriptionContainer::onEvent(AmEvent* event)
 
     string ltag = to_ev->ltag;
 
-    subscriptions_mut.lock();
+    subscriptions_mutex.lock();
     AmSipSubscriptionMapIter it = subscriptions.find(ltag);
     if (it == subscriptions.end()) {
-      subscriptions_mut.unlock();
+      subscriptions_mutex.unlock();
       WARN("got timeout event '%i/%p' for unknown subscription '%s'\n",
            to_ev->timer_id, to_ev->sub, ltag.c_str());
 
@@ -193,7 +195,7 @@ void _AmSipSubscriptionContainer::onEvent(AmEvent* event)
       subscriptions.erase(it);
       AmEventDispatcher::instance()->delEventQueue(ltag);
     }
-    subscriptions_mut.unlock();
+    subscriptions_mutex.unlock();
     return;
   }
 }

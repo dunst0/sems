@@ -28,8 +28,8 @@
 
 AmEventProcessingThread::AmEventProcessingThread()
     : AmEventQueue(this)
-    , processing_events(true)
 {
+  getRunCondition().set(true);
 }
 
 AmEventProcessingThread::~AmEventProcessingThread() {}
@@ -51,24 +51,23 @@ void AmEventProcessingThread::postEvent(AmEvent* ev)
   }
 }
 
-void AmEventProcessingThread::on_stop() {}
+void AmEventProcessingThread::on_stop()
+{
+  getRunCondition().set(false);
+  event_pending.set(true);
+}
 
 void AmEventProcessingThread::run()
 {
   DBG("AmEventProcessingThread running...\n");
 
   while (isRunning()) {
+    getRunCondition().wait_for();
     waitForEvent();
     processEvents();
   }
 
   DBG("AmEventProcessingThread stopping.\n");
-}
-
-void AmEventProcessingThread::stop_processing()
-{
-  DBG("stop of event processing requested.\n");
-  stop();
 }
 
 void AmEventProcessingThread::process(AmEvent* ev)
