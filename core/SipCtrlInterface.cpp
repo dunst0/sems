@@ -409,7 +409,7 @@ void _SipCtrlInterface::cleanup()
 
   if (NULL != udp_servers) {
     for (int i = 0; i < nr_udp_servers; i++) {
-      udp_servers[i]->stop(false);
+      udp_servers[i]->stop();
       udp_servers[i]->join();
       delete udp_servers[i];
     }
@@ -421,7 +421,7 @@ void _SipCtrlInterface::cleanup()
 
   if (NULL != tcp_servers) {
     for (int i = 0; i < nr_tcp_servers; i++) {
-      tcp_servers[i]->stop(false);
+      tcp_servers[i]->stop();
       tcp_servers[i]->join();
       delete tcp_servers[i];
     }
