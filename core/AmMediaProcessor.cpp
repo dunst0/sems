@@ -234,9 +234,9 @@ void AmMediaProcessor::dispose()
 
 AmMediaProcessorThread::AmMediaProcessorThread()
     : events(this)
-    , stop_requested(false)
 {
 }
+
 AmMediaProcessorThread::~AmMediaProcessorThread() {}
 
 void AmMediaProcessorThread::on_stop()
