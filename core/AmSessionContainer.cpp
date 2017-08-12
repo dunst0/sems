@@ -100,7 +100,7 @@ bool AmSessionContainer::clean_sessions()
 
       ds_mut.unlock();
 
-      if (cur_session->is_stopped() && !cur_session->isProcessingMedia()) {
+      if (!cur_session->isRunning() && !cur_session->isProcessingMedia()) {
         MONITORING_MARK_FINISHED(cur_session->getLocalTag().c_str());
 
         DBG("session [%p] has been destroyed\n", (void*) cur_session->getPid());
