@@ -102,7 +102,7 @@ void AmEventQueueWorker::notify(AmEventQueue* sender)
 
   process_queues.push_back(sender);
   inc_ref(sender);
-  run_condition.set(true);
+  getRunCondition().set(true);
 
   process_queues_mutex.unlock();
 }
