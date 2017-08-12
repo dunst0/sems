@@ -117,11 +117,11 @@ void AmEventQueueWorker::run()
     }
 
     DBG("running processing loop\n");
-    process_queues_mut.lock();
+    process_queues_mutex.lock();
     while (!process_queues.empty()) {
       AmEventQueue* ev_q = process_queues.front();
       process_queues.pop_front();
-      process_queues_mut.unlock();
+      process_queues_mutex.unlock();
 
       if (!ev_q->processingCycle()) {
         ev_q->setEventNotificationSink(NULL);
@@ -133,11 +133,11 @@ void AmEventQueueWorker::run()
 
       dec_ref(ev_q);
 
-      process_queues_mut.lock();
+      process_queues_mutex.lock();
     }
 
     getRunCondition().set(false);
-    process_queues_mut.unlock();
+    process_queues_mutex.unlock();
   }
 }
 
