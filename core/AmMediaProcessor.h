@@ -97,7 +97,8 @@ class AmMediaSession
   /** Write to all media streams.
    *
    * For the meaning of parameters see description of readStreams() method. */
-  virtual int writeStreams(unsigned long long int ts, unsigned char* buffer) = 0;
+  virtual int writeStreams(unsigned long long int ts,
+                           unsigned char*         buffer) = 0;
 
   /** Handle events in DTMF event queue.
    *

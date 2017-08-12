@@ -75,23 +75,19 @@ AmSession::AmSession(AmSipDialog* p_dlg)
     , m_dtmfEventQueue(&m_dtmfDetector)
     , m_dtmfDetectionEnabled(true)
     , processing_status(SESSION_PROCESSING_EVENTS)
-    ,
 #ifdef SESSION_THREADPOOL
-    _pid(this)
-    ,
+    , _pid(this)
 #endif
-    sess_stopped(false)
+    , sess_stopped(false)
     , accept_early_session(false)
     , rtp_interface(-1)
     , input(NULL)
     , output(NULL)
     , refresh_method(REFRESH_UPDATE_FB_REINV)
-    ,
 #ifdef WITH_ZRTP
-    enable_zrtp(AmConfig::enable_zrtp)
-    ,
+    , enable_zrtp(AmConfig::enable_zrtp)
 #endif
-    dlg(p_dlg)
+    , dlg(p_dlg)
 {
   DBG("dlg = %p", dlg);
 
@@ -220,11 +216,14 @@ const vector<SdpPayload*>& AmSession::getPayloads() { return m_payloads; }
 int AmSession::getRPort() { return RTPStream()->getRPort(); }
 
 #ifdef SESSION_THREADPOOL
+
 void AmSession::start()
 {
   AmSessionProcessorThread* processor_thread =
       AmSessionProcessor::getProcessorThread();
-  if (NULL == processor_thread) throw string("no processing thread available");
+  if (NULL == processor_thread) {
+    throw string("no processing thread available");
+  }
 
   // have the thread register and start us
   processor_thread->startSession(this);
@@ -234,7 +233,9 @@ bool AmSession::is_stopped()
 {
   return processing_status == SESSION_ENDED_DISCONNECTED;
 }
+
 #else
+
 // in this case every session has its own thread
 // - this is the main processing loop
 void AmSession::run()
@@ -251,6 +252,7 @@ void AmSession::run()
   DBG("session event loop ended, finalizing session\n");
   finalize();
 }
+
 #endif
 
 bool AmSession::startup()

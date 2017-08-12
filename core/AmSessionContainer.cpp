@@ -75,7 +75,7 @@ void AmSessionContainer::dispose()
 
   if (_instance != NULL) {
     if (_instance->isRunning()) {
-      _instance->stop(false);
+      _instance->stop();
       _instance->join();
     }
 
@@ -103,11 +103,11 @@ bool AmSessionContainer::clean_sessions()
       if (cur_session->is_stopped() && !cur_session->isProcessingMedia()) {
         MONITORING_MARK_FINISHED(cur_session->getLocalTag().c_str());
 
-        DBG("session [%p] has been destroyed\n", (void*) cur_session->_pid);
+        DBG("session [%p] has been destroyed\n", (void*) cur_session->getPid());
         delete cur_session;
       }
       else {
-        DBG("session [%p] still running\n", (void*) cur_session->_pid);
+        DBG("session [%p] still running\n", (void*) cur_session->getPid());
         n_sessions.push(cur_session);
       }
 
