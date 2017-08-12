@@ -126,7 +126,7 @@ void AmEventQueueWorker::run()
       if (!ev_q->processingCycle()) {
         ev_q->setEventNotificationSink(NULL);
 
-        if (!ev_q->is_finalized()) {
+        if (!ev_q->isFinalized()) {
           ev_q->finalize();
         }
       }

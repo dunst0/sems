@@ -86,6 +86,7 @@ bool _AmSipSubscriptionContainer::refreshSubscription(
     const string& sub_handle, unsigned int wanted_expires)
 {
   bool res = true;
+
   subscriptions_mutex.lock();
   AmSipSubscriptionMapIter it = subscriptions.find(sub_handle);
   if (it != subscriptions.end()) {
@@ -97,6 +98,7 @@ bool _AmSipSubscriptionContainer::refreshSubscription(
     res = false;
   }
   subscriptions_mutex.unlock();
+
   return res;
 }
 
@@ -118,6 +120,7 @@ void _AmSipSubscriptionContainer::removeSubscription(const string& sub_handle)
 void _AmSipSubscriptionContainer::onEvent(AmEvent* event)
 {
   AmSipRequestEvent* sip_req_ev = dynamic_cast<AmSipRequestEvent*>(event);
+
   if (sip_req_ev) {
     // DBG("got SIP request: '%s'\n", sip_req_ev->req.print().c_str());
     DBG("got SIP request: %s %s\n", sip_req_ev->req.method.c_str(),
