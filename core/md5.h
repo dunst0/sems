@@ -26,6 +26,8 @@
 #ifndef _MD5_H_
 #define _MD5_H_
 
+#include <stdint.h>
+
 /* MD5 context. */
 typedef struct
 {
