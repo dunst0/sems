@@ -430,7 +430,7 @@ void AmSession::stop()
 {
   DBG("AmSession::stop()\n");
 
-  if (!isDetached()) {
+  if (isProcessingMedia()) {
     AmMediaProcessor::instance()->clearSession(this);
   }
   else {
