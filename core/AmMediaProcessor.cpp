@@ -249,9 +249,7 @@ void AmMediaProcessorThread::run()
   struct timeval now, next_tick, diff, tick;
 
   // wallclock time
-  unsigned long long ts = 0; // 4294417296;
-
-  stop_requested.set(false);
+  unsigned long long int ts = 0; // 4294417296;
 
   tick.tv_sec  = 0;
   tick.tv_usec = 1000 * WC_INC_MS;
@@ -296,7 +294,7 @@ void AmMediaProcessorThread::processDtmfEvents()
   }
 }
 
-void AmMediaProcessorThread::processAudio(unsigned long long ts)
+void AmMediaProcessorThread::processAudio(unsigned long long int ts)
 {
   AmLock lock(sessions_mutex);
 

@@ -92,12 +92,12 @@ class AmMediaSession
    * parameter from AmMediaProcessorThread and reuse it in all sessions handled
    * by this thread (processing is done sequentially one session after another).
    */
-  virtual int readStreams(unsigned long long ts, unsigned char* buffer) = 0;
+  virtual int readStreams(unsigned long long int ts, unsigned char* buffer) = 0;
 
   /** Write to all media streams.
    *
    * For the meaning of parameters see description of readStreams() method. */
-  virtual int writeStreams(unsigned long long ts, unsigned char* buffer) = 0;
+  virtual int writeStreams(unsigned long long int ts, unsigned char* buffer) = 0;
 
   /** Handle events in DTMF event queue.
    *
