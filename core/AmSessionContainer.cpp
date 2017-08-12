@@ -557,7 +557,7 @@ AmSessionContainer::addSession(const string& callid, const string& remote_tag,
                                const string& local_tag,
                                const string& via_branch, AmSession* session)
 {
-  if (_container_closed.get()) return ShutDown;
+  if (!isRunning()) return ShutDown;
 
   if (AmEventDispatcher::instance()->addEventQueue(
           local_tag, (AmEventQueue*) session, callid, remote_tag, via_branch)) {
@@ -570,7 +570,7 @@ AmSessionContainer::addSession(const string& callid, const string& remote_tag,
 AmSessionContainer::AddSessionStatus
 AmSessionContainer::addSession(const string& local_tag, AmSession* session)
 {
-  if (_container_closed.get()) return ShutDown;
+  if (!isRunning()) return ShutDown;
 
   if (AmEventDispatcher::instance()->addEventQueue(local_tag,
                                                    (AmEventQueue*) session)) {
