@@ -652,7 +652,7 @@ error:
   INFO("Disposing plug-ins\n");
   AmPlugIn::dispose();
 
-  async_file_writer::instance()->stop(false);
+  async_file_writer::instance()->stop();
   async_file_writer::instance()->join();
 
 #ifndef DISABLE_DAEMON_MODE
