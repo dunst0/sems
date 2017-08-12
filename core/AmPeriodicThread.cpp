@@ -35,9 +35,9 @@ void AmPeriodicThread::infinite_loop(struct timeval* tick,
                                      unsigned int    max_ticks_behind,
                                      void*           usr_data)
 {
-  struct timeval now, next_tick, diff;
-  unsigned int   ticks_passed;
-  unsigned long  ms_diff, ms_tick;
+  struct timeval    now, next_tick, diff;
+  unsigned int      ticks_passed;
+  unsigned long int ms_diff, ms_tick;
 
   assert(tick);
   ms_tick = tick->tv_sec * 1000 + tick->tv_usec / 1000;
@@ -77,7 +77,7 @@ void AmPeriodicThread::infinite_loop(struct timeval* tick,
     }
     else {
       // compute missed ticks
-      unsigned long ms_diff;
+      unsigned long int ms_diff;
       timersub(&now, &next_tick, &diff);
       ms_diff      = diff.tv_sec * 1000 + diff.tv_usec / 1000;
       ticks_passed = ms_diff / ms_tick + 1;

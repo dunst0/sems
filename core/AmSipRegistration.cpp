@@ -204,7 +204,8 @@ bool AmSIPRegistration::getUnregistering() { return unregistering; }
 
 unsigned int AmSIPRegistration::getExpiresLeft()
 {
-  long diff = reg_begin + reg_expires - time(NULL);
+  long int diff = reg_begin + reg_expires - time(NULL);
+
   if (diff < 0) {
     return 0;
   }

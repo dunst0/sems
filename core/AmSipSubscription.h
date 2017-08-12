@@ -98,9 +98,9 @@ class SingleSubscription
   };
 
   // state
-  unsigned int  sub_state;
-  int           pending_subscribe;
-  unsigned long expires;
+  unsigned int      sub_state;
+  int               pending_subscribe;
+  unsigned long int expires;
 
   // timers
   SubscriptionTimer timer_n;
@@ -143,8 +143,8 @@ class SingleSubscription
   unsigned int getState() { return sub_state; }
   virtual void setState(unsigned int st);
 
-  unsigned long getExpires() { return expires; }
-  void setExpires(unsigned long exp);
+  unsigned long int getExpires() { return expires; }
+  void setExpires(unsigned long int exp);
 
   void terminate();
   bool terminated();

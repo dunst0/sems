@@ -127,7 +127,7 @@ AmCachedAudioFile::AmCachedAudioFile(AmFileCache* cache)
   fd.channels = f_fmt->channels;
   fd.rate     = f_fmt->getRate();
 
-  long unsigned int ofpos = fpos;
+  unsigned long int ofpos = fpos;
 
   if (iofmt->mem_open
       && !(ret = (*iofmt->mem_open)(

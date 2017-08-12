@@ -42,9 +42,10 @@ class EchoFactory : public AmSessionFactory
 
  public:
   EchoFactory(const std::string& _app_name);
-  virtual int        onLoad();
-  virtual AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
-                              const std::map<std::string, std::string>& app_params);
+  virtual int onLoad();
+  virtual AmSession*
+  onInvite(const AmSipRequest& req, const std::string& app_name,
+           const std::map<std::string, std::string>&   app_params);
 };
 
 /** \brief echo session logic implementation */

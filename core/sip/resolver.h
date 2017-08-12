@@ -90,7 +90,7 @@ class dns_entry
   dns_entry();
   virtual ~dns_entry();
   virtual void init() = 0;
-  virtual void add_rr(dns_record* rr, u_char* begin, u_char* end, long now);
+  virtual void add_rr(dns_record* rr, u_char* begin, u_char* end, long int now);
   virtual int next_ip(dns_handle* h, sockaddr_storage* sa) = 0;
 
   virtual std::string to_str();
@@ -103,7 +103,7 @@ class dns_bucket : protected dns_bucket_base
   friend class _resolver;
 
  public:
-  dns_bucket(unsigned long id);
+  dns_bucket(unsigned long int id);
   bool insert(const std::string& name, dns_entry* e);
   bool remove(const std::string& name);
   dns_entry* find(const std::string& name);

@@ -269,16 +269,16 @@ class AmArg : public AmObject
     v_obj = v;
   }
 
-  int          asInt() const { return (int) v_int; }
-  long int     asLong() const { return v_int; }
-  long long    asLongLong() const { return v_long; }
-  int          asBool() const { return v_bool; }
-  double       asDouble() const { return v_double; }
-  const char*  asCStr() const { return v_cstr; }
-  AmObject*    asObject() const { return v_obj; }
-  AmDynInvoke* asDynInv() const { return v_inv; }
-  ArgBlob*     asBlob() const { return v_blob; }
-  ValueStruct* asStruct() const { return v_struct; }
+  int           asInt() const { return (int) v_int; }
+  long int      asLong() const { return v_int; }
+  long long int asLongLong() const { return v_long; }
+  int           asBool() const { return v_bool; }
+  double        asDouble() const { return v_double; }
+  const char*   asCStr() const { return v_cstr; }
+  AmObject*     asObject() const { return v_obj; }
+  AmDynInvoke*  asDynInv() const { return v_inv; }
+  ArgBlob*      asBlob() const { return v_blob; }
+  ValueStruct*  asStruct() const { return v_struct; }
 
   std::vector<std::string> asStringVector() const;
   std::vector<int>         asIntVector() const;

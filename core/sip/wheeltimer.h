@@ -52,11 +52,8 @@ class base_timer
  public:
   base_timer* next;
 
-  base_timer()
-      : next(0)
-  {
-  }
-  virtual ~base_timer() {}
+  base_timer();
+  virtual ~base_timer();
 };
 
 class timer : public base_timer
@@ -65,20 +62,8 @@ class timer : public base_timer
   base_timer* prev;
   u_int32_t   expires;
 
-  timer()
-      : base_timer()
-      , prev(0)
-      , expires(0)
-  {
-  }
-
-  timer(unsigned int expires)
-      : base_timer()
-      , prev(0)
-      , expires(expires)
-  {
-  }
-
+  timer();
+  timer(unsigned int expires);
   ~timer();
 
   virtual void fire() = 0;
@@ -102,7 +87,7 @@ class _wheeltimer : public AmThread
   base_timer wheels[WHEELS][ELMTS_PER_WHEEL];
 
   // request backlog lock (insert/remove)
-  AmMutex               reqs_m;
+  AmMutex               reqs_mutex;
   std::deque<timer_req> reqs_backlog;
   std::deque<timer_req> reqs_process;
 

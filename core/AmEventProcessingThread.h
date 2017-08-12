@@ -55,7 +55,6 @@ class AmEventProcessingThread
   void on_stop();
 
   virtual void onEvent(AmEvent* ev) {}
-
   virtual bool police_event(AmEvent* ev);
 
  public:

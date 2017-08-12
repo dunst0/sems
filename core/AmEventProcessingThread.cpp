@@ -53,6 +53,7 @@ void AmEventProcessingThread::postEvent(AmEvent* ev)
 
 void AmEventProcessingThread::on_stop()
 {
+  INFO("requesting EventProcessing to stop.");
   getRunCondition().set(false);
   event_pending.set(true);
 }

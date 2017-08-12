@@ -89,8 +89,8 @@ class AmAudioFile : public AmBufferedAudio
 
  protected:
   /** Pointer to the file opened as last. */
-  FILE* fp;
-  long  begin;
+  FILE*    fp;
+  long int begin;
 
   /** Format of that file. @see fp, open(). */
   amci_inoutfmt_t* iofmt;

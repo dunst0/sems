@@ -49,7 +49,8 @@ class StatsUDPServer : public AmThread
 
   int execute(char* msg_buf, std::string& reply, struct sockaddr_in& addr);
 
-  int send_reply(const std::string& reply, const struct sockaddr_in& reply_addr);
+  int send_reply(const std::string&        reply,
+                 const struct sockaddr_in& reply_addr);
 
   void run();
   void on_stop() {}

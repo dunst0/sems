@@ -53,22 +53,26 @@ using std::pair;
 using std::for_each;
 using std::make_pair;
 
-static unsigned int pcm16_bytes2samples(long h_codec, unsigned int num_bytes)
+static unsigned int pcm16_bytes2samples(long int     h_codec,
+                                        unsigned int num_bytes)
 {
   return num_bytes / 2;
 }
 
-static unsigned int pcm16_samples2bytes(long h_codec, unsigned int num_samples)
+static unsigned int pcm16_samples2bytes(long int     h_codec,
+                                        unsigned int num_samples)
 {
   return num_samples * 2;
 }
 
-static unsigned int tevent_bytes2samples(long h_codec, unsigned int num_bytes)
+static unsigned int tevent_bytes2samples(long int     h_codec,
+                                         unsigned int num_bytes)
 {
   return num_bytes;
 }
 
-static unsigned int tevent_samples2bytes(long h_codec, unsigned int num_samples)
+static unsigned int tevent_samples2bytes(long int     h_codec,
+                                         unsigned int num_samples)
 {
   return num_samples;
 }

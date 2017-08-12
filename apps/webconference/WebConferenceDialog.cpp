@@ -576,8 +576,9 @@ void WebConferenceDialog::onMuted(bool mute)
             RingTone.reset(new AmRingTone(0, 2000, 4000, 440, 480)); // US
 
           setLocalInput(RingTone.get());
-          if (isDetached())
+          if (!isProcessingMedia()) {
             AmMediaProcessor::instance()->addSession(this, callgroup);
+          }
         }
       } break;
       default: DBG("No default action for changing mute status.\n"); break;

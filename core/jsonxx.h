@@ -40,7 +40,7 @@ bool parse_string(std::istream& input, std::string* value);
 bool parse_bool(std::istream& input, bool* value);
 bool parse_null(std::istream& input);
 bool parse_float(std::istream& input, double* value);
-bool parse_number(std::istream& input, long* value);
+bool parse_number(std::istream& input, long int* value);
 bool parse_number(std::istream& input, int* value);
 
 // TODO: *::parse() should be static functions.
@@ -119,7 +119,7 @@ class Value
   } type_;
   union
   {
-    long         integer_value_;
+    long int     integer_value_;
     std::string* string_value_;
     bool         bool_value_;
     Array*       array_value_;
@@ -160,7 +160,7 @@ template <> inline bool Value::is<bool>() { return type_ == BOOL_; }
 
 template <> inline bool Value::is<std::string>() { return type_ == STRING_; }
 
-template <> inline bool Value::is<long>() { return type_ == INTEGER_; }
+template <> inline bool Value::is<long int>() { return type_ == INTEGER_; }
 
 template <> inline bool Value::is<Array>() { return type_ == ARRAY_; }
 
@@ -178,9 +178,9 @@ template <> inline std::string& Value::get<std::string>()
   return *string_value_;
 }
 
-template <> inline long& Value::get<long>()
+template <> inline long int& Value::get<long int>()
 {
-  assert(is<long>());
+  assert(is<long int>());
   return integer_value_;
 }
 

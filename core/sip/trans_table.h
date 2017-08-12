@@ -7,7 +7,7 @@
 
 class trans_bucket : public ht_bucket<sip_trans>
 {
-  trans_bucket(unsigned long id);
+  trans_bucket(unsigned long int id);
   ~trans_bucket();
 
   friend class hash_table<trans_bucket>;

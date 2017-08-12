@@ -313,7 +313,7 @@ void SingleSubscription::replyFSM(const AmSipRequest& req,
   return;
 }
 
-void SingleSubscription::setExpires(unsigned long exp)
+void SingleSubscription::setExpires(unsigned long int exp)
 {
   double notify_expire = exp - AmAppTimer::instance()->unix_clock.get();
   if (notify_expire > 0.0) {

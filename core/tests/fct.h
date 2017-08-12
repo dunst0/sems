@@ -2436,7 +2436,7 @@ static void fct_standard_logger__on_fctx_end(fct_logger_i*           logger_,
   num_tests  = fctkern__tst_cnt(e->kern);
   num_passed = fctkern__tst_cnt_passed(e->kern);
   printf("%s (%lu/%lu tests", (is_success) ? "PASSED" : "FAILED",
-         (unsigned long) num_passed, (unsigned long) num_tests);
+         (unsigned long int) num_passed, (unsigned long int) num_tests);
   elasped_time = fct_timer__duration(&(logger->timer));
   if (elasped_time > 0.0000001) {
     printf(" in %.6fs)\n", elasped_time);
@@ -2526,8 +2526,9 @@ static void fct_junit_logger__on_test_suite_end(fct_logger_i*           logger_,
   /* opening testsuite tag */
   printf("\t<testsuite errors=\"%lu\" failures=\"0\" tests=\"%lu\" "
          "name=\"%s\" time=\"%.4f\">\n",
-         (unsigned long) fct_ts__tst_cnt(ts) - fct_ts__tst_cnt_passed(ts),
-         (unsigned long) fct_ts__tst_cnt(ts), fct_ts__name(ts), elasped_time);
+         (unsigned long int) fct_ts__tst_cnt(ts) - fct_ts__tst_cnt_passed(ts),
+         (unsigned long int) fct_ts__tst_cnt(ts), fct_ts__name(ts),
+         elasped_time);
 
   FCT_NLIST_FOREACH_BGN(fct_test_t*, test, &(ts->test_list))
   {

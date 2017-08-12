@@ -380,6 +380,4 @@ void udp_trsp::run()
 }
 
 /** @see AmThread */
-void udp_trsp::on_stop() {
-  DBG("udp trsp on stop");
-}
+void udp_trsp::on_stop() { DBG("udp trsp on stop"); }

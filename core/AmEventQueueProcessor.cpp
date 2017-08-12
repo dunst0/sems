@@ -141,7 +141,10 @@ void AmEventQueueWorker::run()
   }
 }
 
-void AmEventQueueWorker::on_stop() { INFO("requesting worker to stop.\n"); }
+void AmEventQueueWorker::on_stop()
+{
+  INFO("requesting EventQueue worker to stop.\n");
+}
 
 void AmEventQueueWorker::startEventQueue(AmEventQueue* q)
 {

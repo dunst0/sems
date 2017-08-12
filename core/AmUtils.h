@@ -87,7 +87,7 @@ std::string int2hex(unsigned int val, bool lowercase = false);
 /**
  * Convert an unsigned long to a string using hexdecimal representation.
  */
-std::string long2hex(unsigned long val);
+std::string long2hex(unsigned long int val);
 
 /**
  * Convert a reversed hex string to uint.
@@ -145,7 +145,7 @@ bool str2int(char*& str, int& result, char sep = ' ');
  * @param result [out] result integer.
  * @return true if on success (!!!).
  */
-bool str2long(const std::string& str, long& result);
+bool str2long(const std::string& str, long int& result);
 
 /**
  * Internal version of preceeding 'str2long' method.
@@ -155,7 +155,7 @@ bool str2long(const std::string& str, long& result);
  * token
  * @return true on success
  */
-bool str2long(char*& str, long& result, char sep = ' ');
+bool str2long(char*& str, long int& result, char sep = ' ');
 
 /* translates string value into bool, returns false on error */
 bool str2bool(const std::string& s, bool& dst);

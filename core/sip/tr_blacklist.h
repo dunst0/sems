@@ -37,7 +37,7 @@ class blacklist_bucket : public bl_bucket_base
   }
 
  public:
-  blacklist_bucket(unsigned long id)
+  blacklist_bucket(unsigned long int id)
       : bl_bucket_base(id)
   {
   }

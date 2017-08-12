@@ -34,10 +34,25 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-timer::~timer()
+base_timer::base_timer : next(0) {}
+
+base_timer::~base_timer() {}
+
+timer::timer()
+    : base_timer()
+    , prev(0)
+    , expires(0)
 {
-  // DBG("timer::~timer(this=%p)\n",this);
 }
+
+timer::timer(unsigned int expires)
+    : base_timer()
+    , prev(0)
+    , expires(expires)
+{
+}
+
+timer::~timer() {}
 
 _wheeltimer::_wheeltimer()
     : wall_clock(0)
@@ -52,9 +67,9 @@ _wheeltimer::~_wheeltimer() {}
 void _wheeltimer::insert_timer(timer* t)
 {
   // add new timer to user request list
-  reqs_m.lock();
+  reqs_mutex.lock();
   reqs_backlog.push_back(timer_req(t, true));
-  reqs_m.unlock();
+  reqs_mutex.unlock();
 }
 
 void _wheeltimer::remove_timer(timer* t)
@@ -64,9 +79,9 @@ void _wheeltimer::remove_timer(timer* t)
   }
 
   // add timer to remove to user request list
-  reqs_m.lock();
+  reqs_mutex.lock();
   reqs_backlog.push_back(timer_req(t, false));
-  reqs_m.unlock();
+  reqs_mutex.unlock();
 }
 
 void _wheeltimer::run()
@@ -142,9 +157,9 @@ void _wheeltimer::turn_wheel()
   update_wheel(i);
 
   // Swap the lists for timer insertion/deletion requests
-  reqs_m.lock();
+  reqs_mutex.lock();
   reqs_process.swap(reqs_backlog);
-  reqs_m.unlock();
+  reqs_mutex.unlock();
 
   while (!reqs_process.empty()) {
     timer_req rq = reqs_process.front();

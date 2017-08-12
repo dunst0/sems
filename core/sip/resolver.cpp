@@ -303,7 +303,7 @@ dns_entry* dns_entry::make_entry(dns_rr_type t)
   }
 }
 
-void dns_entry::add_rr(dns_record* rr, u_char* begin, u_char* end, long now)
+void dns_entry::add_rr(dns_record* rr, u_char* begin, u_char* end, long int now)
 {
   dns_base_entry* e = get_rr(rr, begin, end);
   if (!e) return;
@@ -328,7 +328,7 @@ string dns_entry::to_str()
   return "[" + res + "]";
 }
 
-dns_bucket::dns_bucket(unsigned long id)
+dns_bucket::dns_bucket(unsigned long int id)
     : dns_bucket_base(id)
 {
 }
@@ -1023,7 +1023,7 @@ void _resolver::run()
   tick.tv_sec  = (DNS_CACHE_SINGLE_CYCLE / 1000000L);
   tick.tv_nsec = (DNS_CACHE_SINGLE_CYCLE - (tick.tv_sec) * 1000000L) * 1000L;
 
-  unsigned long i = 0;
+  unsigned long int i = 0;
   for (;;) {
     nanosleep(&tick, &rem);
 

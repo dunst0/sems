@@ -153,8 +153,8 @@ class AmAudioFormat
   void setRate(unsigned int sample_rate);
 
   /** @return Handler returned by the codec's init function.*/
-  long getHCodec();
-  long getHCodecNoInit() { return h_codec; } // do not initialize
+  long int getHCodec();
+  long int getHCodecNoInit() { return h_codec; } // do not initialize
 
   unsigned int calcBytesToRead(unsigned int needed_samples) const;
   unsigned int bytes2samples(unsigned int) const;

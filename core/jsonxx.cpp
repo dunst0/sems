@@ -199,7 +199,7 @@ bool parse_float(std::istream& input, double* value) {
 //     }
 // }
 
-bool parse_number(std::istream& input, long* value)
+bool parse_number(std::istream& input, long int* value)
 {
   eat_whitespaces(input);
   char        ch;
@@ -209,7 +209,7 @@ bool parse_number(std::istream& input, long* value)
   int         sign    = 1;
   int         e_sign  = 1;
   bool        correct = true;
-  long        e_value;
+  long int    e_value;
 
   enum
   {

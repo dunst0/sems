@@ -410,7 +410,7 @@ unsigned int AmRtpAudio::conceal_loss(unsigned int   ts_diff,
   int s = 0;
   if (!use_default_plc) {
     amci_codec_t* codec   = fmt->getCodec();
-    long          h_codec = fmt->getHCodec();
+    long int      h_codec = fmt->getHCodec();
 
     assert(codec && codec->plc);
     s = (*codec->plc)(buffer, PCM16_S2B(ts_diff), fmt->channels,

@@ -50,7 +50,7 @@
 
 hash_table<trans_bucket> _trans_table(H_TABLE_ENTRIES);
 
-trans_bucket::trans_bucket(unsigned long id)
+trans_bucket::trans_bucket(unsigned long int id)
     : ht_bucket<sip_trans>::ht_bucket(id)
 {
 }

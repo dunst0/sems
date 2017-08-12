@@ -52,7 +52,6 @@ class AmEventQueueWorker
 
   // AmEventNotificationSink interface
   void notify(AmEventQueue* sender);
-
   void startEventQueue(AmEventQueue* q);
 };
 

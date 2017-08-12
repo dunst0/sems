@@ -43,8 +43,8 @@ struct ts_less
  */
 struct sys_ts_less
 {
-  inline bool operator()(const unsigned long long& l,
-                         const unsigned long long& r) const
+  inline bool operator()(const unsigned long long int& l,
+                         const unsigned long long int& r) const
   {
     return (((l - r) & 0xFFFFFFFFFFFFLL) > (1LL << 47));
   }

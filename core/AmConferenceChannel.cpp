@@ -27,10 +27,10 @@ AmConferenceChannel::AmConferenceChannel(AmConferenceStatus* status,
 
   if (AmConfig::DumpConferenceStreams) {
     in_file_name = AmConfig::DumpConferencePath + "/" + conf_id + "_"
-                   + int2str(channel_id) + "_" + long2str((long) this)
+                   + int2str(channel_id) + "_" + long2str((long int) this)
                    + "_in.s16";
     out_file_name = AmConfig::DumpConferencePath + "/" + conf_id + "_"
-                    + int2str(channel_id) + "_" + long2str((long) this)
+                    + int2str(channel_id) + "_" + long2str((long int) this)
                     + "_out.s16";
 
     DBG("conf channel opening in_file '%s'\n", in_file_name.c_str());
