@@ -34,7 +34,10 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-base_timer::base_timer : next(0) {}
+base_timer::base_timer()
+    : next(0)
+{
+}
 
 base_timer::~base_timer() {}
 
