@@ -92,6 +92,37 @@ static unsigned char PADDING[64] = {
     0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /*
+  Encodes input (unsigned int) into output (unsigned char). Assumes len is
+  a multiple of 4.
+ */
+static void Encode(unsigned char* output, uint32_t* input, uint32_t len)
+{
+  uint32_t i, j;
+
+  for (i = 0, j = 0; j < len; i++, j += 4) {
+    output[j]     = (unsigned char) (input[i] & 0xff);
+    output[j + 1] = (unsigned char) ((input[i] >> 8) & 0xff);
+    output[j + 2] = (unsigned char) ((input[i] >> 16) & 0xff);
+    output[j + 3] = (unsigned char) ((input[i] >> 24) & 0xff);
+  }
+}
+
+/*
+  Decodes input (unsigned char) into output (unsigned int). Assumes len is
+  a multiple of 4.
+ */
+static void Decode(uint32_t* output, unsigned char* input, uint32_t len)
+{
+  uint32_t i, j;
+
+  for (i = 0, j = 0; j < len; i++, j += 4) {
+    output[i] = ((uint32_t) input[j]) | (((uint32_t) input[j + 1]) << 8)
+                | (((uint32_t) input[j + 2]) << 16)
+                | (((uint32_t) input[j + 3]) << 24);
+  }
+}
+
+/*
   MD5 basic transformation. Transforms state based on block.
  */
 static void MD5Transform(uint32_t state[4], unsigned char block[64])
@@ -179,37 +210,6 @@ static void MD5Transform(uint32_t state[4], unsigned char block[64])
 
   /* Zeroize sensitive information. */
   memset((unsigned char*) x, 0, sizeof(x));
-}
-
-/*
-  Encodes input (unsigned int) into output (unsigned char). Assumes len is
-  a multiple of 4.
- */
-static void Encode(unsigned char* output, uint32_t* input, uint32_t len)
-{
-  uint32_t i, j;
-
-  for (i = 0, j = 0; j < len; i++, j += 4) {
-    output[j]     = (unsigned char) (input[i] & 0xff);
-    output[j + 1] = (unsigned char) ((input[i] >> 8) & 0xff);
-    output[j + 2] = (unsigned char) ((input[i] >> 16) & 0xff);
-    output[j + 3] = (unsigned char) ((input[i] >> 24) & 0xff);
-  }
-}
-
-/*
-  Decodes input (unsigned char) into output (unsigned int). Assumes len is
-  a multiple of 4.
- */
-static void Decode(uint32_t* output, unsigned char* input, uint32_t len)
-{
-  uint32_t i, j;
-
-  for (i = 0, j = 0; j < len; i++, j += 4) {
-    output[i] = ((uint32_t) input[j]) | (((uint32_t) input[j + 1]) << 8)
-                | (((uint32_t) input[j + 2]) << 16)
-                | (((uint32_t) input[j + 3]) << 24);
-  }
 }
 
 /*
