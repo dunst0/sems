@@ -131,14 +131,14 @@ void AmCallWatcher::on_stop() {}
 
 void AmCallWatcher::process(AmEvent* ev)
 {
-  CallStatusUpdateEvent* csu = dynamic_cast<CallStatusUpdateEvent*>(ev);
+  AmCallStatusUpdateEvent* csu = dynamic_cast<AmCallStatusUpdateEvent*>(ev);
   if (NULL == csu) {
     ERROR("received invalid event!\n");
     return;
   }
 
   switch (csu->event_id) {
-    case CallStatusUpdateEvent::Initialize: {
+    case AmCallStatusUpdateEvent::Initialize: {
       states_mutex.lock();
       DBG("adding  call state '%s'\n", csu->get_call_id().c_str());
 
@@ -156,7 +156,7 @@ void AmCallWatcher::process(AmEvent* ev)
       states_mutex.unlock();
     } break;
 
-    case CallStatusUpdateEvent::Update: {
+    case AmCallStatusUpdateEvent::Update: {
       states_mutex.lock();
       CallStatusMap::iterator it = states.find(csu->get_call_id());
       if (it != states.end()) {
@@ -181,7 +181,7 @@ void AmCallWatcher::process(AmEvent* ev)
       }
     } break;
 
-    case CallStatusUpdateEvent::Obsolete: {
+    case AmCallStatusUpdateEvent::Obsolete: {
       states_mutex.lock();
       CallStatusMap::iterator it = states.find(csu->get_call_id());
       if (it != states.end()) {
