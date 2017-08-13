@@ -1182,7 +1182,7 @@ int AmConfig::finalizeIPConfig()
 
   for (vector<AmConfig::RTP_interface *>::iterator it = RTP_Ifs.begin();
        it != RTP_Ifs.end(); it++) {
-    if (it->LocalIP.empty()) {
+    if (it.LocalIP.empty()) {
       // try the IP from the signaling interface
       map<string, unsigned short int>::iterator sip_if =
           SIP_If_names.find(it->name);
