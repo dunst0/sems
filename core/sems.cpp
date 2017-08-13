@@ -169,7 +169,7 @@ static void set_default_interface(const string& iface_name)
   if_it = AmConfig::RTP_If_names.find("default");
   if (if_it == AmConfig::RTP_If_names.end()) {
     AmConfig::RTP_interface* intf = new AmConfig::RTP_interface();
-    intf.name = "default";
+    intf->name = "default";
     AmConfig::RTP_Ifs.push_back(intf);
     AmConfig::RTP_If_names["default"] = AmConfig::RTP_Ifs.size() - 1;
     // UNUSED
@@ -182,7 +182,7 @@ static void set_default_interface(const string& iface_name)
   // }
   // UNUSED_END
 
-  AmConfig::RTP_Ifs[if_it->second].LocalIP = iface_name;
+  AmConfig::RTP_Ifs[if_it->second]->LocalIP = iface_name;
 }
 
 /* Note: The function should not use logging because it is called before
