@@ -53,7 +53,7 @@ using std::unique_ptr;
 using std::map;
 
 volatile unsigned int           AmSession::session_num = 0;
-AmMutex                         AmSession::session_num_mut;
+AmMutex                         AmSession::session_num_mutex;
 volatile unsigned int           AmSession::session_count   = 0;
 volatile unsigned int           AmSession::max_session_num = 0;
 volatile unsigned long long int AmSession::avg_session_num = 0;
@@ -71,9 +71,9 @@ struct timeval avg_first_timestamp = avg_last_timestamp;
 
 AmSession::AmSession(AmSipDialog* p_dlg)
     : AmEventQueue(this)
-    , m_dtmfDetector(this)
-    , m_dtmfEventQueue(&m_dtmfDetector)
-    , m_dtmfDetectionEnabled(true)
+    , dtmfDetector(this)
+    , dtmfEventQueue(&dtmfDetector)
+    , dtmfDetectionEnabled(true)
     , processing_status(SESSION_PROCESSING_EVENTS)
 #ifdef SESSION_THREADPOOL
     , _pid(this)
@@ -178,9 +178,9 @@ bool AmSession::isAudioSet()
   return set;
 }
 
-void AmSession::lockAudio() { audio_mut.lock(); }
+void AmSession::lockAudio() { audio_mutex.lock(); }
 
-void AmSession::unlockAudio() { audio_mut.unlock(); }
+void AmSession::unlockAudio() { audio_mutex.unlock(); }
 
 const string& AmSession::getCallID() const { return dlg->getCallid(); }
 
@@ -211,12 +211,11 @@ void AmSession::setLocalTag(const string& tag)
   dlg->setLocalTag(tag);
 }
 
-const vector<SdpPayload*>& AmSession::getPayloads() { return m_payloads; }
+const vector<SdpPayload*>& AmSession::getPayloads() { return payloads; }
 
 int AmSession::getRPort() { return RTPStream()->getRPort(); }
 
 #ifdef SESSION_THREADPOOL
-
 void AmSession::start()
 {
   AmSessionProcessorThread* processor_thread =
@@ -229,11 +228,10 @@ void AmSession::start()
   processor_thread->startSession(this);
 }
 
-bool AmSession::is_stopped()
+bool AmSession::isRunning()
 {
-  return processing_status == SESSION_ENDED_DISCONNECTED;
+  return processing_status != SESSION_ENDED_DISCONNECTED;
 }
-
 #else
 
 // in this case every session has its own thread
@@ -244,7 +242,7 @@ void AmSession::run()
   if (!startup()) return;
 
   DBG("running session event loop\n");
-  while (true) {
+  while (isRunning()) {
     waitForEvent();
     if (!processingCycle()) break;
   }
@@ -424,11 +422,13 @@ void AmSession::finalize()
 
 #ifndef SESSION_THREADPOOL
 void AmSession::on_stop()
+{
+  DBG("AmSession::on_stop()\n");
 #else
 void AmSession::stop()
-#endif
 {
   DBG("AmSession::stop()\n");
+#endif
 
   if (isProcessingMedia()) {
     AmMediaProcessor::instance()->clearSession(this);
@@ -478,7 +478,7 @@ string AmSession::getNewId()
 
   id += int2hex(get_random()) + "-";
   id += int2hex(t.tv_sec) + int2hex(t.tv_usec) + "-";
-  id += int2hex((unsigned int) ((unsigned long) pthread_self()));
+  id += int2hex((unsigned int) ((unsigned long int) pthread_self()));
 
   return id;
 }
@@ -488,7 +488,7 @@ void AmSession::session_started()
 {
   struct timeval now, delta;
 
-  session_num_mut.lock();
+  session_num_mutex.lock();
   // avg session number
   gettimeofday(&now, NULL);
   timersub(&now, &avg_last_timestamp, &delta);
@@ -506,13 +506,13 @@ void AmSession::session_started()
     max_session_num = session_num;
   }
 
-  session_num_mut.unlock();
+  session_num_mutex.unlock();
 }
 
 void AmSession::session_stopped()
 {
   struct timeval now, delta;
-  session_num_mut.lock();
+  session_num_mutex.lock();
   // avg session number
   gettimeofday(&now, NULL);
   timersub(&now, &avg_last_timestamp, &delta);
@@ -520,34 +520,34 @@ void AmSession::session_stopped()
   avg_last_timestamp = now;
   // current session number
   session_num--;
-  session_num_mut.unlock();
+  session_num_mutex.unlock();
 }
 
 unsigned int AmSession::getSessionNum()
 {
   unsigned int res = 0;
-  session_num_mut.lock();
+  session_num_mutex.lock();
   res = session_num;
-  session_num_mut.unlock();
+  session_num_mutex.unlock();
   return res;
 }
 
 unsigned int AmSession::getSessionCount()
 {
   unsigned int res = 0;
-  session_num_mut.lock();
+  session_num_mutex.lock();
   res = session_count;
-  session_num_mut.unlock();
+  session_num_mutex.unlock();
   return res;
 }
 
 unsigned int AmSession::getMaxSessionNum()
 {
   unsigned int res = 0;
-  session_num_mut.lock();
+  session_num_mutex.lock();
   res             = max_session_num;
   max_session_num = session_num;
-  session_num_mut.unlock();
+  session_num_mutex.unlock();
   return res;
 }
 
@@ -555,12 +555,13 @@ unsigned int AmSession::getAvgSessionNum()
 {
   unsigned int   res = 0;
   struct timeval now, delta;
-  session_num_mut.lock();
+  session_num_mutex.lock();
   gettimeofday(&now, NULL);
   timersub(&now, &avg_last_timestamp, &delta);
   avg_session_num += session_num * (delta.tv_sec * 1000000ULL + delta.tv_usec);
   timersub(&now, &avg_first_timestamp, &delta);
-  unsigned long long d_usec = delta.tv_sec * 1000000ULL + delta.tv_usec;
+  unsigned long long int d_usec = delta.tv_sec * 1000000ULL + delta.tv_usec;
+
   if (!d_usec) {
     res = 0;
     WARN("zero delta!\n");
@@ -569,25 +570,27 @@ unsigned int AmSession::getAvgSessionNum()
     // Round up
     res = (unsigned int) ((avg_session_num + d_usec - 1) / d_usec);
   }
+
   avg_session_num     = 0;
   avg_last_timestamp  = now;
   avg_first_timestamp = now;
-  session_num_mut.unlock();
+  session_num_mutex.unlock();
+
   return res;
 }
 
 void AmSession::setInbandDetector(Dtmf::InbandDetectorType t)
 {
-  m_dtmfDetector.setInbandDetector(t, RTPStream()->getSampleRate());
+  dtmfDetector.setInbandDetector(t, RTPStream()->getSampleRate());
 }
 
 void AmSession::postDtmfEvent(AmDtmfEvent* evt)
 {
-  if (m_dtmfDetectionEnabled) {
+  if (dtmfDetectionEnabled) {
     if (dynamic_cast<AmSipDtmfEvent*>(evt)
         || dynamic_cast<AmRtpDtmfEvent*>(evt)) {
       // this is a raw event from sip info or rtp
-      m_dtmfEventQueue.postEvent(evt);
+      dtmfEventQueue.postEvent(evt);
     }
     else {
       // this is an aggregated event,
@@ -599,15 +602,15 @@ void AmSession::postDtmfEvent(AmDtmfEvent* evt)
 
 void AmSession::processDtmfEvents()
 {
-  if (m_dtmfDetectionEnabled) {
-    m_dtmfEventQueue.processEvents();
+  if (dtmfDetectionEnabled) {
+    dtmfEventQueue.processEvents();
   }
 }
 
 void AmSession::putDtmfAudio(const unsigned char* buf, int size,
-                             unsigned long long system_ts)
+                             unsigned long long int system_ts)
 {
-  m_dtmfEventQueue.putDtmfAudio(buf, size, system_ts);
+  dtmfEventQueue.putDtmfAudio(buf, size, system_ts);
 }
 
 void AmSession::sendDtmf(int event, unsigned int duration_ms)
@@ -1286,7 +1289,7 @@ void AmSession::onZRTPSecurityEvent(zrtp_security_event_t event,
 
 #endif
 
-int AmSession::readStreams(unsigned long long ts, unsigned char* buffer)
+int AmSession::readStreams(unsigned long long int ts, unsigned char* buffer)
 {
   int res = 0;
   lockAudio();
@@ -1307,7 +1310,7 @@ int AmSession::readStreams(unsigned long long ts, unsigned char* buffer)
   return res;
 }
 
-int AmSession::writeStreams(unsigned long long ts, unsigned char* buffer)
+int AmSession::writeStreams(unsigned long long int ts, unsigned char* buffer)
 {
   int res = 0;
   lockAudio();

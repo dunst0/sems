@@ -62,21 +62,20 @@ class AmDtmfEvent;
  */
 class AmSession
     : public virtual AmObject
-    ,
 #ifndef SESSION_THREADPOOL
-      public AmThread
-    ,
+    , public AmThread
 #endif
-      public AmEventQueue
+    , public AmEventQueue
     , public AmEventHandler
     , public AmSipDialogEventHandler
     , public AmMediaSession
     , public AmDtmfSink
 {
-  AmMutex audio_mut;
+ private:
+  AmMutex audio_mutex;
 
  protected:
-  std::vector<SdpPayload*> m_payloads;
+  std::vector<SdpPayload*> payloads;
   // bool         negotiate_onreply;
 
   friend class AmRtpAudio;
@@ -85,9 +84,9 @@ class AmSession
   // virtual AmAudioRtpFormat* getNewRtpFormat();
 
  private:
-  AmDtmfDetector   m_dtmfDetector;
-  AmDtmfEventQueue m_dtmfEventQueue;
-  bool             m_dtmfDetectionEnabled;
+  AmDtmfDetector   dtmfDetector;
+  AmDtmfEventQueue dtmfEventQueue;
+  bool             dtmfDetectionEnabled;
 
   enum ProcessingStatus
   {
@@ -98,19 +97,22 @@ class AmSession
   ProcessingStatus processing_status;
 
 #ifndef SESSION_THREADPOOL
+ protected:
   /** @see AmThread::run() */
   void run();
+  /** @see AmThread::on_stop() */
   void on_stop();
 #else
  public:
   void start();
-  bool is_stopped();
+  bool isRunning();
 
  private:
   void  stop();
   void* _pid;
 #endif
 
+private:
   static void session_started();
   static void session_stopped();
 
@@ -118,7 +120,7 @@ class AmSession
   static volatile unsigned int           session_count;
   static volatile unsigned int           max_session_num;
   static volatile unsigned long long int avg_session_num;
-  static AmMutex                         session_num_mut;
+  static AmMutex                         session_num_mutex;
 
   friend class AmMediaProcessor;
   friend class AmMediaProcessorThread;
@@ -126,7 +128,7 @@ class AmSession
   friend class AmSessionFactory;
   friend class AmSessionProcessorThread;
 
-  std::unique_ptr<AmRtpAudio> _rtp_str;
+  std::unique_ptr<AmRtpAudio> rtp_str;
 
   /** Application parameters passed through P-App-Param HF */
   std::map<std::string, std::string> app_params;
@@ -181,7 +183,7 @@ class AmSession
   void updateRefreshMethod(const std::string& headers);
 
   AmRtpAudio* RTPStream();
-  bool        hasRtpStream() { return _rtp_str.get() != NULL; }
+  bool        hasRtpStream() { return rtp_str.get() != NULL; }
 
 #ifdef WITH_ZRTP
   AmZRTPSessionState zrtp_session_state;
@@ -421,10 +423,10 @@ class AmSession
   void postDtmfEvent(AmDtmfEvent*);
 
   void setInbandDetector(Dtmf::InbandDetectorType t);
-  bool isDtmfDetectionEnabled() { return m_dtmfDetectionEnabled; }
-  void setDtmfDetectionEnabled(bool e) { m_dtmfDetectionEnabled = e; }
+  bool isDtmfDetectionEnabled() { return dtmfDetectionEnabled; }
+  void setDtmfDetectionEnabled(bool e) { dtmfDetectionEnabled = e; }
   void putDtmfAudio(const unsigned char* buf, int size,
-                    unsigned long long system_ts);
+                    unsigned long long int system_ts);
 
   /**
    * send a DTMF as RTP payload (RFC4733)
@@ -613,8 +615,8 @@ class AmSession
   /* ----------------- media processing interface ------------------- */
 
  public:
-  virtual int readStreams(unsigned long long ts, unsigned char* buffer);
-  virtual int writeStreams(unsigned long long ts, unsigned char* buffer);
+  virtual int readStreams(unsigned long long int ts, unsigned char* buffer);
+  virtual int writeStreams(unsigned long long int ts, unsigned char* buffer);
   virtual void clearRTPTimeout() { RTPStream()->clearRTPTimeout(); }
   virtual void processDtmfEvents();
 
@@ -636,11 +638,11 @@ class AmSession
 
 inline AmRtpAudio* AmSession::RTPStream()
 {
-  if (NULL == _rtp_str.get()) {
+  if (NULL == rtp_str.get()) {
     DBG("creating RTP stream instance for session [%p]\n", this);
-    _rtp_str.reset(new AmRtpAudio(this, rtp_interface));
+    rtp_str.reset(new AmRtpAudio(this, rtp_interface));
   }
-  return _rtp_str.get();
+  return rtp_str.get();
 }
 
 #endif
