@@ -1185,21 +1185,21 @@ int AmConfig::finalizeIPConfig()
     if ((*it)->LocalIP.empty()) {
       // try the IP from the signaling interface
       map<string, unsigned short int>::iterator sip_if =
-          SIP_If_names.find(it->name);
+          SIP_If_names.find((*it)->name);
       if (sip_if != SIP_If_names.end()) {
-        it->LocalIP = SIP_Ifs[sip_if->second].LocalIP;
+        (*it)->LocalIP = SIP_Ifs[sip_if->second].LocalIP;
       }
       else {
         ERROR("could not determine media IP for interface '%s'\n",
-              it->name.c_str());
+              (*it)->name.c_str());
         return -1;
       }
     }
     else {
-      it->LocalIP = fixIface2IP(it->LocalIP, false);
-      if (it->LocalIP.empty()) {
+      (*it)->LocalIP = fixIface2IP((*it)->LocalIP, false);
+      if ((*it)->LocalIP.empty()) {
         ERROR("could not determine media IP for interface '%s'\n",
-              it->name.c_str());
+              (*it)->name.c_str());
         return -1;
       }
     }
