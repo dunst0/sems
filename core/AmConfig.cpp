@@ -197,7 +197,7 @@ int AmConfig::RTP_interface::getNextRtpPort()
 {
   int port = 0;
 
-  next_rtp_port_mut.lock();
+  next_rtp_port_mutex.lock();
   if (next_rtp_port < 0) {
     next_rtp_port = RtpLowPort;
   }
@@ -208,7 +208,7 @@ int AmConfig::RTP_interface::getNextRtpPort()
   if (next_rtp_port >= RtpHighPort) {
     next_rtp_port = RtpLowPort;
   }
-  next_rtp_port_mut.unlock();
+  next_rtp_port_mutex.unlock();
 
   return port;
 }

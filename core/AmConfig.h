@@ -130,7 +130,7 @@ struct AmConfig
 
    private:
     int     next_rtp_port;
-    AmMutex next_rtp_port_mut;
+    AmMutex next_rtp_port_mutex;
   };
 
   static std::vector<SIP_interface> SIP_Ifs;
