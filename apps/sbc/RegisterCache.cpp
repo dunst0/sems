@@ -227,7 +227,13 @@ void _RegisterCache::gbc(unsigned int bucket_id)
   bucket->unlock();
 }
 
-void _RegisterCache::on_stop() { running.set(false); }
+void _RegisterCache::dispose()
+{
+  stop();
+  join();
+}
+
+void _RegisterCache::on_stop() { INFO("RegisterCache is going to stop\n"); }
 
 void _RegisterCache::run()
 {
@@ -235,10 +241,9 @@ void _RegisterCache::run()
   tick.tv_sec  = (REG_CACHE_SINGLE_CYCLE / 1000000L);
   tick.tv_nsec = (REG_CACHE_SINGLE_CYCLE - (tick.tv_sec) * 1000000L) * 1000L;
 
-  running.set(true);
-
   gbc_bucket_id = 0;
-  while (running.get()) {
+
+  while (isRunning()) {
     gbc(gbc_bucket_id);
     gbc_bucket_id = (gbc_bucket_id + 1);
     gbc_bucket_id &= (REG_CACHE_TABLE_ENTRIES - 1);
@@ -855,10 +860,12 @@ bool _RegisterCache::throttleRegister(RegisterCacheCtx&   ctx,
   }
 
   unsigned int default_expires;
-  if (ctx.requested_expires && (ctx.requested_expires > ctx.max_ua_expires))
+  if (ctx.requested_expires && (ctx.requested_expires > ctx.max_ua_expires)) {
     default_expires = ctx.max_ua_expires;
-  else
+  }
+  else {
     default_expires = ctx.requested_expires;
+  }
 
   vector<pair<string, long int>> alias_updates;
   for (vector<AmUriParser>::iterator contact_it = ctx.contacts.begin();

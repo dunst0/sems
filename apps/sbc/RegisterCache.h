@@ -215,11 +215,7 @@ class _RegisterCache : public AmThread
   _RegisterCache();
   ~_RegisterCache();
 
-  void dispose()
-  {
-    stop(false);
-    join();
-  }
+  void dispose();
 
   /* AmThread interface */
   void run();

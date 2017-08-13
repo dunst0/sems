@@ -11,6 +11,7 @@
 using std::string;
 using std::pair;
 using std::list;
+using std::map;
 
 /**
  * SimpleRelayDialog
@@ -128,7 +129,7 @@ int SimpleRelayDialog::relayReply(const AmSipReply& reply)
   int    code   = reply.code;
   string reason = reply.reason;
 
-  std::map<unsigned int, pair<unsigned int, string>>::iterator it =
+  map<unsigned int, pair<unsigned int, string>>::iterator it =
       reply_translations.find(code);
 
   if (it != reply_translations.end()) {

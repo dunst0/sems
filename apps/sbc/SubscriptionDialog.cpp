@@ -34,15 +34,17 @@
 #include "SBC.h"
 
 using std::string;
+using std::vector;
+using std::map
+    :
 
-/**
- * SubscriptionDialog
- */
-
-SubscriptionDialog::SubscriptionDialog(SBCCallProfile&       profile,
-                                       vector<AmDynInvoke*>& cc_modules,
-                                       AmSipSubscription*    subscription,
-                                       atomic_ref_cnt*       parent_obj)
+    /**
+     * SubscriptionDialog
+     */
+    SubscriptionDialog::SubscriptionDialog(SBCCallProfile&       profile,
+                                           vector<AmDynInvoke*>& cc_modules,
+                                           AmSipSubscription*    subscription,
+                                           atomic_ref_cnt*       parent_obj)
     : SimpleRelayDialog(profile, cc_modules, parent_obj)
     , subs(subscription)
 {
@@ -81,7 +83,7 @@ bool SubscriptionDialog::terminated() { return !(getUsages() > 0); }
 bool SubscriptionDialog::getMappedReferID(unsigned int  refer_id,
                                           unsigned int& mapped_id) const
 {
-  std::map<unsigned int, unsigned int>::const_iterator id_it =
+  map<unsigned int, unsigned int>::const_iterator id_it =
       refer_id_map.find(refer_id);
   if (id_it != refer_id_map.end()) {
     mapped_id = id_it->second;

@@ -92,6 +92,7 @@ class SessionUpdateTimer : public DirectAppTimer
       : has_started(false)
   {
   }
+
   ~SessionUpdateTimer()
   {
     if (has_started) AmAppTimer::instance()->removeTimer(this);

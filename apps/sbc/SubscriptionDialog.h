@@ -31,6 +31,8 @@
 #include "AmSipSubscription.h"
 #include "SBCSimpleRelay.h"
 
+#include <vector>
+
 /**
  * \brief B2B Subscription UA
  *
@@ -55,9 +57,10 @@ class SubscriptionDialog : public SimpleRelayDialog
                                    unsigned int mapped_id);
 
  public:
-  SubscriptionDialog(SBCCallProfile& profile, vector<AmDynInvoke*>& cc_modules,
-                     AmSipSubscription* subscription = NULL,
-                     atomic_ref_cnt*    parent_obj   = NULL);
+  SubscriptionDialog(SBCCallProfile&            profile,
+                     std::vector<AmDynInvoke*>& cc_modules,
+                     AmSipSubscription*         subscription = NULL,
+                     atomic_ref_cnt*            parent_obj   = NULL);
   SubscriptionDialog(AmSipSubscription* subscription = NULL,
                      atomic_ref_cnt*    parent_obj   = NULL);
   virtual ~SubscriptionDialog();
