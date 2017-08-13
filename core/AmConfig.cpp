@@ -858,26 +858,26 @@ static int readSIPInterface(AmConfigReader& cfg, const string& i_name)
   return AmConfig::insert_SIP_interface(intf);
 }
 
-int AmConfig::insert_RTP_interface(const RTP_interface& intf)
+int AmConfig::insert_RTP_interface(const RTP_interface* intf)
 {
-  if (RTP_If_names.find(intf.name) != RTP_If_names.end()) {
-    if (intf.name != "default") {
-      ERROR("duplicated interface '%s'\n", intf.name.c_str());
+  if (RTP_If_names.find(intf->name) != RTP_If_names.end()) {
+    if (intf->name != "default") {
+      ERROR("duplicated interface '%s'\n", intf->name.c_str());
       return -1;
     }
 
-    unsigned int idx = RTP_If_names[intf.name];
+    unsigned int idx = RTP_If_names[intf->name];
     RTP_Ifs[idx]     = intf;
   }
   else {
     // insert interface
     RTP_Ifs.push_back(intf);
     unsigned short int rtp_idx  = RTP_Ifs.size() - 1;
-    RTP_If_names[intf.name] = rtp_idx;
+    RTP_If_names[intf->name] = rtp_idx;
 
     // fix RtpInterface index in SIP interface
     map<string, unsigned short int>::iterator sip_idx_it =
-        SIP_If_names.find(intf.name);
+        SIP_If_names.find(intf->name);
 
     if ((sip_idx_it != SIP_If_names.end())
         && (SIP_Ifs.size() > sip_idx_it->second)) {
@@ -899,7 +899,7 @@ static int readRTPInterface(AmConfigReader& cfg, const string& i_name)
 
   // media_ip
   if (cfg.hasParameter("media_ip" + suffix)) {
-    intf.LocalIP = cfg.getParameter("media_ip" + suffix);
+    intf->LocalIP = cfg.getParameter("media_ip" + suffix);
   }
   else {
     // no media definition for this interface name
@@ -908,13 +908,13 @@ static int readRTPInterface(AmConfigReader& cfg, const string& i_name)
 
   // public_ip
   if (cfg.hasParameter("public_ip" + suffix)) {
-    intf.PublicIP = cfg.getParameter("public_ip" + suffix);
+    intf->PublicIP = cfg.getParameter("public_ip" + suffix);
   }
 
   // rtp_low_port
   if (cfg.hasParameter("rtp_low_port" + suffix)) {
     string rtp_low_port_str = cfg.getParameter("rtp_low_port" + suffix);
-    if (sscanf(rtp_low_port_str.c_str(), "%u", &(intf.RtpLowPort)) != 1) {
+    if (sscanf(rtp_low_port_str.c_str(), "%u", &(intf->RtpLowPort)) != 1) {
       ERROR("rtp_low_port%s: invalid port number (%s)\n", suffix.c_str(),
             rtp_low_port_str.c_str());
       // ret = -1; //TODO dunst0: return -1; ?
@@ -924,7 +924,7 @@ static int readRTPInterface(AmConfigReader& cfg, const string& i_name)
   // rtp_high_port
   if (cfg.hasParameter("rtp_high_port" + suffix)) {
     string rtp_high_port_str = cfg.getParameter("rtp_high_port" + suffix);
-    if (sscanf(rtp_high_port_str.c_str(), "%u", &(intf.RtpHighPort)) != 1) {
+    if (sscanf(rtp_high_port_str.c_str(), "%u", &(intf->RtpHighPort)) != 1) {
       ERROR("rtp_high_port%s: invalid port number (%s)\n", suffix.c_str(),
             rtp_high_port_str.c_str());
       // ret = -1; //TODO dunst0: return -1; ?
@@ -932,10 +932,10 @@ static int readRTPInterface(AmConfigReader& cfg, const string& i_name)
   }
 
   if (!i_name.empty()) {
-    intf.name = i_name;
+    intf->name = i_name;
   }
   else {
-    intf.name = "default";
+    intf->name = "default";
   }
 
   return AmConfig::insert_RTP_interface(intf);
