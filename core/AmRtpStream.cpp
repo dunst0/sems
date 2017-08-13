@@ -150,7 +150,7 @@ void AmRtpStream::setLocalPort(unsigned short int p)
     if (!getLocalSocket()) return;
 
     if (!p)
-      port = AmConfig::RTP_Ifs[l_if].getNextRtpPort();
+      port = AmConfig::RTP_Ifs[l_if]->getNextRtpPort();
     else
       port = p;
 
@@ -227,7 +227,7 @@ int AmRtpStream::ping()
   rp.compile((unsigned char*) ping_chr, 2);
 
   rp.setAddr(&r_saddr);
-  if (rp.send(l_sd, AmConfig::RTP_Ifs[l_if].NetIfIdx, &l_saddr) < 0) {
+  if (rp.send(l_sd, AmConfig::RTP_Ifs[l_if]->NetIfIdx, &l_saddr) < 0) {
     ERROR("while sending RTP packet.\n");
     return -1;
   }
@@ -281,7 +281,7 @@ int AmRtpStream::compile_and_send(const int payload, bool marker,
   }
 #endif
 
-  if (rp.send(l_sd, AmConfig::RTP_Ifs[l_if].NetIfIdx, &l_saddr) < 0) {
+  if (rp.send(l_sd, AmConfig::RTP_Ifs[l_if]->NetIfIdx, &l_saddr) < 0) {
     ERROR("while sending RTP packet.\n");
     return -1;
   }
@@ -317,7 +317,7 @@ int AmRtpStream::send_raw(char* packet, unsigned int length)
   rp.compile_raw((unsigned char*) packet, length);
   rp.setAddr(&r_saddr);
 
-  if (rp.send(l_sd, AmConfig::RTP_Ifs[l_if].NetIfIdx, &l_saddr) < 0) {
+  if (rp.send(l_sd, AmConfig::RTP_Ifs[l_if]->NetIfIdx, &l_saddr) < 0) {
     ERROR("while sending raw RTP packet.\n");
     return -1;
   }
@@ -1083,7 +1083,7 @@ void AmRtpStream::recvRtcpPacket()
   int err;
   if (AmConfig::UseRawSockets) {
     err = raw_sender::send((char*) buffer, recved_bytes,
-                           AmConfig::RTP_Ifs[l_if].NetIfIdx,
+                           AmConfig::RTP_Ifs[l_if]->NetIfIdx,
                            &relay_stream->l_saddr, &rtcp_raddr);
   }
   else {
@@ -1114,7 +1114,7 @@ void AmRtpStream::relay(AmRtpPacket* p)
   if (!relay_raw && !relay_transparent_ssrc) hdr->ssrc = htonl(l_ssrc);
   p->setAddr(&r_saddr);
 
-  if (p->send(l_sd, AmConfig::RTP_Ifs[l_if].NetIfIdx, &l_saddr) < 0) {
+  if (p->send(l_sd, AmConfig::RTP_Ifs[l_if]->NetIfIdx, &l_saddr) < 0) {
     ERROR("while sending RTP packet to '%s':%i\n",
           get_addr_str(&r_saddr).c_str(), am_get_port(&r_saddr));
   }

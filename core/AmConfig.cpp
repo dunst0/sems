@@ -70,7 +70,7 @@ int    AmConfig::LogLevel          = L_INFO;
 bool   AmConfig::LogStderr         = false;
 
 vector<AmConfig::SIP_interface> AmConfig::SIP_Ifs;
-vector<AmConfig::RTP_interface> AmConfig::RTP_Ifs;
+vector<AmConfig::RTP_interface *> AmConfig::RTP_Ifs;
 map<string, unsigned short> AmConfig::SIP_If_names;
 map<string, unsigned short> AmConfig::RTP_If_names;
 map<string, unsigned short> AmConfig::LocalSIPIP2If;
@@ -197,7 +197,7 @@ int AmConfig::RTP_interface::getNextRtpPort()
 {
   int port = 0;
 
-  next_rtp_port_mut.lock();
+  next_rtp_port_mutex.lock();
   if (next_rtp_port < 0) {
     next_rtp_port = RtpLowPort;
   }
@@ -208,7 +208,7 @@ int AmConfig::RTP_interface::getNextRtpPort()
   if (next_rtp_port >= RtpHighPort) {
     next_rtp_port = RtpLowPort;
   }
-  next_rtp_port_mut.unlock();
+  next_rtp_port_mutex.unlock();
 
   return port;
 }
@@ -858,26 +858,26 @@ static int readSIPInterface(AmConfigReader& cfg, const string& i_name)
   return AmConfig::insert_SIP_interface(intf);
 }
 
-int AmConfig::insert_RTP_interface(const RTP_interface& intf)
+int AmConfig::insert_RTP_interface(RTP_interface* intf)
 {
-  if (RTP_If_names.find(intf.name) != RTP_If_names.end()) {
-    if (intf.name != "default") {
-      ERROR("duplicated interface '%s'\n", intf.name.c_str());
+  if (RTP_If_names.find(intf->name) != RTP_If_names.end()) {
+    if (intf->name != "default") {
+      ERROR("duplicated interface '%s'\n", intf->name.c_str());
       return -1;
     }
 
-    unsigned int idx = RTP_If_names[intf.name];
+    unsigned int idx = RTP_If_names[intf->name];
     RTP_Ifs[idx]     = intf;
   }
   else {
     // insert interface
     RTP_Ifs.push_back(intf);
-    unsigned short rtp_idx  = RTP_Ifs.size() - 1;
-    RTP_If_names[intf.name] = rtp_idx;
+    unsigned short int rtp_idx  = RTP_Ifs.size() - 1;
+    RTP_If_names[intf->name] = rtp_idx;
 
     // fix RtpInterface index in SIP interface
-    map<string, unsigned short>::iterator sip_idx_it =
-        SIP_If_names.find(intf.name);
+    map<string, unsigned short int>::iterator sip_idx_it =
+        SIP_If_names.find(intf->name);
 
     if ((sip_idx_it != SIP_If_names.end())
         && (SIP_Ifs.size() > sip_idx_it->second)) {
@@ -890,7 +890,7 @@ int AmConfig::insert_RTP_interface(const RTP_interface& intf)
 
 static int readRTPInterface(AmConfigReader& cfg, const string& i_name)
 {
-  AmConfig::RTP_interface intf;
+  AmConfig::RTP_interface* intf = new AmConfig::RTP_interface();
   string                  suffix;
 
   if (!i_name.empty()) {
@@ -899,7 +899,7 @@ static int readRTPInterface(AmConfigReader& cfg, const string& i_name)
 
   // media_ip
   if (cfg.hasParameter("media_ip" + suffix)) {
-    intf.LocalIP = cfg.getParameter("media_ip" + suffix);
+    intf->LocalIP = cfg.getParameter("media_ip" + suffix);
   }
   else {
     // no media definition for this interface name
@@ -908,13 +908,13 @@ static int readRTPInterface(AmConfigReader& cfg, const string& i_name)
 
   // public_ip
   if (cfg.hasParameter("public_ip" + suffix)) {
-    intf.PublicIP = cfg.getParameter("public_ip" + suffix);
+    intf->PublicIP = cfg.getParameter("public_ip" + suffix);
   }
 
   // rtp_low_port
   if (cfg.hasParameter("rtp_low_port" + suffix)) {
     string rtp_low_port_str = cfg.getParameter("rtp_low_port" + suffix);
-    if (sscanf(rtp_low_port_str.c_str(), "%u", &(intf.RtpLowPort)) != 1) {
+    if (sscanf(rtp_low_port_str.c_str(), "%u", &(intf->RtpLowPort)) != 1) {
       ERROR("rtp_low_port%s: invalid port number (%s)\n", suffix.c_str(),
             rtp_low_port_str.c_str());
       // ret = -1; //TODO dunst0: return -1; ?
@@ -924,7 +924,7 @@ static int readRTPInterface(AmConfigReader& cfg, const string& i_name)
   // rtp_high_port
   if (cfg.hasParameter("rtp_high_port" + suffix)) {
     string rtp_high_port_str = cfg.getParameter("rtp_high_port" + suffix);
-    if (sscanf(rtp_high_port_str.c_str(), "%u", &(intf.RtpHighPort)) != 1) {
+    if (sscanf(rtp_high_port_str.c_str(), "%u", &(intf->RtpHighPort)) != 1) {
       ERROR("rtp_high_port%s: invalid port number (%s)\n", suffix.c_str(),
             rtp_high_port_str.c_str());
       // ret = -1; //TODO dunst0: return -1; ?
@@ -932,10 +932,10 @@ static int readRTPInterface(AmConfigReader& cfg, const string& i_name)
   }
 
   if (!i_name.empty()) {
-    intf.name = i_name;
+    intf->name = i_name;
   }
   else {
-    intf.name = "default";
+    intf->name = "default";
   }
 
   return AmConfig::insert_RTP_interface(intf);
@@ -1168,8 +1168,7 @@ int AmConfig::finalizeIPConfig()
        it != SIP_Ifs.end(); it++) {
     it->LocalIP = fixIface2IP(it->LocalIP, true);
     if (it->LocalIP.empty()) {
-      ERROR("could not determine signaling IP for "
-            "interface '%s'\n",
+      ERROR("could not determine signaling IP for interface '%s'\n",
             it->name.c_str());
       return -1;
     }
@@ -1181,33 +1180,31 @@ int AmConfig::finalizeIPConfig()
     setNetInterface(&(*it));
   }
 
-  for (vector<RTP_interface>::iterator it = RTP_Ifs.begin();
+  for (vector<RTP_interface *>::iterator it = RTP_Ifs.begin();
        it != RTP_Ifs.end(); it++) {
-    if (it->LocalIP.empty()) {
+    if ((*it)->LocalIP.empty()) {
       // try the IP from the signaling interface
-      map<string, unsigned short>::iterator sip_if =
-          SIP_If_names.find(it->name);
+      map<string, unsigned short int>::iterator sip_if =
+          SIP_If_names.find((*it)->name);
       if (sip_if != SIP_If_names.end()) {
-        it->LocalIP = SIP_Ifs[sip_if->second].LocalIP;
+        (*it)->LocalIP = SIP_Ifs[sip_if->second].LocalIP;
       }
       else {
-        ERROR("could not determine media IP for "
-              "interface '%s'\n",
-              it->name.c_str());
+        ERROR("could not determine media IP for interface '%s'\n",
+              (*it)->name.c_str());
         return -1;
       }
     }
     else {
-      it->LocalIP = fixIface2IP(it->LocalIP, false);
-      if (it->LocalIP.empty()) {
-        ERROR("could not determine media IP for "
-              "interface '%s'\n",
-              it->name.c_str());
+      (*it)->LocalIP = fixIface2IP((*it)->LocalIP, false);
+      if ((*it)->LocalIP.empty()) {
+        ERROR("could not determine media IP for interface '%s'\n",
+              (*it)->name.c_str());
         return -1;
       }
     }
 
-    setNetInterface(&(*it));
+    setNetInterface(*it);
   }
 
   if (!SIP_Ifs.size()) {
@@ -1222,9 +1219,9 @@ int AmConfig::finalizeIPConfig()
   }
 
   if (!RTP_Ifs.size()) {
-    RTP_interface intf;
-    intf.LocalIP = SIP_Ifs[0].LocalIP;
-    if (intf.LocalIP.empty()) {
+    RTP_interface *intf = new RTP_interface();
+    intf->LocalIP = SIP_Ifs[0].LocalIP;
+    if (intf->LocalIP.empty()) {
       ERROR("could not determine default media IP.");
       return -1;
     }
@@ -1265,13 +1262,13 @@ void AmConfig::dump_Ifs()
 
   INFO("Media interfaces:");
   for (int i = 0; i < (int) RTP_Ifs.size(); i++) {
-    RTP_interface& it_ref = RTP_Ifs[i];
+    RTP_interface* it_ref = RTP_Ifs[i];
 
     INFO("\t(%i) name='%s'"
          ";LocalIP='%s'"
          ";Ports=[%u;%u]"
          ";PublicIP='%s'",
-         i, it_ref.name.c_str(), it_ref.LocalIP.c_str(), it_ref.RtpLowPort,
-         it_ref.RtpHighPort, it_ref.PublicIP.c_str());
+         i, it_ref->name.c_str(), it_ref->LocalIP.c_str(), it_ref->RtpLowPort,
+         it_ref->RtpHighPort, it_ref->PublicIP.c_str());
   }
 }

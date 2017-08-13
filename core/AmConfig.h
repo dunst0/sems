@@ -130,11 +130,11 @@ struct AmConfig
 
    private:
     int     next_rtp_port;
-    AmMutex next_rtp_port_mut;
+    AmMutex next_rtp_port_mutex;
   };
 
   static std::vector<SIP_interface> SIP_Ifs;
-  static std::vector<RTP_interface> RTP_Ifs;
+  static std::vector<RTP_interface *> RTP_Ifs;
   static std::map<std::string, unsigned short> SIP_If_names;
   static std::map<std::string, unsigned short> RTP_If_names;
   static std::map<std::string, unsigned short> LocalSIPIP2If;
@@ -170,7 +170,7 @@ struct AmConfig
 
   static int insert_SIP_interface(const SIP_interface& intf);
   static int insert_SIP_interface_mapping(const SIP_interface& intf);
-  static int insert_RTP_interface(const RTP_interface& intf);
+  static int insert_RTP_interface(RTP_interface* intf);
   static int finalizeIPConfig();
 
   static void dump_Ifs();
