@@ -858,7 +858,7 @@ static int readSIPInterface(AmConfigReader& cfg, const string& i_name)
   return AmConfig::insert_SIP_interface(intf);
 }
 
-int AmConfig::insert_RTP_interface(const RTP_interface* intf)
+int AmConfig::insert_RTP_interface(RTP_interface* intf)
 {
   if (RTP_If_names.find(intf->name) != RTP_If_names.end()) {
     if (intf->name != "default") {

@@ -170,7 +170,7 @@ struct AmConfig
 
   static int insert_SIP_interface(const SIP_interface& intf);
   static int insert_SIP_interface_mapping(const SIP_interface& intf);
-  static int insert_RTP_interface(const RTP_interface* intf);
+  static int insert_RTP_interface(RTP_interface* intf);
   static int finalizeIPConfig();
 
   static void dump_Ifs();
