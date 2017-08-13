@@ -98,7 +98,7 @@ void AmThread::start()
   pthread_attr_destroy(&attr);
 
   if (res == 0) {
-    DBG("Thread %lu is just created.\n", (unsigned long int) pid);
+    DBG("Thread %lu is just created.\n", (unsigned long int) thread_id);
   }
   else {
     if (res == EAGAIN) {
