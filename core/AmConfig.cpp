@@ -1204,7 +1204,7 @@ int AmConfig::finalizeIPConfig()
       }
     }
 
-    setNetInterface(&(*it));
+    setNetInterface(*it);
   }
 
   if (!SIP_Ifs.size()) {
