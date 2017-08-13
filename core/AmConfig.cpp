@@ -1180,7 +1180,7 @@ int AmConfig::finalizeIPConfig()
     setNetInterface(&(*it));
   }
 
-  for (vector<RTP_interface *>::iterator it = RTP_Ifs.begin();
+  for (vector<AmConfig::RTP_interface *>::iterator it = RTP_Ifs.begin();
        it != RTP_Ifs.end(); it++) {
     if (it->LocalIP.empty()) {
       // try the IP from the signaling interface
@@ -1262,13 +1262,13 @@ void AmConfig::dump_Ifs()
 
   INFO("Media interfaces:");
   for (int i = 0; i < (int) RTP_Ifs.size(); i++) {
-    RTP_interface& it_ref = RTP_Ifs[i];
+    RTP_interface* it_ref = RTP_Ifs[i];
 
     INFO("\t(%i) name='%s'"
          ";LocalIP='%s'"
          ";Ports=[%u;%u]"
          ";PublicIP='%s'",
-         i, it_ref.name.c_str(), it_ref.LocalIP.c_str(), it_ref.RtpLowPort,
-         it_ref.RtpHighPort, it_ref.PublicIP.c_str());
+         i, it_ref->name.c_str(), it_ref->LocalIP.c_str(), it_ref->RtpLowPort,
+         it_ref->RtpHighPort, it_ref->PublicIP.c_str());
   }
 }
