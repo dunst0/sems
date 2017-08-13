@@ -70,7 +70,7 @@ int    AmConfig::LogLevel          = L_INFO;
 bool   AmConfig::LogStderr         = false;
 
 vector<AmConfig::SIP_interface> AmConfig::SIP_Ifs;
-vector<AmConfig::RTP_interface> AmConfig::RTP_Ifs;
+vector<AmConfig::RTP_interface *> AmConfig::RTP_Ifs;
 map<string, unsigned short> AmConfig::SIP_If_names;
 map<string, unsigned short> AmConfig::RTP_If_names;
 map<string, unsigned short> AmConfig::LocalSIPIP2If;
@@ -872,11 +872,11 @@ int AmConfig::insert_RTP_interface(const RTP_interface& intf)
   else {
     // insert interface
     RTP_Ifs.push_back(intf);
-    unsigned short rtp_idx  = RTP_Ifs.size() - 1;
+    unsigned short int rtp_idx  = RTP_Ifs.size() - 1;
     RTP_If_names[intf.name] = rtp_idx;
 
     // fix RtpInterface index in SIP interface
-    map<string, unsigned short>::iterator sip_idx_it =
+    map<string, unsigned short int>::iterator sip_idx_it =
         SIP_If_names.find(intf.name);
 
     if ((sip_idx_it != SIP_If_names.end())
@@ -890,7 +890,7 @@ int AmConfig::insert_RTP_interface(const RTP_interface& intf)
 
 static int readRTPInterface(AmConfigReader& cfg, const string& i_name)
 {
-  AmConfig::RTP_interface intf;
+  AmConfig::RTP_interface* intf = new AmConfig::RTP_interface();
   string                  suffix;
 
   if (!i_name.empty()) {
@@ -1168,8 +1168,7 @@ int AmConfig::finalizeIPConfig()
        it != SIP_Ifs.end(); it++) {
     it->LocalIP = fixIface2IP(it->LocalIP, true);
     if (it->LocalIP.empty()) {
-      ERROR("could not determine signaling IP for "
-            "interface '%s'\n",
+      ERROR("could not determine signaling IP for interface '%s'\n",
             it->name.c_str());
       return -1;
     }
@@ -1181,18 +1180,17 @@ int AmConfig::finalizeIPConfig()
     setNetInterface(&(*it));
   }
 
-  for (vector<RTP_interface>::iterator it = RTP_Ifs.begin();
+  for (vector<RTP_interface *>::iterator it = RTP_Ifs.begin();
        it != RTP_Ifs.end(); it++) {
     if (it->LocalIP.empty()) {
       // try the IP from the signaling interface
-      map<string, unsigned short>::iterator sip_if =
+      map<string, unsigned short int>::iterator sip_if =
           SIP_If_names.find(it->name);
       if (sip_if != SIP_If_names.end()) {
         it->LocalIP = SIP_Ifs[sip_if->second].LocalIP;
       }
       else {
-        ERROR("could not determine media IP for "
-              "interface '%s'\n",
+        ERROR("could not determine media IP for interface '%s'\n",
               it->name.c_str());
         return -1;
       }
@@ -1200,8 +1198,7 @@ int AmConfig::finalizeIPConfig()
     else {
       it->LocalIP = fixIface2IP(it->LocalIP, false);
       if (it->LocalIP.empty()) {
-        ERROR("could not determine media IP for "
-              "interface '%s'\n",
+        ERROR("could not determine media IP for interface '%s'\n",
               it->name.c_str());
         return -1;
       }
@@ -1222,9 +1219,9 @@ int AmConfig::finalizeIPConfig()
   }
 
   if (!RTP_Ifs.size()) {
-    RTP_interface intf;
-    intf.LocalIP = SIP_Ifs[0].LocalIP;
-    if (intf.LocalIP.empty()) {
+    RTP_interface *intf = new RTP_interface();
+    intf->LocalIP = SIP_Ifs[0].LocalIP;
+    if (intf->LocalIP.empty()) {
       ERROR("could not determine default media IP.");
       return -1;
     }

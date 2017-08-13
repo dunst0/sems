@@ -168,7 +168,7 @@ static void set_default_interface(const string& iface_name)
 
   if_it = AmConfig::RTP_If_names.find("default");
   if (if_it == AmConfig::RTP_If_names.end()) {
-    AmConfig::RTP_interface intf;
+    AmConfig::RTP_interface* intf = new AmConfig::RTP_interface();
     intf.name = "default";
     AmConfig::RTP_Ifs.push_back(intf);
     AmConfig::RTP_If_names["default"] = AmConfig::RTP_Ifs.size() - 1;
