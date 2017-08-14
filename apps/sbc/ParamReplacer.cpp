@@ -541,7 +541,7 @@ string replaceParameters(const string& s, const char* r_type,
                 vn       = var_name.substr(dotpos + 1);
                 var_name = var_name.substr(0, dotpos);
               }
-              SBCVarMapConstIteratorT it = call_profile->cc_vars.find(var_name);
+              SBCVarMapConstIterator it = call_profile->cc_vars.find(var_name);
               if (it != call_profile->cc_vars.end()) {
                 if (vn.empty()) {
                   val = &it->second;

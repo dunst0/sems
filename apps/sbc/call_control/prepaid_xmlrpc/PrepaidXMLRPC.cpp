@@ -231,7 +231,7 @@ void PrepaidXMLRPC::end(const string& cc_name, const string& ltag,
   if (!call_profile) return;
 
   // get uuid
-  SBCVarMapIteratorT vars_it = call_profile->cc_vars.find(cc_name+"::"+SBCVAR_PREPAID_XMLRPC_UUID);
+  SBCVarMapIterator vars_it = call_profile->cc_vars.find(cc_name+"::"+SBCVAR_PREPAID_XMLRPC_UUID);
   if (vars_it == call_profile->cc_vars.end() || !isArgCStr(vars_it->second)) {
     ERROR("internal: could not find UUID for call '%s' - "
 	  "not accounting (start_ts %i.%i, connect_ts %i.%i, end_ts %i.%i)\n",
@@ -303,8 +303,8 @@ int PrepaidXMLRPC::subtractCredit(string pin, int amount, bool& found) {
   XmlRpcValue xmlArg;
   xmlArg[0][0]["methodName"] = "subtractCredit";
   xmlArg[0][0]["pin"] = pin;
-  xmlArg[0][0]["amount"] = amount;	
-  DBG("subtractCredit pin# '%s', Seconds '%u'.\n", pin.c_str(),  
+  xmlArg[0][0]["amount"] = amount;
+  DBG("subtractCredit pin# '%s', Seconds '%u'.\n", pin.c_str(),
 amount );
   found = xmlrpccall.execute("subtractCredit", xmlArg, result);
   int res = 0;
@@ -313,4 +313,3 @@ amount );
   DBG("Credit Left '%u' .\n", res);
   return res;
 }
-

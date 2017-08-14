@@ -83,7 +83,7 @@ int Prepaid::onLoad() {
   //   return 0;
   // }
 
-  // syslog_prefix = cfg.hasParameter("cdr_prefix") ? 
+  // syslog_prefix = cfg.hasParameter("cdr_prefix") ?
   //   cfg.getParameter("cdr_prefix") : syslog_prefix;
 
   return 0;
@@ -153,12 +153,12 @@ void Prepaid::invoke(const string& method, const AmArg& args, AmArg& ret)
     assertArgCStr(args.get(0));
     assertArgInt(args.get(1));
     ret.push(addCredit(args.get(0).asCStr(),
-		       args.get(1).asInt()));	
+		       args.get(1).asInt()));
   } else if (method == "setCredit"){
     assertArgCStr(args.get(0));
     assertArgInt(args.get(1));
     ret.push(setCredit(args.get(0).asCStr(),
-		       args.get(1).asInt()));	
+		       args.get(1).asInt()));
   } else if (method == "_list"){
     ret.push("start");
     ret.push("connect");
@@ -219,14 +219,14 @@ void Prepaid::start(const string& cc_name, const string& ltag,
   res_cmd[SBC_CC_TIMER_TIMEOUT] = credit;
 }
 
-void Prepaid::connect(const string& cc_name, 
+void Prepaid::connect(const string& cc_name,
 		      const string& ltag, SBCCallProfile* call_profile,
 		      const string& other_tag,
 		      int connect_ts_sec, int connect_ts_usec) {
   // DBG("call '%s' gets connected\n", ltag.c_str());
 }
 
-void Prepaid::end(const string& cc_name, 
+void Prepaid::end(const string& cc_name,
 		  const string& ltag, SBCCallProfile* call_profile,
 		  int start_ts_sec, int start_ts_usec,
 		  int connect_ts_sec, int connect_ts_usec,
@@ -235,7 +235,7 @@ void Prepaid::end(const string& cc_name,
   if (!call_profile) return;
 
   // get uuid
-  SBCVarMapIteratorT vars_it = call_profile->
+  SBCVarMapIterator vars_it = call_profile->
     cc_vars.find(cc_name+"::"+SBCVAR_PREPAID_UUID);
 
   if (vars_it == call_profile->cc_vars.end() || !isArgCStr(vars_it->second)) {
@@ -325,4 +325,3 @@ int Prepaid::subtractCredit(string pin, int amount, bool& found) {
   found = true;
   return res;
 }
-

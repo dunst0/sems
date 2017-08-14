@@ -38,9 +38,9 @@
 #include <set>
 #include <string>
 
-typedef std::map<std::string, AmArg> SBCVarMapT;
-typedef SBCVarMapT::iterator       SBCVarMapIteratorT;
-typedef SBCVarMapT::const_iterator SBCVarMapConstIteratorT;
+typedef std::map<std::string, AmArg> SBCVarMap;
+typedef SBCVarMap::iterator       SBCVarMapIterator;
+typedef SBCVarMap::const_iterator SBCVarMapConstIterator;
 
 struct CCInterface
 {
@@ -203,7 +203,7 @@ struct SBCCallProfile : public AmObject
 
   CCInterfaceListT cc_interfaces;
 
-  SBCVarMapT cc_vars;
+  SBCVarMap cc_vars;
 
   ReplyTranslationMap reply_translations;
 
@@ -419,11 +419,16 @@ struct SBCCallProfile : public AmObject
 
   SBCCallProfile()
       : transparent_dlg_id(false)
-      , auth_enabled(false)
       , dlg_nat_handling(false)
       , keep_vias(false)
       , bleg_keep_vias(false)
+      , next_hop_1st_req(false)
+      , patch_ruri_next_hop(false)
+      , next_hop_fixed(false)
+      , allow_subless_notify(false)
+      , have_aleg_sdpfilter(false)
       , sst_enabled_value(false)
+      , auth_enabled(false)
       , rtprelay_enabled_value(false)
       , force_symmetric_rtp_value(false)
       , aleg_force_symmetric_rtp_value(false)
@@ -433,17 +438,12 @@ struct SBCCallProfile : public AmObject
       , aleg_rtprelay_interface_value(-1)
       , rtprelay_bw_limit_rate(-1)
       , rtprelay_bw_limit_peak(-1)
-      , have_aleg_sdpfilter(false)
       , outbound_interface_value(-1)
       , contact_hiding(false)
       , reg_caching(false)
-      , log_rtp(false)
-      , next_hop_1st_req(false)
-      , patch_ruri_next_hop(false)
-      , log_sip(false)
-      , next_hop_fixed(false)
-      , allow_subless_notify(false)
       , max_491_retry_time(2000)
+      , log_rtp(false)
+      , log_sip(false)
   {
   }
 

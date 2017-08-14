@@ -54,6 +54,7 @@ struct CallLegCreator
 struct SimpleRelayCreator
 {
   typedef std::pair<SimpleRelayDialog*, SimpleRelayDialog*> Relay;
+
   virtual Relay createRegisterRelay(SBCCallProfile&            call_profile,
                                     std::vector<AmDynInvoke*>& cc_modules);
   virtual Relay createSubscriptionRelay(SBCCallProfile&            call_profile,

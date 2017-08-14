@@ -53,7 +53,7 @@ int CCParallelCalls::onLoad() {
   	 (AmConfig::ModConfigPath + string(MOD_NAME ".conf")).c_str());
     return 0;
   }
-  
+
   refuse_reason = cfg.hasParameter("refuse_reason") ?
     cfg.getParameter("refuse_reason") : refuse_reason;
 
@@ -78,7 +78,7 @@ void CCParallelCalls::invoke(const string& method, const AmArg& args, AmArg& ret
     start(args[CC_API_PARAMS_CC_NAMESPACE].asCStr(),
 	  args[CC_API_PARAMS_LTAG].asCStr(), call_profile,
 	  args[CC_API_PARAMS_CFGVALUES], ret);
-    
+
   } else if(method == "connect"){
     // no action
 
@@ -178,7 +178,7 @@ void CCParallelCalls::end(const string& cc_namespace, const string& ltag,
     return;
   }
 
-  SBCVarMapIteratorT vars_it =
+  SBCVarMapIterator vars_it =
     call_profile->cc_vars.find(cc_namespace+"::"+SBCVAR_PARALLEL_CALLS_UUID);
   if (vars_it == call_profile->cc_vars.end() || !isArgCStr(vars_it->second)) {
     ERROR("internal: could not find UUID for ending call '%s'\n", ltag.c_str());

@@ -99,10 +99,10 @@ int SyslogCDR::onLoad() {
     return 0;
   }
 
-  syslog_prefix = cfg.hasParameter("cdr_prefix") ? 
+  syslog_prefix = cfg.hasParameter("cdr_prefix") ?
     cfg.getParameter("cdr_prefix") : syslog_prefix;
 
-  level = cfg.hasParameter("loglevel") ? 
+  level = cfg.hasParameter("loglevel") ?
     cfg.getParameterInt("loglevel") : level;
 
   if (cfg.hasParameter("cdr_format")) {
@@ -206,7 +206,7 @@ string getTimeDiffString(int from_ts_sec, int from_ts_usec,
       msecs = "0"+msecs;
 
     res+=int2str((unsigned int)diff.tv_sec)+"."+ msecs;
-      
+
   } else {
     if (diff.tv_usec>=500000)
       diff.tv_sec++;
@@ -256,15 +256,15 @@ void SyslogCDR::end(const string& ltag, SBCCallProfile* call_profile,
 
   AmArg d;
   AmArg& values = d;
-  
-  SBCVarMapIteratorT vars_it = call_profile->cc_vars.find(CDR_VARS);
+
+  SBCVarMapIterator vars_it = call_profile->cc_vars.find(CDR_VARS);
   if (vars_it != call_profile->cc_vars.end()) {
     values = vars_it->second;
 
     // hangup reason workaround: take hangup cause/initiator from the other leg
     // (if set)
     if (!values.hasMember(HANGUP_CAUSE)) {
-      SBCVarMapIteratorT i = call_profile->cc_vars.find(CDR_OTHER_HANGUP_CAUSE);
+      SBCVarMapIterator i = call_profile->cc_vars.find(CDR_OTHER_HANGUP_CAUSE);
       if (i != call_profile->cc_vars.end()) values[HANGUP_CAUSE] = i->second;
       i = call_profile->cc_vars.find(CDR_OTHER_HANGUP_INITIATOR);
       if (i != call_profile->cc_vars.end()) values[HANGUP_INITIATOR] = i->second;
@@ -324,7 +324,7 @@ void SyslogCDR::end(const string& ltag, SBCCallProfile* call_profile,
 	    prop = varname.substr(ppos+1);
 	    varname = varname.substr(0, ppos);
 	  }
-	  SBCVarMapIteratorT var_it = call_profile->cc_vars.find(varname);
+	  SBCVarMapIterator var_it = call_profile->cc_vars.find(varname);
 	  if (var_it == call_profile->cc_vars.end()) {
 	    DBG("unknown variable '%s' in cdr_format\n", it->c_str());
             cdr+=csv_quote(string("")) + ",";
@@ -379,7 +379,7 @@ void SyslogCDR::end(const string& ltag, SBCCallProfile* call_profile,
 
 static AmArg *getCDRVars(SBCCallProfile &prof)
 {
-  SBCVarMapIteratorT i = prof.cc_vars.find(CDR_VARS);
+  SBCVarMapIterator i = prof.cc_vars.find(CDR_VARS);
   if (i == prof.cc_vars.end()) {
     prof.cc_vars[CDR_VARS] = AmArg();
     i = prof.cc_vars.find(CDR_VARS);
