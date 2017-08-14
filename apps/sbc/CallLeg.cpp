@@ -1283,7 +1283,9 @@ void CallLeg::addNewCallee(CallLeg* callee, ConnectLegEvent* e,
           callee->getLocalTag().c_str() /*, invite_req.cmd.c_str()*/);
   }
 
-  AmSipDialog* callee_dlg = callee->dlg;
+  // UNUSED
+  // AmSipDialog* callee_dlg = callee->dlg;
+  // UNUSED_END
   MONITORING_LOG4(b.id.c_str(), "dir", "out", "from",
                   callee_dlg->getLocalParty().c_str(), "to",
                   callee_dlg->getRemoteParty().c_str(), "ruri",
