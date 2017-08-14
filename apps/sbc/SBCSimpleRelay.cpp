@@ -525,7 +525,7 @@ int SBCSimpleRelay::start(const SimpleRelayCreator::Relay& relay,
   }
 
   // must be added to the same worker thread
-  EventQueueWorker* worker =
+  AmEventQueueWorker* worker =
       SBCFactory::instance()->subnot_processor.getWorker();
   if (!worker) return -1;
 
