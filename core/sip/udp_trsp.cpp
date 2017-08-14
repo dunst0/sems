@@ -78,7 +78,7 @@ using std::string;
 #endif
 
 /** @see trsp_socket */
-int udp_trsp_socket::bind(const string& bind_ip, unsigned short bind_port)
+int udp_trsp_socket::bind(const string& bind_ip, unsigned short int bind_port)
 {
   if (sd) {
     WARN("re-binding socket\n");

@@ -64,13 +64,13 @@ class trsp_socket : public atomic_ref_cnt
   std::string ip;
 
   // bound port number
-  unsigned short port;
+  unsigned short int port;
 
   // public IP (Via-HF)
   std::string public_ip;
 
   // internal interface number
-  unsigned short if_num;
+  unsigned short int if_num;
 
   // network interface index
   unsigned int sys_if_idx;
@@ -79,7 +79,7 @@ class trsp_socket : public atomic_ref_cnt
   unsigned int socket_options;
 
  public:
-  trsp_socket(unsigned short if_num, unsigned int opts,
+  trsp_socket(unsigned short int if_num, unsigned int opts,
               unsigned int sys_if_idx = 0, int sd = 0);
   virtual ~trsp_socket();
 
@@ -87,7 +87,7 @@ class trsp_socket : public atomic_ref_cnt
    * Binds the transport socket to an address
    * @return -1 if error(s) occured.
    */
-  virtual int bind(const std::string& address, unsigned short port) = 0;
+  virtual int bind(const std::string& address, unsigned short int port) = 0;
 
   /**
    * Getter for the transport name
@@ -102,7 +102,7 @@ class trsp_socket : public atomic_ref_cnt
   /**
    * Getter for the port number
    */
-  unsigned short get_port() const;
+  unsigned short int get_port() const;
 
   /**
    * Setter for public IP address
@@ -123,7 +123,7 @@ class trsp_socket : public atomic_ref_cnt
   /**
    * Getter for the interface number
    */
-  unsigned short get_if() const;
+  unsigned short int get_if() const;
 
   /**
    * Is the transport reliable?

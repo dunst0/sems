@@ -832,7 +832,8 @@ static void prepare_strict_routing(sip_msg* msg, string& ext_uri_buffer)
 // Ref. RFC 3261 "12.2.1.1 Generating the Request"
 //
 int _trans_layer::set_next_hop(sip_msg* msg, cstring* next_hop,
-                               unsigned short* next_port, cstring* next_trsp)
+                               unsigned short int* next_port,
+                               cstring*            next_trsp)
 {
   static const cstring default_trsp("udp");
   assert(msg);
@@ -1035,7 +1036,7 @@ static int patch_ruri_with_remote_ip(string& n_uri, sip_msg* msg)
 
   // append new host and port
   n_uri += get_addr_str(&msg->remote_ip);
-  unsigned short new_port = am_get_port(&msg->remote_ip);
+  unsigned short int new_port = am_get_port(&msg->remote_ip);
   if (new_port != 5060) {
     n_uri += ":" + int2str(new_port);
   }
@@ -2472,7 +2473,7 @@ int _trans_layer::find_outbound_if(sockaddr_storage* remote_ip)
   // try with alternative address
   char local_ip[NI_MAXHOST];
   if (am_inet_ntop(&from, local_ip, NI_MAXHOST) != NULL) {
-    map<string, unsigned short>::iterator if_it =
+    map<string, unsigned short int>::iterator if_it =
         AmConfig::LocalSIPIP2If.find(local_ip);
     if (if_it == AmConfig::LocalSIPIP2If.end()) {
       ERROR("Could not find a local interface for resolved local IP "

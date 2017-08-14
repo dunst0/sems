@@ -126,8 +126,8 @@ int pcap_logger::log(const char* data, int data_len, struct sockaddr* src,
   hdr.ip.ip_hl         = 5;
   hdr.ip.ip_v          = 4;
   hdr.ip.ip_tos        = 0;
-  hdr.ip.ip_len        = (unsigned short) htons(size);
-  hdr.ip.ip_id         = (unsigned short) htonl(54321);
+  hdr.ip.ip_len        = (unsigned short int) htons(size);
+  hdr.ip.ip_id         = (unsigned short int) htonl(54321);
   hdr.ip.ip_off        = 0;
   hdr.ip.ip_ttl        = 255;
   hdr.ip.ip_p          = 0x11; // UDP

@@ -7,7 +7,7 @@
 #define SECTION_COUNTS_OFF 4
 #define HEADER_OFFSET 12
 
-unsigned short dns_msg_count(u_char* begin, dns_section_type sect);
+unsigned short int dns_msg_count(u_char* begin, dns_section_type sect);
 int dns_skip_name(u_char** p, u_char* end);
 int dns_expand_name(u_char** ptr, u_char* begin, u_char* end, u_char* buf,
                     unsigned int len);
@@ -77,7 +77,7 @@ int dns_msg_parse(u_char* msg, int len, dns_parse_fct fct, void* data)
   return 0;
 }
 
-unsigned short dns_msg_count(u_char* begin, dns_section_type sect)
+unsigned short int dns_msg_count(u_char* begin, dns_section_type sect)
 {
   u_char* p = begin + SECTION_COUNTS_OFF + 2 * sect;
 
@@ -124,7 +124,7 @@ int dns_expand_name(u_char** ptr, u_char* begin, u_char* end, u_char* start_buf,
 
     if ((*p & 0xC0) == 0xC0) { // ptr
 
-      unsigned short l_off = (((unsigned short) *p & 0x3F) << 8);
+      unsigned short int l_off = (((unsigned short int) *p & 0x3F) << 8);
       if (++p >= end) return -1;
       l_off |= *p;
       if (++p >= end) return -1;

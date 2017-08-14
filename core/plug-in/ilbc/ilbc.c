@@ -211,7 +211,7 @@ int Pcm16_2_iLBC(unsigned char* out_buf, unsigned char* in_buf,
                  unsigned int size, unsigned int channels, unsigned int rate,
                  long int h_codec)
 {
-  short* in_b = (short*) in_buf;
+  short int* in_b = (short int*) in_buf;
 
   float              block[BLOCKL_MAX];
   unsigned int       i, k;
@@ -269,13 +269,13 @@ static int iLBC_2_Pcm16_Ext(unsigned char* out_buf, unsigned char* in_buf,
                             unsigned int size, unsigned int channels,
                             unsigned int rate, long int h_codec, int mode)
 {
-  short*             out_b = (short*) out_buf;
+  short*             out_b = (short int*) out_buf;
   int                i, k, noframes;
   float              decblock[BLOCKL_MAX];
   float              dtmp;
   iLBC_Codec_Inst_t* codec_inst;
 
-  short out_buf_offset = 0;
+  short int out_buf_offset = 0;
 
   if (!h_codec) {
     ERROR("iLBC codec not initialized.\n");
@@ -306,7 +306,7 @@ static int iLBC_2_Pcm16_Ext(unsigned char* out_buf, unsigned char* in_buf,
         dtmp = MIN_SAMPLE;
       else if (dtmp > MAX_SAMPLE)
         dtmp                = MAX_SAMPLE;
-      out_b[out_buf_offset] = (short) dtmp;
+      out_b[out_buf_offset] = (short int) dtmp;
       out_buf_offset++;
     }
   }

@@ -112,7 +112,7 @@ class AmSipRequest : public _AmSipMsgInDlg
 
   int max_forwards;
 
-  unsigned short local_if;
+  unsigned short int local_if;
 
   AmSipRequest();
   ~AmSipRequest() {}

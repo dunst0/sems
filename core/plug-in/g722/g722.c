@@ -29,7 +29,7 @@
 #include <string.h>
 
 typedef unsigned char uint8_t;
-typedef signed short  int16_t;
+typedef signed short int  int16_t;
 
 int Pcm16_2_G722NB(unsigned char* out_buf, unsigned char* in_buf,
                    unsigned int size, unsigned int channels, unsigned int rate,
@@ -165,7 +165,7 @@ int Pcm16_2_G722NB(unsigned char* out_buf, unsigned char* in_buf,
 
   gs = (G722State*) h_codec;
 
-  return g722_encode(gs->encode_state, out_buf, (signed short*) in_buf,
+  return g722_encode(gs->encode_state, out_buf, (signed short int*) in_buf,
                      size >> 1);
 }
 
@@ -187,6 +187,6 @@ int G722NB_2_Pcm16(unsigned char* out_buf, unsigned char* in_buf,
 
   gs = (G722State*) h_codec;
 
-  return g722_decode(gs->decode_state, (signed short*) out_buf, in_buf, size)
+  return g722_decode(gs->decode_state, (signed short int*) out_buf, in_buf, size)
          << 1;
 }

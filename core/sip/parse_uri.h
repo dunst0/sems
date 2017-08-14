@@ -49,8 +49,8 @@ struct sip_uri
   cstring    passwd;
   cstring    host;
 
-  cstring        port_str;
-  unsigned short port;
+  cstring            port_str;
+  unsigned short int port;
 
   std::list<sip_avp*> params;
   std::list<sip_avp*> hdrs;

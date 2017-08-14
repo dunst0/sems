@@ -112,7 +112,7 @@ class AmSession
   void* _pid;
 #endif
 
-private:
+ private:
   static void session_started();
   static void session_stopped();
 

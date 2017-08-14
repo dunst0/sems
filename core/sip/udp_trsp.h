@@ -42,7 +42,7 @@ class udp_trsp_socket : public trsp_socket
   int sendmsg(const sockaddr_storage* sa, const char* msg, const int msg_len);
 
  public:
-  udp_trsp_socket(unsigned short if_num, unsigned int opts,
+  udp_trsp_socket(unsigned short int if_num, unsigned int opts,
                   unsigned int sys_if_idx = 0)
       : trsp_socket(if_num, opts, sys_if_idx)
   {
@@ -54,7 +54,7 @@ class udp_trsp_socket : public trsp_socket
    * Binds the transport socket to an address
    * @return -1 if error(s) occured.
    */
-  virtual int bind(const std::string& address, unsigned short port);
+  virtual int bind(const std::string& address, unsigned short int port);
 
   const char* get_transport() const { return "udp"; }
 

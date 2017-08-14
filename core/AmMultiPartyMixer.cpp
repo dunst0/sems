@@ -230,9 +230,9 @@ int AmMultiPartyMixer::GetCurrentSampleRate()
   }
 }
 
-// int   dest[size/2]
-// int   src1[size/2]
-// short src2[size/2]
+// int       dest[size/2]
+// int       src1[size/2]
+// short int src2[size/2]
 //
 void AmMultiPartyMixer::mix_add(int* dest, int* src1, short int* src2,
                                 unsigned int size)
@@ -266,7 +266,7 @@ void AmMultiPartyMixer::scale(short int* buffer, int* tmp_buf,
       else
         s = MAX_LINEAR_SAMPLE;
     }
-    *(buffer++) = short(s); // TODO: short int cast?
+    *(buffer++) = (short int) (s);
     tmp_buf++;
   }
 }

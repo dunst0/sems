@@ -127,7 +127,7 @@ struct ip_entry : public dns_base_entry
 
 struct ip_port_entry : public ip_entry
 {
-  unsigned short port;
+  unsigned short int port;
 
   virtual void to_sa(sockaddr_storage* sa);
   virtual std::string to_str();
@@ -168,10 +168,10 @@ struct dns_handle
   friend class dns_srv_entry;
   friend class dns_ip_entry;
 
-  dns_srv_entry* srv_e;
-  int            srv_n;
-  unsigned int   srv_used;
-  unsigned short port;
+  dns_srv_entry*     srv_e;
+  int                srv_n;
+  unsigned int       srv_used;
+  unsigned short int port;
 
   dns_ip_entry* ip_e;
   int           ip_n;
@@ -179,8 +179,8 @@ struct dns_handle
 
 struct naptr_record : public dns_base_entry
 {
-  unsigned short order;
-  unsigned short pref;
+  unsigned short int order;
+  unsigned short int pref;
 
   std::string flags;
   std::string services;
@@ -277,7 +277,7 @@ class _resolver : AmThread
   _resolver();
   ~_resolver();
 
-  int set_destination_ip(const cstring& next_hop, unsigned short next_port,
+  int set_destination_ip(const cstring& next_hop, unsigned short int next_port,
                          const cstring& next_trsp, sockaddr_storage* remote_ip,
                          dns_handle* h_dns);
 

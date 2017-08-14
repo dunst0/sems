@@ -197,11 +197,9 @@ typedef int IntSample;
 typedef SampleArray<IntSample> SampleArrayInt;
 
 // 16 bit sample
-typedef short ShortSample;
+typedef short int ShortSample;
 
 // 16 bit sample array
 typedef SampleArray<ShortSample> SampleArrayShort;
-
-typedef short ShortSample;
 
 #endif

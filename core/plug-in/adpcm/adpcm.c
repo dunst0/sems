@@ -388,7 +388,7 @@ static int G726_40_2_Pcm16(unsigned char* out_buf, unsigned char* in_buf,
   u_int64_t    v;
   if (!h_codec) return -1;
 
-  short int*          pcm_buf = (short*) out_buf;
+  short int*          pcm_buf = (short int*) out_buf;
   struct G726_twoway* cs      = (struct G726_twoway*) h_codec;
 
   for (i = 0; i < size; i += 5) {

@@ -17,7 +17,7 @@ class async_file
   bool error;
 
   /** libevent call-back */
-  static void write_cb(int sd, short what, void* ctx);
+  static void write_cb(int sd, short int what, void* ctx);
 
   /**
    * Triggers real writing into the file itself.

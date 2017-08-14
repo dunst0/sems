@@ -72,11 +72,11 @@ using std::string;
 
 struct srv_entry : public dns_base_entry
 {
-  unsigned short p;
-  unsigned short w;
+  unsigned short int p;
+  unsigned short int w;
 
-  unsigned short port;
-  string         target;
+  unsigned short int port;
+  string             target;
 
   virtual string to_str();
 };
@@ -200,8 +200,8 @@ class dns_srv_entry : public dns_entry
     int i = index;
 
     // fetch current priority
-    unsigned short p     = ((srv_entry*) ip_vec[i])->p;
-    unsigned int   w_sum = 0;
+    unsigned short int p     = ((srv_entry*) ip_vec[i])->p;
+    unsigned int       w_sum = 0;
 
     // and fetch records with same priority
     // which have not been chosen yet
@@ -632,10 +632,10 @@ dns_base_entry* dns_naptr_entry::get_rr(dns_record* rr, u_char* begin,
 
   const u_char* rdata = ns_rr_rdata(*rr);
 
-  unsigned short order = dns_get_16(rdata);
+  unsigned short int order = dns_get_16(rdata);
   rdata += 2;
 
-  unsigned short pref = dns_get_16(rdata);
+  unsigned short int pref = dns_get_16(rdata);
   rdata += 2;
 
   cstring fields[NAPTR_Fields];
@@ -916,11 +916,11 @@ int _resolver::str2ip(const char* name, sockaddr_storage* sa,
   return 0;
 }
 
-int _resolver::set_destination_ip(const cstring&    next_hop,
-                                  unsigned short    next_port,
-                                  const cstring&    next_trsp,
-                                  sockaddr_storage* remote_ip,
-                                  dns_handle*       h_dns)
+int _resolver::set_destination_ip(const cstring&     next_hop,
+                                  unsigned short int next_port,
+                                  const cstring&     next_trsp,
+                                  sockaddr_storage*  remote_ip,
+                                  dns_handle*        h_dns)
 {
   string nh = c2stlstr(next_hop);
 

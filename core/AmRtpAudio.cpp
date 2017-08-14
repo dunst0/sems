@@ -431,7 +431,7 @@ unsigned int AmRtpAudio::default_plc(unsigned char* out_buf, unsigned int size,
                                      unsigned int channels,
                                      unsigned int sample_rate)
 {
-  short* buf_offset = (short*) out_buf;
+  short int* buf_offset = (short int*) out_buf;
 
 #ifdef USE_SPANDSP_PLC
   plc_fillin(plc_state, buf_offset, PCM16_B2S(size));
@@ -442,7 +442,7 @@ unsigned int AmRtpAudio::default_plc(unsigned char* out_buf, unsigned int size,
   }
 #endif // USE_SPANDSP_PLC
 
-  return PCM16_S2B(buf_offset - (short*) out_buf);
+  return PCM16_S2B(buf_offset - (short int*) out_buf);
 }
 
 void AmRtpAudio::add_to_history(int16_t* buffer, unsigned int size)

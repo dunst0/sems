@@ -64,17 +64,17 @@ class _SipCtrlInterface : public sip_ua
 
   AmCondition<bool> stopped;
 
-  unsigned short    nr_udp_sockets;
-  udp_trsp_socket** udp_sockets;
+  unsigned short int nr_udp_sockets;
+  udp_trsp_socket**  udp_sockets;
 
-  unsigned short nr_udp_servers;
-  udp_trsp**     udp_servers;
+  unsigned short int nr_udp_servers;
+  udp_trsp**         udp_servers;
 
-  unsigned short      nr_tcp_sockets;
+  unsigned short int  nr_tcp_sockets;
   tcp_server_socket** tcp_sockets;
 
-  unsigned short nr_tcp_servers;
-  tcp_trsp**     tcp_servers;
+  unsigned short int nr_tcp_servers;
+  tcp_trsp**         tcp_servers;
 
   int alloc_udp_structs();
   int init_udp_servers(int if_num);

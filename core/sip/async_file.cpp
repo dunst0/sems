@@ -86,7 +86,7 @@ void async_file::close()
   event_active(ev_write, 0, 0);
 }
 
-void async_file::write_cb(int sd, short what, void* ctx)
+void async_file::write_cb(int sd, short int what, void* ctx)
 {
   ((async_file*) ctx)->write_cycle();
 }

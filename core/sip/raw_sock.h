@@ -38,6 +38,6 @@ int raw_udp4_send(int rsock, char* buf, unsigned int len,
 
 int raw_iphdr_udp4_send(int rsock, const char* buf, unsigned int len,
                         const sockaddr_storage* from,
-                        const sockaddr_storage* to, unsigned short mtu);
+                        const sockaddr_storage* to, unsigned short int mtu);
 
 #endif

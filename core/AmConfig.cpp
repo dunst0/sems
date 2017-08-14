@@ -69,11 +69,11 @@ string AmConfig::ExcludePayloads   = "";
 int    AmConfig::LogLevel          = L_INFO;
 bool   AmConfig::LogStderr         = false;
 
-vector<AmConfig::SIP_interface> AmConfig::SIP_Ifs;
-vector<AmConfig::RTP_interface *> AmConfig::RTP_Ifs;
-map<string, unsigned short> AmConfig::SIP_If_names;
-map<string, unsigned short> AmConfig::RTP_If_names;
-map<string, unsigned short> AmConfig::LocalSIPIP2If;
+vector<AmConfig::SIP_interface>  AmConfig::SIP_Ifs;
+vector<AmConfig::RTP_interface*> AmConfig::RTP_Ifs;
+map<string, unsigned short int> AmConfig::SIP_If_names;
+map<string, unsigned short int> AmConfig::RTP_If_names;
+map<string, unsigned short int> AmConfig::LocalSIPIP2If;
 vector<AmConfig::SysIntf> AmConfig::SysIfs;
 
 #ifndef DISABLE_DAEMON_MODE
@@ -774,7 +774,8 @@ int AmConfig::insert_SIP_interface_mapping(const SIP_interface& intf)
     LocalSIPIP2If.insert(make_pair(if_local_ip, idx));
   }
   else {
-    map<string, unsigned short>::iterator it = LocalSIPIP2If.find(if_local_ip);
+    map<string, unsigned short int>::iterator it =
+        LocalSIPIP2If.find(if_local_ip);
 
     const SIP_interface& old_intf = SIP_Ifs[it->second];
     if (intf.LocalPort == old_intf.LocalPort) {
@@ -872,8 +873,8 @@ int AmConfig::insert_RTP_interface(RTP_interface* intf)
   else {
     // insert interface
     RTP_Ifs.push_back(intf);
-    unsigned short int rtp_idx  = RTP_Ifs.size() - 1;
-    RTP_If_names[intf->name] = rtp_idx;
+    unsigned short int rtp_idx = RTP_Ifs.size() - 1;
+    RTP_If_names[intf->name]   = rtp_idx;
 
     // fix RtpInterface index in SIP interface
     map<string, unsigned short int>::iterator sip_idx_it =
@@ -891,7 +892,7 @@ int AmConfig::insert_RTP_interface(RTP_interface* intf)
 static int readRTPInterface(AmConfigReader& cfg, const string& i_name)
 {
   AmConfig::RTP_interface* intf = new AmConfig::RTP_interface();
-  string                  suffix;
+  string                   suffix;
 
   if (!i_name.empty()) {
     suffix = "_" + i_name;
@@ -1180,7 +1181,7 @@ int AmConfig::finalizeIPConfig()
     setNetInterface(&(*it));
   }
 
-  for (vector<RTP_interface *>::iterator it = RTP_Ifs.begin();
+  for (vector<RTP_interface*>::iterator it = RTP_Ifs.begin();
        it != RTP_Ifs.end(); it++) {
     if ((*it)->LocalIP.empty()) {
       // try the IP from the signaling interface
@@ -1219,8 +1220,8 @@ int AmConfig::finalizeIPConfig()
   }
 
   if (!RTP_Ifs.size()) {
-    RTP_interface *intf = new RTP_interface();
-    intf->LocalIP = SIP_Ifs[0].LocalIP;
+    RTP_interface* intf = new RTP_interface();
+    intf->LocalIP       = SIP_Ifs[0].LocalIP;
     if (intf->LocalIP.empty()) {
       ERROR("could not determine default media IP.");
       return -1;
@@ -1250,7 +1251,8 @@ void AmConfig::dump_Ifs()
   }
 
   INFO("Signaling address map:");
-  for (multimap<string, unsigned short>::iterator it = LocalSIPIP2If.begin();
+  for (multimap<string, unsigned short int>::iterator it =
+           LocalSIPIP2If.begin();
        it != LocalSIPIP2If.end(); ++it) {
     if (SIP_Ifs[it->second].name.empty()) {
       INFO("\t%s -> default", it->first.c_str());

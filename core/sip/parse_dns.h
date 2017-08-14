@@ -30,13 +30,13 @@ const char* dns_rr_type_str(dns_rr_type t);
 
 struct dns_record
 {
-  char           name[NS_MAXDNAME];
-  unsigned short type;
-  unsigned short rr_class;
-  unsigned int   ttl;
+  char               name[NS_MAXDNAME];
+  unsigned short int type;
+  unsigned short int rr_class;
+  unsigned int       ttl;
 
-  unsigned short rdata_len;
-  unsigned char* rdata;
+  unsigned short int rdata_len;
+  unsigned char*     rdata;
 };
 
 class dns_entry;

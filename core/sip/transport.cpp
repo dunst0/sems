@@ -38,7 +38,7 @@ using std::string;
 
 int trsp_socket::log_level_raw_msgs = L_DBG;
 
-trsp_socket::trsp_socket(unsigned short if_num, unsigned int opts,
+trsp_socket::trsp_socket(unsigned short int if_num, unsigned int opts,
                          unsigned int sys_if_idx, int sd)
     : sd(sd)
     , ip()
@@ -54,7 +54,7 @@ trsp_socket::~trsp_socket() {}
 
 const char* trsp_socket::get_ip() const { return ip.c_str(); }
 
-unsigned short trsp_socket::get_port() const { return port; }
+unsigned short int trsp_socket::get_port() const { return port; }
 
 void trsp_socket::set_public_ip(const string& ip) { public_ip = ip; }
 
@@ -102,4 +102,4 @@ bool trsp_socket::match_addr(sockaddr_storage* other_addr) const
 
 int trsp_socket::get_sd() const { return sd; }
 
-unsigned short trsp_socket::get_if() const { return if_num; }
+unsigned short int trsp_socket::get_if() const { return if_num; }

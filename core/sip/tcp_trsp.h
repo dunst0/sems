@@ -26,11 +26,11 @@ class tcp_trsp_socket : public trsp_socket
   tcp_server_socket* server_sock;
   tcp_server_worker* server_worker;
 
-  bool             closed;
-  bool             connected;
-  sockaddr_storage peer_addr;
-  std::string      peer_ip;
-  unsigned short   peer_port;
+  bool               closed;
+  bool               connected;
+  sockaddr_storage   peer_addr;
+  std::string        peer_ip;
+  unsigned short int peer_port;
   // UNUSED
   // bool             peer_addr_valid;
   // UNUSED_END
@@ -72,7 +72,7 @@ class tcp_trsp_socket : public trsp_socket
   int parse_input();
 
   /** fake implementation: we will never bind a connection socket */
-  int bind(const std::string& address, unsigned short port) { return 0; }
+  int bind(const std::string& address, unsigned short int port) { return 0; }
 
   /**
    * Instantiates read_ev & write_ev
@@ -129,12 +129,12 @@ class tcp_trsp_socket : public trsp_socket
    */
   void add_write_event_ul(struct timeval* timeout = NULL);
 
-  int on_connect(short ev);
-  void on_write(short ev);
-  void on_read(short ev);
+  int on_connect(short int ev);
+  void on_write(short int ev);
+  void on_read(short int ev);
 
-  static void on_sock_read(int fd, short ev, void* arg);
-  static void on_sock_write(int fd, short ev, void* arg);
+  static void on_sock_read(int fd, short int ev, void* arg);
+  static void on_sock_write(int fd, short int ev, void* arg);
 
   tcp_trsp_socket(tcp_server_socket* server_sock,
                   tcp_server_worker* server_worker, int sd,
@@ -159,7 +159,7 @@ class tcp_trsp_socket : public trsp_socket
 
   const std::string& get_peer_ip() { return peer_ip; }
 
-  unsigned short get_peer_port() { return peer_port; }
+  unsigned short int get_peer_port() { return peer_port; }
 
   bool is_connected() { return connected; }
 
@@ -212,15 +212,15 @@ class tcp_server_socket : public trsp_socket
   struct timeval idle_timeout;
 
   /* callback on new connection */
-  void on_accept(int sd, short ev);
+  void on_accept(int sd, short int ev);
 
   /* libevent callback on new connection */
-  static void on_accept(int sd, short ev, void* arg);
+  static void on_accept(int sd, short int ev, void* arg);
 
   static uint32_t hash_addr(const sockaddr_storage* addr);
 
  public:
-  tcp_server_socket(unsigned short if_num);
+  tcp_server_socket(unsigned short int if_num);
   ~tcp_server_socket() {}
 
   void add_threads(unsigned int n);
@@ -233,7 +233,7 @@ class tcp_server_socket : public trsp_socket
   /* activates libevent on_accept callback */
   void add_event(struct event_base* evbase);
 
-  int bind(const std::string& address, unsigned short port);
+  int bind(const std::string& address, unsigned short int port);
   int send(const sockaddr_storage* sa, const char* msg, const int msg_len,
            unsigned int flags);
 

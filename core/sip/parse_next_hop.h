@@ -7,9 +7,9 @@
 
 struct sip_destination
 {
-  cstring        host;
-  unsigned short port;
-  cstring        trsp;
+  cstring            host;
+  unsigned short int port;
+  cstring            trsp;
 
   sip_destination()
       : host()

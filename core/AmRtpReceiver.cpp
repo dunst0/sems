@@ -96,8 +96,8 @@ void AmRtpReceiverThread::run()
   close(fake_fds[1]);
 }
 
-void AmRtpReceiverThread::_rtp_receiver_read_cb(evutil_socket_t sd, short what,
-                                                void* arg)
+void AmRtpReceiverThread::_rtp_receiver_read_cb(evutil_socket_t sd,
+                                                short int what, void* arg)
 {
   AmRtpReceiverThread::StreamInfo* p_si =
       static_cast<AmRtpReceiverThread::StreamInfo*>(arg);

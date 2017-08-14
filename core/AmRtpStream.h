@@ -201,9 +201,9 @@ class AmRtpStream : public AmObject
   int last_payload;
 
   /** Remote host information */
-  std::string    r_host;
-  unsigned short r_port;
-  unsigned short r_rtcp_port;
+  std::string        r_host;
+  unsigned short int r_port;
+  unsigned short int r_rtcp_port;
 
   /**
    * Local interface used for this stream
@@ -219,7 +219,7 @@ class AmRtpStream : public AmObject
   struct sockaddr_storage l_rtcp_saddr;
 
   /** Local port */
-  unsigned short l_port;
+  unsigned short int l_port;
 
   /** Local socket */
   int l_sd;
@@ -390,7 +390,7 @@ class AmRtpStream : public AmObject
    * Initializes with a new random local port if 'p' is 0,
    * else binds the given port, and sets own attributes properly.
    */
-  void setLocalPort(unsigned short p = 0);
+  void setLocalPort(unsigned short int p = 0);
 
   /**
    * Gets RTP port number. If no RTP port in assigned, assigns a new one.
@@ -419,8 +419,8 @@ class AmRtpStream : public AmObject
   /**
    * Set remote IP & port.
    */
-  void setRAddr(const std::string& addr, unsigned short port,
-                unsigned short rtcp_port = 0);
+  void setRAddr(const std::string& addr, unsigned short int port,
+                unsigned short int rtcp_port = 0);
 
   /** Symmetric RTP & RTCP: passive mode ? */
   void setPassiveMode(bool p);

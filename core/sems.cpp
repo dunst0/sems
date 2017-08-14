@@ -147,7 +147,7 @@ static void set_default_interface(const string& iface_name)
   // UNUSED
   // unsigned int idx = 0;
   // UNUSED_END
-  map<string, unsigned short>::iterator if_it =
+  map<string, unsigned short int>::iterator if_it =
       AmConfig::SIP_If_names.find("default");
   if (if_it == AmConfig::SIP_If_names.end()) {
     AmConfig::SIP_interface intf;
@@ -169,7 +169,7 @@ static void set_default_interface(const string& iface_name)
   if_it = AmConfig::RTP_If_names.find("default");
   if (if_it == AmConfig::RTP_If_names.end()) {
     AmConfig::RTP_interface* intf = new AmConfig::RTP_interface();
-    intf->name = "default";
+    intf->name                    = "default";
     AmConfig::RTP_Ifs.push_back(intf);
     AmConfig::RTP_If_names["default"] = AmConfig::RTP_Ifs.size() - 1;
     // UNUSED

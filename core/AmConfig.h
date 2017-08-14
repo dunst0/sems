@@ -133,18 +133,18 @@ struct AmConfig
     AmMutex next_rtp_port_mutex;
   };
 
-  static std::vector<SIP_interface> SIP_Ifs;
-  static std::vector<RTP_interface *> RTP_Ifs;
-  static std::map<std::string, unsigned short> SIP_If_names;
-  static std::map<std::string, unsigned short> RTP_If_names;
-  static std::map<std::string, unsigned short> LocalSIPIP2If;
+  static std::vector<SIP_interface>  SIP_Ifs;
+  static std::vector<RTP_interface*> RTP_Ifs;
+  static std::map<std::string, unsigned short int> SIP_If_names;
+  static std::map<std::string, unsigned short int> RTP_If_names;
+  static std::map<std::string, unsigned short int> LocalSIPIP2If;
 
   struct IPAddr
   {
     std::string addr;
-    short       family;
+    short int   family;
 
-    IPAddr(const std::string& addr, const short family)
+    IPAddr(const std::string& addr, const short int family)
         : addr(addr)
         , family(family)
     {

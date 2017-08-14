@@ -15,14 +15,14 @@
 using std::map;
 using std::string;
 
-void tcp_trsp_socket::on_sock_read(int fd, short ev, void* arg)
+void tcp_trsp_socket::on_sock_read(int fd, short int ev, void* arg)
 {
   if (ev & (EV_READ | EV_TIMEOUT)) {
     ((tcp_trsp_socket*) arg)->on_read(ev);
   }
 }
 
-void tcp_trsp_socket::on_sock_write(int fd, short ev, void* arg)
+void tcp_trsp_socket::on_sock_write(int fd, short int ev, void* arg)
 {
   if (ev & (EV_WRITE | EV_TIMEOUT)) {
     ((tcp_trsp_socket*) arg)->on_write(ev);
@@ -144,7 +144,7 @@ tcp_trsp_socket::msg_buf::msg_buf(const sockaddr_storage* sa, const char* msg,
 
 tcp_trsp_socket::msg_buf::~msg_buf() { delete[] msg; }
 
-int tcp_trsp_socket::on_connect(short ev)
+int tcp_trsp_socket::on_connect(short int ev)
 {
   DBG("************ on_connect() ***********");
 
@@ -288,7 +288,7 @@ void tcp_trsp_socket::generate_transport_errors()
   }
 }
 
-void tcp_trsp_socket::on_read(short ev)
+void tcp_trsp_socket::on_read(short int ev)
 {
   int   bytes      = 0;
   char* old_cursor = (char*) get_input();
@@ -412,7 +412,7 @@ int tcp_trsp_socket::parse_input()
   // return 0;
 }
 
-void tcp_trsp_socket::on_write(short ev)
+void tcp_trsp_socket::on_write(short int ev)
 {
   AmLock _l(sock_mut);
 
@@ -570,14 +570,14 @@ void tcp_server_worker::run()
 
 void tcp_server_worker::on_stop() { event_base_loopbreak(evbase); }
 
-tcp_server_socket::tcp_server_socket(unsigned short if_num)
+tcp_server_socket::tcp_server_socket(unsigned short int if_num)
     : trsp_socket(if_num, 0)
     , evbase(NULL)
     , ev_accept(NULL)
 {
 }
 
-int tcp_server_socket::bind(const string& bind_ip, unsigned short bind_port)
+int tcp_server_socket::bind(const string& bind_ip, unsigned short int bind_port)
 {
   if (sd) {
     WARN("re-binding socket\n");
@@ -639,7 +639,7 @@ int tcp_server_socket::bind(const string& bind_ip, unsigned short bind_port)
   return 0;
 }
 
-void tcp_server_socket::on_accept(int fd, short ev, void* arg)
+void tcp_server_socket::on_accept(int fd, short int ev, void* arg)
 {
   tcp_server_socket* trsp = (tcp_server_socket*) arg;
   trsp->on_accept(fd, ev);
@@ -691,7 +691,7 @@ void tcp_server_socket::stop_threads()
   }
 }
 
-void tcp_server_socket::on_accept(int sd, short ev)
+void tcp_server_socket::on_accept(int sd, short int ev)
 {
   sockaddr_storage src_addr;
   socklen_t        src_addr_len = sizeof(sockaddr_storage);
