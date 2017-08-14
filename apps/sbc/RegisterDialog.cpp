@@ -21,9 +21,9 @@ using std::pair;
 RegisterDialog::RegisterDialog(SBCCallProfile&       profile,
                                vector<AmDynInvoke*>& cc_modules)
     : SimpleRelayDialog(profile, cc_modules)
+    , star_contact(false)
     , contact_hiding(false)
     , reg_caching(false)
-    , star_contact(false)
     , max_ua_expire(0)
     , min_reg_expire(0)
 {
@@ -66,7 +66,9 @@ int RegisterDialog::replyFromCache(const AmSipRequest& req)
 {
   struct timeval now;
   gettimeofday(&now, NULL);
-  RegisterCache* reg_cache = RegisterCache::instance();
+  // UNUSED
+  // RegisterCache* reg_cache = RegisterCache::instance();
+  // UNUSED_END
 
   // for each contact, set 'expires' correctly:
   // - either original expires, if <= max_ua_expire

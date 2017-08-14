@@ -17,7 +17,6 @@ using std::vector;
 /**
  * SimpleRelayDialog
  */
-
 void SimpleRelayDialog::initCCModules(SBCCallProfile&       profile,
                                       vector<AmDynInvoke*>& cc_modules)
 {
@@ -48,10 +47,10 @@ SimpleRelayDialog::SimpleRelayDialog(SBCCallProfile&       profile,
     : AmBasicSipDialog(this)
     , AmEventQueue(this)
     , parent_obj(parent_obj)
-    , finished(false)
     , transparent_dlg_id(false)
     , keep_vias(false)
     , fix_replaces_ref(false)
+    , finished(false)
 {
   if (parent_obj) {
     inc_ref(parent_obj);
