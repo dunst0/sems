@@ -37,9 +37,9 @@ class CCCtl : public AmDynInvoke
 {
   static CCCtl* _instance;
 
-  void start(const string& cc_name, const string& ltag, SBCCallProfile* call_profile,
-	     int start_ts_sec, int start_ts_usec, const AmArg& values,
-	     int timer_id, AmArg& res);
+  void start(const string& cc_name, const string& ltag,
+             SBCCallProfile* call_profile, int start_ts_sec, int start_ts_usec,
+             const AmArg& values, int timer_id, AmArg& res);
 
  public:
   CCCtl();
@@ -49,4 +49,4 @@ class CCCtl : public AmDynInvoke
   int onLoad();
 };
 
-#endif 
+#endif
