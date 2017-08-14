@@ -255,18 +255,21 @@ struct SBCCallProfile : public AmObject
     std::vector<SdpPayload>  audio_codecs_norelay;
     std::vector<SdpPayload>  audio_codecs_norelay_aleg;
     std::vector<SdpPayload>  lowfi_codecs;
+
     enum
     {
       Always,
       OnMissingCompatible,
       Never
     } transcoder_mode;
+
     enum
     {
       DTMFAlways,
       DTMFLowFiCodecs,
       DTMFNever
     } dtmf_mode;
+
     bool readTranscoderMode(const std::string& src);
     bool readDTMFMode(const std::string& src);
 
@@ -281,8 +284,8 @@ struct SBCCallProfile : public AmObject
 
     bool isActive() { return enabled; }
     TranscoderSettings()
-        : enabled(false)
-        , transcoder_mode(Never)
+        : transcoder_mode(Never)
+        , enabled(false)
     {
     }
   } transcoder;
@@ -415,8 +418,8 @@ struct SBCCallProfile : public AmObject
   const std::string& get_logger_path() { return msg_logger_path; }
 
   SBCCallProfile()
-      : auth_enabled(false)
-      , transparent_dlg_id(false)
+      : transparent_dlg_id(false)
+      , auth_enabled(false)
       , dlg_nat_handling(false)
       , keep_vias(false)
       , bleg_keep_vias(false)
@@ -430,14 +433,14 @@ struct SBCCallProfile : public AmObject
       , aleg_rtprelay_interface_value(-1)
       , rtprelay_bw_limit_rate(-1)
       , rtprelay_bw_limit_peak(-1)
-      , outbound_interface_value(-1)
       , have_aleg_sdpfilter(false)
+      , outbound_interface_value(-1)
       , contact_hiding(false)
       , reg_caching(false)
       , log_rtp(false)
-      , log_sip(false)
-      , patch_ruri_next_hop(false)
       , next_hop_1st_req(false)
+      , patch_ruri_next_hop(false)
+      , log_sip(false)
       , next_hop_fixed(false)
       , allow_subless_notify(false)
       , max_491_retry_time(2000)

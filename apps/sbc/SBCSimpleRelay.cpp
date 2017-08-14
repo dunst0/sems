@@ -12,6 +12,7 @@ using std::string;
 using std::pair;
 using std::list;
 using std::map;
+using std::vector;
 
 /**
  * SimpleRelayDialog
