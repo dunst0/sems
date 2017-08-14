@@ -35,6 +35,7 @@
 #include <string.h>
 
 using std::string;
+using std::map;
 
 #define SBCVAR_PARALLEL_CALLS_UUID "uuid"
 
@@ -135,6 +136,11 @@ void CCParallelCalls::start(const string& cc_namespace, const string& ltag,
                             SBCCallProfile* call_profile, const AmArg& values,
                             AmArg& res)
 {
+  unsigned int max_calls = 1; // default
+  unsigned int current_calls = 0;
+  bool         do_limit      = false;
+  sting        uuid;
+
   if (!call_profile) {
     ERROR("internal: call_profile object not found in parameters\n");
     goto error;
@@ -147,12 +153,10 @@ void CCParallelCalls::start(const string& cc_namespace, const string& ltag,
     goto error;
   }
 
-  string uuid = values["uuid"].asCStr();
+  uuid = values["uuid"].asCStr();
 
   call_profile->cc_vars[cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_UUID] =
       uuid;
-
-  unsigned int max_calls = 1; // default
 
   if (values.hasMember("max_calls") && isArgCStr(values["max_calls"])) {
     if (str2i(values["max_calls"].asCStr(), max_calls)) {
@@ -163,9 +167,6 @@ void CCParallelCalls::start(const string& cc_namespace, const string& ltag,
   }
 
   DBG("enforcing limit of %i calls for uuid '%s'\n", max_calls, uuid.c_str());
-
-  bool         do_limit      = false;
-  unsigned int current_calls = 0;
 
   call_control_calls_mutex.lock();
   if (max_calls) {
