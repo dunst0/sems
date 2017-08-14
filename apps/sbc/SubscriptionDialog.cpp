@@ -35,16 +35,15 @@
 
 using std::string;
 using std::vector;
-using std::map
-    :
+using std::map;
 
-    /**
-     * SubscriptionDialog
-     */
-    SubscriptionDialog::SubscriptionDialog(SBCCallProfile&       profile,
-                                           vector<AmDynInvoke*>& cc_modules,
-                                           AmSipSubscription*    subscription,
-                                           atomic_ref_cnt*       parent_obj)
+/**
+ * SubscriptionDialog
+ */
+SubscriptionDialog::SubscriptionDialog(SBCCallProfile&       profile,
+                                       vector<AmDynInvoke*>& cc_modules,
+                                       AmSipSubscription*    subscription,
+                                       atomic_ref_cnt*       parent_obj)
     : SimpleRelayDialog(profile, cc_modules, parent_obj)
     , subs(subscription)
 {
