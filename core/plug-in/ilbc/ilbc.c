@@ -269,7 +269,7 @@ static int iLBC_2_Pcm16_Ext(unsigned char* out_buf, unsigned char* in_buf,
                             unsigned int size, unsigned int channels,
                             unsigned int rate, long int h_codec, int mode)
 {
-  short*             out_b = (short int*) out_buf;
+  short int*             out_b = (short int*) out_buf;
   int                i, k, noframes;
   float              decblock[BLOCKL_MAX];
   float              dtmp;

@@ -538,7 +538,7 @@ AmSemsInbandDtmfDetector::AmSemsInbandDtmfDetector(AmKeyPressSink* keysink,
     , m_count(0)
 {
   /* precalculate 2 * cos (2 PI k / N) */
-  for (unsigned i = 0; i < NELEMSOF(rel_cos2pik); i++) {
+  for (unsigned int i = 0; i < NELEMSOF(rel_cos2pik); i++) {
     // FIXME: fixed samplerate. won't work for wideband
     int k = (int) ((double) dtmf_tones[i].freq * REL_DTMF_NPOINTS / SAMPLERATE
                    + 0.5);

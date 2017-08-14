@@ -55,11 +55,11 @@ struct packet_header
 static uint32_t sum(const void* _data, unsigned int _len)
 {
   const uint16_t* data = (const uint16_t*) _data;
-  unsigned        len  = _len >> 1;
+  unsigned int    len  = _len >> 1;
 
   uint32_t r = 0;
   for (unsigned int i = 0; i < len; i++) r += data[i];
-  if (_len & 1) r += (unsigned) ((const char*) _data)[_len - 1];
+  if (_len & 1) r += (unsigned int) ((const char*) _data)[_len - 1];
 
   return r;
 }

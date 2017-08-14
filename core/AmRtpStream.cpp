@@ -557,8 +557,8 @@ int AmRtpStream::init(const AmSdp& local, const AmSdp& remote,
                       bool force_passive_mode)
 {
   if ((sdp_media_index < 0)
-      || ((unsigned) sdp_media_index >= local.media.size())
-      || ((unsigned) sdp_media_index >= remote.media.size())) {
+      || ((unsigned int) sdp_media_index >= local.media.size())
+      || ((unsigned int) sdp_media_index >= remote.media.size())) {
     ERROR("Media index %i is invalid, either within local or remote SDP (or "
           "both)",
           sdp_media_index);

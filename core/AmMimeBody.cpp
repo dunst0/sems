@@ -310,8 +310,8 @@ int AmContentType::parseParams(const char* c, const char* end)
 
 int AmContentType::Param::parseType()
 {
-  const char* c   = name.c_str();
-  unsigned    len = name.length();
+  const char*  c   = name.c_str();
+  unsigned int len = name.length();
 
   switch (len) {
     case BOUNDARY_len:

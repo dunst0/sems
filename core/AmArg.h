@@ -343,7 +343,7 @@ class AmArg : public AmObject
   /**
    * throws exception if arg array does not conform to spec
    *   i  - int
-   *   l  - long long
+   *   l  - long long int
    *   t  - bool
    *   f  - double
    *   s  - cstr

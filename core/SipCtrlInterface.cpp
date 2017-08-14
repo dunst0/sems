@@ -697,7 +697,7 @@ inline bool _SipCtrlInterface::sip_msg2am_reply(sip_msg* msg, AmSipReply& reply)
 
   prepare_routes_uac(msg->record_route, reply.route);
 
-  unsigned rseq;
+  unsigned int rseq;
   for (list<sip_header*>::iterator it = msg->hdrs.begin();
        it != msg->hdrs.end(); ++it) {
 #ifdef PROPAGATE_UNPARSED_REPLY_HEADERS

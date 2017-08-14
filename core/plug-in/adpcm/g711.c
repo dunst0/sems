@@ -156,7 +156,7 @@ short int alaw2linear(unsigned char a_val)
   a_val ^= 0x55;
 
   t   = (a_val & QUANT_MASK) << 4;
-  seg = ((unsigned) a_val & SEG_MASK) >> SEG_SHIFT;
+  seg = ((unsigned int) a_val & SEG_MASK) >> SEG_SHIFT;
   switch (seg) {
     case 0: t += 8; break;
     case 1: t += 0x108; break;
@@ -251,7 +251,7 @@ short int ulaw2linear(unsigned char u_val)
    * shift up by the segment number and subtract out the bias.
    */
   t = ((u_val & QUANT_MASK) << 3) + BIAS;
-  t <<= ((unsigned) u_val & SEG_MASK) >> SEG_SHIFT;
+  t <<= ((unsigned int) u_val & SEG_MASK) >> SEG_SHIFT;
 
   return ((u_val & SIGN_BIT) ? (BIAS - t) : (t - BIAS));
 }
