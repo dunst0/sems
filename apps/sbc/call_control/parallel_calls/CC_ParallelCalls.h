@@ -23,15 +23,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _CC_TEMPLATE_H
-#define _CC_TEMPLATE_H
-
-#include "AmApi.h"
-#include <map>
+#ifndef _CCPARALLELCALLS_H_
+#define _CCPARALLELCALLS_H_
 
 #include "SBCCallProfile.h"
 
-using std::map;
+#include "AmApi.h"
+
+#include <map>
 
 /**
  * call control module limiting parallel number of calls
@@ -39,26 +38,26 @@ using std::map;
 class CCParallelCalls : public AmDynInvoke
 {
   static unsigned int refuse_code;
-  static string refuse_reason;
+  static std::string  refuse_reason;
 
   // this map contains # of calls per uuid
-  map<string, unsigned int> call_control_calls;
-  AmMutex call_control_calls_mut;
+  std::map<std::string, unsigned int> call_control_calls;
+  AmMutex call_control_calls_mutex;
 
   static CCParallelCalls* _instance;
 
-  void start(const string& cc_namespace,
-	     const string& ltag, SBCCallProfile* call_profile,
-	     const AmArg& values, AmArg& res);
-  void end(const string& cc_namespace,
-	   const string& ltag, SBCCallProfile* call_profile);
+  void start(const std::string& cc_namespace, const std::string& ltag,
+             SBCCallProfile* call_profile, const AmArg& values, AmArg& res);
+  void end(const std::string& cc_namespace, const std::string& ltag,
+           SBCCallProfile* call_profile);
 
- public:
   CCParallelCalls();
   ~CCParallelCalls();
+
+ public:
   static CCParallelCalls* instance();
-  void invoke(const string& method, const AmArg& args, AmArg& ret);
+  void invoke(const std::string& method, const AmArg& args, AmArg& ret);
   int onLoad();
 };
 
-#endif 
+#endif
