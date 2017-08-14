@@ -215,11 +215,11 @@ SBCCallLeg::SBCCallLeg(SBCCallLeg* caller, AmSipDialog* p_dlg,
 SBCCallLeg::SBCCallLeg(AmSipDialog* p_dlg, AmSipSubscription* p_subs)
     : CallLeg(p_dlg, p_subs)
     , m_state(BB_Init)
+    , cc_timer_id(SBC_TIMER_ID_CALL_TIMERS_START)
     , auth(NULL)
     , auth_di(NULL)
-    , cc_timer_id(SBC_TIMER_ID_CALL_TIMERS_START)
-    , cc_started(false)
     , logger(NULL)
+    , cc_started(false)
 {
 #ifdef WITH_ZRTP
   enable_zrtp = false;
