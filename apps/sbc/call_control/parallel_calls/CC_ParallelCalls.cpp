@@ -136,10 +136,10 @@ void CCParallelCalls::start(const string& cc_namespace, const string& ltag,
                             SBCCallProfile* call_profile, const AmArg& values,
                             AmArg& res)
 {
-  unsigned int max_calls = 1; // default
+  unsigned int max_calls     = 1; // default
   unsigned int current_calls = 0;
   bool         do_limit      = false;
-  sting        uuid;
+  string       uuid;
 
   if (!call_profile) {
     ERROR("internal: call_profile object not found in parameters\n");
