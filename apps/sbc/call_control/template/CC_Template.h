@@ -60,7 +60,7 @@ class CCTemplate
   int onLoad();
 
 #ifdef CC_EXTENDED_INTERFACE
-  // extended call control interface
+// extended call control interface
 #ifdef CC_EXTENDED_INTERFACE_CALLS
   //    --- calls
   bool init(SBCCallLeg* call, const std::map<std::string, std::string>& values);
