@@ -39,7 +39,7 @@
 using std::string;
 using std::map;
 using std::multimap;
-using std::vector
+using std::vector;
 using std::pair;
 
 #define XMLRPC_PORT "8090" // default port
