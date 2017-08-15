@@ -34,6 +34,8 @@
 
 #include <string.h>
 
+using std::string;
+
 class CCTemplateFactory : public AmDynInvokeFactory
 {
  public:
