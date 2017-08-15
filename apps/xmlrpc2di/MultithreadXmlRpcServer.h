@@ -8,10 +8,11 @@
 #ifndef _MULTI_THREAD_XMLRPCSERVER_H_
 #define _MULTI_THREAD_XMLRPCSERVER_H_
 
-#include "AmEventQueue.h"
 #include "XmlRpcDispatch.h"
 #include "XmlRpcServer.h"
-#include <AmThread.h>
+
+#include "AmEventQueue.h"
+#include "AmThread.h"
 
 #include <queue>
 #include <vector>
@@ -29,6 +30,10 @@ class WorkerThread
 
   AmCondition<bool> running;
 
+ protected:
+  void run();
+  void on_stop();
+
  public:
   WorkerThread(MultithreadXmlRpcServer* chief);
 
@@ -36,8 +41,6 @@ class WorkerThread
                        unsigned eventMask); // call this method to make it run
   void wakeup();
 
-  void run();
-  void on_stop();
 
   void postEvent(AmEvent* ev);
 
@@ -65,7 +68,7 @@ class MultithreadXmlRpcServer : public XmlRpcServer
   virtual void acceptConnection();
 
  private:
-  AmMutex                    waiting_mut;
+  AmMutex                    waiting_mutex;
   std::queue<WorkerThread*>  waiting;
   AmCondition<bool>          have_waiting;
   std::vector<WorkerThread*> workers;

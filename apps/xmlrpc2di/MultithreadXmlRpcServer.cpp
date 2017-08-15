@@ -4,24 +4,28 @@
  * adapted for SEMS by Stefan Sayer stefan.sayer at iptego.com
  */
 #include "MultithreadXmlRpcServer.h"
-#include "AmEventDispatcher.h"
-#include "AmUtils.h"
+
 #include "XmlRpcException.h"
 #include "XmlRpcServer.h"
 #include "XmlRpcServerConnection.h"
 #include "XmlRpcServerMethod.h"
 #include "XmlRpcSocket.h"
 #include "XmlRpcUtil.h"
+
+#include "AmEventDispatcher.h"
+#include "AmUtils.h"
+
 #include "log.h"
 
-#include "unistd.h"
+#include <unistd.h>
 #include <errno.h>
+
+using std::string;
+using std::vector;
 
 using namespace XmlRpc;
 WorkerThread::WorkerThread(MultithreadXmlRpcServer* chief)
-    : running(true)
-    , runcond(false)
-    , chief(chief)
+    : chief(chief)
 {
 }
 
@@ -32,26 +36,24 @@ void WorkerThread::addXmlRpcSource(XmlRpcSource* source, unsigned eventMask)
   wakeup();
 }
 
-void WorkerThread::wakeup() { runcond.set(true); }
+void WorkerThread::wakeup() { getRunCondition().set(true); }
 
 void WorkerThread::run()
 {
-  running.set(true);
-
   string eventqueue_name =
-      "MT_XMLRPC_SERVER_" + long2str((unsigned long) pthread_self());
+      "MT_XMLRPC_SERVER_" + long2str((unsigned long int) pthread_self());
 
   // register us as SIP event receiver for MOD_NAME
   AmEventDispatcher::instance()->addEventQueue(eventqueue_name, this);
 
   chief->reportBack(this);
 
-  while (running.get()) {
-    runcond.wait_for();
+  while (isRunning()) {
+    getRunCondition().wait_for();
     dispatcher.work(-1.0);
 
     dispatcher.clear(); // close socket and others ...
-    runcond.set(false);
+    getRunCondition().set(false);
 
     /* tell chief we can work again */
     chief->reportBack(this);
@@ -69,12 +71,12 @@ void WorkerThread::postEvent(AmEvent* ev)
       if (sys_ev->sys_event == AmSystemEvent::ServerShutdown) {
         DBG("XMLRPC worker thread received system Event: ServerShutdown, "
             "stopping\n");
-        running.set(false);
-        runcond.set(true);
+        stop();
       }
       return;
     }
   }
+
   WARN("unknown event received\n");
 }
 
@@ -89,9 +91,9 @@ MultithreadXmlRpcServer::MultithreadXmlRpcServer()
 // Wait until all the worker threads are done.
 MultithreadXmlRpcServer::~MultithreadXmlRpcServer()
 {
-  for (std::vector<WorkerThread*>::iterator it = workers.begin();
+  for (vector<WorkerThread*>::iterator it = workers.begin();
        it != workers.end(); it++) {
-    (*it)->stop(false);
+    (*it)->stop();
     (*it)->join();
     delete *it;
   }
@@ -142,22 +144,25 @@ void MultithreadXmlRpcServer::acceptConnection()
 
 void MultithreadXmlRpcServer::reportBack(WorkerThread* thr)
 {
-  waiting_mut.lock();
+  waiting_mutex.lock();
   waiting.push(thr);
   have_waiting.set(true);
-  waiting_mut.unlock();
+  waiting_mutex.unlock();
 }
 
 WorkerThread* MultithreadXmlRpcServer::getIdleThread()
 {
   WorkerThread* res = NULL;
-  waiting_mut.lock();
+  waiting_mutex.lock();
+
   if (!waiting.empty()) {
     res = waiting.front();
     waiting.pop();
   }
   have_waiting.set(!waiting.empty());
-  waiting_mut.unlock();
+
+  waiting_mutex.unlock();
+
   return res;
 }
 
