@@ -61,89 +61,8 @@ using std::vector;
 using std::string;
 using std::unique_ptr;
 
-#define MOD_NAME "sbc"
-
 EXPORT_MODULE_FACTORY(SBCFactory);
 DEFINE_MODULE_INSTANCE(SBCFactory, MOD_NAME);
-
-// helper functions
-
-bool getCCInterfaces(CCInterfaceListT&     cc_interfaces,
-                     vector<AmDynInvoke*>& cc_modules)
-{
-  for (CCInterfaceListIteratorT cc_it = cc_interfaces.begin();
-       cc_it != cc_interfaces.end(); cc_it++) {
-    string& cc_module = cc_it->cc_module;
-    if (cc_module.empty()) {
-      ERROR("using call control but empty cc_module for '%s'!\n",
-            cc_it->cc_name.c_str());
-      return false;
-    }
-
-    AmDynInvokeFactory* cc_fact =
-        AmPlugIn::instance()->getFactory4Di(cc_module);
-    if (NULL == cc_fact) {
-      ERROR("cc_module '%s' not loaded\n", cc_module.c_str());
-      return false;
-    }
-
-    AmDynInvoke* cc_di = cc_fact->getInstance();
-    if (NULL == cc_di) {
-      ERROR("could not get a DI reference\n");
-      return false;
-    }
-    cc_modules.push_back(cc_di);
-  }
-  return true;
-}
-
-void assertEndCRLF(string& s)
-{
-  if (s[s.size() - 2] != '\r' || s[s.size() - 1] != '\n') {
-    while ((s[s.size() - 1] == '\r') || (s[s.size() - 1] == '\n'))
-      s.erase(s.size() - 1);
-    s += "\r\n";
-  }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
-
-SBCCallLeg* CallLegCreator::create(const SBCCallProfile& call_profile)
-{
-  return new SBCCallLeg(call_profile, new AmSipDialog());
-}
-
-SBCCallLeg* CallLegCreator::create(SBCCallLeg* caller)
-{
-  return new SBCCallLeg(caller);
-}
-
-SimpleRelayCreator::Relay
-SimpleRelayCreator::createRegisterRelay(SBCCallProfile&       call_profile,
-                                        vector<AmDynInvoke*>& cc_modules)
-{
-  return SimpleRelayCreator::Relay(
-      new RegisterDialog(call_profile, cc_modules),
-      new RegisterDialog(call_profile, cc_modules));
-}
-
-SimpleRelayCreator::Relay
-SimpleRelayCreator::createSubscriptionRelay(SBCCallProfile&       call_profile,
-                                            vector<AmDynInvoke*>& cc_modules)
-{
-  return SimpleRelayCreator::Relay(
-      new SubscriptionDialog(call_profile, cc_modules),
-      new SubscriptionDialog(call_profile, cc_modules));
-}
-
-SimpleRelayCreator::Relay
-SimpleRelayCreator::createGenericRelay(SBCCallProfile&       call_profile,
-                                       vector<AmDynInvoke*>& cc_modules)
-{
-  return SimpleRelayCreator::Relay(
-      new SimpleRelayDialog(call_profile, cc_modules),
-      new SimpleRelayDialog(call_profile, cc_modules));
-}
 
 SBCFactory::SBCFactory(const string& _app_name)
     : AmSessionFactory(_app_name)
@@ -855,4 +774,83 @@ bool SBCFactory::CCRoute(const AmSipRequest&   req,
   }
 
   return true;
+}
+
+// helper functions
+
+bool getCCInterfaces(CCInterfaceListT&     cc_interfaces,
+                     vector<AmDynInvoke*>& cc_modules)
+{
+  for (CCInterfaceListIteratorT cc_it = cc_interfaces.begin();
+       cc_it != cc_interfaces.end(); cc_it++) {
+    string& cc_module = cc_it->cc_module;
+    if (cc_module.empty()) {
+      ERROR("using call control but empty cc_module for '%s'!\n",
+            cc_it->cc_name.c_str());
+      return false;
+    }
+
+    AmDynInvokeFactory* cc_fact =
+        AmPlugIn::instance()->getFactory4Di(cc_module);
+    if (NULL == cc_fact) {
+      ERROR("cc_module '%s' not loaded\n", cc_module.c_str());
+      return false;
+    }
+
+    AmDynInvoke* cc_di = cc_fact->getInstance();
+    if (NULL == cc_di) {
+      ERROR("could not get a DI reference\n");
+      return false;
+    }
+    cc_modules.push_back(cc_di);
+  }
+  return true;
+}
+
+void assertEndCRLF(string& s)
+{
+  if (s[s.size() - 2] != '\r' || s[s.size() - 1] != '\n') {
+    while ((s[s.size() - 1] == '\r') || (s[s.size() - 1] == '\n'))
+      s.erase(s.size() - 1);
+    s += "\r\n";
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+SBCCallLeg* CallLegCreator::create(const SBCCallProfile& call_profile)
+{
+  return new SBCCallLeg(call_profile, new AmSipDialog());
+}
+
+SBCCallLeg* CallLegCreator::create(SBCCallLeg* caller)
+{
+  return new SBCCallLeg(caller);
+}
+
+SimpleRelayCreator::Relay
+SimpleRelayCreator::createRegisterRelay(SBCCallProfile&       call_profile,
+                                        vector<AmDynInvoke*>& cc_modules)
+{
+  return SimpleRelayCreator::Relay(
+      new RegisterDialog(call_profile, cc_modules),
+      new RegisterDialog(call_profile, cc_modules));
+}
+
+SimpleRelayCreator::Relay
+SimpleRelayCreator::createSubscriptionRelay(SBCCallProfile&       call_profile,
+                                            vector<AmDynInvoke*>& cc_modules)
+{
+  return SimpleRelayCreator::Relay(
+      new SubscriptionDialog(call_profile, cc_modules),
+      new SubscriptionDialog(call_profile, cc_modules));
+}
+
+SimpleRelayCreator::Relay
+SimpleRelayCreator::createGenericRelay(SBCCallProfile&       call_profile,
+                                       vector<AmDynInvoke*>& cc_modules)
+{
+  return SimpleRelayCreator::Relay(
+      new SimpleRelayDialog(call_profile, cc_modules),
+      new SimpleRelayDialog(call_profile, cc_modules));
 }
