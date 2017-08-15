@@ -23,12 +23,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _CC_TEMPLATE_H
-#define _CC_TEMPLATE_H
-
-#include "AmApi.h"
+#ifndef _CC_CALLTIMER_H_
+#define _CC_CALLTIMER_H_
 
 #include "SBCCallProfile.h"
+
+#include "AmApi.h"
 
 /**
  * sample call control module
@@ -45,7 +45,7 @@ class CallTimer : public AmDynInvoke
   CallTimer();
   ~CallTimer();
   static CallTimer* instance();
-  void invoke(const string& method, const AmArg& args, AmArg& ret);
+  void invoke(const std::string& method, const AmArg& args, AmArg& ret);
   int onLoad();
 };
 

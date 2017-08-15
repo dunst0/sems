@@ -23,16 +23,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "AmArg.h"
-#include "AmPlugIn.h"
-#include "log.h"
+#include "CC_CallTimer.h"
 
-#include "CallTimer.h"
-
-#include "AmSipHeaders.h"
 #include "SBCCallControlAPI.h"
 
+#include "AmArg.h"
+#include "AmPlugIn.h"
+#include "AmSipHeaders.h"
+#include "log.h"
+
 #include <string.h>
+
+using std::string;
 
 class CallTimerFactory : public AmDynInvokeFactory
 {
@@ -56,13 +58,7 @@ class CallTimerFactory : public AmDynInvokeFactory
 
 EXPORT_PLUGIN_CLASS_FACTORY(CallTimerFactory, MOD_NAME);
 
-CallTimer* CallTimer::_instance = 0;
-
-CallTimer* CallTimer::instance()
-{
-  if (!_instance) _instance = new CallTimer();
-  return _instance;
-}
+CallTimer* CallTimer::_instance = NULL;
 
 CallTimer::CallTimer()
     : default_timer(-1)
@@ -70,6 +66,15 @@ CallTimer::CallTimer()
 }
 
 CallTimer::~CallTimer() {}
+
+CallTimer* CallTimer::instance()
+{
+  if (!_instance) {
+    _instance = new CallTimer();
+  }
+
+  return _instance;
+}
 
 int CallTimer::onLoad()
 {
@@ -114,8 +119,9 @@ void CallTimer::invoke(const string& method, const AmArg& args, AmArg& ret)
     ret.push("connect");
     ret.push("end");
   }
-  else
+  else {
     throw AmDynInvoke::NotImplemented(method);
+  }
 }
 
 void CallTimer::start(const AmArg& values, int timer_id, AmArg& res)

@@ -1,5 +1,5 @@
 #ADD_SUBDIRECTORY (bl_redis)
-#ADD_SUBDIRECTORY (call_timer)
+ADD_SUBDIRECTORY (call_timer)
 #ADD_SUBDIRECTORY (ctl)
 #ADD_SUBDIRECTORY (dsm)
 ADD_SUBDIRECTORY (parallel_calls)

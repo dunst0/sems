@@ -23,7 +23,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "CCTemplate.h"
+#include "CC_Template.h"
 
 #include "SBCCallControlAPI.h"
 #include "SBCCallLeg.h"
@@ -58,6 +58,10 @@ EXPORT_PLUGIN_CLASS_FACTORY(CCTemplateFactory, MOD_NAME);
 
 CCTemplate* CCTemplate::_instance = NULL;
 
+CCTemplate::CCTemplate() {}
+
+CCTemplate::~CCTemplate() {}
+
 CCTemplate* CCTemplate::instance()
 {
   if (!_instance) {
@@ -66,10 +70,6 @@ CCTemplate* CCTemplate::instance()
 
   return _instance;
 }
-
-CCTemplate::CCTemplate() {}
-
-CCTemplate::~CCTemplate() {}
 
 int CCTemplate::onLoad()
 {

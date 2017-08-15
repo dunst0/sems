@@ -89,7 +89,14 @@ int CCParallelCalls::onLoad()
   }
 
   refuse_reason = cfg.getParameter("refuse_reason", refuse_reason);
-  refuse_code   = cfg.getParameterInt("refuse_code", refuse_code);
+
+  if (cfg.hasParameter("refuse_code")) {
+    if (str2i(cfg.getParameter("refuse_code"), refuse_code)) {
+      ERROR("refuse_code '%s' not understood\n",
+            cfg.getParameter("refuse_code").c_str());
+      return -1;
+    }
+  }
 
   return 0;
 }
