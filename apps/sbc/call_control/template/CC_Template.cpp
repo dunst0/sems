@@ -23,15 +23,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "CCTemplate.h"
+
+#include "SBCCallControlAPI.h"
+#include "SBCCallLeg.h"
+
 #include "AmArg.h"
 #include "AmPlugIn.h"
 #include "log.h"
 
-#include "CCTemplate.h"
-
-#include "SBCCallControlAPI.h"
-
-#include "SBCCallLeg.h"
 #include <string.h>
 
 class CCTemplateFactory : public AmDynInvokeFactory
@@ -56,11 +56,14 @@ class CCTemplateFactory : public AmDynInvokeFactory
 
 EXPORT_PLUGIN_CLASS_FACTORY(CCTemplateFactory, MOD_NAME);
 
-CCTemplate* CCTemplate::_instance = 0;
+CCTemplate* CCTemplate::_instance = NULL;
 
 CCTemplate* CCTemplate::instance()
 {
-  if (!_instance) _instance = new CCTemplate();
+  if (!_instance) {
+    _instance = new CCTemplate();
+  }
+
   return _instance;
 }
 
@@ -207,8 +210,9 @@ void CCTemplate::end(const string& cc_name, const string& ltag,
   // call end code here
 }
 
+#ifdef CC_EXTENDED_INTERFACE
 // ------- extended call control interface -------------------
-
+#ifdef CC_EXTENDED_INTERFACE_CALLS
 bool CCTemplate::init(SBCCallLeg* call, const map<string, string>& values)
 {
   DBG("ExtCC: init - call instance: '%p' isAleg==%s\n", call,
@@ -317,6 +321,7 @@ CCChainProcessing CCTemplate::handleHoldReply(SBCCallLeg* call, bool succeeded)
     - equal to 0 means "continue processing" */
 int CCTemplate::relayEvent(SBCCallLeg* call, AmEvent* e) { return 0; }
 
+#else
 // using extended CC modules with simple relay - non-call relay
 
 bool CCTemplate::init(SBCCallProfile& profile, SimpleRelayDialog* relay,
@@ -359,3 +364,6 @@ void CCTemplate::onB2BReply(const AmSipReply& reply, void* user_data)
 {
   DBG("onB2BReply simple relay\n");
 }
+
+#endif
+#endif
