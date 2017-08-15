@@ -347,8 +347,9 @@ void XMLRPC2DI::invoke(const string& method, const AmArg& args, AmArg& ret)
     ret.push(AmArg("sendRequest"));
     ret.push(AmArg("sendRequestList"));
   }
-  else{
-    throw AmDynInvoke::NotImplemented(method);}
+  else {
+    throw AmDynInvoke::NotImplemented(method);
+  }
 }
 
 // XMLRPC server functions
@@ -520,10 +521,7 @@ void XMLRPC2DIServer::process(AmEvent* ev)
   WARN("unknown event received\n");
 }
 
-void XMLRPC2DIServer::on_stop()
-{
-  DBG("XMLRPC2DIServer on_stop() called.\n");
-}
+void XMLRPC2DIServer::on_stop() { DBG("XMLRPC2DIServer on_stop() called.\n"); }
 
 void XMLRPC2DIServerCallsMethod::execute(XmlRpcValue& params,
                                          XmlRpcValue& result)
@@ -802,8 +800,8 @@ void XMLRPC2DIServer::amarg2xmlrpcval(const AmArg& a, XmlRpcValue& result)
   }
 }
 
-DIMethodProxy::DIMethodProxy(string const&  server_method_name,
-                             string const&  di_method_name,
+DIMethodProxy::DIMethodProxy(string const&       server_method_name,
+                             string const&       di_method_name,
                              AmDynInvokeFactory* di_factory)
     : server_method_name(server_method_name)
     , di_method_name(di_method_name)

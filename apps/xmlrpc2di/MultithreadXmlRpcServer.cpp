@@ -17,8 +17,8 @@
 
 #include "log.h"
 
-#include <unistd.h>
 #include <errno.h>
+#include <unistd.h>
 
 using std::string;
 using std::vector;
@@ -80,9 +80,7 @@ void WorkerThread::postEvent(AmEvent* ev)
   WARN("unknown event received\n");
 }
 
-void WorkerThread::on_stop() {
-  DBG("WorkerThread on_stop executed\n");
-}
+void WorkerThread::on_stop() { DBG("WorkerThread on_stop executed\n"); }
 
 MultithreadXmlRpcServer::MultithreadXmlRpcServer()
     : XmlRpcServer()

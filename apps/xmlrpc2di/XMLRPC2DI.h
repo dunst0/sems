@@ -102,7 +102,7 @@ class XMLRPC2DIServer
   XmlRpcServer* s;
 
   unsigned int port;
-  std::string       bind_ip;
+  std::string  bind_ip;
 
   XMLRPC2DIServerCallsMethod           calls_method;
   XMLRPC2DIServerSetLoglevelMethod     setloglevel_method;
@@ -124,7 +124,7 @@ class XMLRPC2DIServer
 
   void process(AmEvent* ev);
 
-protected:
+ protected:
   void run();
   void on_stop();
 
@@ -151,15 +151,15 @@ class XMLRPCServerEntry
   time_t last_try;
 
  public:
-  XMLRPCServerEntry(string s, int p, string u);
+  XMLRPCServerEntry(std::string s, int p, std::string u);
   ~XMLRPCServerEntry();
 
   bool is_active();
   void set_failed();
 
-  string server;
-  int    port;
-  string uri;
+  std::string server;
+  int         port;
+  std::string uri;
 };
 
 class XMLRPC2DI
@@ -174,16 +174,16 @@ class XMLRPC2DI
   int               load();
 
   //  app           server
-  multimap<string, XMLRPCServerEntry*> servers;
+  std::multimap<std::string, XMLRPCServerEntry*> servers;
   AmMutex            server_mut;
-  XMLRPCServerEntry* getServer(const string& app_name);
+  XMLRPCServerEntry* getServer(const std::string& app_name);
 
   void newConnection(const AmArg& args, AmArg& ret);
   void sendRequest(const AmArg& args, AmArg& ret);
   void sendRequestList(const AmArg& args, AmArg& ret);
 
  public:
-  XMLRPC2DI(const string& mod_name);
+  XMLRPC2DI(const std::string& mod_name);
   ~XMLRPC2DI() {}
   int onLoad();
 
@@ -192,7 +192,7 @@ class XMLRPC2DI
 
   // DI API
   static XMLRPC2DI* instance();
-  void invoke(const string& method, const AmArg& args, AmArg& ret);
+  void invoke(const std::string& method, const AmArg& args, AmArg& ret);
 
   static unsigned int ServerRetryAfter;
   static double       ServerTimeout;
