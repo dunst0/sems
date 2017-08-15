@@ -32,14 +32,10 @@ using namespace XmlRpc;
 #include "AmApi.h"
 #include "AmThread.h"
 
-#include <map>
-using std::map;
-using std::multimap;
-
-#include <string>
-using std::string;
-
 #include <time.h>
+
+#include <map>
+#include <string>
 
 #define DEF_XMLRPCSERVER_WORK_INTERVAL .200 /* 200 ms */
 
@@ -106,9 +102,7 @@ class XMLRPC2DIServer
   XmlRpcServer* s;
 
   unsigned int port;
-  string       bind_ip;
-
-  AmCondition<bool> running;
+  std::string       bind_ip;
 
   XMLRPC2DIServerCallsMethod           calls_method;
   XMLRPC2DIServerSetLoglevelMethod     setloglevel_method;
@@ -130,16 +124,17 @@ class XMLRPC2DIServer
 
   void process(AmEvent* ev);
 
- public:
-  XMLRPC2DIServer(unsigned int port, const string& bind_ip, bool di_export,
-                  string direct_export, XmlRpcServer* s);
-
-  bool initialize();
-
+protected:
   void run();
   void on_stop();
 
-  void waitUntilStarted() { running.wait_for(); }
+ public:
+  XMLRPC2DIServer(unsigned int port, const std::string& bind_ip, bool di_export,
+                  std::string direct_export, XmlRpcServer* s);
+
+  bool initialize();
+
+  void waitUntilStarted() { getRunCondition().wait_for(); }
 
   static void xmlrpcval2amargarray(XmlRpcValue& v, AmArg& a,
                                    unsigned int start_index);

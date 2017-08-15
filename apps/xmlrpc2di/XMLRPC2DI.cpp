@@ -36,12 +36,16 @@
 
 #include <exception>
 
-#define MOD_NAME "xmlrpc2di"
+using std::string;
+using std::map;
+using std::multimap;
+using std::vector;
 
 #define XMLRPC_PORT "8090" // default port
+
 EXPORT_PLUGIN_CLASS_FACTORY(XMLRPC2DI, MOD_NAME)
 
-XMLRPC2DI* XMLRPC2DI::_instance = 0;
+XMLRPC2DI* XMLRPC2DI::_instance = NULL;
 
 // retry a failed server after 10 seconds
 unsigned int XMLRPC2DI::ServerRetryAfter = 10;
@@ -51,18 +55,18 @@ bool XMLRPC2DI::DebugServerResult = false;
 
 double XMLRPC2DI::ServerTimeout = -1;
 
-XMLRPC2DI* XMLRPC2DI::instance()
-{
-  if (_instance == NULL) {
-    _instance = new XMLRPC2DI(MOD_NAME);
-  }
-  return _instance;
-}
-
 XMLRPC2DI::XMLRPC2DI(const string& mod_name)
     : AmDynInvokeFactory(mod_name)
     , configured(false)
 {
+}
+
+XMLRPC2DI* XMLRPC2DI::instance()
+{
+  if (!_instance) {
+    _instance = new XMLRPC2DI(MOD_NAME);
+  }
+  return _instance;
 }
 
 int XMLRPC2DI::onLoad() { return instance()->load(); }
@@ -343,8 +347,8 @@ void XMLRPC2DI::invoke(const string& method, const AmArg& args, AmArg& ret)
     ret.push(AmArg("sendRequest"));
     ret.push(AmArg("sendRequestList"));
   }
-  else
-    throw AmDynInvoke::NotImplemented(method);
+  else{
+    throw AmDynInvoke::NotImplemented(method);}
 }
 
 // XMLRPC server functions
@@ -428,6 +432,7 @@ void XMLRPC2DIServer::registerMethods(const std::string& iface)
       ERROR("could not get DI instance from '%s'.\n", iface.c_str());
       return;
     }
+
     AmArg dummy, fct_list;
     di->invoke("_list", dummy, fct_list);
 
@@ -472,10 +477,12 @@ void XMLRPC2DIServer::registerMethods(const std::string& iface)
 bool XMLRPC2DIServer::initialize()
 {
   DBG("Binding XMLRPC2DIServer to port %u \n", port);
+
   if (!s->bindAndListen(port, bind_ip)) {
     ERROR("Binding XMLRPC2DIServer to %s:%u\n", bind_ip.c_str(), port);
     return false;
   }
+
   return true;
 }
 
@@ -485,11 +492,11 @@ void XMLRPC2DIServer::run()
   AmEventDispatcher::instance()->addEventQueue(MOD_NAME, this);
 
   DBG("starting XMLRPC2DIServer...\n");
-  running.set(true);
-  do {
+  getRunCondition().set(true);
+  while (isRunning()) {
     s->work(DEF_XMLRPCSERVER_WORK_INTERVAL);
     processEvents();
-  } while (running.get());
+  }
 
   AmEventDispatcher::instance()->delEventQueue(MOD_NAME);
   DBG("Exiting XMLRPC2DIServer.\n");
@@ -504,18 +511,18 @@ void XMLRPC2DIServer::process(AmEvent* ev)
       if (sys_ev->sys_event == AmSystemEvent::ServerShutdown) {
         DBG("XMLRPC2DIServer received system Event: ServerShutdown, "
             "stopping thread\n");
-        running.set(false);
+        stop();
       }
       return;
     }
   }
+
   WARN("unknown event received\n");
 }
 
 void XMLRPC2DIServer::on_stop()
 {
-  DBG("on_stop().\n");
-  running.set(false);
+  DBG("XMLRPC2DIServer on_stop() called.\n");
 }
 
 void XMLRPC2DIServerCallsMethod::execute(XmlRpcValue& params,
@@ -795,8 +802,8 @@ void XMLRPC2DIServer::amarg2xmlrpcval(const AmArg& a, XmlRpcValue& result)
   }
 }
 
-DIMethodProxy::DIMethodProxy(std::string const&  server_method_name,
-                             std::string const&  di_method_name,
+DIMethodProxy::DIMethodProxy(string const&  server_method_name,
+                             string const&  di_method_name,
                              AmDynInvokeFactory* di_factory)
     : server_method_name(server_method_name)
     , di_method_name(di_method_name)

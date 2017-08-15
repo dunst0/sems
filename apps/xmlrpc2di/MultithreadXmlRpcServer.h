@@ -26,9 +26,6 @@ class WorkerThread
     , public AmEventQueueInterface
 {
   MultithreadXmlRpcServer* chief;
-  AmCondition<bool>        runcond;
-
-  AmCondition<bool> running;
 
  protected:
   void run();
@@ -40,7 +37,6 @@ class WorkerThread
   void addXmlRpcSource(XmlRpcSource* source,
                        unsigned eventMask); // call this method to make it run
   void wakeup();
-
 
   void postEvent(AmEvent* ev);
 

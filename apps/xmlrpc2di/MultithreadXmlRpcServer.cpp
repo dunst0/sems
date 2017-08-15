@@ -80,7 +80,9 @@ void WorkerThread::postEvent(AmEvent* ev)
   WARN("unknown event received\n");
 }
 
-void WorkerThread::on_stop() {}
+void WorkerThread::on_stop() {
+  DBG("WorkerThread on_stop executed\n");
+}
 
 MultithreadXmlRpcServer::MultithreadXmlRpcServer()
     : XmlRpcServer()
