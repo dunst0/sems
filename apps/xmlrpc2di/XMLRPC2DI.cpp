@@ -39,7 +39,8 @@
 using std::string;
 using std::map;
 using std::multimap;
-using std::vector;
+using std::vector
+using std::pair;
 
 #define XMLRPC_PORT "8090" // default port
 
@@ -361,7 +362,6 @@ XMLRPC2DIServer::XMLRPC2DIServer(unsigned int port, const string& bind_ip,
     , port(port)
     , bind_ip(bind_ip)
     , s(s)
-    , running(false)
     ,
     // register method 'calls'
     calls_method(s)
