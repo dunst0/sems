@@ -53,9 +53,9 @@ class AmSessionContainer : public AmThread
   typedef std::queue<AmSession*> SessionQueue;
 
   /** Container for dead sessions */
-  SessionQueue d_sessions;
+  SessionQueue dead_sessions;
   /** Mutex to protect the dead session container */
-  AmMutex ds_mut;
+  AmMutex dead_sessions_mutex;
 
   /** We are a Singleton ! Avoid people to have their own instance. */
   AmSessionContainer();

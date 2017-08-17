@@ -88,17 +88,17 @@ void AmSessionContainer::dispose()
 
 bool AmSessionContainer::clean_sessions()
 {
-  ds_mut.lock();
+  dead_sessions_mutex.lock();
   DBG("Session cleaner starting its work\n");
 
   try {
     SessionQueue n_sessions;
 
-    while (!d_sessions.empty()) {
-      AmSession* cur_session = d_sessions.front();
-      d_sessions.pop();
+    while (!dead_sessions.empty()) {
+      AmSession* cur_session = dead_sessions.front();
+      dead_sessions.pop();
 
-      ds_mut.unlock();
+      dead_sessions_mutex.unlock();
 
       if (!cur_session->isRunning() && !cur_session->isProcessingMedia()) {
         MONITORING_MARK_FINISHED(cur_session->getLocalTag().c_str());
@@ -111,10 +111,10 @@ bool AmSessionContainer::clean_sessions()
         n_sessions.push(cur_session);
       }
 
-      ds_mut.lock();
+      dead_sessions_mutex.lock();
     }
 
-    swap(d_sessions, n_sessions);
+    swap(dead_sessions, n_sessions);
   }
   catch (exception& e) {
     ERROR("exception caught in session cleaner: %s\n", e.what());
@@ -127,8 +127,8 @@ bool AmSessionContainer::clean_sessions()
             */
   }
 
-  bool more = !d_sessions.empty();
-  ds_mut.unlock();
+  bool more = !dead_sessions.empty();
+  dead_sessions_mutex.unlock();
 
   return more;
 }
@@ -176,7 +176,7 @@ void AmSessionContainer::on_stop()
 
     unsigned int i = 0;
     while (!AmEventDispatcher::instance()->empty()) {
-      if (AmConfig::MaxShutdownTime && i < AmConfig::MaxShutdownTime * 100) {
+      if (AmConfig::MaxShutdownTime && i >= AmConfig::MaxShutdownTime * 100) {
         break;
       }
 
@@ -198,10 +198,10 @@ void AmSessionContainer::stopAndQueue(AmSession* s)
 
   s->stop();
 
-  ds_mut.lock();
-  d_sessions.push(s);
+  dead_sessions_mutex.lock();
+  dead_sessions.push(s);
   getRunCondition().set(true);
-  ds_mut.unlock();
+  dead_sessions_mutex.unlock();
 }
 
 void AmSessionContainer::destroySession(AmSession* s)
@@ -401,6 +401,7 @@ void AmSessionContainer::setCPSSoftLimit(unsigned int percent)
       break;
     }
   }
+
   CPSLimit =
       ((float) percent / 100) * ((float) cps_queue.size() / CPS_SAMPLERATE);
   if (0 == CPSLimit) CPSLimit = 1;
