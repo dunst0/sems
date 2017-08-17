@@ -74,7 +74,7 @@ void* AmThread::threadStart(void* self)
   return NULL;
 }
 
-AmCondition<bool> AmThread::getRunCondition() { return run_condition; }
+AmCondition<bool>& AmThread::getRunCondition() { return run_condition; }
 
 void AmThread::start()
 {
@@ -102,8 +102,8 @@ void AmThread::start()
   }
   else {
     if (res == EAGAIN) {
-      ERROR(
-          "The system lacked the necessary resources to create another thread");
+      ERROR("The system lacked the necessary resources to create another "
+            "thread");
     }
     else if (res == EINVAL) {
       ERROR("The value specified by attr is invalid");
@@ -320,7 +320,8 @@ void AmThreadWatcher::run()
       swap(thread_queue, thread_queue_active);
     }
     catch (...) {
-      /* this one is IMHO very important, as lock is called in try block! */
+      /* this one is IMHO very important, as lock is called in try block!
+       */
       ERROR("unexpected exception, state may be invalid!\n");
     }
 

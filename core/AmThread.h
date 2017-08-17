@@ -106,7 +106,7 @@ template <class T> class AmSharedVar
   void unlock() { m.unlock(); }
 
   const T& unsafe_get() { return t; }
-  void unsafe_set(const T& new_val) { t = new_val; }
+  void     unsafe_set(const T& new_val) { t = new_val; }
 };
 
 /**
@@ -215,9 +215,9 @@ class AmThread
   static void* threadStart(void* self);
 
  protected:
-  AmCondition<bool> getRunCondition();
-  virtual void      run()     = 0;
-  virtual void      on_stop() = 0;
+  AmCondition<bool>& getRunCondition();
+  virtual void       run()     = 0;
+  virtual void       on_stop() = 0;
 
  public:
   AmThread();
@@ -269,7 +269,7 @@ class AmThreadWatcher : public AmThread
 
  public:
   static AmThreadWatcher* instance();
-  void add(AmThread* thread);
+  void                    add(AmThread* thread);
 };
 
 template <class T> class AmThreadLocalStorage
