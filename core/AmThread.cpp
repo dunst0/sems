@@ -283,14 +283,16 @@ void AmThreadWatcher::add(AmThread* thread)
 
 void AmThreadWatcher::run()
 {
-  DBG("ThreadWatcher (%s_%lu) is start running.\n", thread_name.c_str(), pid);
+  DBG("ThreadWatcher (%s_%lu) is start running.\n", thread_name.c_str(),
+      getPid());
 
   while (isRunning()) {
     getRunCondition().wait_for();
     sleep(10); // Let the threads some time to stop
 
     thread_queue_mutex.lock();
-    DBG("ThreadWatcher (%s_%lu) starting its work\n", thread_name.c_str(), pid);
+    DBG("ThreadWatcher (%s_%lu) starting its work\n", thread_name.c_str(),
+        getPid());
 
     try {
       queue<AmThread*> thread_queue_active;
@@ -328,7 +330,7 @@ void AmThreadWatcher::run()
       ERROR("unexpected exception, state may be invalid!\n");
     }
 
-    DBG("ThreadWatcher (%s_%lu) finished.\n", thread_name.c_str(), pid);
+    DBG("ThreadWatcher (%s_%lu) finished.\n", thread_name.c_str(), getPid());
 
     if (thread_queue.empty()) {
       getRunCondition().set(false);
@@ -338,5 +340,5 @@ void AmThreadWatcher::run()
   }
 
   DBG("ThreadWatcher (%s_%lu) has stopped running.\n", thread_name.c_str(),
-      pid);
+      getPid());
 }
