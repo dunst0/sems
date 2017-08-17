@@ -48,8 +48,8 @@ class AmEventQueueWorker
 
  public:
   AmEventQueueWorker()
-      : name("EventQueueWorker")
   {
+    name = "EventQueueWorker";
   }
   ~AmEventQueueWorker() {}
 
