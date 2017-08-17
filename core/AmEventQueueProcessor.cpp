@@ -110,7 +110,7 @@ void AmEventQueueWorker::notify(AmEventQueue* sender)
 void AmEventQueueWorker::run()
 {
   DBG("EventQueueWorker (%s_%lu) is start running.\n", thread_name.c_str(),
-      pid);
+      getPid());
 
   while (isRunning()) {
     getRunCondition().wait_for();
@@ -120,7 +120,7 @@ void AmEventQueueWorker::run()
     }
 
     DBG("EventQueueWorker (%s_%lu) is running processing loop\n",
-        thread_name.c_str(), pid);
+        thread_name.c_str(), getPid());
 
     process_queues_mutex.lock();
     while (!process_queues.empty()) {
@@ -146,13 +146,13 @@ void AmEventQueueWorker::run()
   }
 
   DBG("EventQueueWorker (%s_%lu) has stopped running.\n", thread_name.c_str(),
-      pid);
+      getPid());
 }
 
 void AmEventQueueWorker::on_stop()
 {
   DBG("EventQueueWorker (%s_%lu) requesting to stop worker.\n",
-      thread_name.c_str(), pid);
+      thread_name.c_str(), getPid());
 }
 
 void AmEventQueueWorker::startEventQueue(AmEventQueue* q)
