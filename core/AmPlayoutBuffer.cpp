@@ -266,8 +266,8 @@ void AmAdaptivePlayout::write_buffer(u_int32_t ref_ts, u_int32_t ts,
 
   if (n_len < 0) n_len = 1;
 
-  float f                  = float(n_len) / float(len);
-  if (f > TSM_MAX_SCALE) f = TSM_MAX_SCALE;
+  float f = float(n_len) / float(len);
+  if (f > TSM_MAX_SCALE) f= TSM_MAX_SCALE;
 
   n_len = (int32_t)(float(len) * f);
   if (ts_less()(ts + n_len, r_ts)) {

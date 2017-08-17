@@ -75,7 +75,7 @@ static void errCode2RelayedReply(AmSipReply& reply, int err_code,
     case 400: reply.reason = "Bad Request"; break;
     case 478: reply.reason = "Unresolvable destination"; break;
     case 488: reply.reason = SIP_REPLY_NOT_ACCEPTABLE_HERE; break;
-    default: reply.reason  = SIP_REPLY_SERVER_INTERNAL_ERROR;
+    default: reply.reason = SIP_REPLY_SERVER_INTERNAL_ERROR;
   }
 }
 
@@ -221,7 +221,8 @@ void AmB2BSession::onB2BEvent(B2BEvent* ev)
 
         if (req_ev->req.method == SIP_METH_BYE
             && dlg->getStatus() != AmBasicSipDialog::Connected) {
-          DBG("not sip-relaying BYE in not connected dlg, b2b-relaying 200 "
+          DBG("not sip-relaying BYE in not connected dlg, "
+              "b2b-relaying 200 "
               "OK\n");
           relayError(req_ev->req.method, req_ev->req.cseq, true, 200, "OK");
           return;
@@ -232,7 +233,7 @@ void AmB2BSession::onB2BEvent(B2BEvent* ev)
           // CANCEL is handled differently: other side has already
           // sent a terminate event.
           //|| (req_ev->req.method == SIP_METH_CANCEL)
-          ) {
+      ) {
         if (onOtherBye(req_ev->req)) {
           req_ev->processed = true; // app should have relayed 200 to BYE
         }
@@ -300,7 +301,8 @@ void AmB2BSession::onB2BEvent(B2BEvent* ev)
           if (updateSessionDescription(reply_ev->reply.body)) {
             if (reply_ev->reply.cseq != est_invite_cseq) {
               if (dlg->getUACInvTransPending()) {
-                DBG("changed session, but UAC INVITE trans pending\n");
+                DBG("changed session, but UAC INVITE trans "
+                    "pending\n");
                 // todo(?): save until trans is finished?
                 return;
               }
@@ -308,7 +310,8 @@ void AmB2BSession::onB2BEvent(B2BEvent* ev)
               sendEstablishedReInvite();
             }
             else {
-              DBG("reply to establishing INVITE request - not refreshing\n");
+              DBG("reply to establishing INVITE request - not "
+                  "refreshing\n");
             }
           }
         }
@@ -535,17 +538,19 @@ void AmB2BSession::onSipReply(const AmSipRequest& req, const AmSipReply& reply,
       n_reply.cseq = est_invite_other_cseq;
     }
     else {
-      // correct CSeq for 100 on relayed request (FIXME: why not relayed above?)
+      // correct CSeq for 100 on relayed request (FIXME: why not relayed
+      // above?)
       if (t != relayed_req.end()) {
         n_reply.cseq = t->second.cseq;
       }
       else {
-        // the reply here will not have the proper cseq for the other side.
-        // We should avoid collisions of CSeqs - painful in comparsions with
-        // est_invite_cseq where are compared CSeq numbers in different
-        // directions. Under presumption that 0 is not used we can use it
-        // as 'unspecified cseq' (according to RFC 3261 this seems to be valid
-        // value so it need not to work always)
+        // the reply here will not have the proper cseq for the other
+        // side. We should avoid collisions of CSeqs - painful in
+        // comparsions with est_invite_cseq where are compared CSeq
+        // numbers in different directions. Under presumption that 0 is
+        // not used we can use it as 'unspecified cseq' (according to
+        // RFC 3261 this seems to be valid value so it need not to work
+        // always)
         n_reply.cseq = 0;
       }
     }
@@ -810,7 +815,8 @@ int AmB2BSession::relaySip(const AmSipRequest& req)
         }
       }
       if (t == relayed_req.end()) {
-        WARN("Transaction with CSeq %d not found for translating RAck cseq\n",
+        WARN("Transaction with CSeq %d not found for translating RAck "
+             "cseq\n",
              req.rack_cseq);
       }
     }
@@ -1065,7 +1071,8 @@ void AmB2BCallerSession::onB2BEvent(B2BEvent* ev)
 
               if (sip_relay_early_media_sdp) {
                 if (reinviteCaller(reply)) {
-                  ERROR("re-INVITEing caller for early session failed - "
+                  ERROR("re-INVITEing caller for early "
+                        "session failed - "
                         "stopping this and other leg\n");
                   terminateOtherLeg();
                   terminateLeg();
@@ -1080,20 +1087,24 @@ void AmB2BCallerSession::onB2BEvent(B2BEvent* ev)
             callee_status = Connected;
             DBG("setting callee status to connected\n");
             if (!sip_relay_only) {
-              DBG("received 200 class reply to establishing INVITE: "
-                  "switching to SIP relay only mode, sending re-INVITE to "
+              DBG("received 200 class reply to establishing "
+                  "INVITE: "
+                  "switching to SIP relay only mode, sending "
+                  "re-INVITE to "
                   "caller\n");
               sip_relay_only     = true;
               AmSipReply n_reply = reply;
 
               if (n_reply.body.empty() && !established_body.empty()) {
-                DBG("callee FR without SDP, using provisional response's (18x) "
+                DBG("callee FR without SDP, using provisional "
+                    "response's (18x) "
                     "one\n");
                 n_reply.body = established_body;
               }
 
               if (reinviteCaller(n_reply)) {
-                ERROR("re-INVITEing caller failed - stopping this and other "
+                ERROR("re-INVITEing caller failed - stopping "
+                      "this and other "
                       "leg\n");
                 terminateOtherLeg();
                 terminateLeg();
@@ -1105,7 +1116,8 @@ void AmB2BCallerSession::onB2BEvent(B2BEvent* ev)
             // reply.local_tag=%s\n",
             // 	    reply.code,other_id.c_str(),reply.local_tag.c_str());
 
-            // TODO: terminated my own leg instead? (+ clear_other())
+            // TODO: terminated my own leg instead? (+
+            // clear_other())
             terminateOtherLeg();
           }
 

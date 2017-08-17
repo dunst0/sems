@@ -48,7 +48,7 @@ class Packet
  public:
   Packet* m_next;
   Packet* m_prev;
-  void init(const ShortSample* data, unsigned int size, unsigned int ts);
+  void    init(const ShortSample* data, unsigned int size, unsigned int ts);
 
   unsigned int size() const { return m_size; }
   unsigned int ts() const { return m_ts; }
@@ -66,7 +66,7 @@ class PacketAllocator
  public:
   PacketAllocator();
   Packet* alloc(const ShortSample* data, unsigned int size, unsigned int ts);
-  void free(Packet* p);
+  void    free(Packet* p);
 };
 
 class AmJitterBuffer

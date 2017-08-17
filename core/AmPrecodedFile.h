@@ -118,9 +118,9 @@ class AmPrecodedFile : public AmPayloadProvider
 
   /** from @AmPayloadProvider */
   amci_payload_t* payload(int payload_id) const;
-  int getDynPayload(const std::string& name, int rate,
-                    int encoding_param) const;
-  void getPayloads(std::vector<SdpPayload>& pl_vec) const;
+  int             getDynPayload(const std::string& name, int rate,
+                                int encoding_param) const;
+  void            getPayloads(std::vector<SdpPayload>& pl_vec) const;
 };
 
 #endif

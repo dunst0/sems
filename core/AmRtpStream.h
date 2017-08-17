@@ -75,8 +75,8 @@ struct PacketMem
   PacketMem();
 
   inline AmRtpPacket* newPacket();
-  inline void freePacket(AmRtpPacket* p);
-  inline void clear();
+  inline void         freePacket(AmRtpPacket* p);
+  inline void         clear();
 
  private:
   unsigned int cur_idx;
@@ -105,7 +105,8 @@ class PayloadMask
   // clear flag for all payloads
   void clear();
 
-  // set given flag (TODO: once it shows to be working, change / and % to >> and
+  // set given flag (TODO: once it shows to be working, change / and % to >>
+  // and
   // &)
   void set(unsigned char payload_id)
   {
@@ -181,8 +182,8 @@ class AmRtpStream : public AmObject
   };
 
   typedef std::map<unsigned int, AmRtpPacket*, ts_less> ReceiveBuffer;
-  typedef std::queue<AmRtpPacket*> RtpEventQueue;
-  typedef std::map<unsigned char, PayloadMapping> PayloadMappingTable;
+  typedef std::queue<AmRtpPacket*>                      RtpEventQueue;
+  typedef std::map<unsigned char, PayloadMapping>       PayloadMappingTable;
 
   // mapping from local payload type to PayloadMapping
   PayloadMappingTable pl_map;
@@ -334,20 +335,22 @@ class AmRtpStream : public AmObject
   void setReceiving(bool r);
 
   /**
-   * Stops RTP stream receiving RTP packets internally (received packets will be
-   * dropped).
+   * Stops RTP stream receiving RTP packets internally (received packets will
+   * be dropped).
    */
   void pause();
 
   /**
-   * Resume a paused RTP stream internally (received packets will be processed).
+   * Resume a paused RTP stream internally (received packets will be
+   * processed).
    */
   void resume();
 
   /** Mute */
   bool mute;
 
-  /** should we receive RFC-2833-style DTMF even when receiving is disabled? */
+  /** should we receive RFC-2833-style DTMF even when receiving is disabled?
+   */
   bool force_receive_dtmf;
 
   /** Allocates resources for future use of RTP. */
@@ -399,7 +402,8 @@ class AmRtpStream : public AmObject
   int getLocalPort();
 
   /**
-   * Gets RTCP port number. If no RTP/RTCP port in assigned, assigns a new one.
+   * Gets RTCP port number. If no RTP/RTCP port in assigned, assigns a new
+   * one.
    * @return local RTCP port.
    */
   int getLocalRtcpPort();
@@ -527,9 +531,9 @@ class AmRtpStream : public AmObject
   /** (re-)insert into RTP receiver */
   void resumeReceiving();
 
-  /** Quick hack to assign existing stream to another session. The stream should
-   * not be reinitialised implicitly (it might be used for media traffic
-   * already). */
+  /** Quick hack to assign existing stream to another session. The stream
+   * should not be reinitialised implicitly (it might be used for media
+   * traffic already). */
   void changeSession(AmSession* _s) { session = _s; }
 
   /** set destination for logging all received/sent RTP and RTCP packets */

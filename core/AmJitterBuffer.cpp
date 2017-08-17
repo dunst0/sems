@@ -47,9 +47,9 @@ bool Packet::operator<(const Packet& p) const
 
 void Packet::init(const ShortSample* data, unsigned int size, unsigned int ts)
 {
-  size                            = PCM16_S2B(size);
-  if (size > sizeof(m_data)) size = sizeof(m_data);
-  m_size                          = PCM16_B2S(size);
+  size = PCM16_S2B(size);
+  if (size > sizeof(m_data)) size= sizeof(m_data);
+  m_size = PCM16_B2S(size);
   memcpy(m_data, data, size);
   m_ts = ts;
 }
@@ -145,7 +145,7 @@ void AmJitterBuffer::put(const ShortSample* data, unsigned int size,
       if (i->m_prev)
         i->m_prev->m_next = elem;
       else
-        m_head     = elem;
+        m_head = elem;
       i->m_prev    = elem;
       elem->m_next = i;
     }

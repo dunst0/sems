@@ -51,11 +51,11 @@ struct MixerBufferState
   MixerBufferState(const MixerBufferState& other);
   ~MixerBufferState();
 
-  void add_channel(unsigned int channel_id);
-  void remove_channel(unsigned int channel_id);
+  void              add_channel(unsigned int channel_id);
+  void              remove_channel(unsigned int channel_id);
   SampleArrayShort* get_channel(unsigned int channel_id);
-  void fix_channels(std::set<int>& curchannelids);
-  void free_channels();
+  void              fix_channels(std::set<int>& curchannelids);
+  void              free_channels();
 };
 
 /**
@@ -66,7 +66,7 @@ struct MixerBufferState
  */
 class AmMultiPartyMixer
 {
-  typedef std::set<int> ChannelIdSet;
+  typedef std::set<int>      ChannelIdSet;
   typedef std::map<int, int> SampleRateMap;
   typedef std::multiset<int> SampleRateSet;
 
@@ -83,8 +83,8 @@ class AmMultiPartyMixer
   findOrCreateBufferState(unsigned int sample_rate);
 
   std::deque<MixerBufferState>::iterator
-  findBufferStateForReading(unsigned int           sample_rate,
-                            unsigned long long int last_ts);
+       findBufferStateForReading(unsigned int           sample_rate,
+                                 unsigned long long int last_ts);
   void cleanupBufferStates(unsigned int last_ts);
 
   void mix_add(int* dest, int* src1, short int* src2, unsigned int size);
@@ -96,7 +96,7 @@ class AmMultiPartyMixer
   ~AmMultiPartyMixer();
 
   unsigned int addChannel(unsigned int external_sample_rate);
-  void removeChannel(unsigned int channel_id);
+  void         removeChannel(unsigned int channel_id);
 
   void PutChannelPacket(unsigned int           channel_id,
                         unsigned long long int system_ts, unsigned char* buffer,

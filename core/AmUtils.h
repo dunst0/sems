@@ -253,7 +253,7 @@ std::string get_header_keyvalue(const std::string& param_hdr,
 std::string get_session_param(const std::string& hdrs, const std::string& name);
 
 /** parse the P-App-Param header and extracts the parameters into a map */
-void parse_app_params(const std::string& hdrs,
+void parse_app_params(const std::string&                  hdrs,
                       std::map<std::string, std::string>& app_params);
 
 /** support for thread-safe pseudo-random numbers  - init function */

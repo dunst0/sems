@@ -588,8 +588,8 @@ class AmSession
    * early state) */
   virtual void onEarlySessionStart();
 
-  /** Hook called when the session creation is completed (INV trans replied with
-   * 200) */
+  /** Hook called when the session creation is completed (INV trans replied
+   * with 200) */
   virtual void onSessionStart();
 
   /**
@@ -615,8 +615,8 @@ class AmSession
   /* ----------------- media processing interface ------------------- */
 
  public:
-  virtual int readStreams(unsigned long long int ts, unsigned char* buffer);
-  virtual int writeStreams(unsigned long long int ts, unsigned char* buffer);
+  virtual int  readStreams(unsigned long long int ts, unsigned char* buffer);
+  virtual int  writeStreams(unsigned long long int ts, unsigned char* buffer);
   virtual void clearRTPTimeout() { RTPStream()->clearRTPTimeout(); }
   virtual void processDtmfEvents();
 

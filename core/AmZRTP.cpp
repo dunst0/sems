@@ -98,7 +98,8 @@ int AmZRTP::init()
     WARN("zid parameter in zrtp.conf is only supported for backwards "
          "compatibility. Please use zid_hex\n");
     if (zid.length() != sizeof(zrtp_zid_t)) {
-      ERROR("zid config parameter in zrtp.conf must be %lu characters long.\n",
+      ERROR("zid config parameter in zrtp.conf must be %lu characters "
+            "long.\n",
             sizeof(zrtp_zid_t));
       return -1;
     }

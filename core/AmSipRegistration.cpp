@@ -250,8 +250,8 @@ bool AmSIPRegistration::registerSendTimeout(time_t now_sec)
 bool AmSIPRegistration::timeToReregister(time_t now_sec)
 {
   //   	if (active)
-  //   		DBG("compare %lu with %lu\n",(reg_begin+reg_expires), (unsigned
-  //   long)now_sec);
+  //   		DBG("compare %lu with %lu\n",(reg_begin+reg_expires),
+  //   (unsigned long)now_sec);
   return (((unsigned long int) reg_begin + reg_expires / 2)
           < (unsigned long int) now_sec);
 }
@@ -322,7 +322,8 @@ void AmSIPRegistration::onSipReply(const AmSipRequest&      req,
             found = active = true;
 
             if (str2i(server_contact.params["expires"], reg_expires)) {
-              ERROR("could not extract expires value, default to 300.\n");
+              ERROR("could not extract expires value, default to "
+                    "300.\n");
               reg_expires = 300;
             }
             DBG("got an expires of %d\n", reg_expires);

@@ -121,7 +121,8 @@ int AmOfferAnswer::onRequestIn(const AmSipRequest& req)
       dlg->reply(req, err_code, err_txt);
     }
     else { // ACK
-      // TODO: only if reply to initial INVITE (if re-INV, app should decide)
+      // TODO: only if reply to initial INVITE (if re-INV, app should
+      // decide)
       DBG("error %i with SDP received in ACK request: sending BYE\n", err_code);
       dlg->bye();
     }
@@ -150,7 +151,8 @@ int AmOfferAnswer::onReplyIn(const AmSipReply& reply)
     if (sdp_body) {
       if (((state == OA_Completed) || (state == OA_OfferRecved))
           && (reply.cseq == cseq)) {
-        DBG("ignoring subsequent SDP reply within the same transaction\n");
+        DBG("ignoring subsequent SDP reply within the same "
+            "transaction\n");
         DBG("this usually happens when 183 and 200 have SDP\n");
 
         /* Make sure that session is started when 200 OK is received */

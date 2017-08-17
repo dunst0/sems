@@ -108,7 +108,7 @@ void AmSipDtmfEvent::parseLine(const string& line)
       case 'c': m_event = 14; break;
       case 'D':
       case 'd': m_event = 15; break;
-      default: m_event  = atol(event.c_str());
+      default: m_event = atol(event.c_str());
     }
   }
   else if (line.length() > KeyDuration.length()
@@ -282,8 +282,8 @@ void AmDtmfDetector::registerKeyReleased(int event, Dtmf::EventSource source,
     memcpy(&m_lastReportTime, &start, sizeof(struct timeval));
   }
   switch (source) {
-    case Dtmf::SOURCE_SIP: m_sipEventReceived       = true; break;
-    case Dtmf::SOURCE_RTP: m_rtpEventReceived       = true; break;
+    case Dtmf::SOURCE_SIP: m_sipEventReceived = true; break;
+    case Dtmf::SOURCE_RTP: m_rtpEventReceived = true; break;
     case Dtmf::SOURCE_INBAND: m_inbandEventReceived = true; break;
     default: break;
   }
@@ -423,7 +423,8 @@ void AmRtpDtmfDetector::process(AmRtpDtmfEvent* evt)
     }
     else {
 #ifdef EXCESSIVE_DTMF_DEBUGINFO
-      DBG("RTP event, event()==%d, m_currentEvent == %d, m_currentTS_i=%s, "
+      DBG("RTP event, event()==%d, m_currentEvent == %d, "
+          "m_currentTS_i=%s, "
           "evt->ts=%u, m_currentTS=%u\n",
           evt->event(), m_currentEvent, m_currentTS_i ? "true" : "false",
           evt->ts(), m_currentTS);
@@ -579,7 +580,8 @@ void AmSemsInbandDtmfDetector::isdn_audio_goertzel_relative()
       DBG("isdn_audio: dtmf goertzel overflow, sk2=%d\n", sk2);
     */
 
-    // note that the result still is in (32-REL_AMP_BITS).REL_AMP_BITS format
+    // note that the result still is in (32-REL_AMP_BITS).REL_AMP_BITS
+    // format
     m_result[k] = ((sk * sk) >> REL_AMP_BITS)
                   - ((((rel_cos2pik[k] * sk) >> 15) * sk2) >> REL_AMP_BITS)
                   + ((sk2 * sk2) >> REL_AMP_BITS);
@@ -682,9 +684,9 @@ void AmSemsInbandDtmfDetector::isdn_audio_calc_dtmf(const signed short int* buf,
     if (c <= 0) break;
 
     for (int i = 0; i < c; i++) {
-      // m_buf is in (32-REL_AMP_BITS).REL_AMP_BITS fixed-point format, the
-      // samples itself are in the last REL_AMP_BITS bits, i.e. they go from
-      // -1.0 to +1.0 (or more exactly from -1.0 to ~+0.996)
+      // m_buf is in (32-REL_AMP_BITS).REL_AMP_BITS fixed-point format,
+      // the samples itself are in the last REL_AMP_BITS bits, i.e. they
+      // go from -1.0 to +1.0 (or more exactly from -1.0 to ~+0.996)
       m_buf[m_idx++] = (*buf++) >> (15 - REL_AMP_BITS);
     }
     if (m_idx == NELEMSOF(m_buf)) {
@@ -774,7 +776,8 @@ void AmSpanDSPInbandDtmfDetector::tone_report_f(int code, int level, int delay)
     gettimeofday(&key_start, NULL);
     m_lastCode = code;
     // don't report key press - otherwise reported twice
-    //    m_keysink->registerKeyPressed(char2int(code), Dtmf::SOURCE_INBAND);
+    //    m_keysink->registerKeyPressed(char2int(code),
+    //    Dtmf::SOURCE_INBAND);
   }
   else { // released
     struct timeval now;

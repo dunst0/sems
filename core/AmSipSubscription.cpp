@@ -464,7 +464,8 @@ void AmSipSubscription::removeSubFromUASCSeqMap(Subscriptions::iterator sub)
       // reply pending UAS transaction
       AmSipRequest* req = dlg->getUASTrans(cseq);
       if (req) {
-        DBG("found request(cseq=%i): replying 481 to pending UAS transaction",
+        DBG("found request(cseq=%i): replying 481 to pending UAS "
+            "transaction",
             req->cseq);
         dlg->reply(*req, 481, SIP_REPLY_NOT_EXIST);
       }
@@ -563,7 +564,8 @@ void AmSipSubscription::onRequestSent(const AmSipRequest& req)
     }
 
     // should we exclude this case in onSendRequest???
-    ERROR("we just sent a request for which we could obtain no subscription\n");
+    ERROR("we just sent a request for which we could obtain no "
+          "subscription\n");
     return;
   }
 

@@ -118,12 +118,14 @@ bool AmSessionContainer::clean_sessions()
   }
   catch (exception& e) {
     ERROR("exception caught in session cleaner: %s\n", e.what());
-    throw; /* throw again as this is fatal (because unlocking the mutex fails!!
+    throw; /* throw again as this is fatal (because unlocking the mutex
+            * fails!!
             */
   }
   catch (...) {
     ERROR("unknown exception caught in session cleaner!\n");
-    throw; /* throw again as this is fatal (because unlocking the mutex fails!!
+    throw; /* throw again as this is fatal (because unlocking the mutex
+            * fails!!
             */
   }
 

@@ -111,7 +111,7 @@ class AmArg : public AmObject
     TypeMismatchException() {}
   };
 
-  typedef std::vector<AmArg> ValueArray;
+  typedef std::vector<AmArg>           ValueArray;
   typedef std::map<std::string, AmArg> ValueStruct;
 
  private:
@@ -370,7 +370,7 @@ class AmArg : public AmObject
 // equality
 bool operator==(const AmArg& lhs, const AmArg& rhs);
 
-int arg2int(const AmArg& a);
+int         arg2int(const AmArg& a);
 std::string arg2str(const AmArg& a);
 
 #endif

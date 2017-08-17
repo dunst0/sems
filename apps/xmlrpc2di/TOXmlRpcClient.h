@@ -18,7 +18,7 @@ class TOXmlRpcClient : public XmlRpc::XmlRpcClient
                      ,
                      ssl
 #endif
-                     )
+        )
   {
   }
 

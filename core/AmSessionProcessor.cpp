@@ -115,7 +115,8 @@ void AmSessionProcessorThread::run()
             (*it)->getLocalTag().c_str(), *it);
         if ((*it)->startup()) {
           sessions.push_back(*it); // startup successful
-          // make sure this session is being processed for startup events
+          // make sure this session is being processed for startup
+          // events
           pending_process_sessions.insert(*it);
         }
       }

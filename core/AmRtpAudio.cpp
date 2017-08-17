@@ -196,7 +196,8 @@ int AmRtpAudio::receive(unsigned long long int system_ts)
         case RTP_TIMEOUT:
           // FIXME: postRequest(new
           // SchedRequest(AmMediaProcessor::RemoveSession,s));
-          // post to the session (FIXME: is session always set? seems to be...)
+          // post to the session (FIXME: is session always set? seems
+          // to be...)
           session->postEvent(new AmRtpTimeoutEvent());
           return -1;
 
@@ -205,7 +206,8 @@ int AmRtpAudio::receive(unsigned long long int system_ts)
           ERROR("AmRtpStream::receive() returned %i\n", size);
           // FIXME: postRequest(new
           // SchedRequest(AmMediaProcessor::ClearSession,s));
-          //       or AmMediaProcessor::instance()->clearSession(session);
+          //       or
+          //       AmMediaProcessor::instance()->clearSession(session);
           return -1;
           break;
       }
@@ -372,15 +374,16 @@ int AmRtpAudio::setCurrentPayload(int payload)
   if (payload != this->payload) {
     PayloadMappingTable::iterator pmt_it = pl_map.find(payload);
     if (pmt_it == pl_map.end()) {
-      ERROR(
-          "Could not set current payload: payload %i unknown to this stream\n",
-          payload);
+      ERROR("Could not set current payload: payload %i unknown to this "
+            "stream\n",
+            payload);
       return -1;
     }
 
     unsigned char index = pmt_it->second.index;
     if (index >= payloads.size()) {
-      ERROR("Could not set current payload: payload %i maps to invalid index "
+      ERROR("Could not set current payload: payload %i maps to invalid "
+            "index "
             "%i\n",
             payload, index);
       return -1;

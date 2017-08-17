@@ -366,7 +366,8 @@ bool AmSession::processingCycle()
         DBG("app did not send BYE - do that for the app\n");
         if (dlg->bye() != 0) {
           processing_status = SESSION_ENDED_DISCONNECTED;
-          // BYE sending failed - don't wait for dlg status to go disconnected
+          // BYE sending failed - don't wait for dlg status to go
+          // disconnected
           return false;
         }
       }
@@ -384,7 +385,7 @@ bool AmSession::processingCycle()
       }
 
       bool res = dlg->getStatus() != AmSipDialog::Disconnected;
-      if (!res) processing_status = SESSION_ENDED_DISCONNECTED;
+      if (!res) processing_status= SESSION_ENDED_DISCONNECTED;
 
       DBG("^^ S [%s|%s] %s, %s, %i UACTransPending, %i usages ^^\n",
           dlg->getCallid().c_str(), getLocalTag().c_str(), dlg->getStatusStr(),
@@ -749,7 +750,8 @@ void AmSession::onSipRequest(const AmSipRequest& req)
   else if (req.method == SIP_METH_PRACK) {
     // TODO: SDP
     dlg->reply(req, 200, "OK");
-    // TODO: WARN: only include latest SDP if req.rseq == dlg->rseq (latest 1xx)
+    // TODO: WARN: only include latest SDP if req.rseq == dlg->rseq (latest
+    // 1xx)
   }
   else if ((req.method == SIP_METH_UPDATE) && req.body.empty()) {
     dlg->reply(req, 200, "OK");
@@ -915,7 +917,7 @@ bool AmSession::getSdpAnswer(const AmSdp& offer, AmSdp& answer)
     answer.conn.addrType = AT_V4; // or use first stream connection?
   else
     answer.conn.addrType = offer.conn.addrType;
-  answer.conn.address    = advertisedIP(answer.conn.addrType);
+  answer.conn.address = advertisedIP(answer.conn.addrType);
   answer.media.clear();
 
   bool         audio_1st_stream = true;
@@ -955,8 +957,8 @@ bool AmSession::getSdpAnswer(const AmSdp& offer, AmSdp& answer)
       answer_media.attributes.clear();
     }
 
-    // sort payload type in the answer according to the priority given in the
-    // codec_order configuration key
+    // sort payload type in the answer according to the priority given in
+    // the codec_order configuration key
     stable_sort(answer_media.payloads.begin(), answer_media.payloads.end(),
                 codec_priority_cmp());
 
@@ -1215,8 +1217,8 @@ string AmSession::advertisedIP(int addrType)
 
 bool AmSession::timersSupported()
 {
-  WARN(
-      "this function is deprecated; application timers are always supported\n");
+  WARN("this function is deprecated; application timers are always "
+       "supported\n");
   return true;
 }
 
@@ -1266,10 +1268,9 @@ void AmSession::onZRTPProtocolEvent(zrtp_protocol_event_t event,
     // zrtp_session_t *session = stream_ctx->_session_ctx;
 
     // if (ZRTP_SAS_BASE32 == session->sas_values.rendering) {
-    // 	DBG("Got SAS value <<<%.4s>>>\n", session->sas_values.str1.buffer);
-    // } else {
-    // 	DBG("Got SAS values SAS1 '%s' and SAS2 '%s'\n",
-    // 	    session->sas_values.str1.buffer,
+    // 	DBG("Got SAS value <<<%.4s>>>\n",
+    // session->sas_values.str1.buffer); } else { 	DBG("Got SAS values SAS1
+    // '%s' and SAS2 '%s'\n", 	    session->sas_values.str1.buffer,
     // 	    session->sas_values.str2.buffer);
     // }
   }
@@ -1297,8 +1298,8 @@ int AmSession::readStreams(unsigned long long int ts, unsigned char* buffer)
   AmRtpAudio*  stream = RTPStream();
   unsigned int f_size = stream->getFrameSize();
   if (stream->checkInterval(ts)) {
-    int got          = stream->get(ts, buffer, stream->getSampleRate(), f_size);
-    if (got < 0) res = -1;
+    int got = stream->get(ts, buffer, stream->getSampleRate(), f_size);
+    if (got < 0) res= -1;
     if (got > 0) {
       if (isDtmfDetectionEnabled()) putDtmfAudio(buffer, got, ts);
 
@@ -1320,7 +1321,7 @@ int AmSession::writeStreams(unsigned long long int ts, unsigned char* buffer)
                                   // call before!
     unsigned int f_size = stream->getFrameSize();
     int          got    = 0;
-    if (output) got  = output->get(ts, buffer, stream->getSampleRate(), f_size);
+    if (output) got     = output->get(ts, buffer, stream->getSampleRate(), f_size);
     if (got < 0) res = -1;
     if (got > 0) res = stream->put(ts, buffer, stream->getSampleRate(), got);
   }

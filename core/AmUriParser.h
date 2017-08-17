@@ -58,7 +58,8 @@ struct AmUriParser
   bool parse_params(const std::string& line, int& pos);
 
   /** param_string is semicolon separated list of parameters with or without
-   * value. method can be used to add/replace param for uri and user parameters
+   * value. method can be used to add/replace param for uri and user
+   * parameters
    */
   static std::string add_param_to_param_list(const std::string& param_name,
                                              const std::string& param_value,

@@ -73,7 +73,7 @@ struct B2BEvent : public AmEvent
   {
   }
 
-  B2BEvent(int ev_id, B2BEventType            ev_type,
+  B2BEvent(int ev_id, B2BEventType ev_type,
            std::map<std::string, std::string> params)
       : AmEvent(ev_id)
       , ev_type(ev_type)
@@ -323,8 +323,8 @@ class AmB2BSession
   /** replace connection with our address */
   void updateLocalBody(AmMimeBody& body);
 
-  /** Called when SDP relayed from other leg should be sent to the remote party.
-   * Default implementation updates connection address and ports. */
+  /** Called when SDP relayed from other leg should be sent to the remote
+   * party. Default implementation updates connection address and ports. */
   virtual void updateLocalSdp(AmSdp& sdp);
 
   /**
@@ -363,8 +363,8 @@ class AmB2BSession
 
   virtual void setRtpInterface(int relay_interface);
   virtual void setRtpRelayForceSymmetricRtp(bool force_symmetric);
-  void setRtpRelayTransparentSeqno(bool transparent);
-  void setRtpRelayTransparentSSRC(bool transparent);
+  void         setRtpRelayTransparentSeqno(bool transparent);
+  void         setRtpRelayTransparentSSRC(bool transparent);
 
   void setEnableDtmfTranscoding(bool enable);
   void setEnableDtmfRtpFiltering(bool enable);
@@ -381,7 +381,7 @@ class AmB2BSession
 
  public:
   virtual void setMediaSession(AmB2BMedia* new_session);
-  AmB2BMedia* getMediaSession() { return media_session; }
+  AmB2BMedia*  getMediaSession() { return media_session; }
 
   // see RelayController
   virtual void computeRelayMask(const SdpMedia& m, bool& enable,
@@ -411,7 +411,7 @@ class AmB2BCallerSession : public AmB2BSession
  protected:
   AmSipRequest invite_req;
   virtual void createCalleeSession();
-  int relayEvent(AmEvent* ev);
+  int          relayEvent(AmEvent* ev);
 
   /** Tell if the session should
    *  relay early media SDPs to
@@ -424,7 +424,7 @@ class AmB2BCallerSession : public AmB2BSession
   virtual ~AmB2BCallerSession();
 
   CalleeStatus getCalleeStatus() { return callee_status; }
-  void setCalleeStatus(CalleeStatus c) { callee_status = c; }
+  void         setCalleeStatus(CalleeStatus c) { callee_status = c; }
 
   virtual AmB2BCalleeSession* newCalleeSession();
 

@@ -62,8 +62,8 @@ class AmConfigReader
   const std::string& getParameter(const std::string& param) const;
   const std::string& getParameter(const std::string& param,
                                   const std::string& defval) const;
-  unsigned int getParameterInt(const std::string& param,
-                               unsigned int       defval = 0) const;
+  unsigned int       getParameterInt(const std::string& param,
+                                     unsigned int       defval = 0) const;
 
   std::map<std::string, std::string>::const_iterator begin() const
   {

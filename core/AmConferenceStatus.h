@@ -68,7 +68,7 @@ struct ConferenceEvent : public AmEvent
 class AmConferenceStatus
 {
   static std::map<std::string, AmConferenceStatus*> cid2status;
-  static AmMutex cid2s_mut;
+  static AmMutex                                    cid2s_mut;
 
   struct SessInfo
   {

@@ -104,7 +104,7 @@ string longlong2str(long long int val)
   return signed2str<long long int, lldiv_t>(val, llabs, lldiv);
 }
 
-static char _int2hex_lookup[] = {'0', '1', '2', '3', '4', '5', '6', '7',
+static char _int2hex_lookup[]   = {'0', '1', '2', '3', '4', '5', '6', '7',
                                  '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 static char _int2hex_lookup_l[] = {'0', '1', '2', '3', '4', '5', '6', '7',
                                    '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
@@ -682,8 +682,8 @@ bool key_in_list(const string& s_list, const string& key, char list_delim)
   size_t pos2  = 0;
   size_t pos_n = 0;
   while (pos < s_list.length()) {
-    pos_n = pos2                   = s_list.find(list_delim, pos);
-    if (pos2 == string::npos) pos2 = s_list.length() - 1;
+    pos_n = pos2 = s_list.find(list_delim, pos);
+    if (pos2 == string::npos) pos2= s_list.length() - 1;
     while ((pos2 > 0)
            && ((s_list[pos2] == ' ') || (s_list[pos2] == list_delim)
                || (s_list[pos2] == '\n')))
@@ -707,8 +707,8 @@ string strip_header_params(const string& hdr_string)
        val_begin++)
     ;
   // strip parameters
-  size_t val_end                       = hdr_string.find(';', val_begin);
-  if (val_end == string::npos) val_end = hdr_string.length();
+  size_t val_end = hdr_string.find(';', val_begin);
+  if (val_end == string::npos) val_end= hdr_string.length();
   return hdr_string.substr(val_begin, val_end - val_begin);
 }
 
@@ -821,7 +821,7 @@ string get_header_keyvalue_single(const string& param_hdr, const string& name)
               if (name.length() == 1)
                 st = ST_FINDEQ;
               else
-                st    = ST_CMPKEY;
+                st = ST_CMPKEY;
               k_begin = p;
               corr    = 1;
             }
@@ -853,7 +853,8 @@ string get_header_keyvalue_single(const string& param_hdr, const string& name)
           default: {
             st   = ST_FINDBGN;
             corr = 0;
-            p    = k_begin; // will continue searching one after k_begin
+            p    = k_begin; // will continue searching one after
+                            // k_begin
           } break;
         }
       } break;
@@ -950,7 +951,8 @@ void init_random()
   FILE* fp_rand = fopen("/dev/urandom", "r");
   if (fp_rand) {
     if (fread(&seed, sizeof(int), 1, fp_rand) != 1) {
-      DBG("/dev/urandom could not be read, rng probably not initialized.\n");
+      DBG("/dev/urandom could not be read, rng probably not "
+          "initialized.\n");
     }
     fclose(fp_rand);
   }
@@ -1067,7 +1069,8 @@ bool read_regex_mapping(const string& fname, const char* sep,
 
       vector<string> re_v = explode(entry, sep);
       if (re_v.size() != 2) {
-        ERROR("Incorrect line '%s' in %s: expected format 'regexp%sstring'\n",
+        ERROR("Incorrect line '%s' in %s: expected format "
+              "'regexp%sstring'\n",
               entry.c_str(), fname.c_str(), sep);
         return false;
       }

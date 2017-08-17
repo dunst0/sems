@@ -138,7 +138,8 @@ void AmRtpStream::setLocalPort(unsigned short int p)
     if (session)
       l_if = session->getRtpInterface();
     else {
-      ERROR("BUG: no session when initializing RTP stream, invalid interface "
+      ERROR("BUG: no session when initializing RTP stream, invalid "
+            "interface "
             "can be used\n");
       l_if = 0;
     }
@@ -463,8 +464,8 @@ void AmRtpStream::setRAddr(const string& addr, unsigned short int port,
     throw string("invalid address") + addr;
   }
 
-  r_host                     = addr;
-  if (port) r_port           = port;
+  r_host = addr;
+  if (port) r_port= port;
   if (rtcp_port) r_rtcp_port = rtcp_port;
 
   memcpy(&r_saddr, &ss, sizeof(struct sockaddr_storage));
@@ -586,8 +587,8 @@ int AmRtpStream::init(const AmSdp& local, const AmSdp& remote,
       int_pt = payload_provider->getDynPayload(
           sdp_it->encoding_name, sdp_it->clock_rate, sdp_it->encoding_param);
 
-    amci_payload_t* a_pl  = NULL;
-    if (int_pt >= 0) a_pl = payload_provider->payload(int_pt);
+    amci_payload_t* a_pl = NULL;
+    if (int_pt >= 0) a_pl= payload_provider->payload(int_pt);
 
     if (a_pl == NULL) {
       if (relay_payloads.get(sdp_it->payload_type)) {
@@ -596,7 +597,8 @@ int AmRtpStream::init(const AmSdp& local, const AmSdp& remote,
         continue;
       }
       else {
-        DBG("No internal payload corresponding to type %s/%i (ignoring)\n",
+        DBG("No internal payload corresponding to type %s/%i "
+            "(ignoring)\n",
             sdp_it->encoding_name.c_str(), sdp_it->clock_rate);
         // ignore this payload
         ++sdp_it;
@@ -664,7 +666,8 @@ int AmRtpStream::init(const AmSdp& local, const AmSdp& remote,
       setLocalIP(session->localMediaIP());
     }
     else {
-      // set local address - media c-line having precedence over session c-line
+      // set local address - media c-line having precedence over session
+      // c-line
       if (local_media.conn.address.empty())
         setLocalIP(local.conn.address);
       else
@@ -782,7 +785,8 @@ void AmRtpStream::recvDtmfPacket(AmRtpPacket* p)
   if (p->payload == getLocalTelephoneEventPT()) {
     dtmf_payload_t* dpl = (dtmf_payload_t*) p->getData();
 
-    DBG("DTMF: event=%i; e=%i; r=%i; volume=%i; duration=%i; ts=%u session = "
+    DBG("DTMF: event=%i; e=%i; r=%i; volume=%i; duration=%i; ts=%u session "
+        "= "
         "[%p]\n",
         dpl->event, dpl->e, dpl->r, dpl->volume, ntohs(dpl->duration),
         p->timestamp, session);
@@ -850,7 +854,8 @@ void AmRtpStream::bufferPacket(AmRtpPacket* p)
 #ifdef WITH_ZRTP
   if (session && session->enable_zrtp) {
     if (NULL == session->zrtp_session_state.zrtp_audio) {
-      WARN("dropping received packet, as there's no ZRTP stream initialized\n");
+      WARN("dropping received packet, as there's no ZRTP stream "
+           "initialized\n");
       receive_mut.unlock();
       mem.freePacket(p);
       return;
@@ -1023,7 +1028,7 @@ void AmRtpStream::recvPacket(int fd)
 #ifdef WITH_ZRTP
         && !(session && session->enable_zrtp)
 #endif
-            ) {
+    ) {
       parse_res = p->parse();
     }
 
@@ -1110,7 +1115,7 @@ void AmRtpStream::relay(AmRtpPacket* p)
   if (session && !session->onBeforeRTPRelay(p, &r_saddr)) return;
 
   rtp_hdr_t* hdr = (rtp_hdr_t*) p->getBuffer();
-  if (!relay_raw && !relay_transparent_seqno) hdr->seq = htons(sequence++);
+  if (!relay_raw && !relay_transparent_seqno) hdr->seq= htons(sequence++);
   if (!relay_raw && !relay_transparent_ssrc) hdr->ssrc = htonl(l_ssrc);
   p->setAddr(&r_saddr);
 

@@ -37,8 +37,8 @@ class Am100rel
 
   State getState() { return reliable_1xx; }
 
-  int onRequestIn(const AmSipRequest& req);
-  int onReplyIn(const AmSipReply& reply);
+  int  onRequestIn(const AmSipRequest& req);
+  int  onReplyIn(const AmSipReply& reply);
   void onRequestOut(AmSipRequest& req);
   void onReplyOut(AmSipReply& reply);
 

@@ -89,14 +89,15 @@ class AmAudioQueue : public AmAudio
   /** add an audio to a queue */
   void pushAudio(AmAudio* audio, QueueType type, Pos pos, bool write,
                  bool read);
-  /** pop an audio from queue and delete it @return 0 on success, -1 on failure
+  /** pop an audio from queue and delete it @return 0 on success, -1 on
+   * failure
    */
   int popAudio(QueueType type, Pos pos);
   /** pop an audio from queue @return pointer to the audio */
   AmAudio* popAndGetAudio(QueueType type, Pos pos);
   /** this removes the audio if it is in on of the queues and does not
       delete them */
-  int removeAudio(AmAudio* audio);
+  int  removeAudio(AmAudio* audio);
   void setOwning(bool _owning);
 
   /** AmAudio interface */

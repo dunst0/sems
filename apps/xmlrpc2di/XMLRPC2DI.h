@@ -120,7 +120,7 @@ class XMLRPC2DIServer
   XMLRPC2DIServerGetCPSLimitMethod getcpslimit_method;
 
   XMLRPC2DIServerDIMethod* di_method;
-  void registerMethods(const std::string& iface);
+  void                     registerMethods(const std::string& iface);
 
   void process(AmEvent* ev);
 
@@ -175,7 +175,7 @@ class XMLRPC2DI
 
   //  app           server
   std::multimap<std::string, XMLRPCServerEntry*> servers;
-  AmMutex            server_mut;
+  AmMutex                                        server_mut;
   XMLRPCServerEntry* getServer(const std::string& app_name);
 
   void newConnection(const AmArg& args, AmArg& ret);

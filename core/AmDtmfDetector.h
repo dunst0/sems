@@ -152,7 +152,7 @@ class AmKeyPressSink
                                    const struct timeval& start,
                                    const struct timeval& stop,
                                    bool                  has_eventid = false,
-                                   unsigned int          event_id = 0) = 0;
+                                   unsigned int          event_id    = 0) = 0;
   /**
    * Through this method the AmDtmfDetector receives events that was
    * detected by specific detectors.
@@ -163,7 +163,7 @@ class AmKeyPressSink
    */
   virtual void registerKeyPressed(int event, Dtmf::EventSource source,
                                   bool         has_eventid = false,
-                                  unsigned int event_id = 0) = 0;
+                                  unsigned int event_id    = 0) = 0;
   /**
    *   Flush (report to session) any pending key if ti matches the event id
    *   @param  event_id ID of the event (e.g. RTP TS)
@@ -266,7 +266,7 @@ class AmSemsInbandDtmfDetector : public AmInbandDtmfDetector
 
   static const int REL_DTMF_NPOINTS =
       205;                         /* Number of samples for DTMF recognition */
-  static const int REL_NCOEFF = 8; /* number of frequencies to be analyzed   */
+  static const int REL_NCOEFF = 8; /* number of frequencies to be analyzed */
 
   const int SAMPLERATE;
   /**
@@ -318,10 +318,10 @@ class AmSpanDSPInbandDtmfDetector : public AmInbandDtmfDetector
                                ,
                                int level, int delay
 #endif
-                               );
+  );
 
   void tone_report_f(int code, int level, int delay);
-  int char2int(char code);
+  int  char2int(char code);
   /*   static void dtmf_rx_callback(void* user_data, const char* digits, int
    * len);  */
   /*   void dtmf_rx_f(const char* digits, int len); */

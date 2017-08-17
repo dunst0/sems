@@ -152,7 +152,8 @@ class AmB2ABSession : public AmSession
   /** local tag of the other leg */
   std::string other_id;
 
-  /** reference to the audio connector - caution: not owned by callee dialog! */
+  /** reference to the audio connector - caution: not owned by callee dialog!
+   */
   AmSessionAudioConnector* connector;
 
   /** Requests received for relaying */
@@ -219,7 +220,7 @@ class AmB2ABCallerSession : public AmB2ABSession
 
  protected:
   virtual AmB2ABCalleeSession* createCalleeSession();
-  void relayEvent(AmEvent* ev);
+  void                         relayEvent(AmEvent* ev);
 
  public:
   AmB2ABCallerSession();
@@ -257,7 +258,7 @@ class AmB2ABCalleeSession : public AmB2ABSession
                   AmSipDialog::Status old_dlg_status);
 
  protected:
-  void onB2ABEvent(B2ABEvent* ev);
+  void               onB2ABEvent(B2ABEvent* ev);
   void               onBeforeDestroy();
   AmCondition<bool>* released;
 };

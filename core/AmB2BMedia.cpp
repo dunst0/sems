@@ -51,7 +51,7 @@ void B2BMediaStatistics::incCodecWriteUsage(const string& codec_name)
 {
   if (codec_name.empty()) return;
 
-  AmLock lock(mutex);
+  AmLock                     lock(mutex);
   map<string, int>::iterator i = codec_write_usage.find(codec_name);
   if (i != codec_write_usage.end()) {
     i->second++;
@@ -65,7 +65,7 @@ void B2BMediaStatistics::decCodecWriteUsage(const string& codec_name)
 {
   if (codec_name.empty()) return;
 
-  AmLock lock(mutex);
+  AmLock                     lock(mutex);
   map<string, int>::iterator i = codec_write_usage.find(codec_name);
   if (i != codec_write_usage.end()) {
     if (i->second > 0) i->second--;
@@ -76,7 +76,7 @@ void B2BMediaStatistics::incCodecReadUsage(const string& codec_name)
 {
   if (codec_name.empty()) return;
 
-  AmLock lock(mutex);
+  AmLock                     lock(mutex);
   map<string, int>::iterator i = codec_read_usage.find(codec_name);
   if (i != codec_read_usage.end()) {
     i->second++;
@@ -90,7 +90,7 @@ void B2BMediaStatistics::decCodecReadUsage(const string& codec_name)
 {
   if (codec_name.empty()) return;
 
-  AmLock lock(mutex);
+  AmLock                     lock(mutex);
   map<string, int>::iterator i = codec_read_usage.find(codec_name);
   if (i != codec_read_usage.end()) {
     if (i->second > 0) i->second--;
@@ -399,14 +399,15 @@ bool AudioStreamData::initStream(PlayoutType playout_type, AmSdp& local_sdp,
   if (stream->init(local_sdp, remote_sdp, force_symmetric_rtp) == 0) {
     stream->setPlayoutType(playout_type);
     initialized = true;
-    //    // do not unmute if muted because of 0.0.0.0 remote IP (the mute flag
-    //    is set during init) if (!stream->muted()) stream->setOnHold(muted);
+    //    // do not unmute if muted because of 0.0.0.0 remote IP (the mute
+    //    flag is set during init) if (!stream->muted())
+    //    stream->setOnHold(muted);
   }
   else {
     initialized = false;
     DBG("stream initialization failed\n");
-    // there still can be payloads to be relayed (if all possible payloads are
-    // to be relayed this needs not to be an error)
+    // there still can be payloads to be relayed (if all possible payloads
+    // are to be relayed this needs not to be an error)
   }
   stream->setOnHold(muted);
   stream->setReceiving(receiving);
@@ -450,7 +451,8 @@ void AudioStreamData::updateSendStats()
     }
 
     if (payload != UNDEFINED_PAYLOAD) {
-      // remember payload name (in lowercase to simulate case insensitivity)
+      // remember payload name (in lowercase to simulate case
+      // insensitivity)
       outgoing_payload_name = stream->getPayloadName(payload);
       transform(outgoing_payload_name.begin(), outgoing_payload_name.end(),
                 outgoing_payload_name.begin(), ::tolower);
@@ -481,7 +483,8 @@ void AudioStreamData::updateRecvStats(AmRtpStream* s)
     }
 
     if (payload != UNDEFINED_PAYLOAD) {
-      // remember payload name (in lowercase to simulate case insensitivity)
+      // remember payload name (in lowercase to simulate case
+      // insensitivity)
       incoming_payload_name = stream->getPayloadName(payload);
       transform(incoming_payload_name.begin(), incoming_payload_name.end(),
                 incoming_payload_name.begin(), ::tolower);
@@ -867,8 +870,10 @@ void AmB2BMedia::replaceConnectionAddress(AmSdp& parser_sdp, bool a_leg,
     // FIXME: only UDP streams are handled for now
     if (it->type == MT_AUDIO) {
       if (audio_stream_it == audio.end()) {
-        // strange... we should actually have a stream for this media line...
-        DBG("audio media line does not have coresponding audio stream...\n");
+        // strange... we should actually have a stream for this media
+        // line...
+        DBG("audio media line does not have coresponding audio "
+            "stream...\n");
         continue;
       }
 
@@ -902,8 +907,10 @@ void AmB2BMedia::replaceConnectionAddress(AmSdp& parser_sdp, bool a_leg,
     }
     else if (canRelay(*it)) {
       if (relay_stream_it == relay_streams.end()) {
-        // strange... we should actually have a stream for this media line...
-        DBG("media line does not have a coresponding relay stream...\n");
+        // strange... we should actually have a stream for this media
+        // line...
+        DBG("media line does not have a coresponding relay "
+            "stream...\n");
         continue;
       }
 
@@ -940,10 +947,10 @@ void AmB2BMedia::replaceConnectionAddress(AmSdp& parser_sdp, bool a_leg,
       ++relay_stream_it;
     }
     else {
-      // quick workaround to allow direct connection of non-supported streams
-      // (i.e. those which are not relayed or transcoded): propagate connection
-      // address - might work but need not (to be tested with real clients
-      // instead of simulators)
+      // quick workaround to allow direct connection of non-supported
+      // streams (i.e. those which are not relayed or transcoded):
+      // propagate connection address - might work but need not (to be
+      // tested with real clients instead of simulators)
       if (it->conn.address.empty()) it->conn = orig_conn;
       continue;
     }
@@ -1050,8 +1057,8 @@ void AmB2BMedia::updateAudioStreams()
   // start media processing (only if transcoding or regular audio processing
   // required)
   // Note: once we send local SDP to the other party we have to expect RTP but
-  // we need to be fully initialised (both legs) before we can correctly handle
-  // the media, right?
+  // we need to be fully initialised (both legs) before we can correctly
+  // handle the media, right?
   if (needs_processing) {
     if (!isProcessingMedia()) {
       addToMediaProcessorUnsafe();
@@ -1143,8 +1150,8 @@ void AmB2BMedia::updateStreams(bool a_leg, const AmSdp& local_sdp,
         (m->conn.address.empty() ? remote_sdp.conn.address : m->conn.address);
 
     if (m->type == MT_AUDIO) {
-      // initialize relay mask in the other(!) leg and relay destination for
-      // stream in current leg
+      // initialize relay mask in the other(!) leg and relay destination
+      // for stream in current leg
       TRACE("relay payloads in direction %s\n", a_leg ? "B -> A" : "A -> B");
       if (a_leg) {
         astream->b.setRelayPayloads(*m, ctrl);
@@ -1289,13 +1296,12 @@ void AmB2BMedia::setFirstStreamInput(bool a_leg, AmAudio* in)
 void AmB2BMedia::createHoldAnswer(bool a_leg, const AmSdp& offer, AmSdp& answer,
                                   bool use_zero_con)
 {
-  // because of possible RTP relaying our payloads need not to match the remote
-  // party's payloads (i.e. we might need not understand the remote party's
-  // codecs)
-  // As a quick hack we may use just copy of the original SDP with all streams
-  // deactivated to avoid sending RTP to us (twinkle requires at least one
-  // non-disabled stream in the response so we can not set all ports to 0 to
-  // signalize that we don't want to receive anything)
+  // because of possible RTP relaying our payloads need not to match the
+  // remote party's payloads (i.e. we might need not understand the remote
+  // party's codecs) As a quick hack we may use just copy of the original SDP
+  // with all streams deactivated to avoid sending RTP to us (twinkle requires
+  // at least one non-disabled stream in the response so we can not set all
+  // ports to 0 to signalize that we don't want to receive anything)
 
   AmLock lock(mutex);
 

@@ -100,7 +100,7 @@ class Value
 
   Value();
   ~Value();
-  bool parse(std::istream& input);
+  bool                       parse(std::istream& input);
   template <typename T> bool is();
   template <typename T> T&   get();
 

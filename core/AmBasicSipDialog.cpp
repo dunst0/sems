@@ -182,9 +182,9 @@ int AmBasicSipDialog::getOutboundIf()
   // 3. first route
   // 4. remote URI
 
-  string dest_uri;
-  string dest_ip;
-  string local_ip;
+  string                                         dest_uri;
+  string                                         dest_ip;
+  string                                         local_ip;
   multimap<string, unsigned short int>::iterator if_it;
 
   list<sip_destination> ip_list;
@@ -221,7 +221,8 @@ int AmBasicSipDialog::getOutboundIf()
   if (!dest_uri.empty()) {
     sip_uri d_uri;
     if (parse_uri(&d_uri, dest_uri.c_str(), dest_uri.length()) < 0) {
-      ERROR("Could not parse destination URI (local_tag='%s';dest_uri='%s')",
+      ERROR("Could not parse destination URI "
+            "(local_tag='%s';dest_uri='%s')",
             local_tag.c_str(), dest_uri.c_str());
       goto error;
     }
@@ -290,7 +291,8 @@ bool AmBasicSipDialog::onRxReqSanity(const AmSipRequest& req)
         // for implementations which follow 3265 instead of 5057
         string hdrs = SIP_HDR_COLSP(SIP_HDR_RETRY_AFTER) "0" CRLF;
 
-        INFO("remote cseq lower than previous ones - refusing request\n");
+        INFO("remote cseq lower than previous ones - refusing "
+             "request\n");
         // see 12.2.2
         reply_error(req, 500, SIP_REPLY_SERVER_INTERNAL_ERROR, hdrs);
         return false;
@@ -315,8 +317,9 @@ void AmBasicSipDialog::onRxRequest(const AmSipRequest& req)
   DBG("AmBasicSipDialog::onRxRequest(req = %s)\n", req.method.c_str());
 
   if (logger && (req.method != SIP_METH_ACK)) {
-    // log only non-initial received requests, the initial one is already logged
-    // or will be logged at application level (problem with SBCSimpleRelay)
+    // log only non-initial received requests, the initial one is already
+    // logged or will be logged at application level (problem with
+    // SBCSimpleRelay)
     if (!callid.empty()) req.log(logger);
   }
 

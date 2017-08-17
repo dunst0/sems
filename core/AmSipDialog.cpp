@@ -251,7 +251,8 @@ int AmSipDialog::onTxReply(const AmSipRequest& req, AmSipReply& reply,
       if ((reply.cseq_method == SIP_METH_INVITE) && (reply.code < 200)) {
         // refuse local provisional replies
         // when state is Cancelling
-        ERROR("refuse local provisional replies when state is Cancelling\n");
+        ERROR("refuse local provisional replies when state is "
+              "Cancelling\n");
         return -1;
       }
     // else continue with final
@@ -536,7 +537,8 @@ int AmSipDialog::bye(const string& hdrs, int flags)
         // missing AmSipRequest to be able
         // to send the reply on behalf of the app.
         ERROR("ignoring bye() in %s state: "
-              "no UAC transaction to cancel or UAS transaction to reply.\n",
+              "no UAC transaction to cancel or UAS transaction to "
+              "reply.\n",
               getStatusStr());
         setStatus(Disconnected);
       }
@@ -601,7 +603,8 @@ int AmSipDialog::update(const AmMimeBody* body, const string& hdrs)
 {
   switch (getStatus()) {
     case Connected: // if Connected, we should send a re-INVITE instead...
-      DBG("re-INVITE should be used instead (see RFC3311, section 5.1)\n");
+      DBG("re-INVITE should be used instead (see RFC3311, section "
+          "5.1)\n");
     case Trying:
     case Proceeding:
     case Early: return sendRequest(SIP_METH_UPDATE, body, hdrs);

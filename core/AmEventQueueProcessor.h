@@ -80,7 +80,7 @@ class AmEventQueueProcessor
   void addThreads(unsigned int num_threads);
 
   AmEventQueueWorker* getWorker();
-  int startEventQueue(AmEventQueue* q);
+  int                 startEventQueue(AmEventQueue* q);
 };
 
 #endif

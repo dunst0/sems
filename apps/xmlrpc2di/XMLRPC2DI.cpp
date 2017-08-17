@@ -263,7 +263,7 @@ void XMLRPC2DI::sendRequest(const AmArg& args, AmArg& ret)
                          ,
                      false
 #endif
-                     );
+    );
 
     XmlRpcValue x_args, x_result;
     XMLRPC2DIServer::amarg2xmlrpcval(params, x_args);
@@ -304,7 +304,7 @@ void XMLRPC2DI::sendRequestList(const AmArg& args, AmArg& ret)
                          ,
                      false
 #endif
-                     );
+    );
 
     XmlRpcValue x_args, x_result;
 

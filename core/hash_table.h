@@ -119,7 +119,7 @@ template <class Value> class ht_delete
 {
  public:
   Value* new_elmt(Value* v) { return v; }
-  void dispose(Value* v) { delete v; }
+  void   dispose(Value* v) { delete v; }
 };
 
 template <class Value> class ht_ref_cnt
@@ -139,7 +139,7 @@ class ht_map_bucket : public AmMutex
 {
  public:
   typedef std::map<Key, Value*, ElmtCompare> value_map;
-  typedef ElmtAlloc allocator;
+  typedef ElmtAlloc                          allocator;
 
   ht_map_bucket(unsigned long int id)
       : id(id)
@@ -234,7 +234,7 @@ template <class Bucket> class hash_table
       : size(size)
   {
     _table = new Bucket*[size];
-    for (unsigned long int i = 0; i < size; i++) _table[i] = new Bucket(i);
+    for (unsigned long int i = 0; i < size; i++) _table[i]= new Bucket(i);
   }
 
   ~hash_table()

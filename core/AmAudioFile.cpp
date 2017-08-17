@@ -94,14 +94,16 @@ amci_subtype_t* AmAudioFileFormat::getSubtype()
     // get file format from file name
     amci_inoutfmt_t* iofmt = AmPlugIn::instance()->fileFormat(name.c_str());
     if (!iofmt) {
-      ERROR("AmAudioFileFormat::getSubtype: file format '%s' does not exist\n",
+      ERROR("AmAudioFileFormat::getSubtype: file format '%s' does not "
+            "exist\n",
             name.c_str());
       return NULL;
     }
 
     p_subtype = AmPlugIn::instance()->subtype(iofmt, subtype);
     if (!p_subtype) {
-      ERROR("AmAudioFileFormat::getSubtype: subtype %i in format '%s' does not "
+      ERROR("AmAudioFileFormat::getSubtype: subtype %i in format '%s' "
+            "does not "
             "exist\n",
             subtype, iofmt->name);
       return NULL;
@@ -410,8 +412,9 @@ read_block:
       // read from file
       int rs = fread((void*) ((unsigned char*) samples), 1, s, fp);
       if (rs != s) {
-        DBG("marking data size as invalid as we read %d but should read %d", rs,
-            s);
+        DBG("marking data size as invalid as we read %d but should "
+            "read %d",
+            rs, s);
         // we read less than we should => data size is probably broken
         data_size = -1;
         s         = rs;

@@ -485,8 +485,8 @@ int _SipCtrlInterface::send(const AmSipReply& rep, const string& dialog_id,
     content_type = rep.body.getCTHdr();
     rep.body.print(body);
     if (content_type.empty()) {
-      ERROR(
-          "Reply does not contain a Content-Type whereby body is not empty\n");
+      ERROR("Reply does not contain a Content-Type whereby body is not "
+            "empty\n");
       return -1;
     }
     msg.body = stl2cstr(body);

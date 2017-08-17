@@ -118,7 +118,7 @@ class AmSipRequest : public _AmSipMsgInDlg
   ~AmSipRequest() {}
 
   std::string print() const;
-  void log(msg_logger* logger) const;
+  void        log(msg_logger* logger) const;
 };
 
 std::string getHeader(const std::string& hdrs, const std::string& hdr_name,

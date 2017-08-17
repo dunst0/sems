@@ -230,7 +230,7 @@ bool AmUriParser::parse_uri()
       case uSPROT: {
         if (c == ':') {
           uri.find('@', pos + 1) == string::npos ? st = uSHOST : st = uSUSER;
-          p1 = pos;
+          p1                                                        = pos;
         }
       } break;
 
@@ -409,8 +409,8 @@ bool AmUriParser::parse_uri()
 
   switch (st) {
     case uSUSER:
-    case uSHOST: uri_host   = uri.substr(p1 + 1, pos - p1 - 1); break;
-    case uSPORT: uri_port   = uri.substr(p1 + 1, pos - p1 - 1); break;
+    case uSHOST: uri_host = uri.substr(p1 + 1, pos - p1 - 1); break;
+    case uSPORT: uri_port = uri.substr(p1 + 1, pos - p1 - 1); break;
     case uSHDR: uri_headers = uri.substr(p1 + 1, pos - p1 - 1); break;
     case uSPARAM: uri_param = uri.substr(p1 + 1, pos - p1 - 1); break;
     case uS0:

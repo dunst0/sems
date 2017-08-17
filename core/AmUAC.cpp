@@ -52,10 +52,10 @@ string AmUAC::dialout(const string& user, const string& app_name,
     req.from_tag = AmSession::getNewId();
   else
     req.from_tag = local_tag;
-  req.to         = to;
-  req.to_tag     = "";
-  req.callid     = AmSession::getNewId();
-  req.hdrs       = hdrs;
+  req.to     = to;
+  req.to_tag = "";
+  req.callid = AmSession::getNewId();
+  req.hdrs   = hdrs;
 
   return AmSessionContainer::instance()->startSessionUAC(req, m_app_name,
                                                          session_params);

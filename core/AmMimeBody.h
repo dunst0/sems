@@ -122,7 +122,8 @@ class AmMimeBody : public AmObject
   AmMimeBody* addPart(const std::string& content_type);
 
   /**
-   * Delete a body part, converting resulting body to single-part if necessary.
+   * Delete a body part, converting resulting body to single-part if
+   * necessary.
    */
   int deletePart(const std::string& content_type);
 
@@ -177,8 +178,8 @@ class AmMimeBody : public AmObject
   void print(std::string& buf) const;
 
   const AmContentType& getContentType() { return ct; }
-  void setContentType(const AmContentType& _ct) { ct = _ct; }
-  void addPart(const AmMimeBody& part)
+  void                 setContentType(const AmContentType& _ct) { ct = _ct; }
+  void                 addPart(const AmMimeBody& part)
   {
     parts.push_back(new AmMimeBody(part));
   }

@@ -188,7 +188,8 @@ int AmContentType::parse(const string& ct)
           case SLASH: st = CT_SUBTYPE_SWS; break;
 
           default:
-            DBG("Missing '/' after media type in 'Content-Type' hdr field\n");
+            DBG("Missing '/' after media type in 'Content-Type' "
+                "hdr field\n");
             return -1;
         }
         break;
@@ -364,7 +365,7 @@ int AmMimeBody::findNextBoundary(unsigned char** beg, unsigned char** end)
   case _st_:                                                                   \
     switch (*c) {                                                              \
       case _ch_: st = _st1_; break;                                            \
-      default: st   = B_START; break;                                          \
+      default: st = B_START; break;                                            \
     }                                                                          \
     break
 
@@ -523,7 +524,8 @@ int AmMimeBody::parseMultipart(const unsigned char* buf, unsigned int len)
 
     err = findNextBoundary(&part_end, &next_part);
     if (err < 0) {
-      DBG("unexpected end-of-buffer while searching for MIME body boundary\n");
+      DBG("unexpected end-of-buffer while searching for MIME body "
+          "boundary\n");
       return -1;
     }
 

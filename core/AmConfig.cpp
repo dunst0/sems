@@ -71,10 +71,10 @@ bool   AmConfig::LogStderr         = false;
 
 vector<AmConfig::SIP_interface>  AmConfig::SIP_Ifs;
 vector<AmConfig::RTP_interface*> AmConfig::RTP_Ifs;
-map<string, unsigned short int> AmConfig::SIP_If_names;
-map<string, unsigned short int> AmConfig::RTP_If_names;
-map<string, unsigned short int> AmConfig::LocalSIPIP2If;
-vector<AmConfig::SysIntf> AmConfig::SysIfs;
+map<string, unsigned short int>  AmConfig::SIP_If_names;
+map<string, unsigned short int>  AmConfig::RTP_If_names;
+map<string, unsigned short int>  AmConfig::LocalSIPIP2If;
+vector<AmConfig::SysIntf>        AmConfig::SysIfs;
 
 #ifndef DISABLE_DAEMON_MODE
 bool   AmConfig::DaemonMode    = DEFAULT_DAEMON_MODE;
@@ -571,8 +571,8 @@ int AmConfig::readConfiguration()
 #else
     WARN("session_processor_threads specified in sems.conf,\n");
     WARN("but SEMS is compiled without SESSION_THREADPOOL support.\n");
-    WARN(
-        "set USE_THREADPOOL in Makefile.defs to enable session thread pool.\n");
+    WARN("set USE_THREADPOOL in Makefile.defs to enable session thread "
+         "pool.\n");
     WARN("SEMS will start now, but every call will have its own thread.\n");
 #endif
   }
@@ -691,16 +691,18 @@ int AmConfig::readConfiguration()
     string c_reply = cfg.getParameter("shutdown_mode_reply");
     size_t spos    = c_reply.find(" ");
     if (spos == string::npos || spos == c_reply.length()) {
-      ERROR(
-          "invalid shutdown_mode_reply specified, expected \"<code> <reason>\","
-          "e.g. shutdown_mode_reply=\"503 Not At The Moment, Please\".\n");
+      ERROR("invalid shutdown_mode_reply specified, expected \"<code> "
+            "<reason>\","
+            "e.g. shutdown_mode_reply=\"503 Not At The Moment, "
+            "Please\".\n");
       ret = -1;
     }
     else {
       if (str2i(c_reply.substr(0, spos), ShutdownModeErrCode)) {
         ERROR("invalid shutdown_mode_reply specified, expected \"<code> "
               "<reason>\","
-              "e.g. shutdown_mode_reply=\"503 Not At The Moment, Please\".\n");
+              "e.g. shutdown_mode_reply=\"503 Not At The Moment, "
+              "Please\".\n");
         ret = -1;
       }
       ShutdownModeErrReason = c_reply.substr(spos + 1);
@@ -779,7 +781,8 @@ int AmConfig::insert_SIP_interface_mapping(const SIP_interface& intf)
 
     const SIP_interface& old_intf = SIP_Ifs[it->second];
     if (intf.LocalPort == old_intf.LocalPort) {
-      ERROR("duplicated signaling interfaces  (%s and %s) detected using %s:%u",
+      ERROR("duplicated signaling interfaces  (%s and %s) detected using "
+            "%s:%u",
             old_intf.name.c_str(), intf.name.c_str(), if_local_ip.c_str(),
             intf.LocalPort);
       return -1;
@@ -836,7 +839,8 @@ static int readSIPInterface(AmConfigReader& cfg, const string& i_name)
         opts |= trsp_socket::no_transport_in_contact;
       }
       else {
-        WARN("unknown signaling socket option '%s' set on interface '%s'\n",
+        WARN("unknown signaling socket option '%s' set on interface "
+             "'%s'\n",
              it_opt->c_str(), i_name.c_str());
       }
     }

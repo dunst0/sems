@@ -18,7 +18,7 @@ class B2BMediaStatistics
  private:
   std::map<std::string, int> codec_write_usage;
   std::map<std::string, int> codec_read_usage;
-  AmMutex mutex;
+  AmMutex                    mutex;
 
  public:
   void reportCodecWriteUsage(std::string& dst);
@@ -26,10 +26,10 @@ class B2BMediaStatistics
   void getReport(const AmArg& args, AmArg& ret);
 
   static B2BMediaStatistics* instance();
-  void incCodecWriteUsage(const std::string& codec_name);
-  void decCodecWriteUsage(const std::string& codec_name);
-  void incCodecReadUsage(const std::string& codec_name);
-  void decCodecReadUsage(const std::string& codec_name);
+  void                       incCodecWriteUsage(const std::string& codec_name);
+  void                       decCodecWriteUsage(const std::string& codec_name);
+  void                       incCodecReadUsage(const std::string& codec_name);
+  void                       decCodecReadUsage(const std::string& codec_name);
 };
 
 /** \brief Class for computing mask of payloads to relay
@@ -78,7 +78,8 @@ class AudioStreamData
   /** Enables DTMF detection with RTP DTMF (2833/4733) */
   bool enable_dtmf_rtp_detection;
 
-  /** Low fidelity payloads for which inband DTMF transcoding should be used */
+  /** Low fidelity payloads for which inband DTMF transcoding should be used
+   */
   std::vector<SdpPayload> lowfi_payloads;
 
   /** DTMF detector used by dtmf_queue */
@@ -110,8 +111,8 @@ class AudioStreamData
   std::string outgoing_payload_name;
   std::string incoming_payload_name;
   void        updateSendStats();
-  void updateRecvStats(AmRtpStream* s);
-  void resetStats();
+  void        updateRecvStats(AmRtpStream* s);
+  void        resetStats();
 
   /** create the stream and take settings from the session */
   void initialize(AmB2BSession* session);
@@ -233,10 +234,10 @@ class AudioStreamData
   {
     if (stream) stream->getSdpAnswer(media_idx, offer, answer);
   }
-  void mute(bool set_mute);
-  void setReceiving(bool r);
-  void setInput(AmAudio* _in) { in = _in; }
-  AmAudio*               getInput() { return in; }
+  void     mute(bool set_mute);
+  void     setReceiving(bool r);
+  void     setInput(AmAudio* _in) { in = _in; }
+  AmAudio* getInput() { return in; }
 
   void setLogger(msg_logger* logger)
   {
@@ -551,8 +552,8 @@ class AmB2BMedia : public AmMediaSession
   /** restart relaying on streams */
   void restartRelay();
 
-  /** set 'receving' property of RTP/relay streams (not receiving=drop incoming
-   * packets) */
+  /** set 'receving' property of RTP/relay streams (not receiving=drop
+   * incoming packets) */
   void setReceiving(bool receiving_a, bool receiving_b);
 
   // print debug info

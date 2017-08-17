@@ -210,7 +210,8 @@ int AmPlugIn::load(const string& directory, const string& plugins)
       if (plugin_file == "sipctrl") {
         WARN("sipctrl is integrated into the core, loading sipctrl "
              "module is not necessary any more\n");
-        WARN("please update your configuration to not load sipctrl module\n");
+        WARN("please update your configuration to not load sipctrl "
+             "module\n");
         continue;
       }
 
@@ -430,7 +431,8 @@ void AmPlugIn::getPayloads(vector<SdpPayload>& pl_vec) const
                                   pl_it->second->channels == 2 ? 2 : 0));
     }
     else {
-      ERROR("Payload %d (from the payload_order map) was not found in payloads "
+      ERROR("Payload %d (from the payload_order map) was not found in "
+            "payloads "
             "map!\n",
             it->second);
     }
@@ -478,7 +480,7 @@ AmSessionFactory* AmPlugIn::getFactory4App(const string& app_name)
 
   name2app_mut.lock();
   map<string, AmSessionFactory*>::iterator it = name2app.find(app_name);
-  if (it != name2app.end()) res = it->second;
+  if (it != name2app.end()) res               = it->second;
   name2app_mut.unlock();
 
   return res;

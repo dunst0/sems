@@ -207,7 +207,7 @@ static int str_get_line(const char** c, const char* end, char* line_buf,
     switch (**c) {
       case '\r': st = SGL_CR; break;
       case '\n': st = SGL_LF; break;
-      case '#': st  = SGL_COMMENT; break;
+      case '#': st = SGL_COMMENT; break;
 
       default:
         *out = **c;

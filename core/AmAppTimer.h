@@ -60,8 +60,8 @@ class _AmAppTimer : public _wheeltimer
   /** creates timer object and inserts it into our container */
   app_timer* create_timer(const std::string& q_id, int id,
                           unsigned int expires);
-  /** erases timer - does not delete timer object @return timer object pointer,
-   * if found */
+  /** erases timer - does not delete timer object @return timer object
+   * pointer, if found */
   app_timer* erase_timer(const std::string& q_id, int id);
 
   /* callback used by app_timer */

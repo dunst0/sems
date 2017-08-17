@@ -153,7 +153,7 @@ class AmSessionFactory : public AmPluginFactory
    */
   virtual AmSession*
   onInvite(const AmSipRequest& req, const std::string& app_name,
-           const std::map<std::string, std::string>&   app_params) = 0;
+           const std::map<std::string, std::string>& app_params) = 0;
 
   /**
    * Creates a dialog state on new UAC request.
@@ -179,7 +179,7 @@ class AmSessionFactory : public AmPluginFactory
    */
   virtual AmSession*
   onRefer(const AmSipRequest& req, const std::string& app_name,
-          const std::map<std::string, std::string>&   app_params);
+          const std::map<std::string, std::string>& app_params);
 
   /**
    * Creates a dialog state on new REFER with local-tag.

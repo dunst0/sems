@@ -89,8 +89,9 @@ class AmMediaSession
    * session would significantly increase memory consumption per call.
    *
    * So for now it seems to be the simplest way just to give the buffer as
-   * parameter from AmMediaProcessorThread and reuse it in all sessions handled
-   * by this thread (processing is done sequentially one session after another).
+   * parameter from AmMediaProcessorThread and reuse it in all sessions
+   * handled by this thread (processing is done sequentially one session after
+   * another).
    */
   virtual int readStreams(unsigned long long int ts, unsigned char* buffer) = 0;
 
@@ -205,7 +206,7 @@ class AmMediaProcessor
   std::map<std::string, unsigned int>         callgroup2thread;
   std::multimap<std::string, AmMediaSession*> callgroupmembers;
   std::map<AmMediaSession*, std::string>      session2callgroup;
-  AmMutex group_mut;
+  AmMutex                                     group_mut;
 
   AmMediaProcessor();
   ~AmMediaProcessor();

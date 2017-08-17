@@ -82,8 +82,8 @@ void AmSipDispatcher::handleSipMsg(AmSipRequest& req)
     // in-dlg request
     AmSipRequestEvent* ev = new AmSipRequestEvent(req);
 
-    // Contact-user may contain internal dialog ID (must be tried before using
-    // local_tag for identification)
+    // Contact-user may contain internal dialog ID (must be tried before
+    // using local_tag for identification)
     if (!req.user.empty() && ev_disp->post(req.user, ev)) return;
 
     if (ev_disp->post(local_tag, ev)) return;

@@ -72,8 +72,8 @@ class AmOfferAnswer
   AmOfferAnswer(AmSipDialog* dlg);
 
   /** Accessors */
-  OAState getState();
-  void setState(OAState n_st);
+  OAState      getState();
+  void         setState(OAState n_st);
   const AmSdp& getLocalSdp();
   const AmSdp& getRemoteSdp();
 
@@ -81,12 +81,12 @@ class AmOfferAnswer
   void clearTransitionalState();
 
   /** Event handlers */
-  int onRequestIn(const AmSipRequest& req);
-  int onReplyIn(const AmSipReply& reply);
-  int onRequestOut(AmSipRequest& req);
-  int onReplyOut(AmSipReply& reply);
-  int onRequestSent(const AmSipRequest& req);
-  int onReplySent(const AmSipReply& reply);
+  int  onRequestIn(const AmSipRequest& req);
+  int  onReplyIn(const AmSipReply& reply);
+  int  onRequestOut(AmSipRequest& req);
+  int  onReplyOut(AmSipReply& reply);
+  int  onRequestSent(const AmSipRequest& req);
+  int  onReplySent(const AmSipReply& reply);
   void onNoAck(unsigned int ack_cseq);
 };
 

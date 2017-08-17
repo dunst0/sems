@@ -90,8 +90,8 @@ unsigned int AmMultiPartyMixer::addChannel(unsigned int external_sample_rate)
 
   for (deque<MixerBufferState>::iterator it = buffer_state.begin();
        it != buffer_state.end(); it++) {
-    // DBG("XXDebugMixerXX: AmMultiPartyMixer::addChannel(): processing buffer
-    // state with sample rate %d", it->sample_rate);
+    // DBG("XXDebugMixerXX: AmMultiPartyMixer::addChannel(): processing
+    // buffer state with sample rate %d", it->sample_rate);
     if (it->sample_rate >= external_sample_rate) {
       it->add_channel(cur_channel_id);
       break;
@@ -202,8 +202,8 @@ void AmMultiPartyMixer::GetChannelPacket(unsigned int           channel_id,
   else if (bstate != buffer_state.end()) {
     memset(buffer, 0, size);
     output_sample_rate = GetCurrentSampleRate();
-    // DBG("XXDebugMixerXX: GetChannelPacket returned zeroes, ts=%u, last_ts=%u,
-    // output_sample_rate=%u", ts, last_ts, output_sample_rate);
+    // DBG("XXDebugMixerXX: GetChannelPacket returned zeroes, ts=%u,
+    // last_ts=%u, output_sample_rate=%u", ts, last_ts, output_sample_rate);
   }
   else {
     /*
@@ -305,7 +305,8 @@ AmMultiPartyMixer::findBufferStateForReading(unsigned int           sample_rate,
   }
 
   if (buffer_state.size() < MAX_BUFFER_STATES) {
-    // DBG("XXDebugMixerXX: Creating buffer state (from GetChannelPacket)\n");
+    // DBG("XXDebugMixerXX: Creating buffer state (from
+    // GetChannelPacket)\n");
     buffer_state.push_back(MixerBufferState(sample_rate, channelids));
   } // else just reuse the last buffer - conference without a speaker
   deque<MixerBufferState>::reverse_iterator rit = buffer_state.rbegin();

@@ -300,26 +300,26 @@ class AmAudio : public AmObject
   unsigned int downMix(unsigned int size);
 
   /**
-   * Resamples from the given input sample rate to the given output sample rate
-   * using the input resampling state. The input resampling state is created if
-   * it does not exist.
+   * Resamples from the given input sample rate to the given output sample
+   * rate using the input resampling state. The input resampling state is
+   * created if it does not exist.
    *
    */
   unsigned int resampleInput(unsigned char* buffer, unsigned int size,
                              int input_sample_rate, int output_sample_rate);
 
   /**
-   * Resamples from the given input sample rate to the given output sample rate
-   * using the output resampling state. The output resampling state is created
-   * if it does not exist.
+   * Resamples from the given input sample rate to the given output sample
+   * rate using the output resampling state. The output resampling state is
+   * created if it does not exist.
    *
    */
   unsigned int resampleOutput(unsigned char* buffer, unsigned int size,
                               int input_sample_rate, int output_sample_rate);
 
   /**
-   * Resamples from the given input sample rate to the given output sample rate
-   * using the given resampling state. <ul><li>input = front
+   * Resamples from the given input sample rate to the given output sample
+   * rate using the given resampling state. <ul><li>input = front
    * buffer</li><li>output = back buffer</li></ul>
    * @param rstate resampling state to be used
    * @param size [in] size in bytes
@@ -357,8 +357,8 @@ class AmAudio : public AmObject
    * @warning For packet based payloads / file formats, use:
    * <pre>           nb_sample = input buffer size / sample size of the
    * reference format
-   * </pre>           whereby the format with/from which the codec works is the
-   * reference one.
+   * </pre>           whereby the format with/from which the codec works is
+   * the reference one.
    * @return # bytes read, else -1 if error (0 is OK)
    */
   virtual int get(unsigned long long int system_ts, unsigned char* buffer,
@@ -369,8 +369,8 @@ class AmAudio : public AmObject
    * @warning For packet based payloads / file formats, use:
    * <pre>           nb_sample = input buffer size / sample size of the
    * reference format
-   * </pre>           whereby the format with/from which the codec works is the
-   * reference one.
+   * </pre>           whereby the format with/from which the codec works is
+   * the reference one.
    * @return # bytes written, else -1 if error (0 is OK)
    */
   virtual int put(unsigned long long int system_ts, unsigned char* buffer,
@@ -379,7 +379,7 @@ class AmAudio : public AmObject
   int getSampleRate();
 
   void setRecordTime(unsigned int ms);
-  int incRecordTime(unsigned int samples);
+  int  incRecordTime(unsigned int samples);
 
   void setBufferedOutput(unsigned int buffer_size);
 

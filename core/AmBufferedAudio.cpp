@@ -98,7 +98,7 @@ int AmBufferedAudio::get(unsigned long long int system_ts,
   }
 
   size_t nget = PCM16_S2B(nb_samples * getSampleRate() / output_sample_rate);
-  if (w - r < nget) nget = w - r;
+  if (w - r < nget) nget= w - r;
 
   if (!nget) {
     // empty buffer and input error

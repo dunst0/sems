@@ -72,8 +72,8 @@ struct AmZRTP
   static zrtp_config_t  zrtp_config;
   static zrtp_zid_t     zrtp_instance_zid;
 
-  static int on_send_packet(const zrtp_stream_t* stream, char* packet,
-                            unsigned int length);
+  static int  on_send_packet(const zrtp_stream_t* stream, char* packet,
+                             unsigned int length);
   static void on_zrtp_secure(zrtp_stream_t* stream);
   static void on_zrtp_security_event(zrtp_stream_t*        stream,
                                      zrtp_security_event_t event);
@@ -86,7 +86,7 @@ struct AmZRTPSessionState
   AmZRTPSessionState();
   ~AmZRTPSessionState();
 
-  int initSession(AmSession* s);
+  int  initSession(AmSession* s);
   void freeSession();
 
   int startStreams(uint32_t ssrc);
@@ -103,7 +103,7 @@ const char* zrtp_security_event_desc(zrtp_security_event_t e);
 extern "C" {
 #endif
 
-void zrtp_get_cache_path(char* path, uint32_t length);
+void          zrtp_get_cache_path(char* path, uint32_t length);
 zrtp_status_t zrtp_cache_user_down();
 
 #if defined(__cplusplus)

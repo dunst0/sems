@@ -89,8 +89,8 @@ class AmPlayoutBuffer
   AmPlayoutBuffer(AmPLCBuffer* plcbuffer, unsigned int sample_rate);
   virtual ~AmPlayoutBuffer() {}
 
-  virtual void write(u_int32_t ref_ts, u_int32_t ts, int16_t* buf,
-                     u_int32_t len, bool begin_talk);
+  virtual void      write(u_int32_t ref_ts, u_int32_t ts, int16_t* buf,
+                          u_int32_t len, bool begin_talk);
   virtual u_int32_t read(u_int32_t ts, int16_t* buf, u_int32_t len);
 
   void clearLastTs() { last_ts_i = false; }

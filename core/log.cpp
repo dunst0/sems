@@ -132,7 +132,7 @@ void SyslogLogFac::log(int level, pid_t pid, pthread_t tid, const char* func,
 #ifdef _DEBUG
 
   // replace \r\n through a dot
-  for (char* c                       = msg; (*c); c++)
+  for (char* c = msg; (*c); c++)
     if (*c == '\r' || *c == '\n') *c = '.';
 
 #ifndef NO_THREADID_LOG

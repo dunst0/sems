@@ -64,10 +64,10 @@ class AmEventDispatcher
   };
 
   typedef std::map<std::string, QueueEntry> EvQueueMap;
-  typedef EvQueueMap::iterator EvQueueMapIter;
+  typedef EvQueueMap::iterator              EvQueueMapIter;
 
   typedef std::map<std::string, std::string> Dictionnary;
-  typedef Dictionnary::iterator DictIter;
+  typedef Dictionnary::iterator              DictIter;
 
  private:
   static AmEventDispatcher* _instance;

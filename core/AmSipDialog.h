@@ -93,10 +93,10 @@ class AmSipDialog : public AmBasicSipDialog
   bool getSdpAnswer(const AmSdp& offer, AmSdp& answer);
 
   AmOfferAnswer::OAState getOAState();
-  void setOAState(AmOfferAnswer::OAState n_st);
-  void setOAEnabled(bool oa_enabled);
-  const AmSdp& getLocalSdp() { return oa.getLocalSdp(); }
-  const AmSdp& getRemoteSdp() { return oa.getRemoteSdp(); }
+  void                   setOAState(AmOfferAnswer::OAState n_st);
+  void                   setOAEnabled(bool oa_enabled);
+  const AmSdp&           getLocalSdp() { return oa.getLocalSdp(); }
+  const AmSdp&           getRemoteSdp() { return oa.getRemoteSdp(); }
 
   void setRel100State(Am100rel::State rel100_state);
 

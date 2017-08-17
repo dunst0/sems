@@ -125,8 +125,8 @@ void AmRtpReceiverThread::addStream(int sd, AmRtpStream* stream)
   si.stream      = stream;
   event* ev_read = event_new(ev_base, sd, EV_READ | EV_PERSIST,
                              AmRtpReceiverThread::_rtp_receiver_read_cb, &si);
-  si.ev_read = ev_read;
-  si.thread  = this;
+  si.ev_read     = ev_read;
+  si.thread      = this;
   streams_mut.unlock();
 
   // This must be done when

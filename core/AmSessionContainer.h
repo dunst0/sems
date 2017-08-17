@@ -176,8 +176,8 @@ class AmSessionContainer : public AmThread
   void setCPSLimit(unsigned int limit);
 
   /** Set the maximum number of calls per second to be accepted as a percent
-   * of the current CPS. Intented to be used by the components. 0 means turning
-   * off the soft limit.
+   * of the current CPS. Intented to be used by the components. 0 means
+   * turning off the soft limit.
    */
   void setCPSSoftLimit(unsigned int percent);
 

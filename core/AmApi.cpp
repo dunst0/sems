@@ -62,8 +62,8 @@ AmSession* AmSessionFactory::onInvite(const AmSipRequest& req,
   return onInvite(req, app_name, app_params);
 }
 
-AmSession* AmSessionFactory::onRefer(const AmSipRequest& req,
-                                     const string&       app_name,
+AmSession* AmSessionFactory::onRefer(const AmSipRequest&        req,
+                                     const string&              app_name,
                                      const map<string, string>& app_params)
 {
   throw AmSession::Exception(488, "Not accepted here");

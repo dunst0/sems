@@ -52,7 +52,7 @@ class AmAudioMixer
 {
   AmMultiPartyMixer mixer;
 
-  AmMutex srcsink_mut;
+  AmMutex                                        srcsink_mut;
   std::map<AmAudioMixerConnector*, unsigned int> sources;
 
   unsigned int           sink_channel;
@@ -64,7 +64,7 @@ class AmAudioMixer
   ~AmAudioMixer();
 
   AmAudio* addSource(int external_sample_rate);
-  void releaseSource(AmAudio* s);
+  void     releaseSource(AmAudio* s);
 
   void addSink(AmAudio* s);
   void releaseSink(AmAudio* s);

@@ -104,8 +104,8 @@ void LowcFE::addtohistory(short int* s)
      * to smooth the transition between the synthetic
      * and real signal.
      */
-    unsigned int olen        = poverlap + (erasecnt - 1) * EOVERLAPINCR;
-    if (olen > FRAMESZ) olen = FRAMESZ;
+    unsigned int olen = poverlap + (erasecnt - 1) * EOVERLAPINCR;
+    if (olen > FRAMESZ) olen= FRAMESZ;
     getfespeech(overlapbuf, olen);
     overlapaddatend(s, overlapbuf, olen);
     erasecnt = 0;
@@ -209,8 +209,8 @@ int LowcFE::findpitch()
     rp += NDEC;
     corr = 0.f;
     for (i = 0; i < (int) (CORRLEN); i += NDEC) corr += rp[i] * l[i];
-    scale  = energy;
-    if (scale < CORRMINPOWER) scale = CORRMINPOWER;
+    scale = energy;
+    if (scale < CORRMINPOWER) scale= CORRMINPOWER;
     corr /= (Float) sqrt(scale);
     if (corr >= bestcorr) {
       bestcorr  = corr;
@@ -218,19 +218,19 @@ int LowcFE::findpitch()
     }
   }
   /* fine search */
-  j                            = bestmatch - (NDEC - 1);
-  if (j < 0) j                 = 0;
-  k                            = bestmatch + (NDEC - 1);
-  if (k > (int) (PITCHDIFF)) k = PITCHDIFF;
-  rp                           = &r[j];
-  energy                       = 0.f;
-  corr                         = 0.f;
+  j = bestmatch - (NDEC - 1);
+  if (j < 0) j= 0;
+  k = bestmatch + (NDEC - 1);
+  if (k > (int) (PITCHDIFF)) k= PITCHDIFF;
+  rp     = &r[j];
+  energy = 0.f;
+  corr   = 0.f;
   for (i = 0; i < (int) (CORRLEN); i++) {
     energy += rp[i] * rp[i];
     corr += rp[i] * l[i];
   }
-  scale                           = energy;
-  if (scale < CORRMINPOWER) scale = CORRMINPOWER;
+  scale = energy;
+  if (scale < CORRMINPOWER) scale= CORRMINPOWER;
 
   corr      = corr / (Float) sqrt(scale);
   bestcorr  = corr;
@@ -241,9 +241,9 @@ int LowcFE::findpitch()
     rp++;
     corr = 0.f;
     for (i = 0; i < (int) (CORRLEN); i++) corr += rp[i] * l[i];
-    scale  = energy;
-    if (scale < CORRMINPOWER) scale = CORRMINPOWER;
-    corr                            = corr / (Float) sqrt(scale);
+    scale = energy;
+    if (scale < CORRMINPOWER) scale= CORRMINPOWER;
+    corr = corr / (Float) sqrt(scale);
     if (corr > bestcorr) {
       bestcorr  = corr;
       bestmatch = j;
@@ -259,8 +259,8 @@ int LowcFE::findpitch()
 void LowcFE::getfespeech(short int* out, int sz)
 {
   while (sz) {
-    int cnt           = pitchblen - poffset;
-    if (cnt > sz) cnt = sz;
+    int cnt = pitchblen - poffset;
+    if (cnt > sz) cnt= sz;
     convertfs(&pitchbufstart[poffset], out, cnt);
     poffset += cnt;
     if (poffset == pitchblen) poffset = 0;
@@ -291,7 +291,7 @@ void LowcFE::overlapadd(Float* l, Float* r, Float* o, int cnt)
     if (t > 32767.)
       t = 32767.;
     else if (t < -32768.)
-      t  = -32768.;
+      t = -32768.;
     o[i] = t;
     lw -= incr;
     rw += incr;
@@ -308,7 +308,7 @@ void LowcFE::overlapadd(short int* l, short int* r, short int* o, int cnt)
     if (t > 32767.)
       t = 32767.;
     else if (t < -32768.)
-      t  = -32768.;
+      t = -32768.;
     o[i] = (short int) t;
     lw -= incr;
     rw += incr;
@@ -321,18 +321,18 @@ void LowcFE::overlapadd(short int* l, short int* r, short int* o, int cnt)
  */
 void LowcFE::overlapaddatend(short int* s, short int* f, int cnt)
 {
-  Float incr          = (Float) 1. / cnt;
-  Float gain          = (Float) 1. - (erasecnt - 1) * ATTENFAC;
-  if (gain < 0.) gain = (Float) 0.;
-  Float incrg         = incr * gain;
-  Float lw            = ((Float) 1. - incr) * gain;
-  Float rw            = incr;
+  Float incr = (Float) 1. / cnt;
+  Float gain = (Float) 1. - (erasecnt - 1) * ATTENFAC;
+  if (gain < 0.) gain= (Float) 0.;
+  Float incrg = incr * gain;
+  Float lw    = ((Float) 1. - incr) * gain;
+  Float rw    = incr;
   for (int i = 0; i < cnt; i++) {
     Float t = lw * f[i] + rw * s[i];
     if (t > 32767.)
       t = 32767.;
     else if (t < -32768.)
-      t  = -32768.;
+      t = -32768.;
     s[i] = (short int) t;
     lw -= incrg;
     rw += incr;

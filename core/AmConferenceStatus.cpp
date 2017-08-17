@@ -38,7 +38,7 @@ using std::string;
 using std::map;
 
 map<string, AmConferenceStatus*> AmConferenceStatus::cid2status;
-AmMutex AmConferenceStatus::cid2s_mut;
+AmMutex                          AmConferenceStatus::cid2s_mut;
 
 //
 // static methods
@@ -72,8 +72,8 @@ size_t AmConferenceStatus::getConferenceSize(const string& cid)
   cid2s_mut.lock();
   map<string, AmConferenceStatus*>::iterator it = cid2status.find(cid);
 
-  size_t res                      = 0;
-  if (it != cid2status.end()) res = it->second->channels.size();
+  size_t res = 0;
+  if (it != cid2status.end()) res= it->second->channels.size();
 
   cid2s_mut.unlock();
 

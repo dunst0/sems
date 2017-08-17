@@ -239,7 +239,7 @@ class AmBasicSipDialog : public AmObject
   virtual void setStatus(Status new_status);
 
   virtual const char* getStatusStr();
-  static const char* getStatusStr(Status st);
+  static const char*  getStatusStr(Status st);
 
   unsigned int getUsages() { return usages; }
   void         incUsages() { usages++; }
@@ -252,70 +252,70 @@ class AmBasicSipDialog : public AmObject
   virtual void setLocalTag(const std::string& n_tag) { local_tag = n_tag; }
 
   const std::string& getRemoteTag() const { return remote_tag; }
-  virtual void setRemoteTag(const std::string& n_tag);
+  virtual void       setRemoteTag(const std::string& n_tag);
 
   const std::string& get1stBranch() const { return first_branch; }
-  virtual void set1stBranch(const std::string& n_branch)
+  virtual void       set1stBranch(const std::string& n_branch)
   {
     first_branch = n_branch;
   }
 
   const std::string& getExtLocalTag() const { return ext_local_tag; }
-  virtual void setExtLocalTag(const std::string& new_ext_tag)
+  virtual void       setExtLocalTag(const std::string& new_ext_tag)
   {
     ext_local_tag = new_ext_tag;
   }
 
   const std::string& getContactParams() const { return contact_params; }
-  virtual void setContactParams(const std::string& new_contact_params)
+  virtual void       setContactParams(const std::string& new_contact_params)
   {
     contact_params = new_contact_params;
   }
 
   const AmUriParser& getContact() const { return contact; }
-  virtual void setContact(const AmUriParser& new_contact)
+  virtual void       setContact(const AmUriParser& new_contact)
   {
     contact = new_contact;
   }
 
   const std::string& getUser() const { return user; }
-  virtual void setUser(const std::string& new_user) { user = new_user; }
+  virtual void       setUser(const std::string& new_user) { user = new_user; }
 
   const std::string& getDomain() const { return domain; }
   virtual void setDomain(const std::string& new_domain) { domain = new_domain; }
 
   const std::string& getLocalUri() const { return local_uri; }
-  virtual void setLocalUri(const std::string& new_local_uri)
+  virtual void       setLocalUri(const std::string& new_local_uri)
   {
     local_uri = new_local_uri;
   }
 
   const std::string& getRemoteUri() const { return remote_uri; }
-  virtual void setRemoteUri(const std::string& new_remote_uri)
+  virtual void       setRemoteUri(const std::string& new_remote_uri)
   {
     remote_uri = new_remote_uri;
   }
 
   const std::string& getLocalParty() const { return local_party; }
-  virtual void setLocalParty(const std::string& new_local_party)
+  virtual void       setLocalParty(const std::string& new_local_party)
   {
     local_party = new_local_party;
   }
 
   const std::string& getRemoteParty() const { return remote_party; }
-  virtual void setRemoteParty(const std::string& new_remote_party)
+  virtual void       setRemoteParty(const std::string& new_remote_party)
   {
     remote_party = new_remote_party;
   }
 
   const std::string& getRemoteUA() const { return remote_ua; }
-  virtual void setRemoteUA(const std::string& new_remote_ua)
+  virtual void       setRemoteUA(const std::string& new_remote_ua)
   {
     remote_ua = new_remote_ua;
   }
 
   const std::string& getRouteSet() const { return route; }
-  virtual void setRouteSet(const std::string& new_rs) { route = new_rs; }
+  virtual void       setRouteSet(const std::string& new_rs) { route = new_rs; }
 
   const std::string& getNextHop() const { return next_hop; }
   virtual void setNextHop(const std::string& new_nh) { next_hop = new_nh; }

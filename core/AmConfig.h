@@ -133,8 +133,8 @@ struct AmConfig
     AmMutex next_rtp_port_mutex;
   };
 
-  static std::vector<SIP_interface>  SIP_Ifs;
-  static std::vector<RTP_interface*> RTP_Ifs;
+  static std::vector<SIP_interface>                SIP_Ifs;
+  static std::vector<RTP_interface*>               RTP_Ifs;
   static std::map<std::string, unsigned short int> SIP_If_names;
   static std::map<std::string, unsigned short int> RTP_If_names;
   static std::map<std::string, unsigned short int> LocalSIPIP2If;
@@ -193,7 +193,8 @@ struct AmConfig
   static bool NextHop1stReq;
   /** update ruri-host to previously resolved IP:port on SIP auth */
   static bool ProxyStickyAuth;
-  /** force the outbound network interface / short-circuit the routing table */
+  /** force the outbound network interface / short-circuit the routing table
+   */
   static bool ForceOutboundIf;
   /** force comedia style remote address learning */
   static bool ForceSymmetricRtp;
@@ -250,17 +251,17 @@ struct AmConfig
   static unsigned int ShutdownModeErrCode;
   static std::string  ShutdownModeErrReason;
 
-  /** header containing the transcoder's outgoing codec statistics which should
-   * be present in replies to OPTIONS requests */
+  /** header containing the transcoder's outgoing codec statistics which
+   * should be present in replies to OPTIONS requests */
   static std::string OptionsTranscoderOutStatsHdr;
-  /** header containing the transcoder's incoming codec statistics which should
-   * be present in replies to OPTIONS requests */
+  /** header containing the transcoder's incoming codec statistics which
+   * should be present in replies to OPTIONS requests */
   static std::string OptionsTranscoderInStatsHdr;
-  /** header containing the transcoder's outgoing codec statistics which should
-   * be present in every message leaving server */
+  /** header containing the transcoder's outgoing codec statistics which
+   * should be present in every message leaving server */
   static std::string TranscoderOutStatsHdr;
-  /** header containing the transcoder's incoming codec statistics which should
-   * be present in every message leaving server */
+  /** header containing the transcoder's incoming codec statistics which
+   * should be present in every message leaving server */
   static std::string TranscoderInStatsHdr;
 
   static bool        DumpConferenceStreams;
@@ -316,7 +317,8 @@ struct AmConfig
   /** Setter for parameter SessionProcessorThreads, returns 0 on invalid value
    */
   static int setSessionProcessorThreads(const std::string& th);
-  /** Setter for parameter MediaProcessorThreads, returns 0 on invalid value */
+  /** Setter for parameter MediaProcessorThreads, returns 0 on invalid value
+   */
   static int setMediaProcessorThreads(const std::string& th);
   /** Setter for parameter RTPReceiverThreads, returns 0 on invalid value */
   static int setRTPReceiverThreads(const std::string& th);

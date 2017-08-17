@@ -80,7 +80,7 @@ class AmRtpPacket
 
   unsigned int   getBufferSize() const { return b_size; }
   unsigned char* getBuffer();
-  void setBufferSize(unsigned int b) { b_size = b; }
+  void           setBufferSize(unsigned int b) { b_size = b; }
 
   void logReceived(msg_logger* logger, struct sockaddr_storage* laddr);
   void logSent(msg_logger* logger, struct sockaddr_storage* laddr);

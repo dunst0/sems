@@ -32,24 +32,24 @@ using std::vector;
 using std::pair;
 using std::mismatch;
 
-static void parse_session_attr(AmSdp* sdp_msg, char* s, char** next);
-static bool parse_sdp_line_ex(AmSdp* sdp_msg, char*& s);
+static void  parse_session_attr(AmSdp* sdp_msg, char* s, char** next);
+static bool  parse_sdp_line_ex(AmSdp* sdp_msg, char*& s);
 static char* parse_sdp_connection(AmSdp* sdp_msg, char* s, char t);
-static void parse_sdp_media(AmSdp* sdp_msg, char* s);
+static void  parse_sdp_media(AmSdp* sdp_msg, char* s);
 static char* parse_sdp_attr(AmSdp* sdp_msg, char* s);
-static void parse_sdp_origin(AmSdp* sdp_masg, char* s);
+static void  parse_sdp_origin(AmSdp* sdp_masg, char* s);
 
 inline char* get_next_line(char* s);
 inline char* skip_till_next_line(char* s, size_t& line_len);
 static char* is_eql_next(char* s);
 static char* parse_until(char* s, char end);
 static char* parse_until(char* s, char* end, char c);
-static bool contains(char* s, char* next_line, char c);
-static bool is_wsp(char s);
+static bool  contains(char* s, char* next_line, char c);
+static bool  is_wsp(char s);
 
 static MediaType media_type(string media);
 static TransProt transport_type(string transport);
-static bool attr_check(string attr);
+static bool      attr_check(string attr);
 
 enum parse_st
 {
@@ -560,9 +560,9 @@ void SdpMedia::calcAnswer(const AmPayloadProvider* payload_prov,
   if (!send) answer.recv = false;
 
   switch (dir) {
-    case SdpMedia::DirBoth: answer.dir      = SdpMedia::DirBoth; break;
-    case SdpMedia::DirActive: answer.dir    = SdpMedia::DirPassive; break;
-    case SdpMedia::DirPassive: answer.dir   = SdpMedia::DirActive; break;
+    case SdpMedia::DirBoth: answer.dir = SdpMedia::DirBoth; break;
+    case SdpMedia::DirActive: answer.dir = SdpMedia::DirPassive; break;
+    case SdpMedia::DirPassive: answer.dir = SdpMedia::DirActive; break;
     case SdpMedia::DirUndefined: answer.dir = SdpMedia::DirUndefined; break;
   }
 
@@ -618,7 +618,8 @@ static bool parse_sdp_line_ex(AmSdp* sdp_msg, char*& s)
             if (line_len) {
               string version(s, line_len);
               str2i(version, sdp_msg->version);
-              //	    DBG("parse_sdp_line_ex: found version '%s'\n",
+              //	    DBG("parse_sdp_line_ex: found version
+              //'%s'\n",
               // version.c_str());
             }
             else {
@@ -699,7 +700,8 @@ static bool parse_sdp_line_ex(AmSdp* sdp_msg, char*& s)
 
             next = skip_till_next_line(s, line_len);
             if (line_len) {
-              DBG("parse_sdp_line: skipping unknown Session description %s=\n",
+              DBG("parse_sdp_line: skipping unknown Session "
+                  "description %s=\n",
                   string(s, line_len).c_str());
             }
             s = next;
@@ -746,7 +748,8 @@ static bool parse_sdp_line_ex(AmSdp* sdp_msg, char*& s)
           default: {
             next = skip_till_next_line(s, line_len);
             if (line_len) {
-              DBG("parse_sdp_line: skipping unknown Media description '%.*s'\n",
+              DBG("parse_sdp_line: skipping unknown Media "
+                  "description '%.*s'\n",
                   (int) line_len, s);
             }
             s = next;
@@ -805,7 +808,8 @@ static char* parse_sdp_connection(AmSdp* sdp_msg, char* s, char t)
           state      = IP6;
         }
         else {
-          DBG("parse_sdp_connection: Unknown addr_type in c-line: '%s'\n",
+          DBG("parse_sdp_connection: Unknown addr_type in c-line: "
+              "'%s'\n",
               addr_type.c_str());
           c.addrType = AT_NONE;
           parsing    = 0; // ???
@@ -866,7 +870,8 @@ static void parse_sdp_media(AmSdp* sdp_msg, char* s)
   SdpPayload   payload;
   unsigned int payload_type;
 
-  // DBG("parse_sdp_line_ex: parse_sdp_media: parsing media description...\n");
+  // DBG("parse_sdp_line_ex: parse_sdp_media: parsing media
+  // description...\n");
   m.dir = SdpMedia::DirBoth;
 
   while (parsing) {
@@ -876,7 +881,7 @@ static void parse_sdp_media(AmSdp* sdp_msg, char* s)
         string media;
         if (next > media_line)
           media = string(media_line, int(next - media_line) - 1);
-        m.type  = media_type(media);
+        m.type = media_type(media);
         if (m.type == MT_NONE) {
           ERROR("parse_sdp_media: Unknown media type\n");
         }
@@ -1242,7 +1247,8 @@ static char* parse_sdp_attr(AmSdp* sdp_msg, char* s)
     // if (value.empty()) {
     //   DBG("got media attribute '%s'\n", attr.c_str());
     // } else {
-    //   DBG("got media attribute '%s':'%s'\n", attr.c_str(), value.c_str());
+    //   DBG("got media attribute '%s':'%s'\n", attr.c_str(),
+    //   value.c_str());
     // }
     media.attributes.push_back(SdpAttribute(attr, value));
   }
@@ -1270,7 +1276,8 @@ static void parse_sdp_origin(AmSdp* sdp_msg, char* s)
       case USER: {
         next = parse_until(origin_line, ' ');
         if (next > line_end) {
-          DBG("parse_sdp_origin: ST_USER: Incorrect number of value in o=\n");
+          DBG("parse_sdp_origin: ST_USER: Incorrect number of value "
+              "in o=\n");
           origin_st = UNICAST_ADDR;
           break;
         }
@@ -1283,7 +1290,8 @@ static void parse_sdp_origin(AmSdp* sdp_msg, char* s)
       case ID: {
         next = parse_until(origin_line, ' ');
         if (next > line_end) {
-          DBG("parse_sdp_origin: ST_ID: Incorrect number of value in o=\n");
+          DBG("parse_sdp_origin: ST_ID: Incorrect number of value in "
+              "o=\n");
           origin_st = UNICAST_ADDR;
           break;
         }
@@ -1296,7 +1304,8 @@ static void parse_sdp_origin(AmSdp* sdp_msg, char* s)
       case VERSION_ST: {
         next = parse_until(origin_line, ' ');
         if (next > line_end) {
-          DBG("parse_sdp_origin: ST_VERSION: Incorrect number of value in "
+          DBG("parse_sdp_origin: ST_VERSION: Incorrect number of "
+              "value in "
               "o=\n");
           origin_st = UNICAST_ADDR;
           break;
@@ -1310,7 +1319,8 @@ static void parse_sdp_origin(AmSdp* sdp_msg, char* s)
       case NETTYPE: {
         next = parse_until(origin_line, ' ');
         if (next > line_end) {
-          DBG("parse_sdp_origin: ST_NETTYPE: Incorrect number of value in "
+          DBG("parse_sdp_origin: ST_NETTYPE: Incorrect number of "
+              "value in "
               "o=\n");
           origin_st = UNICAST_ADDR;
           break;
@@ -1324,7 +1334,8 @@ static void parse_sdp_origin(AmSdp* sdp_msg, char* s)
       case ADDR: {
         next = parse_until(origin_line, ' ');
         if (next > line_end) {
-          DBG("parse_sdp_origin: ST_ADDR: Incorrect number of value in o=\n");
+          DBG("parse_sdp_origin: ST_ADDR: Incorrect number of value "
+              "in o=\n");
           origin_st = UNICAST_ADDR;
           break;
         }
@@ -1337,7 +1348,8 @@ static void parse_sdp_origin(AmSdp* sdp_msg, char* s)
           origin.conn.addrType = AT_V6;
         }
         else {
-          DBG("parse_sdp_connection: Unknown addr_type in o line: '%s'\n",
+          DBG("parse_sdp_connection: Unknown addr_type in o line: "
+              "'%s'\n",
               addr_type.c_str());
           origin.conn.addrType = AT_NONE;
         }
@@ -1356,7 +1368,8 @@ static void parse_sdp_origin(AmSdp* sdp_msg, char* s)
             origin.conn.address = string(origin_line, addr_len);
           }
           else {
-            DBG("parse_sdp_origin: 'o=' contains more values than allowed; "
+            DBG("parse_sdp_origin: 'o=' contains more values than "
+                "allowed; "
                 "these values will be ignored\n");
             origin.conn.address =
                 string(origin_line, int(next - origin_line) - 1);

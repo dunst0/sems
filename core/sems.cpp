@@ -341,7 +341,7 @@ int set_fd_limit()
  */
 int main(int argc, char* argv[])
 {
-  int success = false;
+  int               success = false;
   map<char, string> args;
 #ifndef DISABLE_DAEMON_MODE
   int fd[2] = {0, 0};
@@ -431,9 +431,8 @@ int main(int argc, char* argv[])
   if (AmConfig::DaemonMode) {
 #ifdef PROPAGATE_COREDUMP_SETTINGS
     struct rlimit lim;
-    bool          have_limit = false;
-    if (getrlimit(RLIMIT_CORE, &lim) == 0) have_limit = true;
-    int dumpable = prctl(PR_GET_DUMPABLE, 0, 0, 0, 0);
+    bool          have_limit = getrlimit(RLIMIT_CORE, &lim) == 0;
+    int           dumpable   = prctl(PR_GET_DUMPABLE, 0, 0, 0, 0);
 #endif
 
     if (!AmConfig::DaemonGid.empty()) {

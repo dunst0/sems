@@ -84,9 +84,10 @@ void AmPeriodicThread::infinite_loop(struct timeval* tick,
 
       // missed too many ticks: resync
       if (ticks_passed > max_ticks_behind) {
-        // resync to clock if clock is farther than max_behind_tick in the
-        // future
-        WARN("clock drift detected (missed %d ticks), resetting sw clock\n",
+        // resync to clock if clock is farther than max_behind_tick in
+        // the future
+        WARN("clock drift detected (missed %d ticks), resetting sw "
+             "clock\n",
              ticks_passed);
         next_tick = now;
       }

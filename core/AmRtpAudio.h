@@ -68,7 +68,8 @@ class AmPLCBuffer
 /** \brief RTP audio format */
 class AmAudioRtpFormat : public AmAudioFormat
 {
-  /** Sampling rate as advertized in SDP (differs from actual rate for G722) **/
+  /** Sampling rate as advertized in SDP (differs from actual rate for G722)
+   * **/
   unsigned int advertized_rate;
 
  protected:

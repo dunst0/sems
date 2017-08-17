@@ -96,7 +96,7 @@ class AmPlugIn : public AmPayloadProvider
   std::map<std::string, amci_inoutfmt_t*> file_formats;
 
   std::map<std::string, AmSessionFactory*> name2app;
-  AmMutex name2app_mut;
+  AmMutex                                  name2app_mut;
 
   std::map<std::string, AmSessionEventHandlerFactory*> name2seh;
   std::map<std::string, AmPluginFactory*>              name2base;

@@ -107,7 +107,7 @@ AmCachedAudioFile* AudioFileEntry::getAudio()
 
 bool AmPromptCollection::hasPrompt(const string& name)
 {
-  string s = name;
+  string                                 s  = name;
   map<string, AudioFileEntry*>::iterator it = store.begin();
 
   while (it != store.end()) {
@@ -120,7 +120,7 @@ bool AmPromptCollection::hasPrompt(const string& name)
 int AmPromptCollection::addToPlaylist(const string& name, long int sess_id,
                                       AmPlaylist& list, bool front, bool loop)
 {
-  string s = name;
+  string                                 s  = name;
   map<string, AudioFileEntry*>::iterator it = store.begin();
 
   while (it != store.end()) {

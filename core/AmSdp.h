@@ -274,17 +274,17 @@ class RtcpAddress
 {
  private:
   std::string nettype, addrtype, address;
-  bool parse(const std::string& src);
-  int port;
+  bool        parse(const std::string& src);
+  int         port;
 
  public:
   RtcpAddress(const std::string& attr_value);
-  bool hasAddress() { return !address.empty(); }
-  void setAddress(const std::string& addr) { address = addr; }
-  const std::string&                 getAddress() { return address; }
-  void setPort(int _port) { port = _port; }
-  int              getPort() { return port; }
-  std::string      print();
+  bool               hasAddress() { return !address.empty(); }
+  void               setAddress(const std::string& addr) { address = addr; }
+  const std::string& getAddress() { return address; }
+  void               setPort(int _port) { port = _port; }
+  int                getPort() { return port; }
+  std::string        print();
 };
 
 /**

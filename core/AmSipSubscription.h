@@ -136,15 +136,15 @@ class SingleSubscription
 
   virtual ~SingleSubscription();
 
-  bool onRequestIn(const AmSipRequest& req);
-  void onRequestSent(const AmSipRequest& req);
+  bool         onRequestIn(const AmSipRequest& req);
+  void         onRequestSent(const AmSipRequest& req);
   virtual void replyFSM(const AmSipRequest& req, const AmSipReply& reply);
 
   unsigned int getState() { return sub_state; }
   virtual void setState(unsigned int st);
 
   unsigned long int getExpires() { return expires; }
-  void setExpires(unsigned long int exp);
+  void              setExpires(unsigned long int exp);
 
   void terminate();
   bool terminated();
@@ -161,7 +161,7 @@ class SingleSubscription
 class AmSipSubscription
 {
  protected:
-  typedef std::list<SingleSubscription*> Subscriptions;
+  typedef std::list<SingleSubscription*>                  Subscriptions;
   typedef std::map<unsigned int, Subscriptions::iterator> CSeqMap;
 
   AmBasicSipDialog* dlg;
@@ -172,14 +172,14 @@ class AmSipSubscription
 
   bool allow_subless_notify;
 
-  SingleSubscription* makeSubscription(const AmSipRequest& req, bool uac);
+  SingleSubscription*     makeSubscription(const AmSipRequest& req, bool uac);
   Subscriptions::iterator createSubscription(const AmSipRequest& req, bool uac);
   Subscriptions::iterator matchSubscription(const AmSipRequest& req, bool uac);
   Subscriptions::iterator findSubscription(SingleSubscription::Role role,
                                            const std::string&       event,
                                            const std::string&       id);
-  void removeSubFromUACCSeqMap(Subscriptions::iterator sub);
-  void removeSubFromUASCSeqMap(Subscriptions::iterator sub);
+  void                    removeSubFromUACCSeqMap(Subscriptions::iterator sub);
+  void                    removeSubFromUASCSeqMap(Subscriptions::iterator sub);
 
   virtual void removeSubscription(Subscriptions::iterator sub);
 

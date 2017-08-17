@@ -42,7 +42,7 @@ class AmBufferedAudio : public AmAudio
   bool eof;
   int  err_code;
 
-  void input_get_audio(unsigned int user_ts);
+  void        input_get_audio(unsigned int user_ts);
   inline void allocateBuffer();
   inline void releaseBuffer();
 

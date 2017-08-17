@@ -83,9 +83,9 @@ class AmPromptCollection
    * @param announcements : name, default file for announcement
    */
   int configureModule(
-      AmConfigReader& cfg,
+      AmConfigReader&                                   cfg,
       std::vector<std::pair<std::string, std::string>>& announcements,
-      const char* mod_name);
+      const char*                                       mod_name);
   /**
    * add a prompt with explicit filename
    */
@@ -122,7 +122,7 @@ class AudioFileEntry : public AmAudioFile
   AudioFileEntry();
   ~AudioFileEntry();
 
-  int load(const std::string& filename);
+  int  load(const std::string& filename);
   bool isOpen() { return isopen; }
 
   AmCachedAudioFile* getAudio();
