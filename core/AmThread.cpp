@@ -68,9 +68,9 @@ void* AmThread::threadStart(void* self)
   AmThread* _this = (AmThread*) self;
   _this->pid      = (unsigned long int) _this->thread_id;
 
-  DBG("Thread (%s_%lu) is starting.\n", _this->thread_name, _this->pid);
+  DBG("Thread (%s_%lu) is starting.\n", _this->thread_name.c_str(), _this->pid);
   _this->run();
-  DBG("Thread (%s_%lu) is ending.\n", _this->thread_name, _this->pid);
+  DBG("Thread (%s_%lu) is ending.\n", _this->thread_name.c_str(), _this->pid);
 
   return NULL;
 }
@@ -85,7 +85,7 @@ void AmThread::start()
   running.lock();
   if (running.unsafe_get()) {
     running.unlock();
-    ERROR("Thread (%s_%lu) is already running\n", thread_name, pid);
+    ERROR("Thread (%s_%lu) is already running\n", thread_name.c_str(), pid);
     return;
   }
   running.unsafe_set(true);
@@ -99,7 +99,7 @@ void AmThread::start()
   pthread_attr_destroy(&attr);
 
   if (res == 0) {
-    DBG("Thread (%s_%lu) is just created.\n", thread_name,
+    DBG("Thread (%s_%lu) is just created.\n", thread_name.c_str(),
         (unsigned long int) thread_id);
   }
   else {
@@ -133,8 +133,8 @@ void AmThread::stop()
     return;
   }
 
-  DBG("Thread (%s_%lu) calling on_stop, give it a chance to clean up.\n", thread_name,
-      pid);
+  DBG("Thread (%s_%lu) calling on_stop, give it a chance to clean up.\n",
+      thread_name.c_str(), pid);
 
   try {
     on_stop();
@@ -159,7 +159,7 @@ void AmThread::cancel()
   int res = pthread_cancel(thread_id);
 
   if (res == 0) {
-    DBG("Thread (%s_%lu) is canceled.\n", thread_name, pid);
+    DBG("Thread (%s_%lu) is canceled.\n", thread_name.c_str(), pid);
     running.set(false);
   }
   else if (res == ESRCH) {
@@ -182,7 +182,7 @@ void AmThread::detach()
   int res = pthread_detach(thread_id);
 
   if (res == 0) {
-    DBG("Thread (%s_%lu) finished detach.\n", thread_name, pid);
+    DBG("Thread (%s_%lu) finished detach.\n", thread_name.c_str(), pid);
   }
   else if (res == EINVAL) {
     WARN("The thread id does not refer to a joinable thread\n");
@@ -207,7 +207,7 @@ void AmThread::join()
   int res = pthread_join(thread_id, NULL);
 
   if (res == 0) {
-    DBG("Thread (%s_%lu) successfull joined.\n", thread_name, pid);
+    DBG("Thread (%s_%lu) successfull joined.\n", thread_name.c_str(), pid);
   }
   else if (res == EINVAL) {
     WARN("The thread id does not refer to a joinable thread\n");

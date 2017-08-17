@@ -47,10 +47,7 @@ class AmEventQueueWorker
   void on_stop();
 
  public:
-  AmEventQueueWorker()
-  {
-    thread_name = "EventQueueWorker";
-  }
+  AmEventQueueWorker() { thread_name = "EventQueueWorker"; }
   ~AmEventQueueWorker() {}
 
   // AmEventNotificationSink interface
