@@ -658,6 +658,7 @@ error:
   if (AmConfig::DaemonMode) {
     unlink(AmConfig::DaemonPidFile.c_str());
   }
+
   if (fd[1]) {
     main_pid = -1;
     DBG("send -1 to parent\n");
@@ -669,5 +670,6 @@ error:
   sip_ctrl.cleanup();
 
   INFO("Exiting (%s)\n", success ? "success" : "failure");
-  return (success ? EXIT_SUCCESS : EXIT_FAILURE);
+
+  return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

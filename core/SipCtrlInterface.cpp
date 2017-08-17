@@ -393,9 +393,7 @@ int _SipCtrlInterface::run()
     }
   }
 
-  while (!stopped.get()) {
-    stopped.wait_for();
-  }
+  stopped.wait_for();
 
   DBG("SIP control interface ending\n");
   return 0;

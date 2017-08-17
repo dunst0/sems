@@ -35,6 +35,7 @@
 #include <time.h>
 
 #include <queue>
+#include <string>
 
 /**
  * \brief C++ Wrapper class for pthread mutex
@@ -215,6 +216,7 @@ class AmThread
   static void* threadStart(void* self);
 
  protected:
+  std::string        thread_name;
   AmCondition<bool>& getRunCondition();
   virtual void       run()     = 0;
   virtual void       on_stop() = 0;
