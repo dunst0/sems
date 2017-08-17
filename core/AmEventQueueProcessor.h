@@ -49,7 +49,7 @@ class AmEventQueueWorker
  public:
   AmEventQueueWorker()
   {
-    name = "EventQueueWorker";
+    thread_name = "EventQueueWorker";
   }
   ~AmEventQueueWorker() {}
 
