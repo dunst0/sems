@@ -277,8 +277,9 @@ int _SipCtrlInterface::send(AmSipRequest& req, const string& dialog_id,
                             const string& next_hop, int out_interface,
                             unsigned int flags, msg_logger* logger)
 {
-  if (req.method == "CANCEL"){
-    return cancel(&req.tt, dialog_id, req.cseq, req.hdrs);}
+  if (req.method == "CANCEL") {
+    return cancel(&req.tt, dialog_id, req.cseq, req.hdrs);
+  }
 
   sip_msg* msg = new sip_msg();
 
