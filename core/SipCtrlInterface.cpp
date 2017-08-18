@@ -262,7 +262,6 @@ _SipCtrlInterface::_SipCtrlInterface()
     , nr_tcp_servers(0)
     , tcp_servers(NULL)
 {
-  thread_name = "SipCtrlInterface";
   trans_layer::instance()->register_ua(this);
 }
 
