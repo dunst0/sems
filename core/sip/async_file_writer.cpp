@@ -3,6 +3,7 @@
 _async_file_writer::_async_file_writer()
 {
   evbase = event_base_new();
+  thread_name = "async_file_writer";
 
   // fake event to prevent the event loop from exiting
   ev_default = event_new(evbase, -1, EV_READ | EV_PERSIST, NULL, NULL);
