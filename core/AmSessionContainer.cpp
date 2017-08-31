@@ -56,6 +56,7 @@ AmSessionContainer::AmSessionContainer()
     , CPSLimit(0)
     , CPSHardLimit(0)
 {
+  thread_name = "SessionContainer";
 }
 
 AmSessionContainer* AmSessionContainer::instance()
