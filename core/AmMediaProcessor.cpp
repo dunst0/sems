@@ -235,7 +235,7 @@ void AmMediaProcessor::dispose()
 AmMediaProcessorThread::AmMediaProcessorThread()
     : events(this)
 {
-  thread_name = "MediaProcessor";
+  thread_name = "MediaProcessorThread";
 }
 
 AmMediaProcessorThread::~AmMediaProcessorThread() {}

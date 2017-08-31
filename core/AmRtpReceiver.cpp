@@ -51,6 +51,7 @@ AmRtpReceiverThread::AmRtpReceiverThread()
 {
   // libevent event base
   ev_base = event_base_new();
+  thread_name = "RtpReceiverThread";
 }
 
 AmRtpReceiverThread::~AmRtpReceiverThread()
