@@ -311,6 +311,12 @@ void udp_trsp::run()
     return;
   }
 
+  struct timeval tv;
+  tv.tv_sec  = 30;
+  tv.tv_usec = 0;
+  setsockopt(sock->get_sd(), SOL_SOCKET, SO_RCVTIMEO, (const char*) &tv,
+             sizeof(struct timeval));
+
   INFO("Started SIP server UDP transport on %s:%i\n", sock->get_ip(),
        sock->get_port());
 
