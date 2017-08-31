@@ -920,10 +920,3 @@ void _SipCtrlInterface::prepare_routes_uas(const list<sip_header*>& routes,
     }
   }
 }
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 4
- * End:
- */

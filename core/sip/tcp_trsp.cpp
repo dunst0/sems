@@ -467,6 +467,7 @@ tcp_server_worker::tcp_server_worker(tcp_server_socket* server_sock)
     : server_sock(server_sock)
 {
   evbase = event_base_new();
+  thread_name = "tcp_server_worker";
 }
 
 tcp_server_worker::~tcp_server_worker() { event_base_free(evbase); }
@@ -759,6 +760,7 @@ tcp_trsp::tcp_trsp(tcp_server_socket* sock)
 {
   evbase = event_base_new();
   sock->add_event(evbase);
+  thread_name = "tcp_trsp";
 }
 
 tcp_trsp::~tcp_trsp()

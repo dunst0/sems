@@ -63,6 +63,7 @@ _wheeltimer::_wheeltimer()
   struct timeval now;
   gettimeofday(&now, NULL);
   unix_clock.set(now.tv_sec);
+  thread_name = "wheeltimer";
 }
 
 _wheeltimer::~_wheeltimer() {}

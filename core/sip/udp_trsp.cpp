@@ -279,6 +279,7 @@ int udp_trsp_socket::send(const sockaddr_storage* sa, const char* msg,
 udp_trsp::udp_trsp(udp_trsp_socket* sock)
     : transport(sock)
 {
+  thread_name = "udp_trsp";
 }
 
 udp_trsp::~udp_trsp() {}
