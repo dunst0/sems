@@ -62,6 +62,7 @@ AmMediaProcessor::AmMediaProcessor()
     : num_threads(0)
     , threads(NULL)
 {
+  thread_name = "MediaProcessor";
 }
 
 AmMediaProcessor::~AmMediaProcessor()
