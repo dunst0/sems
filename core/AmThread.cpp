@@ -73,7 +73,7 @@ void* AmThread::threadStart(void* self)
   _this->run();
   DBG("Thread (%s_%lu) is ending.\n", _this->thread_name.c_str(), _this->pid);
 
-  executing.set(false);
+  _this->executing.set(false);
 
   return NULL;
 }
