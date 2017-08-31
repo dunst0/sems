@@ -638,9 +638,6 @@ int main(int argc, char* argv[])
   dumps_transactions();
   DBG("*****************************\n");
 
-  INFO("Disposing RTP receiver\n");
-  AmRtpReceiver::dispose();
-
   INFO("Disposing media processor\n");
   AmMediaProcessor::dispose();
 
@@ -648,12 +645,16 @@ int main(int argc, char* argv[])
   AmEventDispatcher::dispose();
 
 error:
+  INFO("Disposing RTP receiver\n");
+  AmRtpReceiver::dispose();
+
   INFO("Disposing plug-ins\n");
   AmPlugIn::dispose();
 
   async_file_writer::instance()->stop();
   async_file_writer::instance()->join();
 
+  INFO("Disposing application timer scheduler\n");
   AmAppTimer::instance()->stop();
   AmAppTimer::instance()->join();
 
