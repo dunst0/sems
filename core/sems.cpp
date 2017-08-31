@@ -654,6 +654,9 @@ error:
   async_file_writer::instance()->stop();
   async_file_writer::instance()->join();
 
+  AmAppTimer::instance()->stop();
+  AmAppTimer::instance()->join();
+
 #ifndef DISABLE_DAEMON_MODE
   if (AmConfig::DaemonMode) {
     unlink(AmConfig::DaemonPidFile.c_str());
