@@ -57,7 +57,8 @@ void AmMutex::lock() { pthread_mutex_lock(&m); }
 void AmMutex::unlock() { pthread_mutex_unlock(&m); }
 
 AmThread::AmThread()
-    : running(false)
+    : executing(false)
+    , running(false)
     , run_condition(false)
     , thread_name("thread")
 {
@@ -71,6 +72,8 @@ void* AmThread::threadStart(void* self)
   DBG("Thread (%s_%lu) is starting.\n", _this->thread_name.c_str(), _this->pid);
   _this->run();
   DBG("Thread (%s_%lu) is ending.\n", _this->thread_name.c_str(), _this->pid);
+
+  executing.set(false);
 
   return NULL;
 }
@@ -88,6 +91,7 @@ void AmThread::start()
     ERROR("Thread (%s_%lu) is already running\n", thread_name.c_str(), pid);
     return;
   }
+  executing.set(true);
   running.unsafe_set(true);
   running.unlock();
 
@@ -127,9 +131,9 @@ void AmThread::start()
 
 void AmThread::stop()
 {
-  running.lock();
-  if (!running.unsafe_get()) {
-    running.unlock();
+  executing.lock();
+  if (!executing.unsafe_get()) {
+    executing.unlock();
     return;
   }
 
@@ -143,14 +147,14 @@ void AmThread::stop()
     // on purpose the thread is stopping anyway
   }
 
-  running.unsafe_set(false);
+  running.set(false);
   run_condition.set(true);
-  running.unlock();
+  executing.unlock();
 }
 
 void AmThread::cancel()
 {
-  if (!running.get()) {
+  if (!executing.get()) {
     return;
   }
 
@@ -174,7 +178,7 @@ void AmThread::cancel()
 
 void AmThread::detach()
 {
-  if (!running.get()) {
+  if (!executing.get()) {
     return;
   }
 
@@ -199,7 +203,7 @@ void AmThread::detach()
 
 void AmThread::join()
 {
-  if (!running.get()) {
+  if (!executing.get()) {
     return;
   }
 

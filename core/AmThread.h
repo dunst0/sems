@@ -210,6 +210,7 @@ class AmThread
   AmMutex           thread_mutex;
   unsigned long int pid;
 
+  AmSharedVar<bool> executing;
   AmSharedVar<bool> running;
   AmCondition<bool> run_condition;
 
