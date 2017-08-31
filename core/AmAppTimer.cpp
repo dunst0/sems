@@ -76,6 +76,7 @@ class direct_app_timer : public timer
 _AmAppTimer::_AmAppTimer()
     : direct_timers_mut(true)
 {
+  thread_name = "AppTimer";
 }
 
 _AmAppTimer::~_AmAppTimer() {}
