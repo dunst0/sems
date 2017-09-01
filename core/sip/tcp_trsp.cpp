@@ -758,9 +758,9 @@ struct timeval* tcp_server_socket::get_idle_timeout()
 tcp_trsp::tcp_trsp(tcp_server_socket* sock)
     : transport(sock)
 {
+  thread_name = "tcp_trsp";
   evbase = event_base_new();
   sock->add_event(evbase);
-  thread_name = "tcp_trsp";
 }
 
 tcp_trsp::~tcp_trsp()

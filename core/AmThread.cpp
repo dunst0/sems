@@ -85,15 +85,15 @@ void AmThread::start()
   pthread_attr_t attr;
   int            res;
 
-  running.lock();
-  if (running.unsafe_get()) {
-    running.unlock();
+  thread_mutex.lock();
+
+  if (executing.get()) {
     ERROR("Thread (%s_%lu) is already running\n", thread_name.c_str(), pid);
+    thread_mutex.unlock();
     return;
   }
   executing.set(true);
-  running.unsafe_set(true);
-  running.unlock();
+  running.set(true);
 
   pid = 0;
 
@@ -121,19 +121,23 @@ void AmThread::start()
       ERROR("pthread create failed with code %i\n", res);
     }
 
+    thread_mutex.unlock();
     throw string("Thread could not be started");
   }
 
   if (res != 0) {
     ERROR("pthread create failed with code %i\n", res);
   }
+
+  thread_mutex.unlock();
 }
 
 void AmThread::stop()
 {
-  executing.lock();
-  if (!executing.unsafe_get()) {
-    executing.unlock();
+  thread_mutex.lock();
+
+  if (!executing.get()) {
+    thread_mutex.unlock();
     return;
   }
 
@@ -149,16 +153,18 @@ void AmThread::stop()
 
   running.set(false);
   run_condition.set(true);
+
   executing.unlock();
 }
 
 void AmThread::cancel()
 {
+  thread_mutex.lock();
+
   if (!executing.get()) {
+    thread_mutex.unlock();
     return;
   }
-
-  thread_mutex.lock();
 
   int res = pthread_cancel(thread_id);
 
@@ -178,11 +184,13 @@ void AmThread::cancel()
 
 void AmThread::detach()
 {
+  thread_mutex.lock();
+
   if (!executing.get()) {
+    thread_mutex.unlock();
     return;
   }
 
-  thread_mutex.lock();
   int res = pthread_detach(thread_id);
 
   if (res == 0) {
@@ -203,11 +211,13 @@ void AmThread::detach()
 
 void AmThread::join()
 {
+  thread_mutex.lock();
+
   if (!executing.get()) {
+    thread_mutex.unlock();
     return;
   }
 
-  thread_mutex.lock();
   int res = pthread_join(thread_id, NULL);
 
   if (res == 0) {
@@ -228,7 +238,16 @@ void AmThread::join()
 
 bool AmThread::isRunning() { return running.get(); }
 
-unsigned long int AmThread::getPid() { return pid; }
+unsigned long int AmThread::getPid()
+{
+  unsigned long int _pid;
+
+  thread_mutex.lock();
+  _pid = pid;
+  thread_mutex.unlock();
+
+  return _pid;
+}
 
 int AmThread::setRealtime()
 {
