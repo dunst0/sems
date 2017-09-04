@@ -91,7 +91,7 @@ class dns_entry
   virtual ~dns_entry();
   virtual void init() = 0;
   virtual void add_rr(dns_record* rr, u_char* begin, u_char* end, long int now);
-  virtual int next_ip(dns_handle* h, sockaddr_storage* sa) = 0;
+  virtual int  next_ip(dns_handle* h, sockaddr_storage* sa) = 0;
 
   virtual std::string to_str();
 };
@@ -104,8 +104,8 @@ class dns_bucket : protected dns_bucket_base
 
  public:
   dns_bucket(unsigned long int id);
-  bool insert(const std::string& name, dns_entry* e);
-  bool remove(const std::string& name);
+  bool       insert(const std::string& name, dns_entry* e);
+  bool       remove(const std::string& name);
   dns_entry* find(const std::string& name);
 };
 
@@ -121,7 +121,7 @@ struct ip_entry : public dns_base_entry
     in6_addr addr6;
   };
 
-  virtual void to_sa(sockaddr_storage* sa);
+  virtual void        to_sa(sockaddr_storage* sa);
   virtual std::string to_str();
 };
 
@@ -129,7 +129,7 @@ struct ip_port_entry : public ip_entry
 {
   unsigned short int port;
 
-  virtual void to_sa(sockaddr_storage* sa);
+  virtual void        to_sa(sockaddr_storage* sa);
   virtual std::string to_str();
 };
 
@@ -143,7 +143,7 @@ class dns_ip_entry : public dns_entry
 
   void            init(){};
   dns_base_entry* get_rr(dns_record* rr, u_char* begin, u_char* end);
-  int next_ip(dns_handle* h, sockaddr_storage* sa);
+  int             next_ip(dns_handle* h, sockaddr_storage* sa);
 
   int fill_ip_list(const std::list<sip_destination>& ip_list);
 };
@@ -159,7 +159,7 @@ struct dns_handle
   bool valid();
   bool eoip();
 
-  int next_ip(sockaddr_storage* sa);
+  int               next_ip(sockaddr_storage* sa);
   const dns_handle& operator=(const dns_handle& rh);
 
  private:
@@ -226,7 +226,7 @@ struct sip_target_set
 
   void reset_iterator();
   bool has_next();
-  int get_next(sockaddr_storage* ss, cstring& next_trsp, unsigned int flags);
+  int  get_next(sockaddr_storage* ss, cstring& next_trsp, unsigned int flags);
   bool next();
 
   void debug();
@@ -243,12 +243,12 @@ class dns_entry_map : public dns_entry_map_base
   dns_entry_map();
   ~dns_entry_map();
 
-  bool insert(const key_type& key, mapped_type e);
+  bool       insert(const key_type& key, mapped_type e);
   dns_entry* fetch(const key_type& key);
 
  private:
   // forbid some inherited methods
-  mapped_type& operator[](const key_type& k);
+  mapped_type&              operator[](const key_type& k);
   std::pair<iterator, bool> insert(const value_type& x);
 };
 

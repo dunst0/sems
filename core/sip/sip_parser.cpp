@@ -60,7 +60,7 @@ using std::list;
   case st1:                                                                    \
     switch (**c) {                                                             \
       case ch1: st = st2; break;                                               \
-      default: st  = FL_ERR; break;                                            \
+      default: st = FL_ERR; break;                                             \
     }                                                                          \
     break
 

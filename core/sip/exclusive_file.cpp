@@ -32,12 +32,12 @@ class _excl_file_reg
   };
 
   map<string, excl_file_entry> files;
-  AmMutex files_mut;
+  AmMutex                      files_mut;
 
  public:
   exclusive_file* get(const string& name, bool& is_new)
   {
-    AmLock l(files_mut);
+    AmLock                                 l(files_mut);
     map<string, excl_file_entry>::iterator it = files.find(name);
     if (it != files.end()) {
       excl_file_entry& fe = it->second;
@@ -72,7 +72,7 @@ class _excl_file_reg
 
   void deref(const string& name)
   {
-    AmLock l(files_mut);
+    AmLock                                 l(files_mut);
     map<string, excl_file_entry>::iterator it = files.find(name);
     if (it != files.end()) {
       excl_file_entry& fe = it->second;
@@ -87,7 +87,7 @@ class _excl_file_reg
 
   bool delete_on_flushed(const string& name)
   {
-    AmLock l(files_mut);
+    AmLock                                 l(files_mut);
     map<string, excl_file_entry>::iterator it = files.find(name);
     if (it != files.end()) {
       excl_file_entry& fe = it->second;

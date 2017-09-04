@@ -41,7 +41,7 @@ using std::list;
     switch (*c) {                                                              \
       case ch1:                                                                \
       case ch2: st = st2; break;                                               \
-      default: st  = FTP_OTHER;                                                \
+      default: st = FTP_OTHER;                                                 \
     }                                                                          \
     break
 

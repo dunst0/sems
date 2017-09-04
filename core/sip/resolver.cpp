@@ -197,7 +197,7 @@ class dns_srv_entry : public dns_entry
     }
 
     list<pair<unsigned int, int>> srv_lst;
-    int i = index;
+    int                           i = index;
 
     // fetch current priority
     unsigned short int p     = ((srv_entry*) ip_vec[i])->p;
@@ -308,8 +308,8 @@ void dns_entry::add_rr(dns_record* rr, u_char* begin, u_char* end, long int now)
   dns_base_entry* e = get_rr(rr, begin, end);
   if (!e) return;
 
-  e->expire                      = rr->ttl + now;
-  if (expire < e->expire) expire = e->expire;
+  e->expire = rr->ttl + now;
+  if (expire < e->expire) expire= e->expire;
 
   ip_vec.push_back(e);
 }

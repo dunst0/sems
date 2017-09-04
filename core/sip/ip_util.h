@@ -77,7 +77,7 @@ std::string am_inet_ntop(const sockaddr_storage* addr);
 const char* am_inet_ntop_sip(const sockaddr_storage* addr, char* str,
                              size_t size);
 
-void am_set_port(struct sockaddr_storage* addr, short int port);
+void               am_set_port(struct sockaddr_storage* addr, short int port);
 unsigned short int am_get_port(const sockaddr_storage* addr);
 
 #endif

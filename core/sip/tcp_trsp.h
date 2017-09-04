@@ -129,7 +129,7 @@ class tcp_trsp_socket : public trsp_socket
    */
   void add_write_event_ul(struct timeval* timeout = NULL);
 
-  int on_connect(short int ev);
+  int  on_connect(short int ev);
   void on_write(short int ev);
   void on_read(short int ev);
 
@@ -176,7 +176,7 @@ class tcp_server_worker : public AmThread
   struct event_base* evbase;
   tcp_server_socket* server_sock;
 
-  AmMutex connections_mut;
+  AmMutex                                 connections_mut;
   std::map<std::string, tcp_trsp_socket*> connections;
 
  protected:

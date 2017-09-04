@@ -850,8 +850,8 @@ int _trans_layer::set_next_hop(sip_msg* msg, cstring* next_hop,
     }
 
     if (next_hop->len == 0) {
-      *next_hop                               = route_uri->host;
-      if (route_uri->port_str.len) *next_port = route_uri->port;
+      *next_hop = route_uri->host;
+      if (route_uri->port_str.len) *next_port= route_uri->port;
       if (route_uri->trsp && route_uri->trsp->value.len)
         *next_trsp = route_uri->trsp->value;
     }
@@ -866,9 +866,9 @@ int _trans_layer::set_next_hop(sip_msg* msg, cstring* next_hop,
       return -1;
     }
     DBG("setting next-hop based on request-URI\n");
-    *next_hop                                 = parsed_r_uri.host;
-    if (parsed_r_uri.port_str.len) *next_port = parsed_r_uri.port;
-    if (parsed_r_uri.trsp) *next_trsp         = parsed_r_uri.trsp->value;
+    *next_hop = parsed_r_uri.host;
+    if (parsed_r_uri.port_str.len) *next_port= parsed_r_uri.port;
+    if (parsed_r_uri.trsp) *next_trsp = parsed_r_uri.trsp->value;
   }
 
   if (!next_trsp->len) {

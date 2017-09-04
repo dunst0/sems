@@ -70,9 +70,9 @@ static uint16_t ipv4_chksum(uint32_t sum)
     sum = (sum >> 16) + (sum & 0xFFFF);
   }
 
-  uint16_t res      = sum;
-  res               = ~res;
-  if (res == 0) res = ~res;
+  uint16_t res = sum;
+  res          = ~res;
+  if (res == 0) res= ~res;
 
   return res;
 }

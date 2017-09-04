@@ -42,7 +42,7 @@ using std::list;
     switch (*c) {                                                              \
       case ch1:                                                                \
       case ch2: st = st2; break;                                               \
-      default: st  = VP_OTHER; break;                                          \
+      default: st = VP_OTHER; break;                                           \
     }                                                                          \
     break
 

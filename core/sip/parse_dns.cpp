@@ -8,7 +8,7 @@
 #define HEADER_OFFSET 12
 
 unsigned short int dns_msg_count(u_char* begin, dns_section_type sect);
-int dns_skip_name(u_char** p, u_char* end);
+int                dns_skip_name(u_char** p, u_char* end);
 int dns_expand_name(u_char** ptr, u_char* begin, u_char* end, u_char* buf,
                     unsigned int len);
 

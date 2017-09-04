@@ -81,7 +81,7 @@ struct sip_header
 
 int parse_header_type(sip_header* h);
 
-int parse_headers(std::list<sip_header*>& hdrs, char** c, char* end);
+int  parse_headers(std::list<sip_header*>& hdrs, char** c, char* end);
 void free_headers(std::list<sip_header*>& hdrs);
 
 #endif

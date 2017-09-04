@@ -466,7 +466,7 @@ void tcp_trsp_socket::on_write(short int ev)
 tcp_server_worker::tcp_server_worker(tcp_server_socket* server_sock)
     : server_sock(server_sock)
 {
-  evbase = event_base_new();
+  evbase      = event_base_new();
   thread_name = "tcp_server_worker";
 }
 
@@ -572,7 +572,7 @@ void tcp_server_worker::run()
   close(fake_fds[1]);
 }
 
-void tcp_server_worker::on_stop() {event_base_loopbreak(evbase); }
+void tcp_server_worker::on_stop() { event_base_loopbreak(evbase); }
 
 tcp_server_socket::tcp_server_socket(unsigned short int if_num)
     : trsp_socket(if_num, 0)
@@ -581,7 +581,8 @@ tcp_server_socket::tcp_server_socket(unsigned short int if_num)
 {
 }
 
-tcp_server_socket::~tcp_server_socket() {
+tcp_server_socket::~tcp_server_socket()
+{
   DBG("bah %d", trsp_socket::if_num);
   // if (ev_accept) {
   //   event_free(ev_accept);
@@ -773,7 +774,7 @@ tcp_trsp::tcp_trsp(tcp_server_socket* sock)
     : transport(sock)
 {
   thread_name = "tcp_trsp";
-  evbase = event_base_new();
+  evbase      = event_base_new();
   sock->add_event(evbase);
 }
 

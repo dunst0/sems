@@ -18,7 +18,7 @@ class exclusive_file : public async_file
   int open(bool& is_new);
 
   // async_file API
-  int write_to_file(const void* buf, unsigned int len);
+  int  write_to_file(const void* buf, unsigned int len);
   void on_flushed();
 
   // called only from _excl_file_reg
