@@ -747,6 +747,14 @@ int AmConfig::readConfiguration()
   return ret;
 }
 
+void cleanup()
+{
+  for (vector<RTP_interface*>::iterator it = RTP_Ifs.begin();
+       it != RTP_Ifs.end(); it++) {
+    delete (*it);
+  }
+}
+
 int AmConfig::insert_SIP_interface(const SIP_interface& intf)
 {
   if (SIP_If_names.find(intf.name) != SIP_If_names.end()) {

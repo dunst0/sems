@@ -669,6 +669,8 @@ error:
 
   sip_ctrl.cleanup();
 
+  AmConfig::cleanup();
+
   INFO("Exiting (%s)\n", success ? "success" : "failure");
 
   return success ? EXIT_SUCCESS : EXIT_FAILURE;

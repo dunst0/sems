@@ -294,6 +294,9 @@ struct AmConfig
    * command line arguments */
   static int readConfiguration();
 
+  /** */
+  static void cleanup();
+
   /* following setters are used to fill config from config file */
 
   /** Setter for SIP Port, returns 0 on invalid value */
