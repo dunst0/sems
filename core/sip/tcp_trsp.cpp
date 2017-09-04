@@ -688,7 +688,11 @@ void tcp_server_socket::stop_threads()
 {
   for (unsigned int i = 0; i < workers.size(); i++) {
     workers[i]->stop();
+  }
+
+  for (unsigned int i = 0; i < workers.size(); i++) {
     workers[i]->join();
+    delete workers[i];
   }
 }
 
