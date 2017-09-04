@@ -388,7 +388,7 @@ void udp_trsp::run()
   }
 
   if (msg.msg_control) {
-    delete msg.msg_control;
+    free(msg.msg_control);
     msg.msg_controllen = 0;
   }
 }
