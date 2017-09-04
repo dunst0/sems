@@ -154,7 +154,7 @@ void AmThread::stop()
   running.set(false);
   run_condition.set(true);
 
-  executing.unlock();
+  thread_mutex.unlock();
 }
 
 void AmThread::cancel()
@@ -165,6 +165,8 @@ void AmThread::cancel()
     thread_mutex.unlock();
     return;
   }
+
+  DBG("Thread (%s_%lu) trying to cancel.\n", thread_name.c_str(), pid);
 
   int res = pthread_cancel(thread_id);
 
@@ -191,10 +193,12 @@ void AmThread::detach()
     return;
   }
 
+  DBG("Thread (%s_%lu) trying to detach.\n", thread_name.c_str(), pid);
+
   int res = pthread_detach(thread_id);
 
   if (res == 0) {
-    DBG("Thread (%s_%lu) finished detach.\n", thread_name.c_str(), pid);
+    DBG("Thread (%s_%lu) finished detaching.\n", thread_name.c_str(), pid);
   }
   else if (res == EINVAL) {
     WARN("The thread id does not refer to a joinable thread\n");
@@ -217,6 +221,8 @@ void AmThread::join()
     thread_mutex.unlock();
     return;
   }
+
+  DBG("Thread (%s_%lu) trying to join.\n", thread_name.c_str(), pid);
 
   int res = pthread_join(thread_id, NULL);
 
