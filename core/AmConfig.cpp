@@ -747,7 +747,7 @@ int AmConfig::readConfiguration()
   return ret;
 }
 
-void cleanup()
+void AmConfig::cleanup()
 {
   for (vector<RTP_interface*>::iterator it = RTP_Ifs.begin();
        it != RTP_Ifs.end(); it++) {
