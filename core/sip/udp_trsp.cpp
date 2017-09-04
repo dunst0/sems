@@ -388,7 +388,7 @@ void udp_trsp::run()
   }
 
   if (msg.msg_control) {
-    delte (u_char *) msg.msg_control;
+    delete (u_char *) msg.msg_control;
     msg.msg_control = NULL;
     msg.msg_controllen = 0;
   }
