@@ -387,11 +387,11 @@ void udp_trsp::run()
     trans_layer::instance()->received_msg(s_msg);
   }
 
-  if (msg.msg_control) {
-    delete (u_char *) msg.msg_control;
-    msg.msg_control = NULL;
-    msg.msg_controllen = 0;
-  }
+  // if (msg.msg_control) {
+  //   delete (u_char *) msg.msg_control;
+  //   msg.msg_control = NULL;
+  //   msg.msg_controllen = 0;
+  // }
 }
 
 /** @see AmThread */
