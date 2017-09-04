@@ -312,7 +312,7 @@ void udp_trsp::run()
   }
 
   struct timeval tv;
-  tv.tv_sec  = 30;
+  tv.tv_sec  = 10;
   tv.tv_usec = 0;
   setsockopt(sock->get_sd(), SOL_SOCKET, SO_RCVTIMEO, (const char*) &tv,
              sizeof(struct timeval));
