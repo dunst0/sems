@@ -564,18 +564,27 @@ void tcp_server_worker::run()
   event_base_dispatch(evbase);
 
   // clean-up fake fds/event
-  event_free(ev_default);
+  if (ev_default) {
+    event_free(ev_default);
+  }
   close(fake_fds[0]);
   close(fake_fds[1]);
 }
 
-void tcp_server_worker::on_stop() { event_base_loopbreak(evbase); }
+void tcp_server_worker::on_stop() {event_base_loopbreak(evbase); }
 
 tcp_server_socket::tcp_server_socket(unsigned short int if_num)
     : trsp_socket(if_num, 0)
     , evbase(NULL)
     , ev_accept(NULL)
 {
+}
+
+tcp_server_socket::~tcp_server_socket()
+{
+  if (ev_accept) {
+    event_free(ev_accept);
+  }
 }
 
 int tcp_server_socket::bind(const string& bind_ip, unsigned short int bind_port)
