@@ -192,16 +192,16 @@ int _SipCtrlInterface::load()
 
     if (cfg.hasParameter("log_raw_messages")) {
       string msglog = cfg.getParameter("log_raw_messages");
-      if (msglog == "no")
-        trsp_socket::log_level_raw_msgs = -1;
-      else if (msglog == "error")
-        trsp_socket::log_level_raw_msgs = L_ERR;
-      else if (msglog == "warn")
-        trsp_socket::log_level_raw_msgs = L_WARN;
-      else if (msglog == "info")
-        trsp_socket::log_level_raw_msgs = L_INFO;
-      else if (msglog == "debug")
-        trsp_socket::log_level_raw_msgs = L_DBG;
+      if (msglog == "no"){
+        trsp_socket::log_level_raw_msgs = -1;}
+      else if (msglog == "error"){
+        trsp_socket::log_level_raw_msgs = L_ERR;}
+      else if (msglog == "warn"){
+        trsp_socket::log_level_raw_msgs = L_WARN;}
+      else if (msglog == "info"){
+        trsp_socket::log_level_raw_msgs = L_INFO;}
+      else if (msglog == "debug"){
+        trsp_socket::log_level_raw_msgs = L_DBG;}
     }
     DBG("log_raw_messages level = %d\n", trsp_socket::log_level_raw_msgs);
 
@@ -394,6 +394,8 @@ int _SipCtrlInterface::run()
     }
   }
 
+  DBG("SIP control interface is up and running - enjoy\n");
+
   stopped.wait_for();
 
   DBG("SIP control interface ending\n");
@@ -409,6 +411,9 @@ void _SipCtrlInterface::cleanup()
   if (NULL != udp_servers) {
     for (int i = 0; i < nr_udp_servers; i++) {
       udp_servers[i]->stop();
+    }
+
+    for (int i = 0; i < nr_udp_servers; i++) {
       udp_servers[i]->join();
       delete udp_servers[i];
     }
@@ -421,6 +426,9 @@ void _SipCtrlInterface::cleanup()
   if (NULL != tcp_servers) {
     for (int i = 0; i < nr_tcp_servers; i++) {
       tcp_servers[i]->stop();
+    }
+
+    for (int i = 0; i < nr_tcp_servers; i++) {
       tcp_servers[i]->join();
       delete tcp_servers[i];
     }
