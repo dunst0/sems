@@ -584,6 +584,7 @@ tcp_server_socket::~tcp_server_socket()
 {
   if (ev_accept) {
     event_free(ev_accept);
+    ev_accept = NULL;
   }
 }
 
