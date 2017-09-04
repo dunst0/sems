@@ -312,7 +312,7 @@ void udp_trsp::run()
   }
 
   struct timeval tv;
-  tv.tv_sec  = 10;
+  tv.tv_sec  = 2;
   tv.tv_usec = 0;
   setsockopt(sock->get_sd(), SOL_SOCKET, SO_RCVTIMEO, (const char*) &tv,
              sizeof(struct timeval));
@@ -323,9 +323,11 @@ void udp_trsp::run()
   while (isRunning()) {
     // DBG("before recvmsg (%s:%i)\n",sock->get_ip(),sock->get_port());
 
-    buf_len = recvmsg(sock->get_sd(), &msg, 0);
+    buf_len = recvmsg(sock->get_sd(), &msg, MSG_DONTWAIT);
     if (buf_len <= 0) {
       if (!buf_len) continue;
+      if (errno == EAGAIN || errno == EWOULDBLOCK) continue;
+
       ERROR("recvfrom returned %d: %s\n", buf_len, strerror(errno));
 
       switch (errno) {
