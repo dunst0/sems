@@ -386,6 +386,11 @@ void udp_trsp::run()
     // pass message to the parser / transaction layer
     trans_layer::instance()->received_msg(s_msg);
   }
+
+  if (msg.msg_control) {
+    delete msg.msg_control;
+    msg.msg_controllen = 0;
+  }
 }
 
 /** @see AmThread */
