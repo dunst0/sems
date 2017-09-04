@@ -221,7 +221,7 @@ class tcp_server_socket : public trsp_socket
 
  public:
   tcp_server_socket(unsigned short int if_num);
-  ~tcp_server_socket() {}
+  ~tcp_server_socket();
 
   void add_threads(unsigned int n);
   void start_threads();
