@@ -50,7 +50,7 @@ _AmRtpReceiver::~_AmRtpReceiver() { delete[] receivers; }
 AmRtpReceiverThread::AmRtpReceiverThread()
 {
   // libevent event base
-  ev_base = event_base_new();
+  ev_base     = event_base_new();
   thread_name = "RtpReceiverThread";
 }
 
