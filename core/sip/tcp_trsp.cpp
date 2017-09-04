@@ -567,6 +567,7 @@ void tcp_server_worker::run()
   if (ev_default) {
     event_free(ev_default);
   }
+
   close(fake_fds[0]);
   close(fake_fds[1]);
 }
@@ -580,12 +581,11 @@ tcp_server_socket::tcp_server_socket(unsigned short int if_num)
 {
 }
 
-tcp_server_socket::~tcp_server_socket()
-{
-  if (ev_accept) {
-    event_free(ev_accept);
-    ev_accept = NULL;
-  }
+tcp_server_socket::~tcp_server_socket() {
+  DBG("bah %d", trsp_socket::if_num);
+  // if (ev_accept) {
+  //   event_free(ev_accept);
+  // }
 }
 
 int tcp_server_socket::bind(const string& bind_ip, unsigned short int bind_port)
