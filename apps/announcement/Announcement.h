@@ -48,7 +48,7 @@ class AnnouncementFactory : public AmSessionFactory
 
   int        onLoad();
   AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
-                      const std::map<std::string, std::string>&   app_params);
+                      const std::map<std::string, std::string>& app_params);
   AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
                       AmArg& session_params);
 };
@@ -62,9 +62,10 @@ class AnnouncementDialog
   std::string filename;
 
   std::unique_ptr<UACAuthCred> cred;
-public:
-  AnnouncementDialog(const string& filename, 
-		     UACAuthCred* credentials = NULL);
+
+ public:
+  AnnouncementDialog(const std::string& filename,
+                     UACAuthCred*       credentials = NULL);
   ~AnnouncementDialog();
 
   void onSessionStart();

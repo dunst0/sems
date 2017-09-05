@@ -93,8 +93,8 @@ end:
   return announce_file;
 }
 
-AmSession* AnnouncementFactory::onInvite(const AmSipRequest& req,
-                                         const string&       app_name,
+AmSession* AnnouncementFactory::onInvite(const AmSipRequest&        req,
+                                         const string&              app_name,
                                          const map<string, string>& app_params)
 {
   return new AnnouncementDialog(getAnnounceFile(req), NULL);
