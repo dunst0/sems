@@ -437,9 +437,9 @@ class AmDtmfDetector
   AmRtpDtmfDetector                     m_rtpDetector;
   AmSipDtmfDetector                     m_sipDetector;
   std::unique_ptr<AmInbandDtmfDetector> m_inbandDetector;
-  // UNUSED
-  // Dtmf::InbandDetectorType m_inband_type;
-  // UNUSED_END
+#ifndef USE_SPANDSP
+  Dtmf::InbandDetectorType m_inband_type;
+#endif
 
   struct timeval m_startTime;
   struct timeval m_lastReportTime;
