@@ -206,9 +206,9 @@ template <class T> class AmCondition
 class AmThread
 {
  private:
-  pthread_t         thread_id;
-  AmMutex           thread_mutex;
-  unsigned long int pid;
+  pthread_t                      thread_id;
+  AmMutex                        thread_mutex;
+  AmSharedVar<unsigned long int> pid;
 
   AmSharedVar<bool> executing;
   AmSharedVar<bool> running;

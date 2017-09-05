@@ -67,11 +67,14 @@ AmThread::AmThread()
 void* AmThread::threadStart(void* self)
 {
   AmThread* _this = (AmThread*) self;
-  _this->pid      = (unsigned long int) _this->thread_id;
 
-  DBG("Thread (%s_%lu) is starting.\n", _this->thread_name.c_str(), _this->pid);
+  _this->pid.set((unsigned long int) _this->thread_id);
+
+  DBG("Thread (%s_%lu) is starting.\n", _this->thread_name.c_str(),
+      _this->pid.get());
   _this->run();
-  DBG("Thread (%s_%lu) is ending.\n", _this->thread_name.c_str(), _this->pid);
+  DBG("Thread (%s_%lu) is ending.\n", _this->thread_name.c_str(),
+      _this->pid.get());
 
   _this->executing.set(false);
 
@@ -88,14 +91,15 @@ void AmThread::start()
   thread_mutex.lock();
 
   if (executing.get()) {
-    ERROR("Thread (%s_%lu) is already running\n", thread_name.c_str(), pid);
+    ERROR("Thread (%s_%lu) is already running\n", thread_name.c_str(),
+          pid.get());
     thread_mutex.unlock();
     return;
   }
   executing.set(true);
   running.set(true);
 
-  pid = 0;
+  pid.set(0);
 
   pthread_attr_init(&attr);
   pthread_attr_setstacksize(&attr, 1024 * 1024); // 1 MB
@@ -142,7 +146,7 @@ void AmThread::stop()
   }
 
   DBG("Thread (%s_%lu) calling on_stop, give it a chance to clean up.\n",
-      thread_name.c_str(), pid);
+      thread_name.c_str(), pid.get());
 
   try {
     on_stop();
@@ -166,12 +170,12 @@ void AmThread::cancel()
     return;
   }
 
-  DBG("Thread (%s_%lu) trying to cancel.\n", thread_name.c_str(), pid);
+  DBG("Thread (%s_%lu) trying to cancel.\n", thread_name.c_str(), pid.get());
 
   int res = pthread_cancel(thread_id);
 
   if (res == 0) {
-    DBG("Thread (%s_%lu) is canceled.\n", thread_name.c_str(), pid);
+    DBG("Thread (%s_%lu) is canceled.\n", thread_name.c_str(), pid.get());
     running.set(false);
   }
   else if (res == ESRCH) {
@@ -193,12 +197,13 @@ void AmThread::detach()
     return;
   }
 
-  DBG("Thread (%s_%lu) trying to detach.\n", thread_name.c_str(), pid);
+  DBG("Thread (%s_%lu) trying to detach.\n", thread_name.c_str(), pid.get());
 
   int res = pthread_detach(thread_id);
 
   if (res == 0) {
-    DBG("Thread (%s_%lu) finished detaching.\n", thread_name.c_str(), pid);
+    DBG("Thread (%s_%lu) finished detaching.\n", thread_name.c_str(),
+        pid.get());
   }
   else if (res == EINVAL) {
     WARN("The thread id does not refer to a joinable thread\n");
@@ -222,12 +227,13 @@ void AmThread::join()
     return;
   }
 
-  DBG("Thread (%s_%lu) trying to join.\n", thread_name.c_str(), pid);
+  DBG("Thread (%s_%lu) trying to join.\n", thread_name.c_str(), pid.get());
 
   int res = pthread_join(thread_id, NULL);
 
   if (res == 0) {
-    DBG("Thread (%s_%lu) successfull joined.\n", thread_name.c_str(), pid);
+    DBG("Thread (%s_%lu) successfull joined.\n", thread_name.c_str(),
+        pid.get());
   }
   else if (res == EINVAL) {
     WARN("The thread id does not refer to a joinable thread\n");
@@ -244,16 +250,7 @@ void AmThread::join()
 
 bool AmThread::isRunning() { return running.get(); }
 
-unsigned long int AmThread::getPid()
-{
-  unsigned long int _pid;
-
-  thread_mutex.lock();
-  _pid = pid;
-  thread_mutex.unlock();
-
-  return _pid;
-}
+unsigned long int AmThread::getPid() { return pid.get(); }
 
 int AmThread::setRealtime()
 {
