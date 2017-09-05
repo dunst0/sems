@@ -437,7 +437,7 @@ class AmDtmfDetector
   AmRtpDtmfDetector                     m_rtpDetector;
   AmSipDtmfDetector                     m_sipDetector;
   std::unique_ptr<AmInbandDtmfDetector> m_inbandDetector;
-#ifndef USE_SPANDSP
+#ifdef USE_SPANDSP
   Dtmf::InbandDetectorType m_inband_type;
 #endif
 

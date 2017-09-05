@@ -168,11 +168,10 @@ AmDtmfDetector::AmDtmfDetector(AmDtmfSink* dtmf_sink)
     : m_dtmfSink(dtmf_sink)
     , m_rtpDetector(this)
     , m_sipDetector(this)
-    ,
-    // UNUSED
-    // m_inband_type(Dtmf::SEMSInternal),
-    // UNUSED_END
-    m_currentEvent(-1)
+    #ifdef USE_SPANDSP
+    , m_inband_type(Dtmf::SEMSInternal),
+    #endif
+    , m_currentEvent(-1)
     , m_eventPending(false)
     , m_current_eventid_i(false)
     , m_sipEventReceived(false)
