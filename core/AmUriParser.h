@@ -20,56 +20,59 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _AmUriParser_h_
-#define _AmUriParser_h_
 
-#include <string>
+#ifndef _AMURIPARSER_H_
+#define _AMURIPARSER_H_
+
 #include <map>
-using std::map;
-using std::string;
+#include <string>
 
-struct AmUriParser {
-  string display_name;
-  string uri;
-	
-  string uri_user; 
-  string uri_host; 
-  string uri_port; 
-  string uri_headers;
-  string uri_param;		// <sip:user@host;uri_param>
-                                // <sip:user;user_param@host>
+struct AmUriParser
+{
+  std::string display_name;
+  std::string uri;
 
-  map<string, string> params; 	// <sip:user;@host>;params
+  std::string uri_user;
+  std::string uri_host;
+  std::string uri_port;
+  std::string uri_headers;
+  std::string uri_param; // <sip:user@host;uri_param>
+                         // <sip:user;user_param@host>
+
+  std::map<std::string, std::string> params; // <sip:user;@host>;params
 
   bool isEqual(const AmUriParser& c) const;
   /** parse nameaddr from pos
        @return true on success
        @return end of current nameaddr */
-  bool parse_contact(const string& line, size_t pos, size_t& end);
+  bool parse_contact(const std::string& line, size_t pos, size_t& end);
   /** parse a name-addr @return true on success */
-  bool parse_nameaddr(const string& line);
+  bool parse_nameaddr(const std::string& line);
 
   /** @return true on success */
   bool parse_uri();
-  bool parse_params(const string& line, int& pos);
+  bool parse_params(const std::string& line, int& pos);
 
-  /** param_string is semicolon separated list of parameters with or without value.
-   * method can be used to add/replace param for uri and user parameters */
-  static string add_param_to_param_list(const string& param_name,
-	    const string& param_value, const string& param_list);
+  /** param_string is semicolon separated list of parameters with or without
+   * value. method can be used to add/replace param for uri and user
+   * parameters
+   */
+  static std::string add_param_to_param_list(const std::string& param_name,
+                                             const std::string& param_value,
+                                             const std::string& param_list);
 
-  void dump() const;
-  string uri_str() const;
-  string canon_uri_str() const;
-  string nameaddr_str() const;
-  
-  AmUriParser() { }
+  void        dump() const;
+  std::string uri_str() const;
+  std::string canon_uri_str() const;
+  std::string nameaddr_str() const;
 
-  string print() const;
+  AmUriParser() {}
+
+  std::string print() const;
 };
 
 #endif

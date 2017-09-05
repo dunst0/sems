@@ -7,12 +7,11 @@
 
 #include "AmAudioMixIn.h"
 
-/** \brief python IVR wrapper for AmAudioMixIn */ 
-typedef struct {
-    
-  PyObject_HEAD
-  AmAudioMixIn* mix;
-    
+/** \brief python IVR wrapper for AmAudioMixIn */
+typedef struct
+{
+  PyObject_HEAD AmAudioMixIn* mix;
+
 } IvrAudioMixIn;
 
 extern PyTypeObject IvrAudioMixInType;

@@ -33,14 +33,13 @@
 
 #include "SBCCallProfile.h"
 
+#define CMD_PASS 0
+#define CMD_DROP 1
+#define CMD_REFUSE 2
 
-#define CMD_PASS           0
-#define CMD_DROP           1
-#define CMD_REFUSE         2
-
-#define RWT_E_OK           0
-#define RWT_E_CONNECTION  -1
-#define RWT_E_WRITE       -2
+#define RWT_E_OK 0
+#define RWT_E_CONNECTION -1
+#define RWT_E_WRITE -2
 
 /**
  * REDIS blacklist query call control module
@@ -49,20 +48,21 @@ class CCBLRedis : public AmDynInvoke
 {
   static CCBLRedis* _instance;
 
-  bool   pass_on_bl_unavailable;
+  bool         pass_on_bl_unavailable;
   unsigned int max_retries;
 
   bool full_logging;
-  int handle_redis_reply(redisContext* redis_context, redisReply* reply, bool& hit);
+  int handle_redis_reply(redisContext* redis_context, redisReply* reply,
+                         bool& hit);
 
-  void start(const string& cc_name, const string& ltag, SBCCallProfile* call_profile,
-	     int start_ts_sec, int start_ts_usec, const AmArg& values,
-	     int timer_id, AmArg& res);
-  void connect(const string& cc_name, const string& ltag, SBCCallProfile* call_profile,
-	       const string& other_ltag,
-	       int connect_ts_sec, int connect_ts_usec);
-  void end(const string& cc_name, const string& ltag, SBCCallProfile* call_profile,
-	   int end_ts_sec, int end_ts_usec);
+  void start(const string& cc_name, const string& ltag,
+             SBCCallProfile* call_profile, int start_ts_sec, int start_ts_usec,
+             const AmArg& values, int timer_id, AmArg& res);
+  void connect(const string& cc_name, const string& ltag,
+               SBCCallProfile* call_profile, const string& other_ltag,
+               int connect_ts_sec, int connect_ts_usec);
+  void end(const string& cc_name, const string& ltag,
+           SBCCallProfile* call_profile, int end_ts_sec, int end_ts_usec);
 
   RedisConnectionPool connection_pool;
 
@@ -74,4 +74,4 @@ class CCBLRedis : public AmDynInvoke
   int onLoad();
 };
 
-#endif 
+#endif

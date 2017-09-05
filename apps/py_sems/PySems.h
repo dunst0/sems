@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2002-2003 Fhg Fokus
  *
  * This file is part of SEMS, a free SIP media server.
@@ -28,8 +28,8 @@
 #include "AmB2BSession.h"
 #include "AmPlaylist.h"
 
-#include <string>
 #include <map>
+#include <string>
 using std::string;
 using std::map;
 
@@ -37,56 +37,55 @@ class PySemsDialogBase;
 
 struct PySemsScriptDesc
 {
-  enum DialogType {
+  enum DialogType
+  {
     None = 0,
     Dialog,
     B2BDialog,
     B2ABDialog
   };
 
-  PyObject* mod;
-  PyObject* dlg_class;
+  PyObject*  mod;
+  PyObject*  dlg_class;
   DialogType dt;
 
-PySemsScriptDesc()
-: mod(0), 
-    dlg_class(0),
-    dt(None)
-  {}
+  PySemsScriptDesc()
+      : mod(0)
+      , dlg_class(0)
+      , dt(None)
+  {
+  }
 
-PySemsScriptDesc(const PySemsScriptDesc& d)
-: mod(d.mod), 
-    dlg_class(d.dlg_class),
-    dt(d.dt)
-  {}
+  PySemsScriptDesc(const PySemsScriptDesc& d)
+      : mod(d.mod)
+      , dlg_class(d.dlg_class)
+      , dt(d.dt)
+  {
+  }
 
-PySemsScriptDesc(PyObject* mod, 
-		 PyObject* dlg_class,
-		 DialogType dt)
-: mod(mod),
-    dlg_class(dlg_class),
-    dt(dt)
-  {}
+  PySemsScriptDesc(PyObject* mod, PyObject* dlg_class, DialogType dt)
+      : mod(mod)
+      , dlg_class(dlg_class)
+      , dt(dt)
+  {
+  }
 };
 
-
 /** \brief Factory for PySems sessions */
-class PySemsFactory: public AmSessionFactory
+class PySemsFactory : public AmSessionFactory
 {
   PyObject* py_sems_module;
   /*     string script_path; */
   string default_script;
 
-  map<string,PySemsScriptDesc> mod_reg;
+  map<string, PySemsScriptDesc> mod_reg;
 
   void init_python_interpreter(const string& script_path);
   void set_sys_path(const string& script_path);
   void import_py_sems_builtins();
 
   PyObject* import_module(const char* modname);
-  void import_object(PyObject* m,
-		     char* name, 
-		     PyTypeObject* type);
+  void import_object(PyObject* m, char* name, PyTypeObject* type);
 
   /** @return true if everything ok */
   bool loadScript(const string& path);
@@ -95,18 +94,19 @@ class PySemsFactory: public AmSessionFactory
   bool checkCfg();
 
   AmSession* newDlg(const string& name);
-    
+
  public:
   PySemsFactory(const string& _app_name);
 
-  int onLoad();
+  int        onLoad();
   AmSession* onInvite(const AmSipRequest& req);
 };
 
 /** \brief wrapper for pySems dialog bas class */
-class PySemsDialogBase {
-  PyObject  *py_mod;
-  PyObject  *py_dlg;
+class PySemsDialogBase
+{
+  PyObject* py_mod;
+  PyObject* py_dlg;
 
  protected:
   bool callPyEventHandler(char* name, char* fmt, ...);
@@ -116,7 +116,7 @@ class PySemsDialogBase {
   ~PySemsDialogBase();
 
   // must be called before everything else.
-  void setPyPtrs(PyObject *mod, PyObject *dlg);
+  void setPyPtrs(PyObject* mod, PyObject* dlg);
 };
 
 #endif

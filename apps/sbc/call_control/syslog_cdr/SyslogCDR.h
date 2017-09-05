@@ -27,14 +27,14 @@
 #define _SYSLOG_CDR_H
 
 #include "AmApi.h"
-#include "AmThread.h"
 #include "AmEventProcessingThread.h"
+#include "AmThread.h"
 
-#include "SBCCallProfile.h"
 #include "SBCCallLeg.h"
+#include "SBCCallProfile.h"
 
-#include <sys/time.h>
 #include <stdio.h>
+#include <sys/time.h>
 
 #include <map>
 #include <memory>
@@ -42,12 +42,15 @@
 /**
  * accounting for generating CDR lines in CSV format in syslog
  */
-class SyslogCDR : public AmDynInvoke, public ExtendedCCInterface, public AmObject
+class SyslogCDR
+    : public AmDynInvoke
+    , public ExtendedCCInterface
+    , public AmObject
 {
   static SyslogCDR* _instance;
 
-  int level;
-  string syslog_prefix;
+  int            level;
+  string         syslog_prefix;
   vector<string> cdr_format;
 
   bool quoting_enabled;
@@ -56,11 +59,10 @@ class SyslogCDR : public AmDynInvoke, public ExtendedCCInterface, public AmObjec
   /* AmMutex cdrs_mut; */
 
   void start(const string& ltag, SBCCallProfile* call_profile,
-	     const AmArg& values);
-  void end(const string& ltag, SBCCallProfile* call_profile,
-	   int start_ts_sec, int start_ts_usec,
-	   int connect_ts_sec, int connect_ts_usec,
-	   int end_ts_sec, int end_ts_usec);
+             const AmArg& values);
+  void end(const string& ltag, SBCCallProfile* call_profile, int start_ts_sec,
+           int start_ts_usec, int connect_ts_sec, int connect_ts_usec,
+           int end_ts_sec, int end_ts_usec);
 
  public:
   SyslogCDR();
@@ -69,8 +71,9 @@ class SyslogCDR : public AmDynInvoke, public ExtendedCCInterface, public AmObjec
   void invoke(const string& method, const AmArg& args, AmArg& ret);
   int onLoad();
 
-  virtual void onStateChange(SBCCallLeg *call, const CallLeg::StatusChangeCause &cause);
-  virtual CCChainProcessing onEvent(SBCCallLeg *call, AmEvent *e);
+  virtual void onStateChange(SBCCallLeg*                       call,
+                             const CallLeg::StatusChangeCause& cause);
+  virtual CCChainProcessing onEvent(SBCCallLeg* call, AmEvent* e);
 };
 
-#endif 
+#endif

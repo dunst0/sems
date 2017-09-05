@@ -20,65 +20,81 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef _MONITORING_H_
 #define _MONITORING_H_
 
-#include <map>
-#include <memory>
-
-#include "AmThread.h"
 #include "AmApi.h"
 #include "AmArg.h"
+#include "AmThread.h"
 
 #include <time.h>
 
+#include <map>
+#include <memory>
+
 #define NUM_LOG_BUCKETS 16
 
-struct LogInfo {
+struct LogInfo
+{
   time_t finished; // for garbage collection
-LogInfo() 
- : finished(0) { }
+  LogInfo()
+      : finished(0)
+  {
+  }
   AmArg info;
 };
 
 // empty sample lists are not erased!
-struct SampleInfo {
+struct SampleInfo
+{
   time_t finished; // for garbage collection
-  struct time_cnt {
+  struct time_cnt
+  {
     struct timeval time;
-    unsigned int counter;
+    unsigned int   counter;
 
-    time_cnt(struct timeval t, unsigned int c) : time(t), counter(c) {}
+    time_cnt(struct timeval t, unsigned int c)
+        : time(t)
+        , counter(c)
+    {
+    }
   };
-  SampleInfo() : finished(0) { }
-  std::map<string, list<time_cnt> > sample;
+
+  SampleInfo()
+      : finished(0)
+  {
+  }
+
+  std::map<std::string, std::list<time_cnt>> sample;
 };
 
-struct LogBucket {
+struct LogBucket
+{
   AmMutex log_lock;
-  std::map<string, LogInfo> log;
-  std::map<string, SampleInfo> samples;
+  std::map<std::string, LogInfo>    log;
+  std::map<std::string, SampleInfo> samples;
 };
+
 class MonitorGarbageCollector;
 
-class Monitor 
-: public AmDynInvokeFactory,
-  public AmDynInvoke   
+class Monitor
+    : public AmDynInvokeFactory
+    , public AmDynInvoke
 {
-  static Monitor* _instance;
+  static Monitor*                          _instance;
   std::unique_ptr<MonitorGarbageCollector> gc_thread;
 
   LogBucket logs[NUM_LOG_BUCKETS];
 
-  LogBucket& getLogBucket(const string& call_id);
+  LogBucket& getLogBucket(const std::string& call_id);
 
   static unsigned int retain_samples_s;
-  void truncate_samples(list<SampleInfo::time_cnt>& v, struct timeval now);
+  void truncate_samples(std::list<SampleInfo::time_cnt>& v, struct timeval now);
 
   void clearFinished();
 
@@ -110,25 +126,23 @@ class Monitor
   void add(const AmArg& args, AmArg& ret, int a);
 
  public:
-
-  Monitor(const string& name);
+  Monitor(const std::string& name);
   ~Monitor();
   // DI factory
   AmDynInvoke* getInstance() { return instance(); }
   // DI API
   static Monitor* instance();
-  void invoke(const string& method, 
-	      const AmArg& args, AmArg& ret);
-  int onLoad();
+  void invoke(const std::string& method, const AmArg& args, AmArg& ret);
+  int                 onLoad();
   static unsigned int gcInterval;
 
   friend class MonitorGarbageCollector;
 };
 
-class MonitorGarbageCollector 
-: public AmThread,
-  public AmEventQueueInterface
- {
+class MonitorGarbageCollector
+    : public AmThread
+    , public AmEventQueueInterface
+{
   AmSharedVar<bool> running;
 
  public:
@@ -136,4 +150,5 @@ class MonitorGarbageCollector
   void on_stop();
   void postEvent(AmEvent* e);
 };
+
 #endif

@@ -1,14 +1,17 @@
 /* g711.h - include for G711 u-law and a-law conversion routines
-**
-** Copyright (C) 2001 Chris Bagwell
-**
-** Permission to use, copy, modify, and distribute this software and its
-** documentation for any purpose and without fee is hereby granted, provided
-** that the above copyright notice appear in all copies and that both that
-** copyright notice and this permission notice appear in supporting
-** documentation.  This software is provided "as is" without express or
-** implied warranty.
-*/
+ *
+ * Copyright (C) 2001 Chris Bagwell
+ *
+ * Permission to use, copy, modify, and distribute this software and its
+ * documentation for any purpose and without fee is hereby granted, provided
+ * that the above copyright notice appear in all copies and that both that
+ * copyright notice and this permission notice appear in supporting
+ * documentation.  This software is provided "as is" without express or
+ * implied warranty.
+ */
+
+#ifndef _G711_H_
+#define _G711_H_
 
 #include <inttypes.h>
 
@@ -22,7 +25,7 @@ extern int16_t _st_alaw2linear16[256];
 #define st_alaw2linear16(uc) (_st_alaw2linear16[uc])
 #else
 unsigned char st_13linear2alaw(int16_t pcm_val); /*  REGPARM(1); */
-int16_t st_alaw2linear16(unsigned char); /*  REGPARM(1); */
+int16_t       st_alaw2linear16(unsigned char);   /*  REGPARM(1); */
 #endif
 
 #ifdef FAST_ULAW_CONVERSION
@@ -32,7 +35,7 @@ extern int16_t _st_ulaw2linear16[256];
 #define st_ulaw2linear16(uc) (_st_ulaw2linear16[uc])
 #else
 unsigned char st_14linear2ulaw(int16_t pcm_val); /*  REGPARM(1); */
-int16_t st_ulaw2linear16(unsigned char); /*  REGPARM(1); */
+int16_t st_ulaw2linear16(unsigned char);         /*  REGPARM(1); */
 #endif
 
-
+#endif

@@ -23,19 +23,19 @@
  * 2550 Garcia Avenue
  * Mountain View, California  94043
  */
-
 /*
  * g72x.h
  *
  * Header file for CCITT conversion routines.
  *
  */
-#ifndef _G72X_H
-#define	_G72X_H
 
-#define	AUDIO_ENCODING_ULAW	(1)	/* ISDN u-law */
-#define	AUDIO_ENCODING_ALAW	(2)	/* ISDN A-law */
-#define	AUDIO_ENCODING_LINEAR	(3)	/* PCM 2's-complement (0-center) */
+#ifndef _G72X_H_
+#define _G72X_H_
+
+#define AUDIO_ENCODING_ULAW (1)   /* ISDN u-law */
+#define AUDIO_ENCODING_ALAW (2)   /* ISDN A-law */
+#define AUDIO_ENCODING_LINEAR (3) /* PCM 2's-complement (0-center) */
 
 /*
  * The following is the definition of the state structure
@@ -46,106 +46,75 @@
  * to variable names in the bit level description of the coding algorithm
  * included in this Recommendation.
  */
-struct g72x_state {
-	long yl;	/* Locked or steady state step size multiplier. */
-	short yu;	/* Unlocked or non-steady state step size multiplier. */
-	short dms;	/* Short term energy estimate. */
-	short dml;	/* Long term energy estimate. */
-	short ap;	/* Linear weighting coefficient of 'yl' and 'yu'. */
+struct g72x_state
+{
+  long int  yl;  /* Locked or steady state step size multiplier. */
+  short int yu;  /* Unlocked or non-steady state step size multiplier. */
+  short int dms; /* Short term energy estimate. */
+  short int dml; /* Long term energy estimate. */
+  short int ap;  /* Linear weighting coefficient of 'yl' and 'yu'. */
 
-	short a[2];	/* Coefficients of pole portion of prediction filter. */
-	short b[6];	/* Coefficients of zero portion of prediction filter. */
-	short pk[2];	/*
-			 * Signs of previous two samples of a partially
-			 * reconstructed signal.
-			 */
-	short dq[6];	/*
-			 * Previous 6 samples of the quantized difference
-			 * signal represented in an internal floating point
-			 * format.
-			 */
-	short sr[2];	/*
-			 * Previous 2 samples of the quantized difference
-			 * signal represented in an internal floating point
-			 * format.
-			 */
-	char td;	/* delayed tone detect, new in 1988 version */
+  short int a[2];  /* Coefficients of pole portion of prediction filter. */
+  short int b[6];  /* Coefficients of zero portion of prediction filter. */
+  short int pk[2]; /*
+                    * Signs of previous two samples of a partially
+                    * reconstructed signal.
+                    */
+  short int dq[6]; /*
+                    * Previous 6 samples of the quantized difference
+                    * signal represented in an internal floating point
+                    * format.
+                    */
+  short int sr[2]; /*
+                    * Previous 2 samples of the quantized difference
+                    * signal represented in an internal floating point
+                    * format.
+                    */
+  char td;         /* delayed tone detect, new in 1988 version */
 };
 
-int predictor_zero(struct g72x_state *state_ptr);
-int predictor_pole(struct g72x_state *state_ptr);
-int step_size(struct g72x_state *state_ptr);
+int predictor_zero(struct g72x_state* state_ptr);
+int predictor_pole(struct g72x_state* state_ptr);
+int step_size(struct g72x_state* state_ptr);
 
-int quantize(
-	int		d,	/* Raw difference signal sample */
-	int		y,	/* Step size multiplier */
-	short		*table,	/* quantization table */
-	int		size);	/* table size of short integers */
+int quantize(int        d,     /* Raw difference signal sample */
+             int        y,     /* Step size multiplier */
+             short int* table, /* quantization table */
+             int        size); /* table size of short integers */
 
-int reconstruct(
-	int		sign,	/* 0 for non-negative value */
-	int		dqln,	/* G.72x codeword */
-	int		y);	/* Step size multiplier */
+int reconstruct(int sign, /* 0 for non-negative value */
+                int dqln, /* G.72x codeword */
+                int y);   /* Step size multiplier */
 
-void update(
-	int		code_size,	/* distinguish 723_40 with others */
-	int		y,		/* quantizer step size */
-	int		wi,		/* scale factor multiplier */
-	int		fi,		/* for long/short term energies */
-	int		dq,		/* quantized prediction difference */
-	int		sr,		/* reconstructed signal */
-	int		dqsez,		/* difference from 2-pole predictor */
-	struct g72x_state *state_ptr);
+void update(int                code_size, /* distinguish 723_40 with others */
+            int                y,         /* quantizer step size */
+            int                wi,        /* scale factor multiplier */
+            int                fi,        /* for long/short term energies */
+            int                dq,        /* quantized prediction difference */
+            int                sr,        /* reconstructed signal */
+            int                dqsez,     /* difference from 2-pole predictor */
+            struct g72x_state* state_ptr);
 
-int tandem_adjust_alaw(
-	int		sr,	/* decoder output linear PCM sample */
-	int		se,	/* predictor estimate sample */
-	int		y,	/* quantizer step size */
-	int		i,	/* decoder input code */
-	int		sign,
-	short		*qtab);
+int tandem_adjust_alaw(int sr, /* decoder output linear PCM sample */
+                       int se, /* predictor estimate sample */
+                       int y,  /* quantizer step size */
+                       int i,  /* decoder input code */
+                       int sign, short int* qtab);
 
-int
-tandem_adjust_ulaw(
-	int		sr,	/* decoder output linear PCM sample */
-	int		se,	/* predictor estimate sample */
-	int		y,	/* quantizer step size */
-	int		i,	/* decoder input code */
-	int		sign,
-	short		*qtab);
+int tandem_adjust_ulaw(int sr, /* decoder output linear PCM sample */
+                       int se, /* predictor estimate sample */
+                       int y,  /* quantizer step size */
+                       int i,  /* decoder input code */
+                       int sign, short int* qtab);
 
-void g72x_init_state(struct g72x_state *);
-int g721_encoder(
-		int sample,
-		int in_coding,
-		struct g72x_state *state_ptr);
-int g721_decoder(
-		int code,
-		int out_coding,
-		struct g72x_state *state_ptr);
-int g723_16_encoder(
-		int sample,
-		int in_coding,
-		struct g72x_state *state_ptr);
-int g723_16_decoder(
-		int code,
-		int out_coding,
-		struct g72x_state *state_ptr);
-int g723_24_encoder(
-		int sample,
-		int in_coding,
-		struct g72x_state *state_ptr);
-int g723_24_decoder(
-		int code,
-		int out_coding,
-		struct g72x_state *state_ptr);
-int g723_40_encoder(
-		int sample,
-		int in_coding,
-		struct g72x_state *state_ptr);
-int g723_40_decoder(
-		int code,
-		int out_coding,
-		struct g72x_state *state_ptr);
+void g72x_init_state(struct g72x_state*);
+int g721_encoder(int sample, int in_coding, struct g72x_state* state_ptr);
+int g721_decoder(int code, int out_coding, struct g72x_state* state_ptr);
+int g723_16_encoder(int sample, int in_coding, struct g72x_state* state_ptr);
+int g723_16_decoder(int code, int out_coding, struct g72x_state* state_ptr);
+int g723_24_encoder(int sample, int in_coding, struct g72x_state* state_ptr);
+int g723_24_decoder(int code, int out_coding, struct g72x_state* state_ptr);
+int g723_40_encoder(int sample, int in_coding, struct g72x_state* state_ptr);
+int g723_40_decoder(int code, int out_coding, struct g72x_state* state_ptr);
 
 #endif /* !_G72X_H */

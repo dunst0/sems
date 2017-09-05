@@ -24,6 +24,6 @@ CPPFLAGS += -I$(COREPATH)
 	$(CXX) -MMD -c -o $@ $< $(CPPFLAGS) $(CXXFLAGS)
 
 $(LIBNAME): $(OBJS) $(COREPATH)/../Makefile.defs
-	@echo ""
-	@echo "making $(LIBNAME)"
-	$(AR) rvs $(LIBNAME) $(OBJS)
+	@echo ""-
+	@echo "making "
+	"$(LIBNAME)"$(AR) rvs $(LIBNAME) $(OBJS)

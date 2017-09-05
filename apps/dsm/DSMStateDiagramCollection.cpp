@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "DSMStateDiagramCollection.h"
@@ -32,20 +32,19 @@ using std::ifstream;
 
 #include <dirent.h>
 
-DSMStateDiagramCollection::DSMStateDiagramCollection() {
-}
+DSMStateDiagramCollection::DSMStateDiagramCollection() {}
 
-DSMStateDiagramCollection::~DSMStateDiagramCollection() {
-}
+DSMStateDiagramCollection::~DSMStateDiagramCollection() {}
 
-bool DSMStateDiagramCollection::readFile(const string& filename, const string& name,
-					 const string& load_path, string& s) {
+bool DSMStateDiagramCollection::readFile(const string& filename,
+                                         const string& name,
+                                         const string& load_path, string& s)
+{
   DBG("loading DSM '%s' from '%s'\n", name.c_str(), filename.c_str());
 
   ifstream ifs(filename.c_str());
   if (!ifs.good()) {
-    ERROR("loading state diagram '%s'\n",
-	  filename.c_str());
+    ERROR("loading state diagram '%s'\n", filename.c_str());
     return false;
   }
 
@@ -53,61 +52,62 @@ bool DSMStateDiagramCollection::readFile(const string& filename, const string& n
     string r;
     getline(ifs, r);
     // skip comments: lines starting with -- or #
-    size_t fpos  = r.find_first_not_of(" \t");
+    size_t fpos = r.find_first_not_of(" \t");
     if (fpos != string::npos) {
-      if ((r.length() > fpos+1 && r.substr(fpos, 2) == "--") ||
-	  ((r.length() >= fpos+1 && r.substr(fpos, 1) == "#" && r.substr(fpos, 8) != "#include") ))
-	continue;
+      if ((r.length() > fpos + 1 && r.substr(fpos, 2) == "--")
+          || ((r.length() >= fpos + 1 && r.substr(fpos, 1) == "#"
+               && r.substr(fpos, 8) != "#include")))
+        continue;
 
-      if (r.length() > fpos+1 && 
-	  r.substr(fpos, 8) == "#include") {
-	r = r.substr(fpos+8);
-	r = trim(r, "'\" ");
-	if (r.empty()) {
-	  ERROR("missing include file name!\n");
-	  return false;
-	}
+      if (r.length() > fpos + 1 && r.substr(fpos, 8) == "#include") {
+        r = r.substr(fpos + 8);
+        r = trim(r, "'\" ");
+        if (r.empty()) {
+          ERROR("missing include file name!\n");
+          return false;
+        }
 
-	string current_load_path;
-	string include_name;
-	if (r[0]=='/') {
-	  include_name = r;
-	  size_t ppos = r.rfind("/");
-	  current_load_path = r.substr(0, ppos) + "/";
-	} else {
-	  current_load_path = load_path;
-	  include_name = load_path + r;
-	}
+        string current_load_path;
+        string include_name;
+        if (r[0] == '/') {
+          include_name      = r;
+          size_t ppos       = r.rfind("/");
+          current_load_path = r.substr(0, ppos) + "/";
+        }
+        else {
+          current_load_path = load_path;
+          include_name      = load_path + r;
+        }
 
-	struct stat status;
-	DIR *dp;
-	struct dirent *ep;
-	string include_dir_name;
-	if ((stat(include_name.c_str(), &status) == 0) &&
-	    (status.st_mode & S_IFDIR)) {
-	  dp = opendir(include_name.c_str());
-	  if (dp != NULL) {
-	    while ((ep = readdir(dp))) {
-	      string name(ep->d_name);
-	      if (name.rfind(".dsm") != (name.size() - 4)) continue;
-	      include_dir_name = include_name + "/" + name;
-	      if (!readFile(include_dir_name, name, current_load_path, s)) {
-		(void)closedir(dp);
-		return false;
-	      }
-	    }
-	    (void) closedir(dp);
-	  } else {
-	    ERROR("could not open directory %s", include_name.c_str());
-	    return false;
-	  }
-	} else {
-	  if (!readFile(include_name, name, current_load_path, s))
-	    return false;
-	}
-	continue;
+        struct stat    status;
+        DIR*           dp;
+        struct dirent* ep;
+        string         include_dir_name;
+        if ((stat(include_name.c_str(), &status) == 0)
+            && (status.st_mode & S_IFDIR)) {
+          dp = opendir(include_name.c_str());
+          if (dp != NULL) {
+            while ((ep = readdir(dp))) {
+              string name(ep->d_name);
+              if (name.rfind(".dsm") != (name.size() - 4)) continue;
+              include_dir_name = include_name + "/" + name;
+              if (!readFile(include_dir_name, name, current_load_path, s)) {
+                (void) closedir(dp);
+                return false;
+              }
+            }
+            (void) closedir(dp);
+          }
+          else {
+            ERROR("could not open directory %s", include_name.c_str());
+            return false;
+          }
+        }
+        else {
+          if (!readFile(include_name, name, current_load_path, s)) return false;
+        }
+        continue;
       }
-	
     }
 
     s += r + "\n";
@@ -115,13 +115,14 @@ bool DSMStateDiagramCollection::readFile(const string& filename, const string& n
   return true;
 }
 
-bool DSMStateDiagramCollection::loadFile(const string& filename, const string& name,
-					 const string& load_path,
-					 const string& mod_path, bool debug_dsm, bool check_dsm) {
-
+bool DSMStateDiagramCollection::loadFile(const string& filename,
+                                         const string& name,
+                                         const string& load_path,
+                                         const string& mod_path, bool debug_dsm,
+                                         bool check_dsm)
+{
   string s;
-  if (!readFile(filename, name, load_path, s))
-    return false;
+  if (!readFile(filename, name, load_path, s)) return false;
 
   if (debug_dsm) {
     DBG("dsm text\n------------------\n%s\n------------------\n", s.c_str());
@@ -136,12 +137,14 @@ bool DSMStateDiagramCollection::loadFile(const string& filename, const string& n
   if (check_dsm) {
     string report;
     if (!diags.back().checkConsistency(report)) {
-      WARN("consistency check failed on '%s' from file '%s':\n", 
-	   name.c_str(), filename.c_str());
+      WARN("consistency check failed on '%s' from file '%s':\n", name.c_str(),
+           filename.c_str());
       WARN("------------------------------------------\n"
-	   "%s\n"
-	   "------------------------------------------\n", report.c_str());
-    } else {
+           "%s\n"
+           "------------------------------------------\n",
+           report.c_str());
+    }
+    else {
       DBG("DSM '%s' passed consistency check\n", name.c_str());
     }
   }
@@ -149,28 +152,30 @@ bool DSMStateDiagramCollection::loadFile(const string& filename, const string& n
   return true;
 }
 
-bool DSMStateDiagramCollection::hasDiagram(const string& name) {
-  for (vector<DSMStateDiagram>::iterator it=
-	 diags.begin(); it != diags.end(); it++) 
-    if (it->getName() == name)
-      return true;
-  
+bool DSMStateDiagramCollection::hasDiagram(const string& name)
+{
+  for (vector<DSMStateDiagram>::iterator it = diags.begin(); it != diags.end();
+       it++)
+    if (it->getName() == name) return true;
+
   return false;
 }
 
-vector<string> DSMStateDiagramCollection::getDiagramNames() {
-  vector<string> res; 
-  for (vector<DSMStateDiagram>::iterator it=
-	 diags.begin(); it != diags.end(); it++) 
+vector<string> DSMStateDiagramCollection::getDiagramNames()
+{
+  vector<string> res;
+  for (vector<DSMStateDiagram>::iterator it = diags.begin(); it != diags.end();
+       it++)
     res.push_back(it->getName());
   return res;
 }
 
-void DSMStateDiagramCollection::addToEngine(DSMStateEngine* e) {
+void DSMStateDiagramCollection::addToEngine(DSMStateEngine* e)
+{
   DBG("adding %zd diags to engine\n", diags.size());
-  for (vector <DSMStateDiagram>::iterator it = 
-	 diags.begin(); it != diags.end(); it++) 
+  for (vector<DSMStateDiagram>::iterator it = diags.begin(); it != diags.end();
+       it++)
     e->addDiagram(&(*it));
-  
+
   e->addModules(mods);
 }

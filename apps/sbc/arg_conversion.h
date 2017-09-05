@@ -1,9 +1,9 @@
-#ifndef __ARG_CONVERSION
-#define __ARG_CONVERSION
+#ifndef _ARG_CONVERSION_H_
+#define _ARG_CONVERSION_H_
 
 #include "AmArg.h"
 
-std::string arg2username(const AmArg &a);
-bool username2arg(const std::string &src, AmArg &dst);
+std::string arg2username(const AmArg& a);
+bool username2arg(const std::string& src, AmArg& dst);
 
 #endif

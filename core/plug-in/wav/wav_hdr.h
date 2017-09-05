@@ -20,27 +20,27 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _wav_hdr_h_
-#define _wav_hdr_h_
+#ifndef _WAV_HDR_H_
+#define _WAV_HDR_H_
 
 #include "amci.h"
 
-int wav_open(FILE* fp, struct amci_file_desc_t* fmt_desc, 
-	     int options, long h_codec);
-int wav_close(FILE* fp, struct amci_file_desc_t* fmt_desc, 
-	      int options, long h_codec, struct amci_codec_t *codec);
+int wav_open(FILE* fp, struct amci_file_desc_t* fmt_desc, int options,
+             long int h_codec);
+int wav_close(FILE* fp, struct amci_file_desc_t* fmt_desc, int options,
+              long int h_codec, struct amci_codec_t* codec);
 
-int wav_mem_open(unsigned char* mptr, unsigned long size, unsigned long* pos, 
-		 struct amci_file_desc_t* fmt_desc, int options, long h_codec);
+int wav_mem_open(unsigned char* mptr, unsigned long int size,
+                 unsigned long int* pos, struct amci_file_desc_t* fmt_desc,
+                 int options, long int h_codec);
 
-int wav_mem_close(unsigned char* mptr, unsigned long* pos,
-		  struct amci_file_desc_t* fmt_desc, int options, 
-		  long h_codec, struct amci_codec_t *codec);
-
+int wav_mem_close(unsigned char* mptr, unsigned long int* pos,
+                  struct amci_file_desc_t* fmt_desc, int options,
+                  long int h_codec, struct amci_codec_t* codec);
 
 #endif

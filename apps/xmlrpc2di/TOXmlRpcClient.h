@@ -4,21 +4,26 @@
 using namespace XmlRpc;
 
 /* xmlrpc client with timeout */
-class TOXmlRpcClient : public XmlRpc::XmlRpcClient {
+class TOXmlRpcClient : public XmlRpc::XmlRpcClient
+{
  public:
-  TOXmlRpcClient(const char* host, int port, const char* uri=0
+  TOXmlRpcClient(const char* host, int port, const char* uri = 0
 #ifdef HAVE_XMLRPCPP_SSL
-		 , bool ssl=false
+                 ,
+                 bool ssl = false
 #endif
-		 )
-    : XmlRpcClient(host, port, uri
+                 )
+      : XmlRpcClient(host, port, uri
 #ifdef HAVE_XMLRPCPP_SSL
-		   , ssl
+                     ,
+                     ssl
 #endif
-		   ) { }
+        )
+  {
+  }
 
-  bool execute(const char* method, XmlRpcValue const& params, 
-	       XmlRpcValue& result, double timeout);
+  bool execute(const char* method, XmlRpcValue const& params,
+               XmlRpcValue& result, double timeout);
 };
 
 #endif

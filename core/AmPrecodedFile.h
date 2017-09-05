@@ -20,41 +20,43 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _AmPrecodedFile_H
-#define _AmPrecodedFile_H
+#ifndef _AMPRECODEDFILE_H_
+#define _AMPRECODEDFILE_H_
 
+#include "AmAudio.h"
+#include "AmAudioFile.h"
 #include "AmPlugIn.h"
+#include "AmRtpAudio.h"
 #include "AmSdp.h"
 #include "amci/amci.h"
-#include "AmAudioFile.h"
-#include "AmAudio.h"
-#include "AmRtpAudio.h"
 
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 
-#define PRECODED_CODEC_ID   100 // could go into amci/codecs.h
+#define PRECODED_CODEC_ID 100 // could go into amci/codecs.h
 
-struct precoded_payload_t : public amci_payload_t {
+struct precoded_payload_t : public amci_payload_t
+{
  public:
-  string c_name;
-  string format_parameters;
+  std::string  c_name;
+  std::string  format_parameters;
   unsigned int frame_ms;
   unsigned int frame_bytes;
-  string filename;
+  std::string  filename;
 
-  precoded_payload_t() {codec_id = PRECODED_CODEC_ID;}
+  precoded_payload_t() { codec_id = PRECODED_CODEC_ID; }
 };
 
-class AmPrecodedFileFormat : public AmAudioFileFormat {
-
+class AmPrecodedFileFormat : public AmAudioFileFormat
+{
   precoded_payload_t& precoded_payload;
-  amci_subtype_t subtype;
+  amci_subtype_t      subtype;
 
   /* encoded frame size in bytes */
   int frame_encoded_size;
@@ -62,17 +64,17 @@ class AmPrecodedFileFormat : public AmAudioFileFormat {
  public:
   AmPrecodedFileFormat(precoded_payload_t& precoded_payload);
   ~AmPrecodedFileFormat();
-  amci_subtype_t*  getSubtype() { return &subtype; }
-  int getFrameEncodedSize() { return frame_encoded_size; }
+  amci_subtype_t* getSubtype() { return &subtype; }
+  int             getFrameEncodedSize() { return frame_encoded_size; }
 };
 
-class AmPrecodedRtpFormat : public AmAudioRtpFormat 
+class AmPrecodedRtpFormat : public AmAudioRtpFormat
 {
   precoded_payload_t& precoded_payload;
 
   /* encoded frame size in bytes */
   int frame_encoded_size;
-  
+
  public:
   AmPrecodedRtpFormat(precoded_payload_t& precoded_payload);
   ~AmPrecodedRtpFormat();
@@ -80,30 +82,29 @@ class AmPrecodedRtpFormat : public AmAudioRtpFormat
   int getFrameEncodedSize() { return frame_encoded_size; }
 };
 
-class AmPrecodedFileInstance
-: public AmAudioFile {
- 
+class AmPrecodedFileInstance : public AmAudioFile
+{
   precoded_payload_t& precoded_payload;
-  amci_inoutfmt_t m_iofmt;
+  amci_inoutfmt_t     m_iofmt;
 
  public:
- AmPrecodedFileInstance(precoded_payload_t& precoded_payload);
- ~AmPrecodedFileInstance();
+  AmPrecodedFileInstance(precoded_payload_t& precoded_payload);
+  ~AmPrecodedFileInstance();
 
- AmPrecodedRtpFormat* getRtpFormat();
+  AmPrecodedRtpFormat* getRtpFormat();
 
   int open();
-  
+
  protected:
-  AmAudioFileFormat* fileName2Fmt(const string& name, const string& subtype);
+  AmAudioFileFormat* fileName2Fmt(const std::string& name,
+                                  const std::string& subtype);
 };
 
-class AmPrecodedFile 
-: public AmPayloadProvider {
+class AmPrecodedFile : public AmPayloadProvider
+{
+  std::map<int, precoded_payload_t> payloads;
 
-  std::map<int,precoded_payload_t>  payloads;
-
- public: 
+ public:
   AmPrecodedFile();
   ~AmPrecodedFile();
 
@@ -116,9 +117,10 @@ class AmPrecodedFile
   AmPrecodedFileInstance* getFileInstance(int payload_id);
 
   /** from @AmPayloadProvider */
-  amci_payload_t*  payload(int payload_id) const;
-  int getDynPayload(const string& name, int rate, int encoding_param) const;
-  void getPayloads(vector<SdpPayload>& pl_vec) const;
+  amci_payload_t* payload(int payload_id) const;
+  int             getDynPayload(const std::string& name, int rate,
+                                int encoding_param) const;
+  void            getPayloads(std::vector<SdpPayload>& pl_vec) const;
 };
 
 #endif

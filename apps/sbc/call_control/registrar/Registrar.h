@@ -37,16 +37,17 @@ class CCRegistrar : public AmDynInvoke
 {
   static CCRegistrar* _instance;
 
-  void start(const string& cc_name, const string& ltag, SBCCallProfile* call_profile,
-	     int start_ts_sec, int start_ts_usec, const AmArg& values,
-	     int timer_id, AmArg& res, const AmSipRequest* ood_req);
-  void connect(const string& cc_name, const string& ltag, SBCCallProfile* call_profile,
-	       const string& other_ltag,
-	       int connect_ts_sec, int connect_ts_usec);
-  void end(const string& cc_name, const string& ltag, SBCCallProfile* call_profile,
-	   int end_ts_sec, int end_ts_usec);
+  void start(const string& cc_name, const string& ltag,
+             SBCCallProfile* call_profile, int start_ts_sec, int start_ts_usec,
+             const AmArg& values, int timer_id, AmArg& res,
+             const AmSipRequest* ood_req);
+  void connect(const string& cc_name, const string& ltag,
+               SBCCallProfile* call_profile, const string& other_ltag,
+               int connect_ts_sec, int connect_ts_usec);
+  void end(const string& cc_name, const string& ltag,
+           SBCCallProfile* call_profile, int end_ts_sec, int end_ts_usec);
   void route(const string& cc_name, SBCCallProfile* call_profile,
-			const AmSipRequest* ood_req, const AmArg& values, AmArg& res);
+             const AmSipRequest* ood_req, const AmArg& values, AmArg& res);
 
  public:
   CCRegistrar();
@@ -56,4 +57,4 @@ class CCRegistrar : public AmDynInvoke
   int onLoad();
 };
 
-#endif 
+#endif

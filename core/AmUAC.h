@@ -20,34 +20,32 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmUAC.h */
-#ifndef AmUAC_H
-#define AmUAC_H
 
-#include "AmThread.h"
-#include "AmSession.h"
+#ifndef _AMUAC_H_
+#define _AMUAC_H_
+
 #include "AmArg.h"
+#include "AmSession.h"
+#include "AmThread.h"
 
 #include <string>
-using std::string; 
 
 /** \brief API for UAC support */
-class AmUAC {
+class AmUAC
+{
  public:
-  static string dialout(const string& user,
-			const string& app_name,
-			const string& r_uri, 
-			const string& from,
-			const string& from_uri,
-			const string& to,
-			const string& local_tag = "",
-			const string& hdrs = "",
-			AmArg*  session_params = NULL);
-
+  static std::string dialout(const std::string& user,
+                             const std::string& app_name,
+                             const std::string& r_uri, const std::string& from,
+                             const std::string& from_uri, const std::string& to,
+                             const std::string& local_tag      = "",
+                             const std::string& hdrs           = "",
+                             AmArg*             session_params = NULL);
 };
 
 #endif

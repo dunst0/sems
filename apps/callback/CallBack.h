@@ -18,71 +18,73 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #ifndef _CALLBACK_H_
 #define _CALLBACK_H_
 
 #include "AmApi.h"
-#include "AmB2ABSession.h"
 #include "AmAudio.h"
+#include "AmB2ABSession.h"
 #include "AmPlaylist.h"
 #include "AmPromptCollection.h"
 #include "AmUACAuth.h"
 
+#include <regex.h>
+#include <sys/types.h>
+
 #include <map>
 #include <string>
-using std::string;
-
-#include <sys/types.h>
-#include <regex.h>
 
 // configuration parameter names
 #define WELCOME_PROMPT "welcome_prompt"
-#define DIGITS_DIR     "digits_dir"
+#define DIGITS_DIR "digits_dir"
 #define ACCEPT_CALLER_RE "accept_caller_re"
 
-class CallBackFactory 
-  : public AmSessionFactory,
-    public AmThread
+class CallBackFactory
+    : public AmSessionFactory
+    , public AmThread
 {
   AmPromptCollection prompts;
 
-  bool configured;
+  // UNUSED
+  // bool configured;
+  // UNUSED_END
 
   regex_t accept_caller_re;
 
-  std::multimap<time_t, string> scheduled_calls;
+  std::multimap<time_t, std::string> scheduled_calls;
   AmMutex scheduled_calls_mut;
   // seconds to wait before calling back
   int cb_wait;
 
-  void createCall(const string& number);
+  void createCall(const std::string& number);
 
+ public:
+  static std::string gw_user;
+  static std::string gw_domain;
+  static std::string auth_user;
+  static std::string auth_pwd;
 
-public:
-  static string gw_user;
-  static string gw_domain;
-  static string auth_user;
-  static string auth_pwd;
-  
-  static string DigitsDir;
+  static std::string DigitsDir;
   static PlayoutType m_PlayoutType;
 
-  CallBackFactory(const string& _app_name);
-  AmSession* onInvite(const AmSipRequest&, const string& app_name,
-		      const map<string,string>& app_params);
-  AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-		      AmArg& session_params);
+  CallBackFactory(const std::string& _app_name);
+  ~CallBackFactory();
+  AmSession* onInvite(const AmSipRequest&, const std::string&   app_name,
+                      const std::map<std::string, std::string>& app_params);
+  AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
+                      AmArg& session_params);
   int onLoad();
 
   void run();
   void on_stop();
 };
 
-enum CBState {
+enum CBState
+{
   CBNone = 0,
   CBEnteringNumber,
   CBTellingNumber,
@@ -90,50 +92,44 @@ enum CBState {
   CBConnected
 };
 
-class CallBackDialog 
-  : public AmB2ABCallerSession,
-    public CredentialHolder
+class CallBackDialog
+    : public AmB2ABCallerSession
+    , public CredentialHolder
 {
-
-private:
-  AmPlaylist  play_list;
+ private:
+  AmPlaylist play_list;
 
   AmPromptCollection& prompts;
 
-  string  call_number;
+  std::string  call_number;
   UACAuthCred* cred;
 
   CBState state;
-public:
-  CallBackDialog(AmPromptCollection& prompts,		 
-		 UACAuthCred* cred);
+
+ public:
+  CallBackDialog(AmPromptCollection& prompts, UACAuthCred* cred);
   ~CallBackDialog();
 
   void process(AmEvent* ev);
-  void onInvite(const AmSipRequest& req); 
+  void onInvite(const AmSipRequest& req);
   void onSessionStart();
   void onDtmf(int event, int duration);
 
-  UACAuthCred* getCredentials() { return cred; }
+  UACAuthCred*         getCredentials() { return cred; }
   AmB2ABCalleeSession* createCalleeSession();
-
 };
 
-class CallBackCalleeDialog 
-  : public AmB2ABCalleeSession,
-    public CredentialHolder
+class CallBackCalleeDialog
+    : public AmB2ABCalleeSession
+    , public CredentialHolder
 {
   UACAuthCred* cred;
-public:
-  CallBackCalleeDialog(const string& other_tag,
-		       AmSessionAudioConnector* connector,
-		       UACAuthCred* cred);
+
+ public:
+  CallBackCalleeDialog(const std::string&       other_tag,
+                       AmSessionAudioConnector* connector, UACAuthCred* cred);
   ~CallBackCalleeDialog();
   UACAuthCred* getCredentials() { return cred; }
 };
 
 #endif
-// Local Variables:
-// mode:C++
-// End:
-

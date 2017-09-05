@@ -24,72 +24,75 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _CLICK_2_DIAL_H_
-#define _CLICK_2_DIAL_H_
+#ifndef _CLICK2DIAL_H_
+#define _CLICK2DIAL_H_
 
-#include "AmSession.h"
-#include "AmConfigReader.h"
 #include "AmAudioFile.h"
 #include "AmB2BSession.h"
-
+#include "AmConfigReader.h"
+#include "AmSession.h"
 #include "AmUACAuth.h"
 
+#include <map>
 #include <string>
-using std::string;
 
-class Click2DialFactory: public AmSessionFactory
+class Click2DialFactory : public AmSessionFactory
 {
-  string getAnnounceFile(const AmSipRequest& req);
+  std::string getAnnounceFile(const AmSipRequest& req);
 
-  public:
+ public:
+  static std::string            AnnouncePath;
+  static std::string            AnnounceFile;
+  static AmSessionEventHandler* AuthHandler;
 
-    static string AnnouncePath;
-    static string AnnounceFile;
-    static AmSessionEventHandler* AuthHandler;
+  static bool relay_early_media_sdp;
 
-    static bool relay_early_media_sdp;
+  Click2DialFactory(const std::string& _app_name);
 
-    Click2DialFactory(const string& _app_name);
-
-    int onLoad();
-    AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-			const map<string,string>& app_params);
-    AmSession* onInvite(const AmSipRequest& req, const string& app_name, AmArg& session_params);
+  int        onLoad();
+  AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
+                      const std::map<std::string, std::string>&   app_params);
+  AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
+                      AmArg& session_params);
 };
 
-class C2DCallerDialog: public AmB2BCallerSession, public CredentialHolder
+class C2DCallerDialog
+    : public AmB2BCallerSession
+    , public CredentialHolder
 {
-  AmAudioFile wav_file;
-  string filename;
-  string callee_uri;
+  AmAudioFile                  wav_file;
+  std::string                  filename;
+  std::string                  callee_uri;
   std::unique_ptr<UACAuthCred> cred;
 
-  public:
+ public:
+  C2DCallerDialog(const AmSipRequest& req, const std::string& filename,
+                  const std::string& callee_uri,
+                  UACAuthCred*       credentials = NULL);
 
-    C2DCallerDialog(const AmSipRequest& req, const string& filename,
-      const string& callee_uri, UACAuthCred* credentials = NULL);
-
-    void process(AmEvent* event);
-    void onInvite(const AmSipRequest& req);
-    void onInvite2xx(const AmSipReply& reply);
-    void onSessionStart();
-    void createCalleeSession();
-    inline UACAuthCred* getCredentials() { return cred.get(); }
-    void onB2BEvent(B2BEvent*);
-    void updateUACTransCSeq(unsigned int old_cseq, unsigned int new_cseq);
-    void onSipReply(const AmSipRequest& req,
-                    const AmSipReply& reply, AmBasicSipDialog::Status old_dlg_status);
-
+  void process(AmEvent* event);
+  void onInvite(const AmSipRequest& req);
+  void onInvite2xx(const AmSipReply& reply);
+  void                onSessionStart();
+  void                createCalleeSession();
+  inline UACAuthCred* getCredentials() { return cred.get(); }
+  void                onB2BEvent(B2BEvent*);
+  void updateUACTransCSeq(unsigned int old_cseq, unsigned int new_cseq);
+  void onSipReply(const AmSipRequest& req, const AmSipReply& reply,
+                  AmBasicSipDialog::Status old_dlg_status);
 };
 
-class C2DCalleeDialog : public AmB2BCalleeSession, public CredentialHolder
+class C2DCalleeDialog
+    : public AmB2BCalleeSession
+    , public CredentialHolder
 {
   std::unique_ptr<UACAuthCred> cred;
-  void setAuthHandler();
+  void                         setAuthHandler();
 
-  public:
-
-    C2DCalleeDialog(const AmB2BCallerSession* caller, UACAuthCred* credentials = NULL);
-    inline UACAuthCred* getCredentials() { return cred.get(); }
+ public:
+  C2DCalleeDialog(const AmB2BCallerSession* caller,
+                  UACAuthCred*              credentials = NULL);
+  inline UACAuthCred* getCredentials() { return cred.get(); }
 };
-#endif                           // _CLICK_2_DIAL_H_
+
+#endif

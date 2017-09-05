@@ -22,322 +22,291 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 #include "parse_common.h"
+
 #include "log.h"
 
 #include <string.h>
 
 #include <memory>
+
 using std::unique_ptr;
+using std::list;
 
 int parse_sip_version(const char* beg, int len)
 {
-    const char* c = beg;
-    //char* end = c+len;
+  const char* c = beg;
+  // UNUSED
+  // char* end = c+len;
+  // UNUSED_END
 
-    if(len!=SIPVER_len){
-	DBG("SIP-Version string length != SIPVER_len\n");
-	return MALFORMED_SIP_MSG;
-    }
+  if (len != SIPVER_len) {
+    DBG("SIP-Version string length != SIPVER_len\n");
+    return MALFORMED_SIP_MSG;
+  }
 
-    if( ((c[0] != 'S')&&(c[0] != 's')) || 
-	((c[1] != 'I')&&(c[1] != 'i')) ||
-	((c[2] != 'P')&&(c[2] != 'p')) ) {
+  if (((c[0] != 'S') && (c[0] != 's')) || ((c[1] != 'I') && (c[1] != 'i'))
+      || ((c[2] != 'P') && (c[2] != 'p'))) {
+    DBG("SIP-Version does not begin with \"SIP\"\n");
+    return MALFORMED_SIP_MSG;
+  }
+  c += SIP_len;
 
-	DBG("SIP-Version does not begin with \"SIP\"\n");
-	return MALFORMED_SIP_MSG;
-    }
-    c += SIP_len;
+  if (memcmp(c, SUP_SIPVER, SUP_SIPVER_len) != 0) {
+    DBG("Unsupported or malformed SIP-Version\n");
+    return MALFORMED_SIP_MSG;
+  }
 
-    if(memcmp(c,SUP_SIPVER,SUP_SIPVER_len) != 0){
-	DBG("Unsupported or malformed SIP-Version\n");
-	return MALFORMED_SIP_MSG;
-    }
-
-    //DBG("SIP-Version OK\n");
-    return 0;
+  // DBG("SIP-Version OK\n");
+  return 0;
 }
 
-static int _parse_gen_params(list<sip_avp*>* params, const char** c, 
-			     int len, char stop_char, bool beg_w_sc)
+static int _parse_gen_params(list<sip_avp*>* params, const char** c, int len,
+                             char stop_char, bool beg_w_sc)
 {
-    enum {
-	VP_PARAM_SEP=0,
-	VP_PARAM_SEP_SWS,
-	VP_PNAME,
-	VP_PNAME_EQU,
-	VP_PNAME_EQU_SWS,
-	VP_PVALUE,
-	VP_PVALUE_QUOTED
-    };
+  enum
+  {
+    VP_PARAM_SEP = 0,
+    VP_PARAM_SEP_SWS,
+    VP_PNAME,
+    VP_PNAME_EQU,
+    VP_PNAME_EQU_SWS,
+    VP_PVALUE,
+    VP_PVALUE_QUOTED
+  };
 
-    const char* beg = *c;
-    const char* end = beg+len;
-    int saved_st=0;
+  const char* beg      = *c;
+  const char* end      = beg + len;
+  int         saved_st = 0;
 
-    int st = beg_w_sc ? VP_PARAM_SEP : VP_PARAM_SEP_SWS;
+  int st = beg_w_sc ? VP_PARAM_SEP : VP_PARAM_SEP_SWS;
 
-    unique_ptr<sip_avp> avp(new sip_avp());
+  unique_ptr<sip_avp> avp(new sip_avp());
 
-    for(;*c!=end;(*c)++){
+  for (; *c != end; (*c)++) {
+    switch (st) {
+      case VP_PARAM_SEP:
+        switch (**c) {
+          case_CR_LF;
 
-	switch(st){
+          case SP:
+          case HTAB: break;
 
-	case VP_PARAM_SEP:
-	    switch(**c){
+          case ';': st = VP_PARAM_SEP_SWS; break;
 
-	    case_CR_LF;
+          default:
+            if (**c == stop_char) {
+              return 0;
+            }
 
-	    case SP:
-	    case HTAB:
-		break;
-		
-	    case ';':
-		st = VP_PARAM_SEP_SWS;
-		break;
+            DBG("';' expected, found '%c'\n", **c);
+            return MALFORMED_SIP_MSG;
+        }
+        break;
 
-	    default:
-		if(**c == stop_char){
-		    return 0;
-		}
+      case VP_PARAM_SEP_SWS:
+        switch (**c) {
+          case_CR_LF;
 
-		DBG("';' expected, found '%c'\n",**c);
-		return MALFORMED_SIP_MSG;
-	    }
-	    break;
+          case SP:
+          case HTAB: break;
 
-	case VP_PARAM_SEP_SWS:
-	    switch(**c){
+          default:
+            st  = VP_PNAME;
+            beg = *c;
+            break;
+        }
+        break;
 
-	    case_CR_LF;
+      case VP_PNAME:
+        switch (**c) {
+          case_CR_LF;
 
-	    case SP:
-	    case HTAB:
-		break;
+          case SP:
+          case HTAB:
+            st = VP_PNAME_EQU;
+            avp->name.set(beg, *c - beg);
+            break;
 
-	    default:
-		st = VP_PNAME;
-		beg=*c;
-		break;
-	    }
-	    break;
-	    
-	case VP_PNAME:
-	    switch(**c){
+          case '=':
+            st = VP_PNAME_EQU_SWS;
+            avp->name.set(beg, *c - beg);
+            break;
 
-	    case_CR_LF;
+          case ';':
+            st = VP_PARAM_SEP_SWS;
+            avp->name.set(beg, *c - beg);
+            params->push_back(avp.release());
+            avp.reset(new sip_avp());
+            break;
 
-	    case SP:
-	    case HTAB:
-		st = VP_PNAME_EQU;
-		avp->name.set(beg,*c-beg);
-		break;
+          default:
+            if (**c == stop_char) {
+              avp->name.set(beg, *c - beg);
+              params->push_back(avp.release());
+              return 0;
+            }
+            break;
+        }
+        break;
 
-	    case '=':
-		st = VP_PNAME_EQU_SWS;
-		avp->name.set(beg,*c-beg);
-		break;
+      case VP_PNAME_EQU:
+        switch (**c) {
+          case_CR_LF;
 
-	    case ';':
-		st = VP_PARAM_SEP_SWS;
-		avp->name.set(beg,*c-beg);
-		params->push_back(avp.release());
-		avp.reset(new sip_avp());
-		break;
+          case SP:
+          case HTAB: break;
 
-	    default:
-		if(**c == stop_char){
-		    avp->name.set(beg,*c-beg);
-		    params->push_back(avp.release());
-		    return 0;
-		}
-		break;
+          case '=': st = VP_PNAME_EQU_SWS; break;
 
-	    }
-	    break;
+          case ';':
+            st = VP_PARAM_SEP_SWS;
+            params->push_back(avp.release());
+            avp.reset(new sip_avp());
+            break;
 
-	case VP_PNAME_EQU:
-	    switch(**c){
+          default:
+            if (**c == stop_char) {
+              params->push_back(avp.release());
+              return 0;
+            }
+            DBG("'=' expected\n");
+            return MALFORMED_SIP_MSG;
+        }
 
-	    case_CR_LF;
+      case VP_PNAME_EQU_SWS:
+        switch (**c) {
+          case_CR_LF;
 
-	    case SP:
-	    case HTAB:
-		break;
+          case SP:
+          case HTAB: break;
 
-	    case '=':
-		st = VP_PNAME_EQU_SWS;
-		break;
+          case '\"':
+            st  = VP_PVALUE_QUOTED;
+            beg = *c;
+            break;
 
-	    case ';':
-		st = VP_PARAM_SEP_SWS;
-		params->push_back(avp.release());
-		avp.reset(new sip_avp());
-		break;
+          case ';':
+            st = VP_PARAM_SEP_SWS;
+            params->push_back(avp.release());
+            avp.reset(new sip_avp());
+            break;
 
-	    default:
-		if(**c == stop_char){
-		    params->push_back(avp.release());
-		    return 0;
-		}
-		DBG("'=' expected\n");
-		return MALFORMED_SIP_MSG;
-	    }
+          default:
+            st  = VP_PVALUE;
+            beg = *c;
+            break;
+        }
+        break;
 
-	case VP_PNAME_EQU_SWS:
-	    switch(**c){
+      case VP_PVALUE:
+        switch (**c) {
+          case_CR_LF;
 
-	    case_CR_LF;
+          case '\"': st = VP_PVALUE_QUOTED; break;
 
-	    case SP:
-	    case HTAB:
-		break;
-		
-	    case '\"':
-		st = VP_PVALUE_QUOTED;
-		beg = *c;
-		break;
+          case ';':
+            st = VP_PARAM_SEP_SWS;
+            avp->value.set(beg, *c - beg);
+            params->push_back(avp.release());
+            avp.reset(new sip_avp());
+            break;
 
-	    case ';':
-		st = VP_PARAM_SEP_SWS;
-		params->push_back(avp.release());
-		avp.reset(new sip_avp());
-		break;
+          default:
+            if (**c == stop_char) {
+              avp->value.set(beg, *c - beg);
+              params->push_back(avp.release());
+              return 0;
+            }
+            break;
+        }
+        break;
 
-	    default:
-		st = VP_PVALUE;
-		beg = *c;
-		break;
-	    }
-	    break;
+      case VP_PVALUE_QUOTED:
+        switch (**c) {
+          case_CR_LF;
 
-	case VP_PVALUE:
-	    switch(**c){
+          case '\"':
+            st = VP_PARAM_SEP;
+            avp->value.set(beg, *c + 1 - beg);
+            params->push_back(avp.release());
+            avp.reset(new sip_avp());
+            break;
 
-	    case_CR_LF;
+          case '\\':
+            if (!*(++(*c))) {
+              DBG("Escape char in quoted str at EoT!!!\n");
+              return MALFORMED_SIP_MSG;
+            }
+            break;
+        }
+        break;
 
-	    case '\"':
-		st = VP_PVALUE_QUOTED;
-		break;
+        case_ST_CR(**c);
 
-	    case ';':
-		st = VP_PARAM_SEP_SWS;
-		avp->value.set(beg,*c-beg);
-		params->push_back(avp.release());
-		avp.reset(new sip_avp());
-		break;
+      case ST_LF:
+      case ST_CRLF:
+        switch (saved_st) {
+          case VP_PNAME:
+            saved_st = VP_PNAME_EQU;
+            avp->name.set(beg, *c - (st == ST_CRLF ? 2 : 1) - beg);
+            break;
 
-	    default:
-		if(**c == stop_char){
-		    avp->value.set(beg,*c-beg);
-		    params->push_back(avp.release());
-		    return 0;
-		}
-		break;
-	    }
-	    break;
-
-	case VP_PVALUE_QUOTED:
-	    switch(**c){
-
-	    case_CR_LF;
-
-	    case '\"':
-		st = VP_PARAM_SEP;
-		avp->value.set(beg,*c+1-beg);
-		params->push_back(avp.release());
-		avp.reset(new sip_avp());
-		break;
-		
-	    case '\\':
-		if(!*(++(*c))){
-		    DBG("Escape char in quoted str at EoT!!!\n");
-		    return MALFORMED_SIP_MSG;
-		}
-		break;
-	    }
-	    break;
-
-	case_ST_CR(**c);
-	
-	case ST_LF:
-	case ST_CRLF:
-	    switch(saved_st){
-
-	    case VP_PNAME:
-		saved_st = VP_PNAME_EQU;
-		avp->name.set(beg,*c-(st==ST_CRLF?2:1)-beg);
-		break;
-
-	    case VP_PVALUE:
-		saved_st = VP_PARAM_SEP;
-		avp->value.set(beg,*c-(st==ST_CRLF?2:1)-beg);
-		params->push_back(avp.release());
-		avp.reset(new sip_avp());
-		break;
-	    }
-	    st = saved_st;
-	}
+          case VP_PVALUE:
+            saved_st = VP_PARAM_SEP;
+            avp->value.set(beg, *c - (st == ST_CRLF ? 2 : 1) - beg);
+            params->push_back(avp.release());
+            avp.reset(new sip_avp());
+            break;
+        }
+        st = saved_st;
     }
-    
-    switch(st){
+  }
 
+  switch (st) {
     case VP_PNAME:
-	avp->name.set(beg,*c-beg);
-	params->push_back(avp.release());
-	break;
+      avp->name.set(beg, *c - beg);
+      params->push_back(avp.release());
+      break;
 
     case VP_PVALUE:
-	avp->value.set(beg,*c-beg);
-	params->push_back(avp.release());
-	break;
+      avp->value.set(beg, *c - beg);
+      params->push_back(avp.release());
+      break;
 
     case VP_PARAM_SEP:
-    case VP_PARAM_SEP_SWS:
-	break;
+    case VP_PARAM_SEP_SWS: break;
 
     case VP_PNAME_EQU:
-    case VP_PNAME_EQU_SWS:
-	params->push_back(avp.release());
-	break;
+    case VP_PNAME_EQU_SWS: params->push_back(avp.release()); break;
 
-    default:
-	DBG("Wrong state: st=%i\n",st);
-	return MALFORMED_SIP_MSG;
-    }
+    default: DBG("Wrong state: st=%i\n", st); return MALFORMED_SIP_MSG;
+  }
 
-    return 0;
+  return 0;
 }
 
-int parse_gen_params_sc(list<sip_avp*>* params, const char** c, 
-			int len, char stop_char)
+int parse_gen_params_sc(list<sip_avp*>* params, const char** c, int len,
+                        char stop_char)
 {
-    return _parse_gen_params(params,c,len,stop_char,true);
+  return _parse_gen_params(params, c, len, stop_char, true);
 }
 
-int parse_gen_params(list<sip_avp*>* params, const char** c,
-		     int len, char stop_char)
+int parse_gen_params(list<sip_avp*>* params, const char** c, int len,
+                     char stop_char)
 {
-    return _parse_gen_params(params,c,len,stop_char,false);
+  return _parse_gen_params(params, c, len, stop_char, false);
 }
 
 void free_gen_params(list<sip_avp*>* params)
 {
-    while(!params->empty()) {
-	delete params->front();
-	params->pop_front();
-    }
+  while (!params->empty()) {
+    delete params->front();
+    params->pop_front();
+  }
 }
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 4
- * End:
- */

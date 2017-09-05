@@ -20,29 +20,28 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmEvent.h */
-#ifndef AmEvent_h
-#define AmEvent_h
+
+#ifndef _AMEVENT_H_
+#define _AMEVENT_H_
 
 #include "AmArg.h"
 
 #include <string>
-using std::string;
 
-#define E_PLUGIN           100
-#define E_SYSTEM           101
+#define E_PLUGIN 100
+#define E_SYSTEM 101
 #define E_SIP_SUBSCRIPTION 102
-#define E_B2B_APP          103
-
+#define E_B2B_APP 103
 
 /** \brief base event class */
 struct AmEvent
 {
-  int event_id;
+  int  event_id;
   bool processed;
 
   AmEvent(int event_id);
@@ -53,19 +52,19 @@ struct AmEvent
   virtual AmEvent* clone();
 };
 
-/** 
- * \brief named event for inter-plugin-API 
+/**
+ * \brief named event for inter-plugin-API
  *
  * Optionally the AmPluginEvent also holds a dynamic argument array.
  */
-struct AmPluginEvent: public AmEvent
+struct AmPluginEvent : public AmEvent
 {
-  string      name;
+  std::string name;
   AmArg       data;
 
-  AmPluginEvent(const string& n);
+  AmPluginEvent(const std::string& n);
 
-  AmPluginEvent(const string& n, const AmArg& d);
+  AmPluginEvent(const std::string& n, const AmArg& d);
 };
 
 /**
@@ -84,11 +83,12 @@ class AmTimeoutEvent : public AmPluginEvent
 };
 
 /**
- * \brief named event for system events (e.g. server stopped) 
+ * \brief named event for system events (e.g. server stopped)
  */
-struct AmSystemEvent : public AmEvent 
+struct AmSystemEvent : public AmEvent
 {
-  enum EvType {
+  enum EvType
+  {
     ServerShutdown = 0,
     User1,
     User2
@@ -103,15 +103,14 @@ struct AmSystemEvent : public AmEvent
   AmEvent* clone();
 
   static const char* getDescription(EvType t);
-
 };
 
 /** \brief event handler interface */
 class AmEventHandler
 {
  public:
-  virtual void process(AmEvent*)=0;
-  virtual ~AmEventHandler() { };
+  virtual void process(AmEvent*) = 0;
+  virtual ~AmEventHandler(){};
 };
 
 #endif

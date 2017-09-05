@@ -22,74 +22,66 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _parse_header_h
-#define _parse_header_h
+#ifndef _PARSE_HEADER_H_
+#define _PARSE_HEADER_H_
 
 #include "cstring.h"
 
 #include <list>
-using std::list;
 
 struct sip_parsed_hdr
 {
-    virtual ~sip_parsed_hdr(){}
+  virtual ~sip_parsed_hdr() {}
 };
-
 
 struct sip_header
 {
-    //
-    // Header types
-    //
-    
-    enum {
-	H_UNPARSED=0,
-	
-	H_TO,
-	H_VIA,
-	H_FROM,
-	H_CSEQ,
-        H_RSEQ,
-        H_RACK,
-	H_ROUTE,
-	H_CALL_ID,
-	H_CONTACT,
-        H_REQUIRE,
-	H_RECORD_ROUTE,
-	H_CONTENT_TYPE,
-	H_CONTENT_LENGTH,
-	H_MAX_FORWARDS,
-	
-	H_OTHER
-    };
+  //
+  // Header types
+  //
 
-    int     type;
-    cstring name;
-    cstring value;
+  enum
+  {
+    H_UNPARSED = 0,
 
-    sip_parsed_hdr* p;
+    H_TO,
+    H_VIA,
+    H_FROM,
+    H_CSEQ,
+    H_RSEQ,
+    H_RACK,
+    H_ROUTE,
+    H_CALL_ID,
+    H_CONTACT,
+    H_REQUIRE,
+    H_RECORD_ROUTE,
+    H_CONTENT_TYPE,
+    H_CONTENT_LENGTH,
+    H_MAX_FORWARDS,
 
-    sip_header();
-    sip_header(const sip_header& hdr);
-    sip_header(int type, const cstring& name, const cstring& value);
-    ~sip_header();
+    H_OTHER
+  };
+
+  int     type;
+  cstring name;
+  cstring value;
+
+  sip_parsed_hdr* p;
+
+  sip_header();
+  sip_header(const sip_header& hdr);
+  sip_header(int type, const cstring& name, const cstring& value);
+  ~sip_header();
 };
 
 int parse_header_type(sip_header* h);
 
-int parse_headers(list<sip_header*>& hdrs, char** c, char* end);
-void free_headers(list<sip_header*>& hdrs);
+int  parse_headers(std::list<sip_header*>& hdrs, char** c, char* end);
+void free_headers(std::list<sip_header*>& hdrs);
 
 #endif
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 4
- * End:
- */

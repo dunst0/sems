@@ -20,15 +20,18 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _SubscriptionDialog_h_
-#define _SubscriptionDialog_h_
+
+#ifndef _SUBSCRIPTIONDIALOG_H_
+#define _SUBSCRIPTIONDIALOG_H_
 
 #include "AmSipSubscription.h"
 #include "SBCSimpleRelay.h"
+
+#include <vector>
 
 /**
  * \brief B2B Subscription UA
@@ -36,12 +39,11 @@
  * This class represents one side of a B2BUA
  * supporting SIP standalone subscriptions.
  */
-class SubscriptionDialog
-  : public SimpleRelayDialog
+class SubscriptionDialog : public SimpleRelayDialog
 {
-protected:
+ protected:
   AmSipSubscription* subs;
-  RelayMap refer_id_map;
+  RelayMap           refer_id_map;
 
   // AmEventHandler
   void process(AmEvent* ev);
@@ -51,14 +53,16 @@ protected:
    * refer event subscription which has been relayed.
    */
   bool getMappedReferID(unsigned int refer_id, unsigned int& mapped_id) const;
-  virtual void insertMappedReferID(unsigned int refer_id, unsigned int mapped_id);
+  virtual void insertMappedReferID(unsigned int refer_id,
+                                   unsigned int mapped_id);
 
-public:
-  SubscriptionDialog(SBCCallProfile &profile, vector<AmDynInvoke*> &cc_modules,
-		     AmSipSubscription* subscription=NULL,
-		     atomic_ref_cnt* parent_obj=NULL);
-  SubscriptionDialog(AmSipSubscription* subscription=NULL,
-		     atomic_ref_cnt* parent_obj=NULL);
+ public:
+  SubscriptionDialog(SBCCallProfile&            profile,
+                     std::vector<AmDynInvoke*>& cc_modules,
+                     AmSipSubscription*         subscription = NULL,
+                     atomic_ref_cnt*            parent_obj   = NULL);
+  SubscriptionDialog(AmSipSubscription* subscription = NULL,
+                     atomic_ref_cnt*    parent_obj   = NULL);
   virtual ~SubscriptionDialog();
 
   // SimpleRelayDialog interface
@@ -67,9 +71,8 @@ public:
 
   // AmBasicSipEventHandler interface
   void onSipRequest(const AmSipRequest& req);
-  void onSipReply(const AmSipRequest& req,
-		  const AmSipReply& reply, 
-		  AmBasicSipDialog::Status old_dlg_status);
+  void onSipReply(const AmSipRequest& req, const AmSipReply& reply,
+                  AmBasicSipDialog::Status old_dlg_status);
 
   void onRequestSent(const AmSipRequest& req);
   void onReplySent(const AmSipRequest& req, const AmSipReply& reply);

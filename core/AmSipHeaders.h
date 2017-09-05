@@ -1,7 +1,6 @@
-
-#ifndef __AMSIPHEADERS_H__
-#define __AMSIPHEADERS_H__
+#ifndef _AMSIPHEADERS_H_
+#define _AMSIPHEADERS_H_
 
 #include "sip/defs.h"
 
-#endif /* __AMSIPHEADERS_H__ */
+#endif

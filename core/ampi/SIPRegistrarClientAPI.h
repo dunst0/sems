@@ -18,24 +18,31 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _SIPREGISTRARCLIENTAPI_H
-#define _SIPREGISTRARCLIENTAPI_H
+#ifndef _SIPREGISTRARCLIENTAPI_H_
+#define _SIPREGISTRARCLIENTAPI_H_
 
-#include <string>
 #include "AmEvent.h"
 
-using std::string;
-struct SIPRegistrationEvent : public AmEvent {
-  string handle;
-  unsigned int code;
-  string reason;
-	
- SIPRegistrationEvent(int t, const string& handle,
-		      unsigned int code=0, const string& reason="")
-   : AmEvent(t), handle(handle), code(code), reason(reason) {}
+#include <string>
 
-  enum {
-    RegisterSuccess=0,
+struct SIPRegistrationEvent : public AmEvent
+{
+  std::string  handle;
+  unsigned int code;
+  std::string  reason;
+
+  SIPRegistrationEvent(int t, const std::string& handle, unsigned int code = 0,
+                       const std::string& reason = "")
+      : AmEvent(t)
+      , handle(handle)
+      , code(code)
+      , reason(reason)
+  {
+  }
+
+  enum
+  {
+    RegisterSuccess = 0,
     RegisterFailed,
     RegisterNoContact,
     RegisterTimeout,
@@ -43,12 +50,13 @@ struct SIPRegistrationEvent : public AmEvent {
   };
 };
 
-inline const char* getSIPRegistationStateString(unsigned int s) {
+inline const char* getSIPRegistationStateString(unsigned int s)
+{
   switch (s) {
-  case 0: return "RegisterPending";
-  case 1: return "RegisterActive";
-  case 2: return "RegisterExpired";
-  default: return "unknown";
+    case 0: return "RegisterPending";
+    case 1: return "RegisterActive";
+    case 2: return "RegisterExpired";
+    default: return "unknown";
   }
 }
 

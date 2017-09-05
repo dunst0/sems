@@ -20,26 +20,26 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmConfig.h */
-#ifndef _AmConfig_h_
-#define _AmConfig_h_
 
-#include "AmSdp.h"
+#ifndef _AMCONFIG_H_
+#define _AMCONFIG_H_
+
+#include "AmAudio.h"
 #include "AmDtmfDetector.h"
+#include "AmSdp.h"
 #include "AmSipDialog.h"
 #include "AmUtils.h"
-#include "AmAudio.h"
 
-#include <string>
-using std::string;
+#include <list>
 #include <map>
-using std::map;
-using std::multimap;
+#include <string>
 #include <utility>
+#include <vector>
 
 /**
  * \brief holds the current configuration.
@@ -49,18 +49,18 @@ using std::multimap;
 struct AmConfig
 {
   /** Name of the main configuration file. */
-  static string ConfigurationFile;
+  static std::string ConfigurationFile;
   /** Path to the plug-in configuration files. */
-  static string ModConfigPath;
+  static std::string ModConfigPath;
   /** Path where the plug-ins are. */
-  static string PlugInPath;
+  static std::string PlugInPath;
   /** semicolon separated list of plugins to load */
-  static string LoadPlugins;
+  static std::string LoadPlugins;
   /** semicolon separated list of plugins to exclude from loading */
-  static string ExcludePlugins;
+  static std::string ExcludePlugins;
   /** semicolon separated list of payloads to exclude from loading */
-  static string ExcludePayloads;  
-  //static unsigned int MaxRecordTime;
+  static std::string ExcludePayloads;
+  // static unsigned int MaxRecordTime;
   /** log level */
   static int LogLevel;
   /** log to stderr */
@@ -70,43 +70,41 @@ struct AmConfig
   /** run the program in daemon mode? */
   static bool DaemonMode;
   /** PID file when in daemon mode */
-  static string DaemonPidFile;
+  static std::string DaemonPidFile;
   /** set UID when in daemon mode */
-  static string DaemonUid;
+  static std::string DaemonUid;
   /** set GID when in daemon mode */
-  static string DaemonGid;
+  static std::string DaemonGid;
 #endif
-  
+
   static unsigned int MaxShutdownTime;
 
-  struct IP_interface {
-
-    string name;
+  struct IP_interface
+  {
+    std::string name;
 
     /** Used for binding socket */
-    string       LocalIP;
-        
+    std::string LocalIP;
+
     /** Used in Contact-HF */
-    string PublicIP;
+    std::string PublicIP;
 
     /** Network interface name and index */
-    string       NetIf;
+    std::string  NetIf;
     unsigned int NetIfIdx;
 
     IP_interface();
 
-    string getIP() {
-      return PublicIP.empty() ?	LocalIP : PublicIP;
-    }
+    std::string getIP() { return PublicIP.empty() ? LocalIP : PublicIP; }
   };
 
-  struct SIP_interface : public IP_interface {
-
+  struct SIP_interface : public IP_interface
+  {
     /** Used for binding SIP socket */
     unsigned int LocalPort;
-        
-    /** options for the signaling socket 
-     * (@see trsp_socket::socket_options) 
+
+    /** options for the signaling socket
+     * (@see trsp_socket::socket_options)
      */
     unsigned int SigSockOpts;
 
@@ -119,8 +117,8 @@ struct AmConfig
     SIP_interface();
   };
 
-  struct RTP_interface : public IP_interface {
-
+  struct RTP_interface : public IP_interface
+  {
     /** Lowest local RTP port */
     int RtpLowPort;
     /** Highest local RTP port */
@@ -130,41 +128,49 @@ struct AmConfig
 
     int getNextRtpPort();
 
-  private:
-    int next_rtp_port;
-    AmMutex next_rtp_port_mut;
+   private:
+    int     next_rtp_port;
+    AmMutex next_rtp_port_mutex;
   };
 
-  static vector<SIP_interface>      SIP_Ifs;
-  static vector<RTP_interface>      RTP_Ifs;
-  static map<string,unsigned short> SIP_If_names;
-  static map<string,unsigned short> RTP_If_names;
-  static map<string,unsigned short> LocalSIPIP2If;
+  static std::vector<SIP_interface>                SIP_Ifs;
+  static std::vector<RTP_interface*>               RTP_Ifs;
+  static std::map<std::string, unsigned short int> SIP_If_names;
+  static std::map<std::string, unsigned short int> RTP_If_names;
+  static std::map<std::string, unsigned short int> LocalSIPIP2If;
 
-  struct IPAddr {
-    string addr;
-    short  family;
-    
-    IPAddr(const string& addr, const short family)
-      : addr(addr), family(family) {}
+  struct IPAddr
+  {
+    std::string addr;
+    short int   family;
+
+    IPAddr(const std::string& addr, const short int family)
+        : addr(addr)
+        , family(family)
+    {
+    }
 
     IPAddr(const IPAddr& ip)
-      : addr(ip.addr), family(ip.family) {}
+        : addr(ip.addr)
+        , family(ip.family)
+    {
+    }
   };
 
-  struct SysIntf {
-    string       name;
-    list<IPAddr> addrs;
+  struct SysIntf
+  {
+    std::string       name;
+    std::list<IPAddr> addrs;
     // identical to those returned by SIOCGIFFLAGS
     unsigned int flags;
     unsigned int mtu;
   };
 
-  static vector<SysIntf> SysIfs;
+  static std::vector<SysIntf> SysIfs;
 
   static int insert_SIP_interface(const SIP_interface& intf);
   static int insert_SIP_interface_mapping(const SIP_interface& intf);
-  static int insert_RTP_interface(const RTP_interface& intf);
+  static int insert_RTP_interface(RTP_interface* intf);
   static int finalizeIPConfig();
 
   static void dump_Ifs();
@@ -178,16 +184,17 @@ struct AmConfig
   /** number of SIP server threads */
   static int SIPServerThreads;
   /** Outbound Proxy (optional, outgoing calls only) */
-  static string OutboundProxy;
+  static std::string OutboundProxy;
   /** force Outbound Proxy to be used for in dialog requests */
   static bool ForceOutboundProxy;
   /** force next hop IP[:port] */
-  static string NextHop;
+  static std::string NextHop;
   /** use next hop only on 1st request within a dialog */
   static bool NextHop1stReq;
   /** update ruri-host to previously resolved IP:port on SIP auth */
   static bool ProxyStickyAuth;
-  /** force the outbound network interface / short-circuit the routing table */
+  /** force the outbound network interface / short-circuit the routing table
+   */
   static bool ForceOutboundIf;
   /** force comedia style remote address learning */
   static bool ForceSymmetricRtp;
@@ -198,28 +205,29 @@ struct AmConfig
   /** Ignore Low CSeq on NOTIFY  - for RFC 3265 instead of 5057 */
   static bool IgnoreNotifyLowerCSeq;
   /** Server/User-Agent header (optional) */
-  static string Signature;
+  static std::string Signature;
   /** Value of Max-Forward header field for new requests */
   static unsigned int MaxForwards;
   /** If 200 OK reply should be limited to preferred codec only */
-  static bool SingleCodecInOK;
-  static vector <string> CodecOrder;
+  static bool                     SingleCodecInOK;
+  static std::vector<std::string> CodecOrder;
 
-  enum ApplicationSelector {
+  enum ApplicationSelector
+  {
     App_RURIUSER,
     App_RURIPARAM,
     App_APPHDR,
     App_MAPPING,
     App_SPECIFIED
   };
-  
-  /** "application" config value */ 
-  static string Application;
+
+  /** "application" config value */
+  static std::string Application;
   /** type of application selection (parsed from Application) */
   static ApplicationSelector AppSelect;
 
   /* this is regex->application mapping is used if  App_MAPPING */
-  static RegexMappingVector AppMapping; 
+  static RegexMappingVector AppMapping;
 
 #ifdef WITH_ZRTP
   static bool enable_zrtp;
@@ -228,40 +236,41 @@ struct AmConfig
 
   static unsigned int SessionLimit;
   static unsigned int SessionLimitErrCode;
-  static string SessionLimitErrReason;
+  static std::string  SessionLimitErrReason;
 
   static unsigned int OptionsSessionLimit;
   static unsigned int OptionsSessionLimitErrCode;
-  static string OptionsSessionLimitErrReason;
+  static std::string  OptionsSessionLimitErrReason;
 
   static unsigned int CPSLimitErrCode;
-  static string CPSLimitErrReason;
+  static std::string  CPSLimitErrReason;
 
   static bool AcceptForkedDialogs;
 
-  static bool ShutdownMode;
+  static bool         ShutdownMode;
   static unsigned int ShutdownModeErrCode;
-  static string ShutdownModeErrReason;
+  static std::string  ShutdownModeErrReason;
 
-  /** header containing the transcoder's outgoing codec statistics which should
-   * be present in replies to OPTIONS requests */
-  static string OptionsTranscoderOutStatsHdr;
-  /** header containing the transcoder's incoming codec statistics which should
-   * be present in replies to OPTIONS requests */
-  static string OptionsTranscoderInStatsHdr;
-  /** header containing the transcoder's outgoing codec statistics which should
-   * be present in every message leaving server */
-  static string TranscoderOutStatsHdr;
-  /** header containing the transcoder's incoming codec statistics which should
-   * be present in every message leaving server */
-  static string TranscoderInStatsHdr;
+  /** header containing the transcoder's outgoing codec statistics which
+   * should be present in replies to OPTIONS requests */
+  static std::string OptionsTranscoderOutStatsHdr;
+  /** header containing the transcoder's incoming codec statistics which
+   * should be present in replies to OPTIONS requests */
+  static std::string OptionsTranscoderInStatsHdr;
+  /** header containing the transcoder's outgoing codec statistics which
+   * should be present in every message leaving server */
+  static std::string TranscoderOutStatsHdr;
+  /** header containing the transcoder's incoming codec statistics which
+   * should be present in every message leaving server */
+  static std::string TranscoderInStatsHdr;
 
-  static bool DumpConferenceStreams;
-  static string DumpConferencePath;
+  static bool        DumpConferenceStreams;
+  static std::string DumpConferencePath;
 
   static Am100rel::State rel100;
 
-  /** Time of no RTP after which Session is regarded as dead, 0 for no Timeout */
+  /** Time of no RTP after which Session is regarded as dead, 0 for no Timeout
+   */
   static unsigned int DeadRtpTime;
 
   /** Ignore RTP Extension headers? */
@@ -285,44 +294,44 @@ struct AmConfig
    * command line arguments */
   static int readConfiguration();
 
-  /* following setters are used to fill config from config file */  
-	
+  /** */
+  static void cleanup();
+
+  /* following setters are used to fill config from config file */
+
   /** Setter for SIP Port, returns 0 on invalid value */
-  static int setSIPPort(const string& port);  
+  static int setSIPPort(const std::string& port);
   /** Setter for SmtpServer Port, returns 0 on invalid value */
-  static int setSmtpPort(const string& port);
+  static int setSmtpPort(const std::string& port);
   /** Setter for RtpLowPort, returns 0 on invalid value */
-  static int setRtpLowPort(const string& port);
+  static int setRtpLowPort(const std::string& port);
   /** Setter for RtpHighPort, returns 0 on invalid value */
-  static int setRtpHighPort(const string& port);
+  static int setRtpHighPort(const std::string& port);
   /** Setter for Loglevel, returns 0 on invalid value */
-  static int setLogLevel(const string& level, bool apply=true);
+  static int setLogLevel(const std::string& level, bool apply = true);
   /** Setter for parameter stderr, returns 0 on invalid value */
-  static int setLogStderr(const string& s, bool apply=true);
+  static int setLogStderr(const std::string& s, bool apply = true);
 
 #ifndef DISABLE_DAEMON_MODE
   /** Setter for parameter DaemonMode, returns 0 on invalid value */
-  static int setDaemonMode(const string& fork);
+  static int setDaemonMode(const std::string& fork);
 #endif
 
-  /** Setter for parameter SessionProcessorThreads, returns 0 on invalid value */
-  static int setSessionProcessorThreads(const string& th);
-  /** Setter for parameter MediaProcessorThreads, returns 0 on invalid value */
-  static int setMediaProcessorThreads(const string& th);
+  /** Setter for parameter SessionProcessorThreads, returns 0 on invalid value
+   */
+  static int setSessionProcessorThreads(const std::string& th);
+  /** Setter for parameter MediaProcessorThreads, returns 0 on invalid value
+   */
+  static int setMediaProcessorThreads(const std::string& th);
   /** Setter for parameter RTPReceiverThreads, returns 0 on invalid value */
-  static int setRTPReceiverThreads(const string& th);
+  static int setRTPReceiverThreads(const std::string& th);
   /** Setter for parameter SIPServerThreads, returns 0 on invalid value */
-  static int setSIPServerThreads(const string& th);
+  static int setSIPServerThreads(const std::string& th);
   /** Setter for parameter DeadRtpTime, returns 0 on invalid value */
-  static int setDeadRtpTime(const string& drt);
-
+  static int setDeadRtpTime(const std::string& drt);
 };
 
 /** Get the PF_INET address associated with the network interface */
-string fixIface2IP(const string& dev_name, bool v6_for_sip = false);
+std::string fixIface2IP(const std::string& dev_name, bool v6_for_sip = false);
 
 #endif
-
-// Local Variables:
-// mode:C++
-// End:

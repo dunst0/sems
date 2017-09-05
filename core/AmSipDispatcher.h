@@ -20,25 +20,28 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef __AMSIPDISPATCHER_H__
-#define __AMSIPDISPATCHER_H__
+
+#ifndef _AMSIPDISPATCHER_H_
+#define _AMSIPDISPATCHER_H_
 
 #include "AmSipMsg.h"
 
+#include <string>
+
 class AmSipDispatcher
 {
-  private:
-    static AmSipDispatcher *_instance;
+ private:
+  static AmSipDispatcher* _instance;
 
-  public:
-    void handleSipMsg(AmSipRequest &);
-    void handleSipMsg(const string& dialog_id, AmSipReply &);
+ public:
+  void handleSipMsg(AmSipRequest&);
+  void handleSipMsg(const std::string& dialog_id, AmSipReply&);
 
-    static AmSipDispatcher* instance();
+  static AmSipDispatcher* instance();
 };
 
-#endif /* __AMDISPATCHER_H__ */
+#endif

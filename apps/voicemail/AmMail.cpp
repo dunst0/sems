@@ -20,65 +20,65 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "AmMail.h"
-#include "AmSmtpClient.h"
 #include "AmConfig.h"
+#include "AmSmtpClient.h"
 #include "AmUtils.h"
-#include "log.h"
 #include "AnswerMachine.h"
+#include "log.h"
 
-#include <stdio.h>
 #include <errno.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
-
-AmMail::AmMail(const string& _from, const string& _subject,
-	       const string& _to, const string& _body, 
-	       const string& _header)
-  : from(_from), subject(_subject), body(_body), header(_header),
-    to(_to), clean_up(0), error_count(0)
+AmMail::AmMail(const string& _from, const string& _subject, const string& _to,
+               const string& _body, const string& _header)
+    : from(_from)
+    , subject(_subject)
+    , body(_body)
+    , header(_header)
+    , to(_to)
+    , clean_up(0)
+    , error_count(0)
 {
 }
 
 AmMail::~AmMail()
 {
-  for(Attachements::iterator it = attachements.begin();
-      it != attachements.end(); it++){
-
+  for (Attachements::iterator it = attachements.begin();
+       it != attachements.end(); it++) {
     fclose(it->fp);
   }
 };
 
-AmMailDeamon* AmMailDeamon::_instance=0;
+AmMailDeamon* AmMailDeamon::_instance = 0;
 
 AmMailDeamon* AmMailDeamon::instance()
 {
-  if(!_instance)
-    _instance = new AmMailDeamon();
+  if (!_instance) _instance = new AmMailDeamon();
   return _instance;
 }
 
-void AmMailDeamon::on_stop()
-{
-}
+void AmMailDeamon::on_stop() {}
 
 int AmMailDeamon::sendQueued(AmMail* mail)
 {
-  if(mail->from.empty() || mail->to.empty()){
-    ERROR("mail.from('%s') or mail.to('%s') is empty\n",mail->from.c_str(),mail->to.c_str());
+  if (mail->from.empty() || mail->to.empty()) {
+    ERROR("mail.from('%s') or mail.to('%s') is empty\n", mail->from.c_str(),
+          mail->to.c_str());
     return -1;
   }
 
   //     FILE* tst_fp;
   //     for( Attachements::const_iterator att_it = mail->attachements.begin();
   // 	 att_it != mail->attachements.end(); ++att_it ){
-	
+
   // 	if(!(tst_fp = fopen(att_it->fullname.c_str(),"r"))){
   // 	    ERROR("%s\n",strerror(errno));
   // 	    return -1;
@@ -97,46 +97,43 @@ int AmMailDeamon::sendQueued(AmMail* mail)
 void AmMailDeamon::run()
 {
   std::queue<AmMail*> n_event_fifo;
-  while(1){
-
+  while (1) {
     _run_cond.wait_for();
     sleep(5);
 
     AmSmtpClient smtp;
     if (smtp.connect(AnswerMachineFactory::SmtpServerAddress,
-		     AnswerMachineFactory::SmtpServerPort)) {
-	    
+                     AnswerMachineFactory::SmtpServerPort)) {
       WARN("Mail deamon could not connect to SMTP server at <%s:%i>\n",
-	   AnswerMachineFactory::SmtpServerAddress.c_str(),
-	   AnswerMachineFactory::SmtpServerPort);
+           AnswerMachineFactory::SmtpServerAddress.c_str(),
+           AnswerMachineFactory::SmtpServerPort);
       continue;
     }
 
     event_fifo_mut.lock();
     DBG("Mail deamon starting its work\n");
 
-    while(!event_fifo.empty()){
-
+    while (!event_fifo.empty()) {
       AmMail* cur_mail = event_fifo.front();
       event_fifo.pop();
 
       event_fifo_mut.unlock();
 
       bool err = true;
-      try{
-	err = smtp.send(*cur_mail);
+      try {
+        err = smtp.send(*cur_mail);
       }
-      catch(...){}
+      catch (...) {
+      }
 
-      if(err && (cur_mail->error_count < 3)){
-	n_event_fifo.push(cur_mail);
-	cur_mail->error_count++;
+      if (err && (cur_mail->error_count < 3)) {
+        n_event_fifo.push(cur_mail);
+        cur_mail->error_count++;
       }
       else {
-	// todo: save messages with errors somewhere? 
-	if(cur_mail->clean_up)
-	  (*(cur_mail->clean_up))(cur_mail);
-	delete cur_mail;
+        // todo: save messages with errors somewhere?
+        if (cur_mail->clean_up) (*(cur_mail->clean_up))(cur_mail);
+        delete cur_mail;
       }
       event_fifo_mut.lock();
     }
@@ -144,13 +141,14 @@ void AmMailDeamon::run()
     smtp.disconnect();
     smtp.close();
 
-    if(n_event_fifo.empty()){
+    if (n_event_fifo.empty()) {
       _run_cond.set(false);
-    } else {
+    }
+    else {
       // requeue unsent mail
-      while(!n_event_fifo.empty()) {
-	event_fifo.push(n_event_fifo.front());
-	n_event_fifo.pop();
+      while (!n_event_fifo.empty()) {
+        event_fifo.push(n_event_fifo.front());
+        n_event_fifo.pop();
       }
     }
 
@@ -159,10 +157,3 @@ void AmMailDeamon::run()
     DBG("Mail deamon finished\n");
   }
 }
-
-
-
-
-
-
-

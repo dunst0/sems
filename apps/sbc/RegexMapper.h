@@ -23,31 +23,32 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _RegexMapper_h_
-#define _RegexMapper_h_
+#ifndef _REGEXMAPPER_H_
+#define _REGEXMAPPER_H_
 
+#include "AmThread.h"
 #include "AmUtils.h"
 
 #include <map>
-#include <vector>
 #include <string>
-#include "AmThread.h"
+#include <vector>
 
-struct RegexMapper {
+struct RegexMapper
+{
+  RegexMapper() {}
+  ~RegexMapper() {}
 
-  RegexMapper() { }
-  ~RegexMapper() { }
-
-  std::map<string, RegexMappingVector> regex_mappings;
+  std::map<std::string, RegexMappingVector> regex_mappings;
   AmMutex regex_mappings_mut;
 
   void lock() { regex_mappings_mut.lock(); }
   void unlock() { regex_mappings_mut.unlock(); }
 
-  bool mapRegex(const string& mapping_name, const char* test_s,
-		string& result);
+  bool mapRegex(const std::string& mapping_name, const char* test_s,
+                std::string& result);
 
-  void setRegexMap(const string& mapping_name, const RegexMappingVector& r);
+  void setRegexMap(const std::string&        mapping_name,
+                   const RegexMappingVector& r);
 
   std::vector<std::string> getNames();
 };

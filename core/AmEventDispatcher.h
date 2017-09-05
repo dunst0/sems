@@ -20,99 +20,103 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _AMEVENTDISPATCHER_h_ 
-#define _AMEVENTDISPATCHER_h_
+
+#ifndef _AMEVENTDISPATCHER_H_
+#define _AMEVENTDISPATCHER_H_
 
 #include "AmEventQueue.h"
 #include "AmSipMsg.h"
+
 #include <map>
 
-#define EVENT_DISPATCHER_POWER   10
-#define EVENT_DISPATCHER_BUCKETS (1<<EVENT_DISPATCHER_POWER)
+#define EVENT_DISPATCHER_POWER 10
+#define EVENT_DISPATCHER_BUCKETS (1 << EVENT_DISPATCHER_POWER)
 
 class AmEventDispatcher
 {
-public:
+ public:
+  struct QueueEntry
+  {
+    AmEventQueueInterface* q;
+    std::string            id;
 
-    struct QueueEntry {
-      AmEventQueueInterface* q;
-      string                 id;
+    QueueEntry()
+        : q(NULL)
+        , id()
+    {
+    }
 
-      QueueEntry()
-	: q(NULL), id() {}
+    QueueEntry(AmEventQueueInterface* q)
+        : q(q)
+        , id()
+    {
+    }
 
-      QueueEntry(AmEventQueueInterface* q)
-        : q(q), id() {} 
+    QueueEntry(AmEventQueueInterface* q, std::string id)
+        : q(q)
+        , id(id)
+    {
+    }
+  };
 
-      QueueEntry(AmEventQueueInterface* q, string id)
-	: q(q), id(id){} 
-    };
+  typedef std::map<std::string, QueueEntry> EvQueueMap;
+  typedef EvQueueMap::iterator              EvQueueMapIter;
 
-    typedef std::map<string, QueueEntry> EvQueueMap;
-    typedef EvQueueMap::iterator         EvQueueMapIter;
-    
-    typedef std::map<string,string>  Dictionnary;
-    typedef Dictionnary::iterator    DictIter;
+  typedef std::map<std::string, std::string> Dictionnary;
+  typedef Dictionnary::iterator              DictIter;
 
+ private:
+  static AmEventDispatcher* _instance;
 
-private:
+  /**
+   * Container for active sessions
+   * local tag -> event queue
+   */
+  EvQueueMap queues[EVENT_DISPATCHER_BUCKETS];
 
-    static AmEventDispatcher *_instance;
+  // mutex for "queues"
+  AmMutex queues_mut[EVENT_DISPATCHER_BUCKETS];
 
-    /** 
-     * Container for active sessions 
-     * local tag -> event queue
-     */
-    EvQueueMap queues[EVENT_DISPATCHER_BUCKETS];
-    
-    // mutex for "queues" 
-    AmMutex queues_mut[EVENT_DISPATCHER_BUCKETS];
+  /**
+   * Call ID + remote tag + via_branch -> local tag
+   *  (needed for CANCELs)
+   *  (UAS sessions only)
+   */
+  Dictionnary id_lookup[EVENT_DISPATCHER_BUCKETS];
+  // mutex for "id_lookup"
+  AmMutex id_lookup_mut[EVENT_DISPATCHER_BUCKETS];
 
-    /** 
-     * Call ID + remote tag + via_branch -> local tag 
-     *  (needed for CANCELs)
-     *  (UAS sessions only)
-     */
-    Dictionnary id_lookup[EVENT_DISPATCHER_BUCKETS];
-    // mutex for "id_lookup" 
-    AmMutex id_lookup_mut[EVENT_DISPATCHER_BUCKETS];
+  unsigned int hash(const std::string& s1);
+  unsigned int hash(const std::string& s1, const std::string s2);
 
-    unsigned int hash(const string& s1);
-    unsigned int hash(const string& s1, const string s2);
-public:
+ public:
+  static AmEventDispatcher* instance();
+  static void               dispose();
 
-    static AmEventDispatcher* instance();
-    static void dispose();
+  bool postSipRequest(const AmSipRequest& req);
 
-    bool postSipRequest(const AmSipRequest& req);
+  bool post(const std::string& local_tag, AmEvent* ev);
+  bool post(const std::string& callid, const std::string& remote_tag,
+            const std::string& via_branch, AmEvent* ev);
 
-    bool post(const string& local_tag, AmEvent* ev);
-    bool post(const string& callid, 
-	      const string& remote_tag, 
-	      const string& via_branch,
-	      AmEvent* ev);
+  /* send event to all event queues. Note: event instances will be cloned */
+  bool broadcast(AmEvent* ev);
 
-    /* send event to all event queues. Note: event instances will be cloned */
-    bool broadcast(AmEvent* ev);
+  bool addEventQueue(const std::string& local_tag, AmEventQueueInterface* q);
 
-    bool addEventQueue(const string& local_tag,
-		       AmEventQueueInterface* q);
+  bool addEventQueue(const std::string& local_tag, AmEventQueueInterface* q,
+                     const std::string& callid, const std::string& remote_tag,
+                     const std::string& via_branch);
 
-    bool addEventQueue(const string& local_tag, 
-		       AmEventQueueInterface* q,
-		       const string& callid, 
-		       const string& remote_tag,
-		       const string& via_branch);
+  AmEventQueueInterface* delEventQueue(const std::string& local_tag);
 
-    AmEventQueueInterface* delEventQueue(const string& local_tag);
+  bool empty();
 
-    bool empty();
-
-    void dump();
+  void dump();
 };
 
 #endif

@@ -20,31 +20,35 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmOfferAnswer.h */
-#ifndef AmOfferAnswer_h
-#define AmOfferAnswer_h
+
+#ifndef _AMOFFERANSWER_H_
+#define _AMOFFERANSWER_H_
 
 #include "AmSdp.h"
 #include "AmSipMsg.h"
 
+#include <string>
+
 class AmSipDialog;
 
-class AmOfferAnswer 
+class AmOfferAnswer
 {
-public:
-  enum OAState {
-    OA_None=0,
+ public:
+  enum OAState
+  {
+    OA_None = 0,
     OA_OfferRecved,
     OA_OfferSent,
     OA_Completed,
     __max_OA
   };
 
-private:
+ private:
   OAState      state;
   OAState      saved_state;
   unsigned int cseq;
@@ -58,17 +62,18 @@ private:
   int  checkStateChange();
 
   /** SDP handling */
-  int  onRxSdp(unsigned int m_cseq, const AmMimeBody& body, const char** err_txt);
-  int  onTxSdp(unsigned int m_cseq, const AmMimeBody& body);
-  int  getSdpBody(string& sdp_body);
+  int onRxSdp(unsigned int m_cseq, const AmMimeBody& body,
+              const char** err_txt);
+  int onTxSdp(unsigned int m_cseq, const AmMimeBody& body);
+  int getSdpBody(std::string& sdp_body);
 
-public:
+ public:
   /** Constructor */
   AmOfferAnswer(AmSipDialog* dlg);
 
   /** Accessors */
-  OAState getState();
-  void setState(OAState n_st);
+  OAState      getState();
+  void         setState(OAState n_st);
   const AmSdp& getLocalSdp();
   const AmSdp& getRemoteSdp();
 
@@ -76,12 +81,12 @@ public:
   void clearTransitionalState();
 
   /** Event handlers */
-  int onRequestIn(const AmSipRequest& req);
-  int onReplyIn(const AmSipReply& reply);
-  int onRequestOut(AmSipRequest& req);
-  int onReplyOut(AmSipReply& reply);
-  int onRequestSent(const AmSipRequest& req);
-  int onReplySent(const AmSipReply& reply);
+  int  onRequestIn(const AmSipRequest& req);
+  int  onReplyIn(const AmSipReply& reply);
+  int  onRequestOut(AmSipRequest& req);
+  int  onReplyOut(AmSipReply& reply);
+  int  onRequestSent(const AmSipRequest& req);
+  int  onReplySent(const AmSipReply& reply);
   void onNoAck(unsigned int ack_cseq);
 };
 

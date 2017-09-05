@@ -1,7 +1,7 @@
-#ifndef _raw_sender_h_
-#define _raw_sender_h_
+#ifndef _RAW_SENDER_H_
+#define _RAW_SENDER_H_
 
-struct sockaddr_storage;
+#include <sys/socket.h>
 
 class raw_sender
 {
@@ -10,10 +10,10 @@ class raw_sender
   raw_sender() {}
   ~raw_sender() {}
 
-public:
+ public:
   static int init();
   static int send(const char* buf, unsigned int len, int sys_if_idx,
-		  const sockaddr_storage* from, const sockaddr_storage* to);
+                  const sockaddr_storage* from, const sockaddr_storage* to);
 };
 
 #endif

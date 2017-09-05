@@ -20,191 +20,198 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <netinet/in.h>
+#include "AmConfig.h"
+
+#include "Am100rel.h"
+#include "AmConfigReader.h"
+#include "AmSessionContainer.h"
+#include "AmUtils.h"
+#include "log.h"
+#include "sems.h"
+#include "sip/ip_util.h"
+#include "sip/raw_sender.h"
+#include "sip/resolver.h"
+#include "sip/sip_timers.h"
+#include "sip/transport.h"
+
 #include <arpa/inet.h>
+#include <ifaddrs.h>
 #include <net/if.h>
 #include <netdb.h>
-#include <ifaddrs.h>
+#include <netinet/in.h>
 #include <stdio.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
-#include "AmConfig.h"
-#include "sems.h"
-#include "log.h"
-#include "AmConfigReader.h"
-#include "AmUtils.h"
-#include "AmSessionContainer.h"
-#include "Am100rel.h"
-#include "sip/transport.h"
-#include "sip/resolver.h"
-#include "sip/ip_util.h"
-#include "sip/sip_timers.h"
-#include "sip/raw_sender.h"
-
-#include <cctype>
 #include <algorithm>
+#include <cctype>
 
 using std::make_pair;
+using std::transform;
+using std::map;
+using std::multimap;
+using std::string;
+using std::vector;
+using std::list;
 
-string       AmConfig::ConfigurationFile       = CONFIG_FILE;
-string       AmConfig::ModConfigPath           = MOD_CFG_PATH;
-string       AmConfig::PlugInPath              = PLUG_IN_PATH;
-string       AmConfig::LoadPlugins             = "";
-string       AmConfig::ExcludePlugins          = "";
-string       AmConfig::ExcludePayloads         = "";
-int          AmConfig::LogLevel                = L_INFO;
-bool         AmConfig::LogStderr               = false;
+string AmConfig::ConfigurationFile = CONFIG_FILE;
+string AmConfig::ModConfigPath     = MOD_CFG_PATH;
+string AmConfig::PlugInPath        = PLUG_IN_PATH;
+string AmConfig::LoadPlugins       = "";
+string AmConfig::ExcludePlugins    = "";
+string AmConfig::ExcludePayloads   = "";
+int    AmConfig::LogLevel          = L_INFO;
+bool   AmConfig::LogStderr         = false;
 
-vector<AmConfig::SIP_interface> AmConfig::SIP_Ifs;
-vector<AmConfig::RTP_interface> AmConfig::RTP_Ifs;
-map<string,unsigned short>      AmConfig::SIP_If_names;
-map<string,unsigned short>      AmConfig::RTP_If_names;
-map<string,unsigned short>      AmConfig::LocalSIPIP2If;
-vector<AmConfig::SysIntf>         AmConfig::SysIfs;
+vector<AmConfig::SIP_interface>  AmConfig::SIP_Ifs;
+vector<AmConfig::RTP_interface*> AmConfig::RTP_Ifs;
+map<string, unsigned short int>  AmConfig::SIP_If_names;
+map<string, unsigned short int>  AmConfig::RTP_If_names;
+map<string, unsigned short int>  AmConfig::LocalSIPIP2If;
+vector<AmConfig::SysIntf>        AmConfig::SysIfs;
 
 #ifndef DISABLE_DAEMON_MODE
-bool         AmConfig::DaemonMode              = DEFAULT_DAEMON_MODE;
-string       AmConfig::DaemonPidFile           = DEFAULT_DAEMON_PID_FILE;
-string       AmConfig::DaemonUid               = DEFAULT_DAEMON_UID;
-string       AmConfig::DaemonGid               = DEFAULT_DAEMON_GID;
+bool   AmConfig::DaemonMode    = DEFAULT_DAEMON_MODE;
+string AmConfig::DaemonPidFile = DEFAULT_DAEMON_PID_FILE;
+string AmConfig::DaemonUid     = DEFAULT_DAEMON_UID;
+string AmConfig::DaemonGid     = DEFAULT_DAEMON_GID;
 #endif
 
-unsigned int AmConfig::MaxShutdownTime         = DEFAULT_MAX_SHUTDOWN_TIME;
+unsigned int AmConfig::MaxShutdownTime = DEFAULT_MAX_SHUTDOWN_TIME;
 
-int          AmConfig::SessionProcessorThreads = NUM_SESSION_PROCESSORS;
-int          AmConfig::MediaProcessorThreads   = NUM_MEDIA_PROCESSORS;
-int          AmConfig::RTPReceiverThreads      = NUM_RTP_RECEIVERS;
-int          AmConfig::SIPServerThreads        = NUM_SIP_SERVERS;
-string       AmConfig::OutboundProxy           = "";
-bool         AmConfig::ForceOutboundProxy      = false;
-string       AmConfig::NextHop                 = "";
-bool         AmConfig::NextHop1stReq           = false;
-bool         AmConfig::ProxyStickyAuth         = false;
-bool         AmConfig::ForceOutboundIf         = false;
-bool         AmConfig::ForceSymmetricRtp       = false;
-bool         AmConfig::SipNATHandling          = false;
-bool         AmConfig::UseRawSockets           = false;
-bool         AmConfig::IgnoreNotifyLowerCSeq   = false;
-string       AmConfig::Signature               = "";
-unsigned int AmConfig::MaxForwards             = MAX_FORWARDS;
-bool	     AmConfig::SingleCodecInOK	       = false;
-unsigned int AmConfig::DeadRtpTime             = DEAD_RTP_TIME;
-bool         AmConfig::IgnoreRTPXHdrs          = false;
-string       AmConfig::Application             = "";
-AmConfig::ApplicationSelector AmConfig::AppSelect        = AmConfig::App_SPECIFIED;
-RegexMappingVector AmConfig::AppMapping;
-bool         AmConfig::LogSessions             = false;
-bool         AmConfig::LogEvents               = false;
-int          AmConfig::UnhandledReplyLoglevel  = 0;
+int          AmConfig::SessionProcessorThreads    = NUM_SESSION_PROCESSORS;
+int          AmConfig::MediaProcessorThreads      = NUM_MEDIA_PROCESSORS;
+int          AmConfig::RTPReceiverThreads         = NUM_RTP_RECEIVERS;
+int          AmConfig::SIPServerThreads           = NUM_SIP_SERVERS;
+string       AmConfig::OutboundProxy              = "";
+bool         AmConfig::ForceOutboundProxy         = false;
+string       AmConfig::NextHop                    = "";
+bool         AmConfig::NextHop1stReq              = false;
+bool         AmConfig::ProxyStickyAuth            = false;
+bool         AmConfig::ForceOutboundIf            = false;
+bool         AmConfig::ForceSymmetricRtp          = false;
+bool         AmConfig::SipNATHandling             = false;
+bool         AmConfig::UseRawSockets              = false;
+bool         AmConfig::IgnoreNotifyLowerCSeq      = false;
+string       AmConfig::Signature                  = "";
+unsigned int AmConfig::MaxForwards                = MAX_FORWARDS;
+bool         AmConfig::SingleCodecInOK            = false;
+unsigned int AmConfig::DeadRtpTime                = DEAD_RTP_TIME;
+bool         AmConfig::IgnoreRTPXHdrs             = false;
+string       AmConfig::Application                = "";
+AmConfig::ApplicationSelector AmConfig::AppSelect = AmConfig::App_SPECIFIED;
+RegexMappingVector            AmConfig::AppMapping;
+bool                          AmConfig::LogSessions            = false;
+bool                          AmConfig::LogEvents              = false;
+int                           AmConfig::UnhandledReplyLoglevel = 0;
 
 #ifdef WITH_ZRTP
-bool         AmConfig::enable_zrtp             = true;
-bool         AmConfig::enable_zrtp_debuglog    = true;
+bool AmConfig::enable_zrtp          = true;
+bool AmConfig::enable_zrtp_debuglog = true;
 #endif
 
-unsigned int AmConfig::SessionLimit            = 0;
-unsigned int AmConfig::SessionLimitErrCode     = 503;
-string       AmConfig::SessionLimitErrReason   = "Server overload";
+unsigned int AmConfig::SessionLimit          = 0;
+unsigned int AmConfig::SessionLimitErrCode   = 503;
+string       AmConfig::SessionLimitErrReason = "Server overload";
 
-unsigned int AmConfig::OptionsSessionLimit            = 0;
-unsigned int AmConfig::OptionsSessionLimitErrCode     = 503;
-string       AmConfig::OptionsSessionLimitErrReason   = "Server overload";
+unsigned int AmConfig::OptionsSessionLimit          = 0;
+unsigned int AmConfig::OptionsSessionLimitErrCode   = 503;
+string       AmConfig::OptionsSessionLimitErrReason = "Server overload";
 
-unsigned int AmConfig::CPSLimitErrCode     = 503;
-string       AmConfig::CPSLimitErrReason   = "Server overload";
+unsigned int AmConfig::CPSLimitErrCode   = 503;
+string       AmConfig::CPSLimitErrReason = "Server overload";
 
-bool         AmConfig::AcceptForkedDialogs     = true;
+bool AmConfig::AcceptForkedDialogs = true;
 
-bool         AmConfig::ShutdownMode            = false;
-unsigned int AmConfig::ShutdownModeErrCode     = 503;
-string       AmConfig::ShutdownModeErrReason   = "Server shutting down";
-  
+bool         AmConfig::ShutdownMode          = false;
+unsigned int AmConfig::ShutdownModeErrCode   = 503;
+string       AmConfig::ShutdownModeErrReason = "Server shutting down";
+
 string AmConfig::OptionsTranscoderOutStatsHdr; // empty by default
-string AmConfig::OptionsTranscoderInStatsHdr; // empty by default
-string AmConfig::TranscoderOutStatsHdr; // empty by default
-string AmConfig::TranscoderInStatsHdr; // empty by default
+string AmConfig::OptionsTranscoderInStatsHdr;  // empty by default
+string AmConfig::TranscoderOutStatsHdr;        // empty by default
+string AmConfig::TranscoderInStatsHdr;         // empty by default
 
-bool AmConfig::DumpConferenceStreams = false;
-string AmConfig::DumpConferencePath = "/tmp";
+bool   AmConfig::DumpConferenceStreams = false;
+string AmConfig::DumpConferencePath    = "/tmp";
 
 Am100rel::State AmConfig::rel100 = Am100rel::REL100_SUPPORTED;
 
-vector <string> AmConfig::CodecOrder;
+vector<string> AmConfig::CodecOrder;
 
-Dtmf::InbandDetectorType 
-AmConfig::DefaultDTMFDetector     = Dtmf::SEMSInternal;
-bool AmConfig::IgnoreSIGCHLD      = true;
-bool AmConfig::IgnoreSIGPIPE      = true;
+Dtmf::InbandDetectorType AmConfig::DefaultDTMFDetector = Dtmf::SEMSInternal;
+bool                     AmConfig::IgnoreSIGCHLD       = true;
+bool                     AmConfig::IgnoreSIGPIPE       = true;
 
 #ifdef USE_LIBSAMPLERATE
 #ifndef USE_INTERNAL_RESAMPLER
-AmAudio::ResamplingImplementationType AmConfig::ResamplingImplementationType = AmAudio::LIBSAMPLERATE;
+AmAudio::ResamplingImplementationType AmConfig::ResamplingImplementationType =
+    AmAudio::LIBSAMPLERATE;
 #endif
 #endif
 #ifdef USE_INTERNAL_RESAMPLER
-AmAudio::ResamplingImplementationType AmConfig::ResamplingImplementationType = AmAudio::INTERNAL_RESAMPLER;
+AmAudio::ResamplingImplementationType AmConfig::ResamplingImplementationType =
+    AmAudio::INTERNAL_RESAMPLER;
 #endif
 #ifndef USE_LIBSAMPLERATE
 #ifndef USE_INTERNAL_RESAMPLER
-AmAudio::ResamplingImplementationType AmConfig::ResamplingImplementationType = AmAudio::UNAVAILABLE;
+AmAudio::ResamplingImplementationType AmConfig::ResamplingImplementationType =
+    AmAudio::UNAVAILABLE;
 #endif
 #endif
 
 static int readInterfaces(AmConfigReader& cfg);
 
 AmConfig::IP_interface::IP_interface()
-  : LocalIP(),
-    PublicIP(),
-    NetIfIdx(0)
+    : LocalIP()
+    , PublicIP()
+    , NetIfIdx(0)
 {
 }
 
 AmConfig::SIP_interface::SIP_interface()
-  : IP_interface(),
-    LocalPort(5060),
-    SigSockOpts(0),
-    RtpInterface(-1),
-    tcp_connect_timeout(DEFAULT_TCP_CONNECT_TIMEOUT),
-    tcp_idle_timeout(DEFAULT_TCP_IDLE_TIMEOUT)
+    : IP_interface()
+    , LocalPort(5060)
+    , SigSockOpts(0)
+    , tcp_connect_timeout(DEFAULT_TCP_CONNECT_TIMEOUT)
+    , tcp_idle_timeout(DEFAULT_TCP_IDLE_TIMEOUT)
+    , RtpInterface(-1)
 {
 }
 
 AmConfig::RTP_interface::RTP_interface()
-  : IP_interface(),
-    RtpLowPort(RTP_LOWPORT),
-    RtpHighPort(RTP_HIGHPORT),
-    next_rtp_port(-1)
+    : IP_interface()
+    , RtpLowPort(RTP_LOWPORT)
+    , RtpHighPort(RTP_HIGHPORT)
+    , next_rtp_port(-1)
 {
 }
 
 int AmConfig::RTP_interface::getNextRtpPort()
 {
-    
-  int port=0;
+  int port = 0;
 
-  next_rtp_port_mut.lock();
-  if(next_rtp_port < 0){
+  next_rtp_port_mutex.lock();
+  if (next_rtp_port < 0) {
     next_rtp_port = RtpLowPort;
   }
-    
+
   port = next_rtp_port & 0xfffe;
   next_rtp_port += 2;
 
-  if(next_rtp_port >= RtpHighPort){
+  if (next_rtp_port >= RtpHighPort) {
     next_rtp_port = RtpLowPort;
   }
-  next_rtp_port_mut.unlock();
-    
+  next_rtp_port_mutex.unlock();
+
   return port;
 }
-
 
 int AmConfig::setLogLevel(const string& level, bool apply)
 {
@@ -214,19 +221,24 @@ int AmConfig::setLogLevel(const string& level, bool apply)
     if (n < L_ERR || n > L_DBG) {
       return 0;
     }
-  } else {
+  }
+  else {
     string s(level);
-    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+    transform(s.begin(), s.end(), s.begin(), ::tolower);
 
     if (s == "error" || s == "err") {
       n = L_ERR;
-    } else if (s == "warning" || s == "warn") {
+    }
+    else if (s == "warning" || s == "warn") {
       n = L_WARN;
-    } else if (s == "info") {
+    }
+    else if (s == "info") {
       n = L_INFO;
-    } else if (s=="debug" || s == "dbg") {
+    }
+    else if (s == "debug" || s == "dbg") {
       n = L_DBG;
-    } else {
+    }
+    else {
       return 0;
     }
   }
@@ -240,11 +252,13 @@ int AmConfig::setLogLevel(const string& level, bool apply)
 
 int AmConfig::setLogStderr(const string& s, bool apply)
 {
-  if ( strcasecmp(s.c_str(), "yes") == 0 ) {
+  if (strcasecmp(s.c_str(), "yes") == 0) {
     LogStderr = true;
-  } else if ( strcasecmp(s.c_str(), "no") == 0 ) {
+  }
+  else if (strcasecmp(s.c_str(), "no") == 0) {
     LogStderr = false;
-  } else {
+  }
+  else {
     return 0;
   }
   if (apply) {
@@ -255,51 +269,57 @@ int AmConfig::setLogStderr(const string& s, bool apply)
 
 #ifndef DISABLE_DAEMON_MODE
 
-int AmConfig::setDaemonMode(const string& fork) {
-  if ( strcasecmp(fork.c_str(), "yes") == 0 ) {
+int AmConfig::setDaemonMode(const string& fork)
+{
+  if (strcasecmp(fork.c_str(), "yes") == 0) {
     DaemonMode = true;
-  } else if ( strcasecmp(fork.c_str(), "no") == 0 ) {
+  }
+  else if (strcasecmp(fork.c_str(), "no") == 0) {
     DaemonMode = false;
-  } else {
-    return 0;
   }
-  return 1;
-}		
-
-#endif /* !DISABLE_DAEMON_MODE */
-
-int AmConfig::setSessionProcessorThreads(const string& th) {
-  if(sscanf(th.c_str(),"%u",&SessionProcessorThreads) != 1) {
+  else {
     return 0;
   }
   return 1;
 }
 
-int AmConfig::setMediaProcessorThreads(const string& th) {
-  if(sscanf(th.c_str(),"%u",&MediaProcessorThreads) != 1) {
+#endif
+
+int AmConfig::setSessionProcessorThreads(const string& th)
+{
+  if (sscanf(th.c_str(), "%u", &SessionProcessorThreads) != 1) {
     return 0;
   }
   return 1;
 }
 
-int AmConfig::setRTPReceiverThreads(const string& th) {
-  if(sscanf(th.c_str(),"%u",&RTPReceiverThreads) != 1) {
+int AmConfig::setMediaProcessorThreads(const string& th)
+{
+  if (sscanf(th.c_str(), "%u", &MediaProcessorThreads) != 1) {
     return 0;
   }
   return 1;
 }
 
-int AmConfig::setSIPServerThreads(const string& th){
-  if(sscanf(th.c_str(),"%u",&SIPServerThreads) != 1) {
+int AmConfig::setRTPReceiverThreads(const string& th)
+{
+  if (sscanf(th.c_str(), "%u", &RTPReceiverThreads) != 1) {
     return 0;
   }
   return 1;
 }
 
+int AmConfig::setSIPServerThreads(const string& th)
+{
+  if (sscanf(th.c_str(), "%u", &SIPServerThreads) != 1) {
+    return 0;
+  }
+  return 1;
+}
 
 int AmConfig::setDeadRtpTime(const string& drt)
 {
-  if(sscanf(drt.c_str(),"%u",&DeadRtpTime) != 1) {
+  if (sscanf(drt.c_str(), "%u", &DeadRtpTime) != 1) {
     return 0;
   }
   return 1;
@@ -308,31 +328,31 @@ int AmConfig::setDeadRtpTime(const string& drt)
 int AmConfig::readConfiguration()
 {
   DBG("Reading configuration...\n");
-  
-  AmConfigReader cfg;
-  int            ret=0;
 
-  if(cfg.loadFile(AmConfig::ConfigurationFile.c_str())){
+  AmConfigReader cfg;
+  int            ret = 0;
+
+  if (cfg.loadFile(AmConfig::ConfigurationFile.c_str())) {
     ERROR("while loading main configuration file\n");
     return -1;
   }
-       
+
   // take values from global configuration file
   // they will be overwritten by command line args
 
   // log_level
-  if(cfg.hasParameter("loglevel")){
-    if(!setLogLevel(cfg.getParameter("loglevel"))){
+  if (cfg.hasParameter("loglevel")) {
+    if (!setLogLevel(cfg.getParameter("loglevel"))) {
       ERROR("invalid log level specified\n");
       ret = -1;
     }
   }
 
-  // stderr 
-  if(cfg.hasParameter("stderr")){
-    if(!setLogStderr(cfg.getParameter("stderr"), true)){
+  // stderr
+  if (cfg.hasParameter("stderr")) {
+    if (!setLogStderr(cfg.getParameter("stderr"), true)) {
       ERROR("invalid stderr value specified,"
-	    " valid are only yes or no\n");
+            " valid are only yes or no\n");
       ret = -1;
     }
   }
@@ -345,67 +365,65 @@ int AmConfig::readConfiguration()
 
   // plugin_config_path
   if (cfg.hasParameter("plugin_config_path")) {
-    ModConfigPath = cfg.getParameter("plugin_config_path",ModConfigPath);
+    ModConfigPath = cfg.getParameter("plugin_config_path", ModConfigPath);
   }
 
-  if(!ModConfigPath.empty() && (ModConfigPath[ModConfigPath.length()-1] != '/'))
+  if (!ModConfigPath.empty()
+      && (ModConfigPath[ModConfigPath.length() - 1] != '/'))
     ModConfigPath += '/';
 
   // Reads IP and port parameters
-  if(readInterfaces(cfg) == -1)
-    ret = -1;
-  
+  if (readInterfaces(cfg) == -1) ret = -1;
+
   // outbound_proxy
   if (cfg.hasParameter("outbound_proxy"))
     OutboundProxy = cfg.getParameter("outbound_proxy");
 
   // force_outbound_proxy
-  if(cfg.hasParameter("force_outbound_proxy")) {
+  if (cfg.hasParameter("force_outbound_proxy")) {
     ForceOutboundProxy = (cfg.getParameter("force_outbound_proxy") == "yes");
   }
 
-  if(cfg.hasParameter("next_hop")) {
-    NextHop = cfg.getParameter("next_hop");
+  if (cfg.hasParameter("next_hop")) {
+    NextHop       = cfg.getParameter("next_hop");
     NextHop1stReq = (cfg.getParameter("next_hop_1st_req") == "yes");
   }
 
-  if(cfg.hasParameter("proxy_sticky_auth")) {
+  if (cfg.hasParameter("proxy_sticky_auth")) {
     ProxyStickyAuth = (cfg.getParameter("proxy_sticky_auth") == "yes");
   }
 
-  if(cfg.hasParameter("force_outbound_if")) {
+  if (cfg.hasParameter("force_outbound_if")) {
     ForceOutboundIf = (cfg.getParameter("force_outbound_if") == "yes");
   }
 
-  if(cfg.hasParameter("use_raw_sockets")) {
+  if (cfg.hasParameter("use_raw_sockets")) {
     UseRawSockets = (cfg.getParameter("use_raw_sockets") == "yes");
-    if(UseRawSockets && (raw_sender::init() < 0)) {
+    if (UseRawSockets && (raw_sender::init() < 0)) {
       UseRawSockets = false;
     }
   }
 
-  if(cfg.hasParameter("ignore_notify_lower_cseq")) {
-    IgnoreNotifyLowerCSeq = (cfg.getParameter("ignore_notify_lower_cseq") == "yes");
+  if (cfg.hasParameter("ignore_notify_lower_cseq")) {
+    IgnoreNotifyLowerCSeq =
+        (cfg.getParameter("ignore_notify_lower_cseq") == "yes");
   }
 
-  if(cfg.hasParameter("force_symmetric_rtp")) {
+  if (cfg.hasParameter("force_symmetric_rtp")) {
     ForceSymmetricRtp = (cfg.getParameter("force_symmetric_rtp") == "yes");
   }
 
-  if(cfg.hasParameter("sip_nat_handling")) {
+  if (cfg.hasParameter("sip_nat_handling")) {
     SipNATHandling = (cfg.getParameter("sip_nat_handling") == "yes");
   }
 
-  if(cfg.hasParameter("disable_dns_srv")) {
+  if (cfg.hasParameter("disable_dns_srv")) {
     _resolver::disable_srv = (cfg.getParameter("disable_dns_srv") == "yes");
   }
-  
 
   for (int t = STIMER_A; t < __STIMER_MAX; t++) {
-
     string timer_cfg = string("sip_timer_") + timer_name(t);
-    if(cfg.hasParameter(timer_cfg)) {
-
+    if (cfg.hasParameter(timer_cfg)) {
       sip_timers[t] = cfg.getParameterInt(timer_cfg, sip_timers[t]);
       INFO("Set SIP Timer '%s' to %u ms\n", timer_name(t), sip_timers[t]);
     }
@@ -426,13 +444,12 @@ int AmConfig::readConfiguration()
 
   if (cfg.hasParameter("load_plugins_rtld_global")) {
     vector<string> rtld_global_plugins =
-      explode(cfg.getParameter("load_plugins_rtld_global"), ",");
-    for (vector<string>::iterator it=
-	   rtld_global_plugins.begin(); it != rtld_global_plugins.end(); it++) {
+        explode(cfg.getParameter("load_plugins_rtld_global"), ",");
+    for (vector<string>::iterator it = rtld_global_plugins.begin();
+         it != rtld_global_plugins.end(); it++) {
       AmPlugIn::instance()->set_load_rtld_global(*it);
     }
   }
-
 
   // exclude_plugins
   if (cfg.hasParameter("exclude_plugins"))
@@ -443,139 +460,152 @@ int AmConfig::readConfiguration()
     ExcludePayloads = cfg.getParameter("exclude_payloads");
 
   // user_agent
-  if (cfg.getParameter("use_default_signature")=="yes")
+  if (cfg.getParameter("use_default_signature") == "yes")
     Signature = DEFAULT_SIGNATURE;
-  else 
+  else
     Signature = cfg.getParameter("signature");
 
   if (cfg.hasParameter("max_forwards")) {
-      unsigned int mf=0;
-      if(str2i(cfg.getParameter("max_forwards"), mf)) {
-	  ERROR("invalid max_forwards specified\n");
-      }
-      else {
-	  MaxForwards = mf;
-      }
+    unsigned int mf = 0;
+    if (str2i(cfg.getParameter("max_forwards"), mf)) {
+      ERROR("invalid max_forwards specified\n");
+    }
+    else {
+      MaxForwards = mf;
+    }
   }
 
-  if(cfg.hasParameter("log_sessions"))
-    LogSessions = cfg.getParameter("log_sessions")=="yes";
-  
-  if(cfg.hasParameter("log_events"))
-    LogEvents = cfg.getParameter("log_events")=="yes";
+  if (cfg.hasParameter("log_sessions"))
+    LogSessions = cfg.getParameter("log_sessions") == "yes";
+
+  if (cfg.hasParameter("log_events"))
+    LogEvents = cfg.getParameter("log_events") == "yes";
 
   if (cfg.hasParameter("unhandled_reply_loglevel")) {
     string msglog = cfg.getParameter("unhandled_reply_loglevel");
-    if (msglog == "no") UnhandledReplyLoglevel = -1;
-    else if (msglog == "error") UnhandledReplyLoglevel = 0;
-    else if (msglog == "warn")  UnhandledReplyLoglevel = 1;
-    else if (msglog == "info")  UnhandledReplyLoglevel = 2;
-    else if (msglog == "debug") UnhandledReplyLoglevel = 3;
-    else ERROR("Could not interpret unhandled_reply_loglevel \"%s\"\n",
-	       msglog.c_str());
+    if (msglog == "no")
+      UnhandledReplyLoglevel = -1;
+    else if (msglog == "error")
+      UnhandledReplyLoglevel = 0;
+    else if (msglog == "warn")
+      UnhandledReplyLoglevel = 1;
+    else if (msglog == "info")
+      UnhandledReplyLoglevel = 2;
+    else if (msglog == "debug")
+      UnhandledReplyLoglevel = 3;
+    else
+      ERROR("Could not interpret unhandled_reply_loglevel \"%s\"\n",
+            msglog.c_str());
   }
 
-  Application  = cfg.getParameter("application");
+  Application = cfg.getParameter("application");
 
   if (Application == "$(ruri.user)") {
     AppSelect = App_RURIUSER;
-  } else if (Application == "$(ruri.param)") {
+  }
+  else if (Application == "$(ruri.param)") {
     AppSelect = App_RURIPARAM;
-  } else if (Application == "$(apphdr)") {
+  }
+  else if (Application == "$(apphdr)") {
     AppSelect = App_APPHDR;
-  } else if (Application == "$(mapping)") {
-    AppSelect = App_MAPPING;  
-    string appcfg_fname = ModConfigPath + "app_mapping.conf"; 
+  }
+  else if (Application == "$(mapping)") {
+    AppSelect           = App_MAPPING;
+    string appcfg_fname = ModConfigPath + "app_mapping.conf";
     DBG("Loading application mapping...\n");
     if (!read_regex_mapping(appcfg_fname, "=>", "application mapping",
-			    AppMapping)) {
+                            AppMapping)) {
       ERROR("reading application mapping\n");
       ret = -1;
     }
-  } else {
+  }
+  else {
     AppSelect = App_SPECIFIED;
   }
 
 #ifndef DISABLE_DAEMON_MODE
 
-  // fork 
-  if(cfg.hasParameter("fork")){
-    if(!setDaemonMode(cfg.getParameter("fork"))){
+  // fork
+  if (cfg.hasParameter("fork")) {
+    if (!setDaemonMode(cfg.getParameter("fork"))) {
       ERROR("invalid fork value specified,"
-	    " valid are only yes or no\n");
+            " valid are only yes or no\n");
       ret = -1;
     }
   }
 
   // daemon (alias for fork)
-  if(cfg.hasParameter("daemon")){
-    if(!setDaemonMode(cfg.getParameter("daemon"))){
+  if (cfg.hasParameter("daemon")) {
+    if (!setDaemonMode(cfg.getParameter("daemon"))) {
       ERROR("invalid daemon value specified,"
-	    " valid are only yes or no\n");
+            " valid are only yes or no\n");
       ret = -1;
     }
   }
 
-  if(cfg.hasParameter("daemon_uid")){
+  if (cfg.hasParameter("daemon_uid")) {
     DaemonUid = cfg.getParameter("daemon_uid");
   }
 
-  if(cfg.hasParameter("daemon_gid")){
+  if (cfg.hasParameter("daemon_gid")) {
     DaemonGid = cfg.getParameter("daemon_gid");
   }
 
-#endif /* !DISABLE_DAEMON_MODE */
+#endif
 
-  MaxShutdownTime = cfg.getParameterInt("max_shutdown_time",
-					DEFAULT_MAX_SHUTDOWN_TIME);
+  MaxShutdownTime =
+      cfg.getParameterInt("max_shutdown_time", DEFAULT_MAX_SHUTDOWN_TIME);
 
-  if(cfg.hasParameter("session_processor_threads")){
+  if (cfg.hasParameter("session_processor_threads")) {
 #ifdef SESSION_THREADPOOL
-    if(!setSessionProcessorThreads(cfg.getParameter("session_processor_threads"))){
+    if (!setSessionProcessorThreads(
+            cfg.getParameter("session_processor_threads"))) {
       ERROR("invalid session_processor_threads value specified\n");
       ret = -1;
     }
-    if (SessionProcessorThreads<1) {
+    if (SessionProcessorThreads < 1) {
       ERROR("invalid session_processor_threads value specified."
-	    " need at least one thread\n");
+            " need at least one thread\n");
       ret = -1;
     }
 #else
     WARN("session_processor_threads specified in sems.conf,\n");
     WARN("but SEMS is compiled without SESSION_THREADPOOL support.\n");
-    WARN("set USE_THREADPOOL in Makefile.defs to enable session thread pool.\n");
-    WARN("SEMS will start now, but every call will have its own thread.\n");    
+    WARN("set USE_THREADPOOL in Makefile.defs to enable session thread "
+         "pool.\n");
+    WARN("SEMS will start now, but every call will have its own thread.\n");
 #endif
   }
 
-  if(cfg.hasParameter("media_processor_threads")){
-    if(!setMediaProcessorThreads(cfg.getParameter("media_processor_threads"))){
+  if (cfg.hasParameter("media_processor_threads")) {
+    if (!setMediaProcessorThreads(
+            cfg.getParameter("media_processor_threads"))) {
       ERROR("invalid media_processor_threads value specified");
       ret = -1;
     }
   }
 
-  if(cfg.hasParameter("rtp_receiver_threads")){
-    if(!setRTPReceiverThreads(cfg.getParameter("rtp_receiver_threads"))){
+  if (cfg.hasParameter("rtp_receiver_threads")) {
+    if (!setRTPReceiverThreads(cfg.getParameter("rtp_receiver_threads"))) {
       ERROR("invalid rtp_receiver_threads value specified");
       ret = -1;
     }
   }
 
-  if(cfg.hasParameter("sip_server_threads")){
-    if(!setSIPServerThreads(cfg.getParameter("sip_server_threads"))){
+  if (cfg.hasParameter("sip_server_threads")) {
+    if (!setSIPServerThreads(cfg.getParameter("sip_server_threads"))) {
       ERROR("invalid sip_server_threads value specified");
       ret = -1;
     }
   }
 
   // single codec in 200 OK
-  if(cfg.hasParameter("single_codec_in_ok")){
+  if (cfg.hasParameter("single_codec_in_ok")) {
     SingleCodecInOK = (cfg.getParameter("single_codec_in_ok") == "yes");
   }
 
   // single codec in 200 OK
-  if(cfg.hasParameter("ignore_rtpxheaders")){
+  if (cfg.hasParameter("ignore_rtpxheaders")) {
     IgnoreRTPXHdrs = (cfg.getParameter("ignore_rtpxheaders") == "yes");
   }
 
@@ -583,14 +613,14 @@ int AmConfig::readConfiguration()
   CodecOrder = explode(cfg.getParameter("codec_order"), ",");
 
   // dead_rtp_time
-  if(cfg.hasParameter("dead_rtp_time")){
-    if(!setDeadRtpTime(cfg.getParameter("dead_rtp_time"))){
+  if (cfg.hasParameter("dead_rtp_time")) {
+    if (!setDeadRtpTime(cfg.getParameter("dead_rtp_time"))) {
       ERROR("invalid dead_rtp_time value specified");
       ret = -1;
     }
   }
 
-  if(cfg.hasParameter("dtmf_detector")){
+  if (cfg.hasParameter("dtmf_detector")) {
     if (cfg.getParameter("dtmf_detector") == "spandsp") {
 #ifndef USE_SPANDSP
       WARN("spandsp support not compiled in.\n");
@@ -601,160 +631,190 @@ int AmConfig::readConfiguration()
 
 #ifdef WITH_ZRTP
   enable_zrtp = cfg.getParameter("enable_zrtp", "yes") == "yes";
-  INFO("ZRTP %sabled\n", enable_zrtp ? "en":"dis");
+  INFO("ZRTP %sabled\n", enable_zrtp ? "en" : "dis");
 
-  enable_zrtp_debuglog = cfg.getParameter("enable_zrtp_debuglog", "yes") == "yes";
-  INFO("ZRTP debug log %sabled\n", enable_zrtp_debuglog ? "en":"dis");
+  enable_zrtp_debuglog =
+      cfg.getParameter("enable_zrtp_debuglog", "yes") == "yes";
+  INFO("ZRTP debug log %sabled\n", enable_zrtp_debuglog ? "en" : "dis");
 #endif
 
-  if(cfg.hasParameter("session_limit")){ 
+  if (cfg.hasParameter("session_limit")) {
     vector<string> limit = explode(cfg.getParameter("session_limit"), ";");
     if (limit.size() != 3) {
       ERROR("invalid session_limit specified.\n");
-    } else {
-      if (str2i(limit[0], SessionLimit) || str2i(limit[1], SessionLimitErrCode)) {
-	ERROR("invalid session_limit specified.\n");
+    }
+    else {
+      if (str2i(limit[0], SessionLimit)
+          || str2i(limit[1], SessionLimitErrCode)) {
+        ERROR("invalid session_limit specified.\n");
       }
       SessionLimitErrReason = limit[2];
     }
   }
 
-  if(cfg.hasParameter("options_session_limit")){ 
-    vector<string> limit = explode(cfg.getParameter("options_session_limit"), ";");
+  if (cfg.hasParameter("options_session_limit")) {
+    vector<string> limit =
+        explode(cfg.getParameter("options_session_limit"), ";");
     if (limit.size() != 3) {
       ERROR("invalid options_session_limit specified.\n");
-    } else {
-      if (str2i(limit[0], OptionsSessionLimit) || str2i(limit[1], OptionsSessionLimitErrCode)) {
-	ERROR("invalid options_session_limit specified.\n");
+    }
+    else {
+      if (str2i(limit[0], OptionsSessionLimit)
+          || str2i(limit[1], OptionsSessionLimitErrCode)) {
+        ERROR("invalid options_session_limit specified.\n");
       }
       OptionsSessionLimitErrReason = limit[2];
     }
   }
 
-  if(cfg.hasParameter("cps_limit")){ 
-    unsigned int CPSLimit = 0;
-    vector<string> limit = explode(cfg.getParameter("cps_limit"), ";");
+  if (cfg.hasParameter("cps_limit")) {
+    unsigned int   CPSLimit = 0;
+    vector<string> limit    = explode(cfg.getParameter("cps_limit"), ";");
     if (limit.size() != 3) {
       ERROR("invalid cps_limit specified.\n");
-    } else {
+    }
+    else {
       if (str2i(limit[0], CPSLimit) || str2i(limit[1], CPSLimitErrCode)) {
-	ERROR("invalid cps_limit specified.\n");
-      } else {
-	CPSLimitErrReason = limit[2];
-	AmSessionContainer::instance()->setCPSLimit(CPSLimit);
+        ERROR("invalid cps_limit specified.\n");
+      }
+      else {
+        CPSLimitErrReason = limit[2];
+        AmSessionContainer::instance()->setCPSLimit(CPSLimit);
       }
     }
   }
 
-  if(cfg.hasParameter("accept_forked_dialogs"))
+  if (cfg.hasParameter("accept_forked_dialogs"))
     AcceptForkedDialogs = !(cfg.getParameter("accept_forked_dialogs") == "no");
 
-  if(cfg.hasParameter("shutdown_mode_reply")){
-    string c_reply = cfg.getParameter("shutdown_mode_reply");    
-    size_t spos = c_reply.find(" ");
+  if (cfg.hasParameter("shutdown_mode_reply")) {
+    string c_reply = cfg.getParameter("shutdown_mode_reply");
+    size_t spos    = c_reply.find(" ");
     if (spos == string::npos || spos == c_reply.length()) {
-      ERROR("invalid shutdown_mode_reply specified, expected \"<code> <reason>\","
-	    "e.g. shutdown_mode_reply=\"503 Not At The Moment, Please\".\n");
+      ERROR("invalid shutdown_mode_reply specified, expected \"<code> "
+            "<reason>\","
+            "e.g. shutdown_mode_reply=\"503 Not At The Moment, "
+            "Please\".\n");
       ret = -1;
-
-    } else {
+    }
+    else {
       if (str2i(c_reply.substr(0, spos), ShutdownModeErrCode)) {
-	ERROR("invalid shutdown_mode_reply specified, expected \"<code> <reason>\","
-	      "e.g. shutdown_mode_reply=\"503 Not At The Moment, Please\".\n");
-	ret = -1;
+        ERROR("invalid shutdown_mode_reply specified, expected \"<code> "
+              "<reason>\","
+              "e.g. shutdown_mode_reply=\"503 Not At The Moment, "
+              "Please\".\n");
+        ret = -1;
       }
-      ShutdownModeErrReason = c_reply.substr(spos+1);
+      ShutdownModeErrReason = c_reply.substr(spos + 1);
     }
   }
 
-  OptionsTranscoderOutStatsHdr = cfg.getParameter("options_transcoder_out_stats_hdr");
-  OptionsTranscoderInStatsHdr = cfg.getParameter("options_transcoder_in_stats_hdr");
+  OptionsTranscoderOutStatsHdr =
+      cfg.getParameter("options_transcoder_out_stats_hdr");
+  OptionsTranscoderInStatsHdr =
+      cfg.getParameter("options_transcoder_in_stats_hdr");
   TranscoderOutStatsHdr = cfg.getParameter("transcoder_out_stats_hdr");
-  TranscoderInStatsHdr = cfg.getParameter("transcoder_in_stats_hdr");
+  TranscoderInStatsHdr  = cfg.getParameter("transcoder_in_stats_hdr");
 
-  DumpConferenceStreams =  cfg.getParameter("dump_conference_streams")=="true";
-  DumpConferencePath = cfg.getParameter("dump_conference_path");
+  DumpConferenceStreams = cfg.getParameter("dump_conference_streams") == "true";
+  DumpConferencePath    = cfg.getParameter("dump_conference_path");
 
   if (cfg.hasParameter("100rel")) {
     string rel100s = cfg.getParameter("100rel");
     if (rel100s == "disabled" || rel100s == "off") {
       rel100 = Am100rel::REL100_DISABLED;
-    } else if (rel100s == "supported") {
+    }
+    else if (rel100s == "supported") {
       rel100 = Am100rel::REL100_SUPPORTED;
-    } else if (rel100s == "require") {
+    }
+    else if (rel100s == "require") {
       rel100 = Am100rel::REL100_REQUIRE;
-    } else {
+    }
+    else {
       ERROR("unknown setting for '100rel' config option: '%s'.\n",
-	    rel100s.c_str());
+            rel100s.c_str());
       ret = -1;
     }
   }
 
   if (cfg.hasParameter("resampling_library")) {
-	string resamplings = cfg.getParameter("resampling_library");
-	if (resamplings == "libsamplerate") {
-	  ResamplingImplementationType = AmAudio::LIBSAMPLERATE;
-	}
+    string resamplings = cfg.getParameter("resampling_library");
+    if (resamplings == "libsamplerate") {
+      ResamplingImplementationType = AmAudio::LIBSAMPLERATE;
+    }
   }
 
   return ret;
-}	
+}
+
+void AmConfig::cleanup()
+{
+  for (vector<RTP_interface*>::iterator it = RTP_Ifs.begin();
+       it != RTP_Ifs.end(); it++) {
+    if (*it) {
+      delete (*it);
+    }
+  }
+}
 
 int AmConfig::insert_SIP_interface(const SIP_interface& intf)
 {
-  if(SIP_If_names.find(intf.name) != SIP_If_names.end()) {
-
-    if(intf.name != "default") {
-      ERROR("duplicated interface name '%s'\n",intf.name.c_str());
+  if (SIP_If_names.find(intf.name) != SIP_If_names.end()) {
+    if (intf.name != "default") {
+      ERROR("duplicated interface name '%s'\n", intf.name.c_str());
       return -1;
     }
 
     unsigned int idx = SIP_If_names[intf.name];
-    SIP_Ifs[idx] = intf;
+    SIP_Ifs[idx]     = intf;
     return 0;
   }
 
   SIP_Ifs.push_back(intf);
-  unsigned int idx = SIP_Ifs.size()-1;
+  unsigned int idx        = SIP_Ifs.size() - 1;
   SIP_If_names[intf.name] = idx;
   return 0;
 }
 
-int AmConfig::insert_SIP_interface_mapping(const SIP_interface& intf) {
+int AmConfig::insert_SIP_interface_mapping(const SIP_interface& intf)
+{
   unsigned int idx = SIP_If_names[intf.name];
 
   string if_local_ip = intf.LocalIP;
 
-  if(LocalSIPIP2If.find(if_local_ip) == LocalSIPIP2If.end()) {
-    LocalSIPIP2If.insert(make_pair(if_local_ip,idx));
-  } else {
-    map<string,unsigned short>::iterator it = 
-      LocalSIPIP2If.find(if_local_ip);
+  if (LocalSIPIP2If.find(if_local_ip) == LocalSIPIP2If.end()) {
+    LocalSIPIP2If.insert(make_pair(if_local_ip, idx));
+  }
+  else {
+    map<string, unsigned short int>::iterator it =
+        LocalSIPIP2If.find(if_local_ip);
 
     const SIP_interface& old_intf = SIP_Ifs[it->second];
-    if(intf.LocalPort == old_intf.LocalPort) {
-      ERROR("duplicated signaling interfaces  (%s and %s) detected using %s:%u",
-	    old_intf.name.c_str(), intf.name.c_str(), if_local_ip.c_str(), intf.LocalPort);
+    if (intf.LocalPort == old_intf.LocalPort) {
+      ERROR("duplicated signaling interfaces  (%s and %s) detected using "
+            "%s:%u",
+            old_intf.name.c_str(), intf.name.c_str(), if_local_ip.c_str(),
+            intf.LocalPort);
       return -1;
     }
     // two interfaces on the sample IP - the one on port 5060 has priority
     if (intf.LocalPort == 5060)
-      LocalSIPIP2If.insert(make_pair(if_local_ip,idx));
+      LocalSIPIP2If.insert(make_pair(if_local_ip, idx));
   }
   return 0;
 }
 
 static int readSIPInterface(AmConfigReader& cfg, const string& i_name)
 {
-  int ret=0;
   AmConfig::SIP_interface intf;
+  string                  suffix;
 
-  string suffix;
-  if(!i_name.empty())
+  if (!i_name.empty()) {
     suffix = "_" + i_name;
+  }
 
   // listen, sip_ip, sip_port, and media_ip
-  if(cfg.hasParameter("sip_ip" + suffix)) {
+  if (cfg.hasParameter("sip_ip" + suffix)) {
     intf.LocalIP = cfg.getParameter("sip_ip" + suffix);
   }
   else {
@@ -762,79 +822,80 @@ static int readSIPInterface(AmConfigReader& cfg, const string& i_name)
     return 0;
   }
 
-  if(cfg.hasParameter("sip_port" + suffix)){
+  if (cfg.hasParameter("sip_port" + suffix)) {
     string sip_port_str = cfg.getParameter("sip_port" + suffix);
-    if(sscanf(sip_port_str.c_str(),"%u",
-	      &(intf.LocalPort)) != 1){
-      ERROR("sip_port%s: invalid sip port specified (%s)\n",
-	    suffix.c_str(),
-	    sip_port_str.c_str());
-      ret = -1;
+    if (sscanf(sip_port_str.c_str(), "%u", &(intf.LocalPort)) != 1) {
+      ERROR("sip_port%s: invalid sip port specified (%s)\n", suffix.c_str(),
+            sip_port_str.c_str());
+      // ret = -1; //TODO dunst0: return -1?
     }
   }
 
   // public_ip
-  if(cfg.hasParameter("public_ip" + suffix)){
+  if (cfg.hasParameter("public_ip" + suffix)) {
     intf.PublicIP = cfg.getParameter("public_ip" + suffix);
   }
 
-  if(cfg.hasParameter("sig_sock_opts" + suffix)){
-    vector<string> opt_strs = explode(cfg.getParameter("sig_sock_opts" + suffix),",");
+  if (cfg.hasParameter("sig_sock_opts" + suffix)) {
+    vector<string> opt_strs =
+        explode(cfg.getParameter("sig_sock_opts" + suffix), ",");
     unsigned int opts = 0;
-    for(vector<string>::iterator it_opt = opt_strs.begin();
-	it_opt != opt_strs.end(); ++it_opt) {
-      if(*it_opt == "force_via_address") {
-	opts |= trsp_socket::force_via_address;
-      } else if(*it_opt == "no_transport_in_contact") {
-	opts |= trsp_socket::no_transport_in_contact;
-      } else {
-	WARN("unknown signaling socket option '%s' set on interface '%s'\n",
-	     it_opt->c_str(),i_name.c_str());
+    for (vector<string>::iterator it_opt = opt_strs.begin();
+         it_opt != opt_strs.end(); ++it_opt) {
+      if (*it_opt == "force_via_address") {
+        opts |= trsp_socket::force_via_address;
+      }
+      else if (*it_opt == "no_transport_in_contact") {
+        opts |= trsp_socket::no_transport_in_contact;
+      }
+      else {
+        WARN("unknown signaling socket option '%s' set on interface "
+             "'%s'\n",
+             it_opt->c_str(), i_name.c_str());
       }
     }
     intf.SigSockOpts = opts;
   }
 
-  intf.tcp_connect_timeout =
-    cfg.getParameterInt("tcp_connect_timeout" + suffix,
-			DEFAULT_TCP_CONNECT_TIMEOUT);
+  intf.tcp_connect_timeout = cfg.getParameterInt("tcp_connect_timeout" + suffix,
+                                                 DEFAULT_TCP_CONNECT_TIMEOUT);
 
-  intf.tcp_idle_timeout =
-    cfg.getParameterInt("tcp_idle_timeout" + suffix, DEFAULT_TCP_IDLE_TIMEOUT);
+  intf.tcp_idle_timeout = cfg.getParameterInt("tcp_idle_timeout" + suffix,
+                                              DEFAULT_TCP_IDLE_TIMEOUT);
 
-  if(!i_name.empty())
+  if (!i_name.empty()) {
     intf.name = i_name;
-  else
+  }
+  else {
     intf.name = "default";
+  }
 
   return AmConfig::insert_SIP_interface(intf);
 }
 
-int AmConfig::insert_RTP_interface(const RTP_interface& intf)
+int AmConfig::insert_RTP_interface(RTP_interface* intf)
 {
-  if(RTP_If_names.find(intf.name) !=
-     RTP_If_names.end()) {
-
-    if(intf.name != "default") {
-      ERROR("duplicated interface '%s'\n",intf.name.c_str());
+  if (RTP_If_names.find(intf->name) != RTP_If_names.end()) {
+    if (intf->name != "default") {
+      ERROR("duplicated interface '%s'\n", intf->name.c_str());
       return -1;
     }
 
-    unsigned int idx = RTP_If_names[intf.name];
-    RTP_Ifs[idx] = intf;
+    unsigned int idx = RTP_If_names[intf->name];
+    RTP_Ifs[idx]     = intf;
   }
   else {
     // insert interface
     RTP_Ifs.push_back(intf);
-    unsigned short rtp_idx = RTP_Ifs.size()-1;
-    RTP_If_names[intf.name] = rtp_idx;
-    
-    // fix RtpInterface index in SIP interface
-    map<string,unsigned short>::iterator sip_idx_it = 
-      SIP_If_names.find(intf.name);
+    unsigned short int rtp_idx = RTP_Ifs.size() - 1;
+    RTP_If_names[intf->name]   = rtp_idx;
 
-    if((sip_idx_it != SIP_If_names.end()) &&
-       (SIP_Ifs.size() > sip_idx_it->second)) {
+    // fix RtpInterface index in SIP interface
+    map<string, unsigned short int>::iterator sip_idx_it =
+        SIP_If_names.find(intf->name);
+
+    if ((sip_idx_it != SIP_If_names.end())
+        && (SIP_Ifs.size() > sip_idx_it->second)) {
       SIP_Ifs[sip_idx_it->second].RtpInterface = rtp_idx;
     }
   }
@@ -844,16 +905,16 @@ int AmConfig::insert_RTP_interface(const RTP_interface& intf)
 
 static int readRTPInterface(AmConfigReader& cfg, const string& i_name)
 {
-  int ret=0;
-  AmConfig::RTP_interface intf;
+  AmConfig::RTP_interface* intf = new AmConfig::RTP_interface();
+  string                   suffix;
 
-  string suffix;
-  if(!i_name.empty())
+  if (!i_name.empty()) {
     suffix = "_" + i_name;
+  }
 
   // media_ip
-  if(cfg.hasParameter("media_ip" + suffix)) {
-    intf.LocalIP = cfg.getParameter("media_ip" + suffix);
+  if (cfg.hasParameter("media_ip" + suffix)) {
+    intf->LocalIP = cfg.getParameter("media_ip" + suffix);
   }
   else {
     // no media definition for this interface name
@@ -861,164 +922,161 @@ static int readRTPInterface(AmConfigReader& cfg, const string& i_name)
   }
 
   // public_ip
-  if(cfg.hasParameter("public_ip" + suffix)){
-    intf.PublicIP = cfg.getParameter("public_ip" + suffix);
+  if (cfg.hasParameter("public_ip" + suffix)) {
+    intf->PublicIP = cfg.getParameter("public_ip" + suffix);
   }
 
   // rtp_low_port
-  if(cfg.hasParameter("rtp_low_port" + suffix)){
+  if (cfg.hasParameter("rtp_low_port" + suffix)) {
     string rtp_low_port_str = cfg.getParameter("rtp_low_port" + suffix);
-    if(sscanf(rtp_low_port_str.c_str(),"%u",
-	      &(intf.RtpLowPort)) != 1){
-      ERROR("rtp_low_port%s: invalid port number (%s)\n",
-	    suffix.c_str(),rtp_low_port_str.c_str());
-      ret = -1;
+    if (sscanf(rtp_low_port_str.c_str(), "%u", &(intf->RtpLowPort)) != 1) {
+      ERROR("rtp_low_port%s: invalid port number (%s)\n", suffix.c_str(),
+            rtp_low_port_str.c_str());
+      // ret = -1; //TODO dunst0: return -1; ?
     }
   }
 
   // rtp_high_port
-  if(cfg.hasParameter("rtp_high_port" + suffix)){
+  if (cfg.hasParameter("rtp_high_port" + suffix)) {
     string rtp_high_port_str = cfg.getParameter("rtp_high_port" + suffix);
-    if(sscanf(rtp_high_port_str.c_str(),"%u",
-	      &(intf.RtpHighPort)) != 1){
-      ERROR("rtp_high_port%s: invalid port number (%s)\n",
-	    suffix.c_str(),rtp_high_port_str.c_str());
-      ret = -1;
+    if (sscanf(rtp_high_port_str.c_str(), "%u", &(intf->RtpHighPort)) != 1) {
+      ERROR("rtp_high_port%s: invalid port number (%s)\n", suffix.c_str(),
+            rtp_high_port_str.c_str());
+      // ret = -1; //TODO dunst0: return -1; ?
     }
   }
 
-  if(!i_name.empty())
-    intf.name = i_name;
-  else
-    intf.name = "default";
+  if (!i_name.empty()) {
+    intf->name = i_name;
+  }
+  else {
+    intf->name = "default";
+  }
 
   return AmConfig::insert_RTP_interface(intf);
 }
 
 static int readInterfaces(AmConfigReader& cfg)
 {
-  if(!cfg.hasParameter("interfaces")) {
+  if (!cfg.hasParameter("interfaces")) {
     // no interface list defined:
     // read default params
-    readSIPInterface(cfg,"");
-    readRTPInterface(cfg,"");
+    readSIPInterface(cfg, "");
+    readRTPInterface(cfg, "");
     return 0;
   }
 
   vector<string> if_names;
-  string ifs_str = cfg.getParameter("interfaces");
-  if(ifs_str.empty()) {
+  string         ifs_str = cfg.getParameter("interfaces");
+  if (ifs_str.empty()) {
     ERROR("empty interface list.\n");
     return -1;
   }
 
-  if_names = explode(ifs_str,",");
-  if(!if_names.size()) {
+  if_names = explode(ifs_str, ",");
+  if (!if_names.size()) {
     ERROR("could not parse interface list.\n");
     return -1;
   }
 
-  for(vector<string>::iterator it = if_names.begin();
-      it != if_names.end(); it++) {
+  for (vector<string>::iterator it = if_names.begin(); it != if_names.end();
+       it++) {
+    readSIPInterface(cfg, *it);
+    readRTPInterface(cfg, *it);
 
-    readSIPInterface(cfg,*it);
-    readRTPInterface(cfg,*it);
-
-    if((AmConfig::SIP_If_names.find(*it) == AmConfig::SIP_If_names.end()) &&
-       (AmConfig::RTP_If_names.find(*it) == AmConfig::RTP_If_names.end())) {
-      ERROR("missing interface definition for '%s'\n",it->c_str());
+    if ((AmConfig::SIP_If_names.find(*it) == AmConfig::SIP_If_names.end())
+        && (AmConfig::RTP_If_names.find(*it) == AmConfig::RTP_If_names.end())) {
+      ERROR("missing interface definition for '%s'\n", it->c_str());
       return -1;
     }
   }
 
-  //TODO: check interfaces
+  // TODO: check interfaces
   return 0;
 }
 
 /** Get the list of network interfaces with the associated addresses & flags */
 static bool fillSysIntfList()
 {
-  struct ifaddrs *ifap = NULL;
+  struct ifaddrs* ifap = NULL;
 
   // socket to grab MTU
   int fd = socket(AF_INET, SOCK_DGRAM, 0);
-  if(fd < 0) {
-    ERROR("socket() failed: %s",strerror(errno));
+  if (fd < 0) {
+    ERROR("socket() failed: %s", strerror(errno));
     return false;
   }
-  
-  if(getifaddrs(&ifap) < 0){
-    ERROR("getifaddrs() failed: %s",strerror(errno));
+
+  if (getifaddrs(&ifap) < 0) {
+    ERROR("getifaddrs() failed: %s", strerror(errno));
     return false;
   }
 
   char host[NI_MAXHOST];
-  for(struct ifaddrs *p_if = ifap; p_if != NULL; p_if = p_if->ifa_next) {
+  for (struct ifaddrs* p_if = ifap; p_if != NULL; p_if = p_if->ifa_next) {
+    if (p_if->ifa_addr == NULL) continue;
 
-    if(p_if->ifa_addr == NULL)
-      continue;
-    
-    if( (p_if->ifa_addr->sa_family != AF_INET) &&
-        (p_if->ifa_addr->sa_family != AF_INET6) )
+    if ((p_if->ifa_addr->sa_family != AF_INET)
+        && (p_if->ifa_addr->sa_family != AF_INET6))
       continue;
 
-    if( !(p_if->ifa_flags & IFF_UP) || !(p_if->ifa_flags & IFF_RUNNING) )
+    if (!(p_if->ifa_flags & IFF_UP) || !(p_if->ifa_flags & IFF_RUNNING))
       continue;
 
-    if(p_if->ifa_addr->sa_family == AF_INET6) {
-      
-      struct sockaddr_in6 *addr = (struct sockaddr_in6 *)p_if->ifa_addr;
-      if(IN6_IS_ADDR_LINKLOCAL(&addr->sin6_addr)){
-	// sorry, we don't support link-local addresses...
-	continue;
+    if (p_if->ifa_addr->sa_family == AF_INET6) {
+      struct sockaddr_in6* addr = (struct sockaddr_in6*) p_if->ifa_addr;
+      if (IN6_IS_ADDR_LINKLOCAL(&addr->sin6_addr)) {
+        // sorry, we don't support link-local addresses...
+        continue;
 
-	// convert address from kernel-style to userland
-	// addr->sin6_scope_id = ntohs(*(uint16_t *)&addr->sin6_addr.s6_addr[2]);
-	// addr->sin6_addr.s6_addr[2] = addr->sin6_addr.s6_addr[3] = 0;
+        // convert address from kernel-style to userland
+        // addr->sin6_scope_id = ntohs(*(uint16_t
+        // *)&addr->sin6_addr.s6_addr[2]); addr->sin6_addr.s6_addr[2] =
+        // addr->sin6_addr.s6_addr[3] = 0;
       }
     }
 
-    if (am_inet_ntop((const sockaddr_storage*)p_if->ifa_addr,
-		     host, NI_MAXHOST) == NULL) {
+    if (am_inet_ntop((const sockaddr_storage*) p_if->ifa_addr, host, NI_MAXHOST)
+        == NULL) {
       ERROR("am_inet_ntop() failed\n");
       continue;
       // freeifaddrs(ifap);
       // return false;
     }
 
-    string iface_name(p_if->ifa_name);
+    string                              iface_name(p_if->ifa_name);
     vector<AmConfig::SysIntf>::iterator intf_it;
-    for(intf_it = AmConfig::SysIfs.begin();
-	intf_it != AmConfig::SysIfs.end(); ++intf_it) {
-
-      if(intf_it->name == iface_name)
-	break;
+    for (intf_it = AmConfig::SysIfs.begin(); intf_it != AmConfig::SysIfs.end();
+         ++intf_it) {
+      if (intf_it->name == iface_name) break;
     }
 
-    if(intf_it == AmConfig::SysIfs.end()){
+    if (intf_it == AmConfig::SysIfs.end()) {
       unsigned int sys_if_idx = if_nametoindex(iface_name.c_str());
-      if(AmConfig::SysIfs.size() < sys_if_idx+1)
-	AmConfig::SysIfs.resize(sys_if_idx+1);
+      if (AmConfig::SysIfs.size() < sys_if_idx + 1)
+        AmConfig::SysIfs.resize(sys_if_idx + 1);
 
-      intf_it = AmConfig::SysIfs.begin() + sys_if_idx;
+      intf_it        = AmConfig::SysIfs.begin() + sys_if_idx;
       intf_it->name  = iface_name;
       intf_it->flags = p_if->ifa_flags;
 
       struct ifreq ifr;
-      strncpy(ifr.ifr_name,p_if->ifa_name,IFNAMSIZ);
+      memset(&ifr, 0, sizeof ifr);
+      strncpy(ifr.ifr_name, p_if->ifa_name, IFNAMSIZ);
 
-      if (ioctl(fd, SIOCGIFMTU, &ifr) < 0 ) {
-	ERROR("ioctl: %s",strerror(errno));
-	ERROR("setting MTU for this interface to default (1500)");
-	intf_it->mtu = 1500;
+      if (ioctl(fd, SIOCGIFMTU, &ifr) < 0) {
+        ERROR("ioctl: %s", strerror(errno));
+        ERROR("setting MTU for this interface to default (1500)");
+        intf_it->mtu = 1500;
       }
       else {
-	intf_it->mtu = ifr.ifr_mtu;
+        intf_it->mtu = ifr.ifr_mtu;
       }
     }
 
-    DBG("iface='%s';ip='%s';flags=0x%x\n",p_if->ifa_name,host,p_if->ifa_flags);
-    intf_it->addrs.push_back(AmConfig::IPAddr(host,p_if->ifa_addr->sa_family));
+    DBG("iface='%s';ip='%s';flags=0x%x\n", p_if->ifa_name, host,
+        p_if->ifa_flags);
+    intf_it->addrs.push_back(AmConfig::IPAddr(host, p_if->ifa_addr->sa_family));
   }
 
   freeifaddrs(ifap);
@@ -1027,63 +1085,56 @@ static bool fillSysIntfList()
   return true;
 }
 
-static void fillMissingLocalSIPIPfromSysIntfs() {
+static void fillMissingLocalSIPIPfromSysIntfs()
+{
   // add addresses from SysIntfList, if not present
-  for(unsigned int idx = 0; idx < AmConfig::SIP_Ifs.size(); idx++) {
-
+  for (unsigned int idx = 0; idx < AmConfig::SIP_Ifs.size(); idx++) {
     vector<AmConfig::SysIntf>::iterator intf_it = AmConfig::SysIfs.begin();
-    for(;intf_it != AmConfig::SysIfs.end(); ++intf_it) {
-
+    for (; intf_it != AmConfig::SysIfs.end(); ++intf_it) {
       list<AmConfig::IPAddr>::iterator addr_it = intf_it->addrs.begin();
-      for(;addr_it != intf_it->addrs.end(); addr_it++) {
-	if(addr_it->addr == AmConfig::SIP_Ifs[idx].LocalIP)
-	  break;
+      for (; addr_it != intf_it->addrs.end(); addr_it++) {
+        if (addr_it->addr == AmConfig::SIP_Ifs[idx].LocalIP) break;
       }
 
       // address not in this interface
-      if(addr_it == intf_it->addrs.end())
-	continue;
+      if (addr_it == intf_it->addrs.end()) continue;
 
       // address is primary
-      if(addr_it == intf_it->addrs.begin())
-	continue;
+      if (addr_it == intf_it->addrs.begin()) continue;
 
-      if(AmConfig::LocalSIPIP2If.find(intf_it->addrs.front().addr)
-	 == AmConfig::LocalSIPIP2If.end()) {
-	DBG("mapping unmapped IP address '%s' to interface #%u \n",
-	    intf_it->addrs.front().addr.c_str(), idx);
-	AmConfig::LocalSIPIP2If[intf_it->addrs.front().addr] = idx;
+      if (AmConfig::LocalSIPIP2If.find(intf_it->addrs.front().addr)
+          == AmConfig::LocalSIPIP2If.end()) {
+        DBG("mapping unmapped IP address '%s' to interface #%u \n",
+            intf_it->addrs.front().addr.c_str(), idx);
+        AmConfig::LocalSIPIP2If[intf_it->addrs.front().addr] = idx;
       }
     }
   }
 }
 
-
 /** Get the AF_INET[6] address associated with the network interface */
 string fixIface2IP(const string& dev_name, bool v6_for_sip)
 {
   struct sockaddr_storage ss;
-  if(am_inet_pton(dev_name.c_str(), &ss)) {
-    if(v6_for_sip && (ss.ss_family == AF_INET6) && (dev_name[0] != '['))
+  if (am_inet_pton(dev_name.c_str(), &ss)) {
+    if (v6_for_sip && (ss.ss_family == AF_INET6) && (dev_name[0] != '['))
       return "[" + dev_name + "]";
     else
       return dev_name;
   }
 
-  for(vector<AmConfig::SysIntf>::iterator intf_it = AmConfig::SysIfs.begin();
-      intf_it != AmConfig::SysIfs.end(); ++intf_it) {
-      
-    if(intf_it->name != dev_name)
-      continue;
+  for (vector<AmConfig::SysIntf>::iterator intf_it = AmConfig::SysIfs.begin();
+       intf_it != AmConfig::SysIfs.end(); ++intf_it) {
+    if (intf_it->name != dev_name) continue;
 
-    if(intf_it->addrs.empty()){
-      ERROR("No IP address for interface '%s'\n",intf_it->name.c_str());
+    if (intf_it->addrs.empty()) {
+      ERROR("No IP address for interface '%s'\n", intf_it->name.c_str());
       return "";
     }
-      
-    DBG("dev_name = '%s'\n",dev_name.c_str());
+
+    DBG("dev_name = '%s'\n", dev_name.c_str());
     return intf_it->addrs.front().addr;
-  }    
+  }
 
   return "";
 }
@@ -1091,16 +1142,13 @@ string fixIface2IP(const string& dev_name, bool v6_for_sip)
 /** Get IP addrese from first non-loopback interface */
 static string getDefaultIP()
 {
-  for(vector<AmConfig::SysIntf>::iterator intf_it = AmConfig::SysIfs.begin();
-      intf_it != AmConfig::SysIfs.end(); ++intf_it) {
-      
-    if(intf_it->flags & IFF_LOOPBACK)
-      continue;
+  for (vector<AmConfig::SysIntf>::iterator intf_it = AmConfig::SysIfs.begin();
+       intf_it != AmConfig::SysIfs.end(); ++intf_it) {
+    if (intf_it->flags & IFF_LOOPBACK) continue;
 
-    if(intf_it->addrs.empty())
-      continue;
+    if (intf_it->addrs.empty()) continue;
 
-    DBG("dev_name = '%s'\n",intf_it->name.c_str());
+    DBG("dev_name = '%s'\n", intf_it->name.c_str());
     return intf_it->addrs.front().addr;
   }
 
@@ -1109,19 +1157,19 @@ static string getDefaultIP()
 
 static int setNetInterface(AmConfig::IP_interface* ip_if)
 {
-  for(unsigned int i=0; i < AmConfig::SysIfs.size(); i++) {
-    
-    list<AmConfig::IPAddr>::iterator addr_it = AmConfig::SysIfs[i].addrs.begin();
-    while(addr_it != AmConfig::SysIfs[i].addrs.end()) {
-      if(ip_if->LocalIP == addr_it->addr) {
-	ip_if->NetIf = AmConfig::SysIfs[i].name;
-	ip_if->NetIfIdx = i;
-	return 0;
+  for (unsigned int i = 0; i < AmConfig::SysIfs.size(); i++) {
+    list<AmConfig::IPAddr>::iterator addr_it =
+        AmConfig::SysIfs[i].addrs.begin();
+    while (addr_it != AmConfig::SysIfs[i].addrs.end()) {
+      if (ip_if->LocalIP == addr_it->addr) {
+        ip_if->NetIf    = AmConfig::SysIfs[i].name;
+        ip_if->NetIfIdx = i;
+        return 0;
       }
       addr_it++;
     }
   }
-  
+
   // not interface found
   return -1;
 }
@@ -1131,57 +1179,53 @@ int AmConfig::finalizeIPConfig()
   fillSysIntfList();
 
   // replace system interface names with IPs
-  for(vector<SIP_interface>::iterator it = SIP_Ifs.begin();
-      it != SIP_Ifs.end(); it++) {
-    
-    it->LocalIP = fixIface2IP(it->LocalIP,true);
-    if(it->LocalIP.empty()) {
-      ERROR("could not determine signaling IP for "
-	    "interface '%s'\n", it->name.c_str());
+  for (vector<SIP_interface>::iterator it = SIP_Ifs.begin();
+       it != SIP_Ifs.end(); it++) {
+    it->LocalIP = fixIface2IP(it->LocalIP, true);
+    if (it->LocalIP.empty()) {
+      ERROR("could not determine signaling IP for interface '%s'\n",
+            it->name.c_str());
       return -1;
     }
 
-    if(!it->LocalPort)
-      it->LocalPort = 5060;
+    if (!it->LocalPort) it->LocalPort = 5060;
 
-    if (insert_SIP_interface_mapping(*it)<0)
-      return -1;
+    if (insert_SIP_interface_mapping(*it) < 0) return -1;
 
     setNetInterface(&(*it));
   }
 
-  for(vector<RTP_interface>::iterator it = RTP_Ifs.begin();
-      it != RTP_Ifs.end(); it++) {
-    
-    if(it->LocalIP.empty()) {
+  for (vector<RTP_interface*>::iterator it = RTP_Ifs.begin();
+       it != RTP_Ifs.end(); it++) {
+    if ((*it)->LocalIP.empty()) {
       // try the IP from the signaling interface
-      map<string, unsigned short>::iterator sip_if = 
-	SIP_If_names.find(it->name);
-      if(sip_if != SIP_If_names.end()) {
-	it->LocalIP = SIP_Ifs[sip_if->second].LocalIP;
+      map<string, unsigned short int>::iterator sip_if =
+          SIP_If_names.find((*it)->name);
+      if (sip_if != SIP_If_names.end()) {
+        (*it)->LocalIP = SIP_Ifs[sip_if->second].LocalIP;
       }
       else {
-	ERROR("could not determine media IP for "
-	      "interface '%s'\n", it->name.c_str());
-	return -1;
+        ERROR("could not determine media IP for interface '%s'\n",
+              (*it)->name.c_str());
+        return -1;
       }
     }
     else {
-      it->LocalIP = fixIface2IP(it->LocalIP,false);
-      if(it->LocalIP.empty()) {
-	ERROR("could not determine media IP for "
-	      "interface '%s'\n", it->name.c_str());
-	return -1;
+      (*it)->LocalIP = fixIface2IP((*it)->LocalIP, false);
+      if ((*it)->LocalIP.empty()) {
+        ERROR("could not determine media IP for interface '%s'\n",
+              (*it)->name.c_str());
+        return -1;
       }
     }
 
-    setNetInterface(&(*it));
+    setNetInterface(*it);
   }
 
-  if(!SIP_Ifs.size()) {
+  if (!SIP_Ifs.size()) {
     SIP_interface intf;
     intf.LocalIP = getDefaultIP();
-    if(intf.LocalIP.empty()){
+    if (intf.LocalIP.empty()) {
       ERROR("could not determine default signaling IP.");
       return -1;
     }
@@ -1189,10 +1233,10 @@ int AmConfig::finalizeIPConfig()
     SIP_If_names["default"] = 0;
   }
 
-  if(!RTP_Ifs.size()) {
-    RTP_interface intf;
-    intf.LocalIP = SIP_Ifs[0].LocalIP;
-    if(intf.LocalIP.empty()){
+  if (!RTP_Ifs.size()) {
+    RTP_interface* intf = new RTP_interface();
+    intf->LocalIP       = SIP_Ifs[0].LocalIP;
+    if (intf->LocalIP.empty()) {
       ERROR("could not determine default media IP.");
       return -1;
     }
@@ -1208,40 +1252,39 @@ int AmConfig::finalizeIPConfig()
 void AmConfig::dump_Ifs()
 {
   INFO("Signaling interfaces:");
-  for(int i=0; i<(int)SIP_Ifs.size(); i++) {
-    
+  for (int i = 0; i < (int) SIP_Ifs.size(); i++) {
     SIP_interface& it_ref = SIP_Ifs[i];
 
-    INFO("\t(%i) name='%s'" ";LocalIP='%s'" 
-	 ";LocalPort='%u'" ";PublicIP='%s';TCP=%u/%u",
-	 i,it_ref.name.c_str(),it_ref.LocalIP.c_str(),
-	 it_ref.LocalPort,it_ref.PublicIP.c_str(),
-	 it_ref.tcp_connect_timeout,
-	 it_ref.tcp_idle_timeout);
+    INFO("\t(%i) name='%s'"
+         ";LocalIP='%s'"
+         ";LocalPort='%u'"
+         ";PublicIP='%s';TCP=%u/%u",
+         i, it_ref.name.c_str(), it_ref.LocalIP.c_str(), it_ref.LocalPort,
+         it_ref.PublicIP.c_str(), it_ref.tcp_connect_timeout,
+         it_ref.tcp_idle_timeout);
   }
-  
-  INFO("Signaling address map:");
-  for(multimap<string,unsigned short>::iterator it = LocalSIPIP2If.begin();
-      it != LocalSIPIP2If.end(); ++it) {
 
-    if(SIP_Ifs[it->second].name.empty()){
-      INFO("\t%s -> default",it->first.c_str());
+  INFO("Signaling address map:");
+  for (multimap<string, unsigned short int>::iterator it =
+           LocalSIPIP2If.begin();
+       it != LocalSIPIP2If.end(); ++it) {
+    if (SIP_Ifs[it->second].name.empty()) {
+      INFO("\t%s -> default", it->first.c_str());
     }
     else {
-      INFO("\t%s -> %s",it->first.c_str(),
-	   SIP_Ifs[it->second].name.c_str());
+      INFO("\t%s -> %s", it->first.c_str(), SIP_Ifs[it->second].name.c_str());
     }
   }
 
   INFO("Media interfaces:");
-  for(int i=0; i<(int)RTP_Ifs.size(); i++) {
-    
-    RTP_interface& it_ref = RTP_Ifs[i];
+  for (int i = 0; i < (int) RTP_Ifs.size(); i++) {
+    RTP_interface* it_ref = RTP_Ifs[i];
 
-    INFO("\t(%i) name='%s'" ";LocalIP='%s'" 
-	 ";Ports=[%u;%u]" ";PublicIP='%s'",
-	 i,it_ref.name.c_str(),it_ref.LocalIP.c_str(),
-	 it_ref.RtpLowPort,it_ref.RtpHighPort,
-	 it_ref.PublicIP.c_str());
+    INFO("\t(%i) name='%s'"
+         ";LocalIP='%s'"
+         ";Ports=[%u;%u]"
+         ";PublicIP='%s'",
+         i, it_ref->name.c_str(), it_ref->LocalIP.c_str(), it_ref->RtpLowPort,
+         it_ref->RtpHighPort, it_ref->PublicIP.c_str());
   }
 }

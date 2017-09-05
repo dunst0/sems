@@ -20,19 +20,21 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmStats.h */
-#ifndef _AmStats_h_
-#define _AmStats_h_
 
-#include <sys/types.h>
+#ifndef _AMSTATS_H_
+#define _AMSTATS_H_
+
 #include <math.h>
 #include <string.h>
-/** 
- * \brief math mean implementation 
+#include <sys/types.h>
+
+/**
+ * \brief math mean implementation
  *
  * The mean of all previously stored values is calculated (no reset).
  */
@@ -44,27 +46,30 @@ class MeanValue
 
  public:
   MeanValue()
-    : cum_val(0.0),
-    n_val(0)
-    {}
+      : cum_val(0.0)
+      , n_val(0)
+  {
+  }
 
-  virtual ~MeanValue() { }
+  virtual ~MeanValue() {}
 
-  void push(double val){
+  void push(double val)
+  {
     cum_val += val;
     n_val++;
   }
 
-  double mean(){
-    if(!n_val) return 0.0;
+  double mean()
+  {
+    if (!n_val) return 0.0;
     return cum_val / float(n_val);
   }
 };
 
-/** 
- * \brief math stddev implementation 
+/**
+ * \brief math stddev implementation
  *
- * The standard deviation of previously stored 
+ * The standard deviation of previously stored
  * values is calculated.
  */
 class StddevValue
@@ -76,49 +81,50 @@ class StddevValue
 
  public:
   StddevValue()
-    : cum_val(0.0),
-    sq_cum_val(0.0),
-    n_val(0)
-    {}
+      : cum_val(0.0)
+      , sq_cum_val(0.0)
+      , n_val(0)
+  {
+  }
 
-  void push(double val){
-	
+  void push(double val)
+  {
     cum_val += val;
-    sq_cum_val += val*val;
+    sq_cum_val += val * val;
     n_val++;
   }
 
-  double stddev(){
-    if(!n_val) return 0.0;
-    return sqrt((n_val*sq_cum_val - cum_val*cum_val)/(n_val*(n_val-1)));
+  double stddev()
+  {
+    if (!n_val) return 0.0;
+    return sqrt((n_val * sq_cum_val - cum_val * cum_val)
+                / (n_val * (n_val - 1)));
   }
 };
 
-/** 
+/**
  * \brief math mean implementation (n values)
  *
  * The mean of n previously stored values is calculated
  */
-class MeanArray: public MeanValue
+class MeanArray : public MeanValue
 {
-  double *buffer;
+  double* buffer;
   size_t  buf_size;
 
  public:
   MeanArray(size_t size)
-    : buf_size(size),
-    MeanValue()
-    {
-      buffer = new double[size];
-      memset(buffer, 0, sizeof(buffer[0])*size);
-    }
-
-  ~MeanArray(){
-    delete [] buffer;
+      : MeanValue()
+      , buf_size(size)
+  {
+    buffer = new double[size];
+    memset(buffer, 0, sizeof(buffer[0]) * size);
   }
 
-  void push(double val){
+  ~MeanArray() { delete[] buffer; }
 
+  void push(double val)
+  {
     cum_val -= buffer[n_val % buf_size];
     buffer[n_val % buf_size] = val;
 
@@ -126,8 +132,9 @@ class MeanArray: public MeanValue
     n_val++;
   }
 
-  double mean(){
-    if(!n_val) return 0.0;
+  double mean()
+  {
+    if (!n_val) return 0.0;
     return cum_val / double(n_val > buf_size ? buf_size : n_val);
   }
 };

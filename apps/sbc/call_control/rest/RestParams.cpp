@@ -1,12 +1,12 @@
 #include "RestParams.h"
+#include "jsonArg.h"
 #include "log.h"
 #include <curl/curl.h>
 #include <map>
-#include "jsonArg.h"
 
 using namespace std;
 
-static void trim_spaces(string &s)
+static void trim_spaces(string& s)
 {
   size_t pos = s.find_last_not_of(" \t\r\n");
   if (pos != string::npos) {
@@ -14,39 +14,41 @@ static void trim_spaces(string &s)
     pos = s.find_first_not_of(' ');
     if (pos != string::npos) s.erase(0, pos);
   }
-  else s.erase(s.begin(), s.end());
+  else
+    s.erase(s.begin(), s.end());
 }
 
-static bool str2bool(const char *s)
+static bool str2bool(const char* s)
 {
-  if ((!s) || (!*s)) return true; // understand as just bool option which should be true
+  if ((!s) || (!*s))
+    return true; // understand as just bool option which should be true
   if (strcasecmp(s, "yes") == 0) return true;
   if (strcasecmp(s, "true") == 0) return true;
   if (strcmp(s, "1") == 0) return true;
-  
+
   return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RestParams::getIfSet(const char *param_name, string &dst)
+void RestParams::getIfSet(const char* param_name, string& dst)
 {
   if (params.hasMember(param_name)) {
-    const AmArg &a = params[param_name];
+    const AmArg& a        = params[param_name];
     if (isArgCStr(a)) dst = a.asCStr();
   }
 }
 
-void RestParams::getIfSet(const char *param_name, bool &dst)
+void RestParams::getIfSet(const char* param_name, bool& dst)
 {
   if (params.hasMember(param_name)) {
-    const AmArg &a = params[param_name];
+    const AmArg& a        = params[param_name];
     if (isArgCStr(a)) dst = str2bool(a.asCStr());
     if (isArgBool(a)) dst = a.asBool();
   }
 }
 
-void RestParams::handleParamLine(const string &line, size_t begin, size_t end)
+void RestParams::handleParamLine(const string& line, size_t begin, size_t end)
 {
   size_t pos;
 
@@ -65,20 +67,21 @@ void RestParams::handleParamLine(const string &line, size_t begin, size_t end)
     params.push(name, AmArg(value));
   }
 }
-    
-bool RestParams::readFromText(const string &data)
+
+bool RestParams::readFromText(const string& data)
 {
   size_t first = 0;
   size_t last;
 
   params.assertStruct();
-  while (true) { 
+  while (true) {
     last = data.find('\n', first);
     if (last == string::npos) {
       handleParamLine(data, first, data.size());
       break;
     }
-    else handleParamLine(data, first, last);
+    else
+      handleParamLine(data, first, last);
     first = last + 1;
   }
 
@@ -86,22 +89,22 @@ bool RestParams::readFromText(const string &data)
   return true;
 }
 
-bool RestParams::readFromJson(const string &data)
+bool RestParams::readFromJson(const string& data)
 {
   return json2arg(data, params);
 }
 
-bool RestParams::readFromXML(const string &data)
+bool RestParams::readFromXML(const string& data)
 {
   // TODO
   ERROR("REST: trying to decode XML data - not implemented yet!\n");
   return false;
 }
 
-bool RestParams::retrieve(const string &url, Format fmt)
+bool RestParams::retrieve(const string& url, Format fmt)
 {
   string data;
-    
+
   DBG("REST: reading from url %s\n", url.c_str());
 
   if (!get(url, data)) return false;
@@ -115,13 +118,14 @@ bool RestParams::retrieve(const string &url, Format fmt)
   return false;
 }
 
-static size_t store_data_cb(void *contents, size_t size, size_t nmemb, void *userp)
+static size_t store_data_cb(void* contents, size_t size, size_t nmemb,
+                            void* userp)
 {
-  size_t realsize = size * nmemb;
-  string &mem = *((string *)userp);
+  size_t  realsize = size * nmemb;
+  string& mem      = *((string*) userp);
 
   try {
-    if (realsize > 0) mem.append((char *)contents, realsize);
+    if (realsize > 0) mem.append((char*) contents, realsize);
   }
   catch (...) {
     ERROR("error while reading data from an URL\n");
@@ -130,10 +134,10 @@ static size_t store_data_cb(void *contents, size_t size, size_t nmemb, void *use
   return realsize;
 }
 
-bool RestParams::get(const string &url, string &data)
+bool RestParams::get(const string& url, string& data)
 {
   // based on http://curl.haxx.se/libcurl/c/getinmemory.html
-  CURL *curl_handle = curl_easy_init();
+  CURL* curl_handle = curl_easy_init();
 
   data.clear();
 
@@ -144,10 +148,10 @@ bool RestParams::get(const string &url, string &data)
 
   curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, store_data_cb);
-  curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&data);
+  curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void*) &data);
   curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "REST-in-peace/0.1");
   CURLcode res = curl_easy_perform(curl_handle);
-  
+
   curl_easy_cleanup(curl_handle);
 
   if (res != 0) {

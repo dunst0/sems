@@ -18,29 +18,42 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "CallBack.h"
+
+#include "AmPlugIn.h"
+#include "AmUAC.h"
 #include "AmUtils.h"
 #include "log.h"
-#include "AmUAC.h"
-#include "AmPlugIn.h"
 
 #include <stdlib.h>
 
-EXPORT_SESSION_FACTORY(CallBackFactory,MOD_NAME);
+using std::string;
+using std::map;
+using std::vector;
+
+EXPORT_SESSION_FACTORY(CallBackFactory, MOD_NAME);
 string CallBackFactory::gw_user;
 string CallBackFactory::gw_domain;
 string CallBackFactory::auth_user;
 string CallBackFactory::auth_pwd;
 
 CallBackFactory::CallBackFactory(const string& _app_name)
-  : AmSessionFactory(_app_name),
-    configured(false)
+    : AmSessionFactory(_app_name)
+// UNUSED
+// , configured(false)
+// UNUSED_END
 {
+}
+
+CallBackFactory::~CallBackFactory()
+{
+  stop();
+  join();
 }
 
 PlayoutType CallBackFactory::m_PlayoutType = ADAPTIVE_PLAYOUT;
@@ -48,7 +61,7 @@ PlayoutType CallBackFactory::m_PlayoutType = ADAPTIVE_PLAYOUT;
 int CallBackFactory::onLoad()
 {
   AmConfigReader cfg;
-  if(cfg.loadFile(AmConfig::ModConfigPath + string(MOD_NAME)+ ".conf"))
+  if (cfg.loadFile(AmConfig::ModConfigPath + string(MOD_NAME) + ".conf"))
     return -1;
 
   // get application specific global parameters
@@ -56,39 +69,42 @@ int CallBackFactory::onLoad()
 
   // get prompts
   AM_PROMPT_START;
-  AM_PROMPT_ADD(WELCOME_PROMPT,  WELCOME_PROMPT ".wav");
+  AM_PROMPT_ADD(WELCOME_PROMPT, WELCOME_PROMPT ".wav");
   AM_PROMPT_END(prompts, cfg, MOD_NAME);
 
   string DigitsDir = cfg.getParameter("digits_dir");
-  if (DigitsDir.length() && DigitsDir[DigitsDir.length()-1]!='/')
-    DigitsDir+='/';
+  if (DigitsDir.length() && DigitsDir[DigitsDir.length() - 1] != '/')
+    DigitsDir += '/';
 
   if (!DigitsDir.length()) {
     ERROR("No digits_dir specified in configuration.\n");
   }
-  for (int i=0;i<10;i++) 
-    prompts.setPrompt(int2str(i), DigitsDir+int2str(i)+".wav", MOD_NAME);
+  for (int i = 0; i < 10; i++)
+    prompts.setPrompt(int2str(i), DigitsDir + int2str(i) + ".wav", MOD_NAME);
 
   string playout_type = cfg.getParameter("playout_type");
   if (playout_type == "simple") {
     m_PlayoutType = SIMPLE_PLAYOUT;
     DBG("Using simple (fifo) buffer as playout technique.\n");
-  } else 	if (playout_type == "adaptive_jb") {
+  }
+  else if (playout_type == "adaptive_jb") {
     m_PlayoutType = JB_PLAYOUT;
     DBG("Using adaptive jitter buffer as playout technique.\n");
-  } else {
+  }
+  else {
     DBG("Using adaptive playout buffer as playout technique.\n");
   }
-  
+
   string accept_caller_re_str = cfg.getParameter(ACCEPT_CALLER_RE);
   if (!accept_caller_re_str.length()) {
     ERROR("no '" ACCEPT_CALLER_RE "' set.\n");
     return -1;
-  } else {
-    if (regcomp(&accept_caller_re, accept_caller_re_str.c_str(), 
-		 REG_EXTENDED|REG_NOSUB)) {
+  }
+  else {
+    if (regcomp(&accept_caller_re, accept_caller_re_str.c_str(),
+                REG_EXTENDED | REG_NOSUB)) {
       ERROR("unable to compile caller RE '%s'.\n",
-	    accept_caller_re_str.c_str());
+            accept_caller_re_str.c_str());
       return -1;
     }
   }
@@ -105,9 +121,8 @@ int CallBackFactory::onLoad()
     return -1;
   }
 
-  auth_user = cfg.getParameter("auth_user");
-  if (!auth_user.length())
-    auth_user = gw_user; // default to user
+  auth_user                          = cfg.getParameter("auth_user");
+  if (!auth_user.length()) auth_user = gw_user; // default to user
 
   auth_pwd = cfg.getParameter("auth_pwd");
   if (!auth_pwd.length()) {
@@ -118,82 +133,84 @@ int CallBackFactory::onLoad()
   cb_wait = cfg.getParameterInt("cb_wait", 5);
   DBG("cb_wait set to %d\n", cb_wait);
 
-  DBG("starting callback thread. (%ld)\n", (long)this);
+  DBG("starting callback thread. (%ld)\n", (long) this);
   start();
 
   return 0;
 }
 
-// incoming calls 
-AmSession* CallBackFactory::onInvite(const AmSipRequest& req, const string& app_name,
-				     const map<string,string>& app_params)
+// incoming calls
+AmSession* CallBackFactory::onInvite(const AmSipRequest& req,
+                                     const string&       app_name,
+                                     const map<string, string>& app_params)
 {
-  // or req.from -> with display name ? 
+  // or req.from -> with display name ?
   DBG("received INVITE from '%s'\n", req.from_uri.c_str());
-  if (!regexec(&accept_caller_re, req.from_uri.c_str(), 0,0,0)) {
+  if (!regexec(&accept_caller_re, req.from_uri.c_str(), 0, 0, 0)) {
     DBG("accept_caller_re matched.\n");
     time_t now;
     time(&now);
     // q&d
-    string from_user = req.from_uri.substr(req.from_uri.find("sip:")+4);
-    from_user = from_user.substr(0, from_user.find("@")); 
+    string from_user = req.from_uri.substr(req.from_uri.find("sip:") + 4);
+    from_user        = from_user.substr(0, from_user.find("@"));
     DBG("INVITE user '%s'\n", from_user.c_str());
     if (from_user.length()) {
       scheduled_calls_mut.lock();
       scheduled_calls.insert(std::make_pair(now + cb_wait, from_user));
       scheduled_calls_mut.unlock();
     }
-    
-    DBG("inserted into callback thread. (%ld)\n", (long)this);
+
+    DBG("inserted into callback thread. (%ld)\n", (long) this);
     // or some other reason
-    throw AmSession::Exception(486, "Busy here (call you back l8r)"); 
-  } else {
+    throw AmSession::Exception(486, "Busy here (call you back l8r)");
+  }
+  else {
     DBG("accept_caller_re not matched.\n");
     // or something else
-    throw AmSession::Exception(603, "Decline"); 
+    throw AmSession::Exception(603, "Decline");
   }
-  
+
   return 0;
 }
 
-// outgoing calls 
-AmSession* CallBackFactory::onInvite(const AmSipRequest& req, const string& app_name,
-				     AmArg& session_params)
+// outgoing calls
+AmSession* CallBackFactory::onInvite(const AmSipRequest& req,
+                                     const string&       app_name,
+                                     AmArg&              session_params)
 {
   UACAuthCred* cred = NULL;
   if (session_params.getType() == AmArg::AObject) {
     AmObject* cred_obj = session_params.asObject();
-    if (cred_obj)
-      cred = dynamic_cast<UACAuthCred*>(cred_obj);
+    if (cred_obj) cred = dynamic_cast<UACAuthCred*>(cred_obj);
   }
 
   AmSession* s = new CallBackDialog(prompts, cred);
   AmUACAuth::enable(s);
-  
+
   return s;
 }
 
-// this could have been made easier with a timer... 
-void CallBackFactory::run() {
+// this could have been made easier with a timer...
+void CallBackFactory::run()
+{
   DBG("running CallBack thread.\n");
-  while (true) {
+
+  while (isRunning()) {
     scheduled_calls_mut.lock();
     vector<string> todo;
-    time_t now;
+    time_t         now;
     time(&now);
-    std::multimap<time_t, string>::iterator it = 
-      scheduled_calls.begin();
+    std::multimap<time_t, string>::iterator it = scheduled_calls.begin();
+
     while (it != scheduled_calls.end()) {
-      if (it->first > now)
-	break;
+      if (it->first > now) break;
       todo.push_back(it->second);
       scheduled_calls.erase(it);
-      it = scheduled_calls.begin(); 
-    }      
+      it = scheduled_calls.begin();
+    }
     scheduled_calls_mut.unlock();
 
-    for (vector<string>::iterator it=todo.begin(); 
-	 it != todo.end(); it++)  {
+    for (vector<string>::iterator it = todo.begin(); it != todo.end(); it++) {
       createCall(*it);
     }
 
@@ -201,45 +218,38 @@ void CallBackFactory::run() {
   }
 }
 
-void CallBackFactory::on_stop() {
-}
+void CallBackFactory::on_stop() {}
 
-void CallBackFactory::createCall(const string& number) {
+void CallBackFactory::createCall(const string& number)
+{
   AmArg* a = new AmArg();
   a->setBorrowedPointer(new UACAuthCred("", auth_user, auth_pwd));
-  
-  string luser = "cb";
-  string to = "sip:"+ number + "@" + gw_domain;
-  string from = "sip:"+ gw_user + "@" + gw_domain;
+
+  string luser    = "cb";
+  string to       = "sip:" + number + "@" + gw_domain;
+  string from     = "sip:" + gw_user + "@" + gw_domain;
   string app_name = string(MOD_NAME);
 
-  AmUAC::dialout(luser, 
-		 app_name,  
-		 to,  
-		 "<" + from +  ">", from, 
-		 "<" + to + ">", 
-		 string(""), // local tag
-		 string("X-Extra: fancy\r\n"), // hdrs
-		 a);
+  AmUAC::dialout(luser, app_name, to, "<" + from + ">", from, "<" + to + ">",
+                 string(""),                   // local tag
+                 string("X-Extra: fancy\r\n"), // hdrs
+                 a);
 }
 
-CallBackDialog::CallBackDialog(AmPromptCollection& prompts,
-			       UACAuthCred* cred)
-  : play_list(this),  prompts(prompts), cred(cred),
-    state(CBNone)
+CallBackDialog::CallBackDialog(AmPromptCollection& prompts, UACAuthCred* cred)
+    : play_list(this)
+    , prompts(prompts)
+    , cred(cred)
+    , state(CBNone)
 {
   // set configured playout type
   RTPStream()->setPlayoutType(CallBackFactory::m_PlayoutType);
 }
 
-CallBackDialog::~CallBackDialog()
+CallBackDialog::~CallBackDialog() { prompts.cleanup((long) this); }
+
+void CallBackDialog::onInvite(const AmSipRequest& req)
 {
-  prompts.cleanup((long)this);
-}
-
-
-void CallBackDialog::onInvite(const AmSipRequest& req) 
-{ 
   if (state != CBNone) {
     // reinvite
     AmB2ABCallerSession::onInvite(req);
@@ -251,42 +261,42 @@ void CallBackDialog::onInvite(const AmSipRequest& req)
   dlg->bye();
 }
 
-void CallBackDialog::onSessionStart() 
-{ 
-  state = CBEnteringNumber;    
-  prompts.addToPlaylist(WELCOME_PROMPT,  (long)this, play_list);
+void CallBackDialog::onSessionStart()
+{
+  state = CBEnteringNumber;
+  prompts.addToPlaylist(WELCOME_PROMPT, (long) this, play_list);
   // set the playlist as input and output
-  setInOut(&play_list,&play_list);
+  setInOut(&play_list, &play_list);
 
   AmB2ABCallerSession::onSessionStart();
 }
- 
+
 void CallBackDialog::onDtmf(int event, int duration)
 {
-  DBG("CallBackDialog::onDtmf: event %d duration %d\n", 
-      event, duration);
+  DBG("CallBackDialog::onDtmf: event %d duration %d\n", event, duration);
 
   if (CBEnteringNumber == state) {
     // not yet in conference
-    if (event<10) {
+    if (event < 10) {
       call_number += int2str(event);
-      DBG("added '%s': number is now '%s'.\n", 
-	  int2str(event).c_str(), call_number.c_str());
-    } else if (event==10 || event==11) {
+      DBG("added '%s': number is now '%s'.\n", int2str(event).c_str(),
+          call_number.c_str());
+    }
+    else if (event == 10 || event == 11) {
       // pound and star key
       // if required add checking of pin here...
       if (!call_number.length()) {
-	prompts.addToPlaylist(WELCOME_PROMPT,  (long)this, play_list);
-      } else {
-	state = CBTellingNumber;
-	play_list.flush();
-	for (size_t i=0;i<call_number.length();i++) {
-	  string num = "";
-	  num[0] = call_number[i]; // this works? 
-	  DBG("adding '%s' to playlist.\n", num.c_str());
-	  prompts.addToPlaylist(num,
-				(long)this, play_list);
-	}
+        prompts.addToPlaylist(WELCOME_PROMPT, (long) this, play_list);
+      }
+      else {
+        state = CBTellingNumber;
+        play_list.flush();
+        for (size_t i = 0; i < call_number.length(); i++) {
+          string num = "";
+          num[0]     = call_number[i]; // this works?
+          DBG("adding '%s' to playlist.\n", num.c_str());
+          prompts.addToPlaylist(num, (long) this, play_list);
+        }
       }
     }
   }
@@ -296,39 +306,39 @@ void CallBackDialog::process(AmEvent* ev)
 {
   // audio events
   AmAudioEvent* audio_ev = dynamic_cast<AmAudioEvent*>(ev);
-  if (audio_ev  && 
-      audio_ev->event_id == AmAudioEvent::noAudio) {
+  if (audio_ev && audio_ev->event_id == AmAudioEvent::noAudio) {
     DBG("########## noAudio event #########\n");
     if (CBTellingNumber == state) {
-      state = CBConnecting;
+      state         = CBConnecting;
       string callee = "sip:" + call_number + "@" + CallBackFactory::gw_domain;
-      string caller = "sip:" + CallBackFactory::gw_user + "@" +  CallBackFactory::gw_domain;
-      connectCallee(callee, callee, 
-		    caller, caller);
+      string caller =
+          "sip:" + CallBackFactory::gw_user + "@" + CallBackFactory::gw_domain;
+      connectCallee(callee, callee, caller, caller);
     }
     return;
   }
-  
+
   AmB2ABSession::process(ev);
 }
 
 // need this to pass credentials...
-AmB2ABCalleeSession* CallBackDialog::createCalleeSession() {
-  CallBackCalleeDialog* sess = new CallBackCalleeDialog(getLocalTag(), connector, cred);
+AmB2ABCalleeSession* CallBackDialog::createCalleeSession()
+{
+  CallBackCalleeDialog* sess =
+      new CallBackCalleeDialog(getLocalTag(), connector, cred);
   AmUACAuth::enable(sess);
   return sess;
 }
 
-CallBackCalleeDialog::CallBackCalleeDialog(const string& other_tag, 
-					   AmSessionAudioConnector* connector,
-					   UACAuthCred* cred) 
-  : AmB2ABCalleeSession(other_tag, connector), cred(cred)
+CallBackCalleeDialog::CallBackCalleeDialog(const string&            other_tag,
+                                           AmSessionAudioConnector* connector,
+                                           UACAuthCred*             cred)
+    : AmB2ABCalleeSession(other_tag, connector)
+    , cred(cred)
 {
   // set configured playout type
   RTPStream()->setPlayoutType(CallBackFactory::m_PlayoutType);
   setDtmfDetectionEnabled(false);
 }
 
-CallBackCalleeDialog::~CallBackCalleeDialog() {
-}
-
+CallBackCalleeDialog::~CallBackCalleeDialog() {}

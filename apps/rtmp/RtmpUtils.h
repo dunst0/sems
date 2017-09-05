@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -30,18 +30,20 @@
 
 #include "librtmp/amf.h"
 
-#define INVOKE_PTYPE    0x14
+#define INVOKE_PTYPE 0x14
 #define CONTROL_CHANNEL 0x03
 
-#define _AVC(s) {(char*)s,sizeof(s)-1}
-#define SAVC(x) const AVal av_##x = {(char*)#x,sizeof(#x)-1}
+#define _AVC(s)                                                                \
+  {                                                                            \
+    (char*) s, sizeof(s) - 1                                                   \
+  }
+#define SAVC(x) const AVal            av_##x = {(char*) #x, sizeof(#x) - 1}
 #define SAVC_def(x) extern const AVal av_##x
-#define STR2AVAL(av,str) \
-   { \
-     av.av_val = (char*)str; \
-     av.av_len = strlen(av.av_val); \
-   }
-
+#define STR2AVAL(av, str)                                                      \
+  {                                                                            \
+    av.av_val = (char*) str;                                                   \
+    av.av_len = strlen(av.av_val);                                             \
+  }
 
 SAVC_def(app);
 SAVC_def(connect);
@@ -89,6 +91,5 @@ SAVC_def(Sono_Call_Incoming);
 SAVC_def(uri);
 SAVC_def(Sono_Call_Status);
 SAVC_def(status_code);
-
 
 #endif

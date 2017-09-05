@@ -20,50 +20,51 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef _RtmpSession_h_
 #define _RtmpSession_h_
 
-#include "Rtmp.h"
 #include "AmSession.h"
+#include "Rtmp.h"
 
 #include "librtmp/rtmp.h"
 
-class RtmpSessionEvent
-  : public AmEvent
+class RtmpSessionEvent : public AmEvent
 {
-public:
-  enum EvType {
+ public:
+  enum EvType
+  {
     Disconnect,
     Accept
   };
 
   RtmpSessionEvent(EvType t)
-    : AmEvent((int)t) {}
+      : AmEvent((int) t)
+  {
+  }
 
-  EvType getEvType() { return (EvType)event_id; }
+  EvType getEvType() { return (EvType) event_id; }
 };
 
 class RtmpAudio;
 class RtmpConnection;
 
-class RtmpSession 
-  : public AmSession
+class RtmpSession : public AmSession
 {
-  RtmpAudio*      rtmp_audio;
+  RtmpAudio* rtmp_audio;
 
   RtmpConnection* rtmp_connection;
   AmMutex         m_rtmp_conn;
 
-private:
+ private:
   void sendCallState();
   void clearConnection();
 
-public:
+ public:
   RtmpSession(RtmpConnection* c);
   ~RtmpSession();
 
@@ -71,9 +72,8 @@ public:
   void onSessionStart();
   void onBye(const AmSipRequest& req);
   void onBeforeDestroy();
-  void onSipReply(const AmSipRequest& req,
-		  const AmSipReply& reply, 
-		  AmBasicSipDialog::Status old_dlg_status);
+  void onSipReply(const AmSipRequest& req, const AmSipReply& reply,
+                  AmBasicSipDialog::Status old_dlg_status);
 
   void onInvite(const AmSipRequest& req);
 

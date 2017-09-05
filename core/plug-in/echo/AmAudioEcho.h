@@ -18,13 +18,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _AmAudioEcho_h_
-#define _AmAudioEcho_h_
+#ifndef _AMAUDIOECHO_H_
+#define _AMAUDIOECHO_H_
 
 #include "AmAudio.h"
 #include "SampleArray.h"
@@ -37,10 +37,9 @@ class AmAudioEcho : public AmAudio
   int read(unsigned int user_ts, unsigned int size);
   int write(unsigned int user_ts, unsigned int size);
 
-public:
+ public:
   AmAudioEcho();
   ~AmAudioEcho();
 };
 
 #endif
-

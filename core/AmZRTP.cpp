@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -29,10 +29,10 @@
 
 #include "AmZRTP.h"
 
-#include "AmSession.h"
-#include "log.h"
 #include "AmConfigReader.h"
+#include "AmSession.h"
 #include "AmUtils.h"
+#include "log.h"
 #include <stdlib.h>
 
 #define ZRTP_CACHE_SAVE_INTERVAL 1
@@ -41,32 +41,33 @@
 string AmZRTP::cache_path = "zrtp_cache.dat";
 string AmZRTP::entropy_path;
 
-int AmZRTP::zrtp_cache_save_cntr = 0;
+int     AmZRTP::zrtp_cache_save_cntr = 0;
 AmMutex AmZRTP::zrtp_cache_mut;
 
-zrtp_global_t* AmZRTP::zrtp_global;      // persistent storage for libzrtp data
-zrtp_config_t AmZRTP::zrtp_config;
-zrtp_zid_t AmZRTP::zrtp_instance_zid = {"defaultsems"};
+zrtp_global_t* AmZRTP::zrtp_global; // persistent storage for libzrtp data
+zrtp_config_t  AmZRTP::zrtp_config;
+zrtp_zid_t     AmZRTP::zrtp_instance_zid = {"defaultsems"};
 
-void zrtp_log(int level, char *data, int len, int offset) {
+void zrtp_log(int level, char* data, int len, int offset)
+{
   int sems_lvl = L_DBG;
-  if (level==2)
+  if (level == 2)
     sems_lvl = L_WARN; // ??
-  else if (level==1)
+  else if (level == 1)
     sems_lvl = L_INFO; // ??
-  
-  if (sems_lvl==L_DBG && !AmConfig::enable_zrtp_debuglog)
-    return;
+
+  if (sems_lvl == L_DBG && !AmConfig::enable_zrtp_debuglog) return;
 
   _LOG(sems_lvl, "%.*s", len, data);
 }
 
-int AmZRTP::init() {
+int AmZRTP::init()
+{
   zrtp_log_set_log_engine(zrtp_log);
 
   AmConfigReader cfg;
-  string cfgname=add2path(AmConfig::ModConfigPath, 1,  "zrtp.conf");
-  if(cfg.loadFile(cfgname)) {
+  string         cfgname = add2path(AmConfig::ModConfigPath, 1, "zrtp.conf");
+  if (cfg.loadFile(cfgname)) {
     ERROR("No %s config file present.\n", cfgname.c_str());
     return -1;
   }
@@ -74,44 +75,48 @@ int AmZRTP::init() {
   cache_path = cfg.getParameter("cache_path");
   if (cfg.hasParameter("zid_hex")) {
     string zid_hex = cfg.getParameter("zid_hex");
-    if (zid_hex.size() != 2*sizeof(zrtp_instance_zid)) {
-      ERROR("zid_hex config parameter in zrtp.conf must be %lu characters long.\n", 
-	    sizeof(zrtp_zid_t)*2);
+    if (zid_hex.size() != 2 * sizeof(zrtp_instance_zid)) {
+      ERROR("zid_hex config parameter in zrtp.conf must be %lu characters "
+            "long.\n",
+            sizeof(zrtp_zid_t) * 2);
       return -1;
     }
 
-    for (size_t i=0;i<sizeof(zrtp_instance_zid);i++) {
+    for (size_t i = 0; i < sizeof(zrtp_instance_zid); i++) {
       unsigned int h;
-      if (reverse_hex2int(zid_hex.substr(i*2, 2), h)) {
-	ERROR("in zid_hex in zrtp.conf: '%s' is no hex number\n", zid_hex.substr(i*2, 2).c_str());
-	return -1;
+      if (reverse_hex2int(zid_hex.substr(i * 2, 2), h)) {
+        ERROR("in zid_hex in zrtp.conf: '%s' is no hex number\n",
+              zid_hex.substr(i * 2, 2).c_str());
+        return -1;
       }
 
-      zrtp_instance_zid[i]=h % 0xff;
+      zrtp_instance_zid[i] = h % 0xff;
     }
-
-  } else if (cfg.hasParameter("zid")) {
+  }
+  else if (cfg.hasParameter("zid")) {
     string zid = cfg.getParameter("zid");
-    WARN("zid parameter in zrtp.conf is only supported for backwards compatibility. Please use zid_hex\n");
+    WARN("zid parameter in zrtp.conf is only supported for backwards "
+         "compatibility. Please use zid_hex\n");
     if (zid.length() != sizeof(zrtp_zid_t)) {
-      ERROR("zid config parameter in zrtp.conf must be %lu characters long.\n", 
-	    sizeof(zrtp_zid_t));
+      ERROR("zid config parameter in zrtp.conf must be %lu characters "
+            "long.\n",
+            sizeof(zrtp_zid_t));
       return -1;
     }
-    for (size_t i=0;i<zid.length();i++)
-      zrtp_instance_zid[i]=zid[i];
-  } else {
+    for (size_t i = 0; i < zid.length(); i++) zrtp_instance_zid[i] = zid[i];
+  }
+  else {
     // generate one
     string zid_hex;
-    for (size_t i=0;i<sizeof(zrtp_instance_zid);i++) {
-      zrtp_instance_zid[i]=get_random() % 0xff;
-      zid_hex+=char2hex(zrtp_instance_zid[i], true);
+    for (size_t i = 0; i < sizeof(zrtp_instance_zid); i++) {
+      zrtp_instance_zid[i] = get_random() % 0xff;
+      zid_hex += char2hex(zrtp_instance_zid[i], true);
     }
 
     WARN("Generated random ZID. To support key continuity through key cache "
-	 "on the peers, add this to zrtp.conf: 'zid_hex=\"%s\"'", zid_hex.c_str());
+         "on the peers, add this to zrtp.conf: 'zid_hex=\"%s\"'",
+         zid_hex.c_str());
   }
-
 
   DBG("initializing ZRTP library with cache path '%s'.\n", cache_path.c_str());
 
@@ -119,17 +124,19 @@ int AmZRTP::init() {
 
   strcpy(zrtp_config.client_id, SEMS_CLIENT_ID);
   zrtp_config.lic_mode = ZRTP_LICENSE_MODE_UNLIMITED;
-  
+
   strncpy(zrtp_config.def_cache_path.buffer, cache_path.c_str(),
-	  zrtp_config.def_cache_path.max_length);
+          zrtp_config.def_cache_path.max_length);
   zrtp_config.def_cache_path.length = cache_path.length();
 
-  zrtp_config.cb.misc_cb.on_send_packet           = AmZRTP::on_send_packet;
-  zrtp_config.cb.event_cb.on_zrtp_secure          = AmZRTP::on_zrtp_secure;
-  zrtp_config.cb.event_cb.on_zrtp_security_event  = AmZRTP::on_zrtp_security_event;
-  zrtp_config.cb.event_cb.on_zrtp_protocol_event  = AmZRTP::on_zrtp_protocol_event;
+  zrtp_config.cb.misc_cb.on_send_packet  = AmZRTP::on_send_packet;
+  zrtp_config.cb.event_cb.on_zrtp_secure = AmZRTP::on_zrtp_secure;
+  zrtp_config.cb.event_cb.on_zrtp_security_event =
+      AmZRTP::on_zrtp_security_event;
+  zrtp_config.cb.event_cb.on_zrtp_protocol_event =
+      AmZRTP::on_zrtp_protocol_event;
 
-  if ( zrtp_status_ok != zrtp_init(&zrtp_config, &zrtp_global) ) {
+  if (zrtp_status_ok != zrtp_init(&zrtp_config, &zrtp_global)) {
     ERROR("Error during ZRTP initialization\n");
     return -1;
   }
@@ -137,13 +144,14 @@ int AmZRTP::init() {
   // Use saved entropy data (if available) when adding more entropy
   entropy_path = cfg.getParameter("entropy_path");
   unsigned char entropy_buffer[256];
-  unsigned int read_bytes = 0;
-  FILE* fp = fopen(entropy_path.c_str(), "r");
+  unsigned int  read_bytes = 0;
+  FILE*         fp         = fopen(entropy_path.c_str(), "r");
   if (fp) {
     read_bytes = fread(entropy_buffer, 1, 256, fp);
     DBG("read %u bytes of ZRTP entropy data\n", read_bytes);
     fclose(fp);
-  } else {
+  }
+  else {
     DBG("ZRTP entropy data is not available yet\n");
   }
 
@@ -153,52 +161,56 @@ int AmZRTP::init() {
   if (bytes_added == -1) {
     ERROR("failed to add ZRTP entropy bytes\n");
     return -1;
-  } else {
+  }
+  else {
     DBG("added %u bytes of ZRTP entropy\n", bytes_added);
   }
-  
+
   DBG("ZRTP initialized ok.\n");
 
   return 0;
 }
 
-int AmZRTP::shut_down() {
-
+int AmZRTP::shut_down()
+{
   // Save 256 bytes of entropy to file for use at next start
 
   FILE* fp = fopen(entropy_path.c_str(), "w");
   if (fp) {
     unsigned char entropy_buffer[256];
-    unsigned int write_bytes = 0;
-    write_bytes = zrtp_randstr(zrtp_global, entropy_buffer, 256);
+    unsigned int  write_bytes = 0;
+    write_bytes               = zrtp_randstr(zrtp_global, entropy_buffer, 256);
     if (write_bytes == 256) {
       fwrite(entropy_buffer, 1, write_bytes, fp);
       fclose(fp);
       DBG("saved 256 bytes of ZRTP entropy data\n");
       return 0;
-    } else {
+    }
+    else {
       ERROR("failed to generate entropy data\n");
     }
-  } else {
+  }
+  else {
     ERROR("failed to open entropy file for writing\n");
   }
   return -1;
 }
 
 AmZRTPSessionState::AmZRTPSessionState()
-  : zrtp_session(NULL), zrtp_audio(NULL)
+    : zrtp_session(NULL)
+    , zrtp_audio(NULL)
 {
 }
 
-int AmZRTPSessionState::initSession(AmSession* session) {
+int AmZRTPSessionState::initSession(AmSession* session)
+{
   DBG("Initializing ZRTP stream...\n");
 
   // Allocate zrtp session
   zrtp_status_t status =
-    zrtp_session_init( AmZRTP::zrtp_global,
-		       NULL, AmZRTP::zrtp_instance_zid,
-		       ZRTP_SIGNALING_ROLE_UNKNOWN, // fixme
-		       &zrtp_session);
+      zrtp_session_init(AmZRTP::zrtp_global, NULL, AmZRTP::zrtp_instance_zid,
+                        ZRTP_SIGNALING_ROLE_UNKNOWN, // fixme
+                        &zrtp_session);
   if (zrtp_status_ok != status) {
     // Check error code and debug logs
     return status;
@@ -217,9 +229,9 @@ int AmZRTPSessionState::initSession(AmSession* session) {
   return 0;
 }
 
-int AmZRTPSessionState::startStreams(uint32_t ssrc){
-  if (NULL == zrtp_audio)
-    return -1;
+int AmZRTPSessionState::startStreams(uint32_t ssrc)
+{
+  if (NULL == zrtp_audio) return -1;
 
   zrtp_status_t status = zrtp_stream_start(zrtp_audio, ssrc);
   if (zrtp_status_ok != status) {
@@ -229,9 +241,9 @@ int AmZRTPSessionState::startStreams(uint32_t ssrc){
   return 0;
 }
 
-int AmZRTPSessionState::stopStreams(){
-  if (NULL == zrtp_audio)
-    return -1;
+int AmZRTPSessionState::stopStreams()
+{
+  if (NULL == zrtp_audio) return -1;
 
   zrtp_status_t status = zrtp_stream_stop(zrtp_audio);
   if (zrtp_status_ok != status) {
@@ -241,9 +253,9 @@ int AmZRTPSessionState::stopStreams(){
   return 0;
 }
 
-void AmZRTPSessionState::freeSession() {
-  if (NULL == zrtp_session)
-    return;
+void AmZRTPSessionState::freeSession()
+{
+  if (NULL == zrtp_session) return;
 
   zrtp_session_down(zrtp_session);
 
@@ -257,16 +269,16 @@ void AmZRTPSessionState::freeSession() {
   // zrtp_cache_mut.unlock();
 }
 
-AmZRTPSessionState::~AmZRTPSessionState() {
-
-}
+AmZRTPSessionState::~AmZRTPSessionState() {}
 
 // void zrtp_get_cache_path(char *path, uint32_t length) {
 // }
 
-int AmZRTP::on_send_packet(const zrtp_stream_t *stream, char *packet, unsigned int length) {
+int AmZRTP::on_send_packet(const zrtp_stream_t* stream, char* packet,
+                           unsigned int length)
+{
   DBG("on_send_packet(stream [%p], len=%u)\n", stream, length);
-  if (NULL==stream) {
+  if (NULL == stream) {
     ERROR("on_send_packet without stream context.\n");
     return -1;
   }
@@ -281,7 +293,8 @@ int AmZRTP::on_send_packet(const zrtp_stream_t *stream, char *packet, unsigned i
   return sess->RTPStream()->send_raw(packet, length);
 }
 
-void AmZRTP::on_zrtp_secure(zrtp_stream_t *stream) {
+void AmZRTP::on_zrtp_secure(zrtp_stream_t* stream)
+{
   DBG("on_zrtp_secure(stream [%p])\n", stream);
 
   // if (NULL==stream) {
@@ -299,9 +312,11 @@ void AmZRTP::on_zrtp_secure(zrtp_stream_t *stream) {
   // sess->onZrtpSecure();
 }
 
-void AmZRTP::on_zrtp_security_event(zrtp_stream_t *stream, zrtp_security_event_t event) {
+void AmZRTP::on_zrtp_security_event(zrtp_stream_t*        stream,
+                                    zrtp_security_event_t event)
+{
   DBG("on_zrtp_security_event(stream [%p])\n", stream);
-  if (NULL==stream) {
+  if (NULL == stream) {
     ERROR("event received without stream context.\n");
     return;
   }
@@ -314,9 +329,11 @@ void AmZRTP::on_zrtp_security_event(zrtp_stream_t *stream, zrtp_security_event_t
   sess->postEvent(new AmZRTPSecurityEvent(event, stream));
 }
 
-void AmZRTP::on_zrtp_protocol_event(zrtp_stream_t *stream, zrtp_protocol_event_t event) {
+void AmZRTP::on_zrtp_protocol_event(zrtp_stream_t*        stream,
+                                    zrtp_protocol_event_t event)
+{
   DBG("on_zrtp_protocol_event(stream [%p])\n", stream);
-  if (NULL==stream) {
+  if (NULL == stream) {
     ERROR("event received without stream context.\n");
     return;
   }
@@ -329,37 +346,45 @@ void AmZRTP::on_zrtp_protocol_event(zrtp_stream_t *stream, zrtp_protocol_event_t
   sess->postEvent(new AmZRTPProtocolEvent(event, stream));
 }
 
-const char* zrtp_protocol_event_desc(zrtp_protocol_event_t e) {
+const char* zrtp_protocol_event_desc(zrtp_protocol_event_t e)
+{
   switch (e) {
-  case ZRTP_EVENT_UNSUPPORTED: return "ZRTP_EVENT_UNSUPPORTED";
+    case ZRTP_EVENT_UNSUPPORTED: return "ZRTP_EVENT_UNSUPPORTED";
 
-  case ZRTP_EVENT_IS_CLEAR: return "ZRTP_EVENT_IS_CLEAR";
-  case ZRTP_EVENT_IS_INITIATINGSECURE: return "ZRTP_EVENT_IS_INITIATINGSECURE";
-  case ZRTP_EVENT_IS_PENDINGSECURE: return "ZRTP_EVENT_IS_PENDINGSECURE";
-  case ZRTP_EVENT_IS_PENDINGCLEAR: return "ZRTP_EVENT_IS_PENDINGCLEAR";
-  case ZRTP_EVENT_NO_ZRTP: return "ZRTP_EVENT_NO_ZRTP";
-  case ZRTP_EVENT_NO_ZRTP_QUICK: return "ZRTP_EVENT_NO_ZRTP_QUICK";
-  case ZRTP_EVENT_IS_CLIENT_ENROLLMENT: return "ZRTP_EVENT_IS_CLIENT_ENROLLMENT";
-  case ZRTP_EVENT_NEW_USER_ENROLLED: return "ZRTP_EVENT_NEW_USER_ENROLLED";
-  case ZRTP_EVENT_USER_ALREADY_ENROLLED: return "ZRTP_EVENT_USER_ALREADY_ENROLLED";
-  case ZRTP_EVENT_USER_UNENROLLED: return "ZRTP_EVENT_USER_UNENROLLED";
-  case ZRTP_EVENT_LOCAL_SAS_UPDATED: return "ZRTP_EVENT_LOCAL_SAS_UPDATED";
-  case ZRTP_EVENT_REMOTE_SAS_UPDATED: return "ZRTP_EVENT_REMOTE_SAS_UPDATED";
-  case ZRTP_EVENT_IS_SECURE: return "ZRTP_EVENT_IS_SECURE";
-  case ZRTP_EVENT_IS_SECURE_DONE: return "ZRTP_EVENT_IS_SECURE_DONE";
-  case ZRTP_EVENT_IS_PASSIVE_RESTRICTION: return "ZRTP_EVENT_IS_PASSIVE_RESTRICTION";
-  case ZRTP_EVENT_COUNT: return "ZRTP_EVENT_COUNT"; // ?
-  default:    return "UNKNOWN_ZRTP_PROTOCOL_EVENT";
+    case ZRTP_EVENT_IS_CLEAR: return "ZRTP_EVENT_IS_CLEAR";
+    case ZRTP_EVENT_IS_INITIATINGSECURE:
+      return "ZRTP_EVENT_IS_INITIATINGSECURE";
+    case ZRTP_EVENT_IS_PENDINGSECURE: return "ZRTP_EVENT_IS_PENDINGSECURE";
+    case ZRTP_EVENT_IS_PENDINGCLEAR: return "ZRTP_EVENT_IS_PENDINGCLEAR";
+    case ZRTP_EVENT_NO_ZRTP: return "ZRTP_EVENT_NO_ZRTP";
+    case ZRTP_EVENT_NO_ZRTP_QUICK: return "ZRTP_EVENT_NO_ZRTP_QUICK";
+    case ZRTP_EVENT_IS_CLIENT_ENROLLMENT:
+      return "ZRTP_EVENT_IS_CLIENT_ENROLLMENT";
+    case ZRTP_EVENT_NEW_USER_ENROLLED: return "ZRTP_EVENT_NEW_USER_ENROLLED";
+    case ZRTP_EVENT_USER_ALREADY_ENROLLED:
+      return "ZRTP_EVENT_USER_ALREADY_ENROLLED";
+    case ZRTP_EVENT_USER_UNENROLLED: return "ZRTP_EVENT_USER_UNENROLLED";
+    case ZRTP_EVENT_LOCAL_SAS_UPDATED: return "ZRTP_EVENT_LOCAL_SAS_UPDATED";
+    case ZRTP_EVENT_REMOTE_SAS_UPDATED: return "ZRTP_EVENT_REMOTE_SAS_UPDATED";
+    case ZRTP_EVENT_IS_SECURE: return "ZRTP_EVENT_IS_SECURE";
+    case ZRTP_EVENT_IS_SECURE_DONE: return "ZRTP_EVENT_IS_SECURE_DONE";
+    case ZRTP_EVENT_IS_PASSIVE_RESTRICTION:
+      return "ZRTP_EVENT_IS_PASSIVE_RESTRICTION";
+    case ZRTP_EVENT_COUNT:
+      return "ZRTP_EVENT_COUNT"; // ?
+    default: return "UNKNOWN_ZRTP_PROTOCOL_EVENT";
   }
 };
 
-const char* zrtp_security_event_desc(zrtp_security_event_t e) {
+const char* zrtp_security_event_desc(zrtp_security_event_t e)
+{
   switch (e) {
-  case ZRTP_EVENT_PROTOCOL_ERROR: return "ZRTP_EVENT_PROTOCOL_ERROR";
-  case ZRTP_EVENT_WRONG_SIGNALING_HASH: return "ZRTP_EVENT_WRONG_SIGNALING_HASH";
-  case ZRTP_EVENT_WRONG_MESSAGE_HMAC: return "ZRTP_EVENT_WRONG_MESSAGE_HMAC";
-  case ZRTP_EVENT_MITM_WARNING: return "ZRTP_EVENT_MITM_WARNING";
-  default:    return "UNKNOWN_ZRTP_SECURITY_EVENT";
+    case ZRTP_EVENT_PROTOCOL_ERROR: return "ZRTP_EVENT_PROTOCOL_ERROR";
+    case ZRTP_EVENT_WRONG_SIGNALING_HASH:
+      return "ZRTP_EVENT_WRONG_SIGNALING_HASH";
+    case ZRTP_EVENT_WRONG_MESSAGE_HMAC: return "ZRTP_EVENT_WRONG_MESSAGE_HMAC";
+    case ZRTP_EVENT_MITM_WARNING: return "ZRTP_EVENT_MITM_WARNING";
+    default: return "UNKNOWN_ZRTP_SECURITY_EVENT";
   }
 }
 

@@ -18,50 +18,48 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef _ANNOUNCEMENT_H_
 #define _ANNOUNCEMENT_H_
 
-#include "AmSession.h"
 #include "AmAudioFile.h"
 #include "AmConfigReader.h"
-
+#include "AmSession.h"
 #include "AmUACAuth.h"
 
-#include <string>
-using std::string;
-
 #include <memory>
+#include <string>
 
 /** \brief Factory for announcement sessions */
-class AnnouncementFactory: public AmSessionFactory
+class AnnouncementFactory : public AmSessionFactory
 {
-  inline string getAnnounceFile(const AmSipRequest& req);
-public:
-  static string AnnouncePath;
-  static string AnnounceFile;
-  static bool   Loop;
+  inline std::string getAnnounceFile(const AmSipRequest& req);
 
-  AnnouncementFactory(const string& _app_name);
+ public:
+  static std::string AnnouncePath;
+  static std::string AnnounceFile;
+  static bool        Loop;
 
-  int onLoad();
-  AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-		      const map<string,string>& app_params);
-  AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-		      AmArg& session_params);
+  AnnouncementFactory(const std::string& _app_name);
 
+  int        onLoad();
+  AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
+                      const std::map<std::string, std::string>&   app_params);
+  AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
+                      AmArg& session_params);
 };
 
 /**\brief  announcement session logic implementation */
-class AnnouncementDialog : public AmSession,
-			   public CredentialHolder
+class AnnouncementDialog
+    : public AmSession
+    , public CredentialHolder
 {
   AmAudioFile wav_file;
-  string filename;
+  std::string filename;
 
   std::unique_ptr<UACAuthCred> cred;
 public:
@@ -79,7 +77,3 @@ public:
 };
 
 #endif
-// Local Variables:
-// mode:C++
-// End:
-

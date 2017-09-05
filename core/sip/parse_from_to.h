@@ -22,44 +22,40 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _parse_from_to_h
-#define _parse_from_to_h
+#ifndef _PARSE_FROM_TO_H_
+#define _PARSE_FROM_TO_H_
 
-#include "sip_parser.h"
 #include "parse_header.h"
 #include "parse_nameaddr.h"
+#include "sip_parser.h"
 
-struct sip_from_to: public sip_parsed_hdr
+struct sip_from_to : public sip_parsed_hdr
 {
-    sip_nameaddr  nameaddr;
-    cstring       tag;
+  sip_nameaddr nameaddr;
+  cstring      tag;
 
-    sip_from_to(): sip_parsed_hdr() {}
-    ~sip_from_to() {}
+  sip_from_to()
+      : sip_parsed_hdr()
+  {
+  }
+  ~sip_from_to() {}
 };
 
 int parse_from_to(sip_from_to* ft, const char* beg, int len);
 
 inline sip_from_to* get_from(const sip_msg* msg)
 {
-    return dynamic_cast<sip_from_to*>(msg->from->p);
+  return dynamic_cast<sip_from_to*>(msg->from->p);
 }
 
 inline sip_from_to* get_to(const sip_msg* msg)
 {
-    return dynamic_cast<sip_from_to*>(msg->to->p);
+  return dynamic_cast<sip_from_to*>(msg->to->p);
 }
 
 #endif
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 4
- * End:
- */

@@ -1,73 +1,64 @@
-#ifndef _atomic_types_h_
-#define _atomic_types_h_
+#ifndef _ATOMIC_TYPES_H_
+#define _ATOMIC_TYPES_H_
 
-#if	(__GNUC__ > 4) || \
-	(__GNUC__ == 4 && __GNUC_MINOR__ >= 1) && \
-		( \
-		  (defined(__APPLE__) && \
-		    ( \
-		      defined(__ppc__) || \
-		      defined(__i386__) || \
-		      defined(__x86_64__) \
-		    ) \
-		  ) || \
-		  (defined(__linux__) && \
-		    ( \
-		      (defined(__i386__) && (defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4))) || \
-		      defined(__ia64__) || \
-		      defined(__x86_64__) || \
-		      (defined(__powerpc__) && !defined(__powerpc64__)) || \
-		      defined(__alpha) \
-		     ) \
-		  ) \
-		  )
+#if (__GNUC__ > 4)                                                             \
+    || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)                                  \
+           && ((defined(__APPLE__)                                             \
+                && (defined(__ppc__) || defined(__i386__)                      \
+                    || defined(__x86_64__)))                                   \
+               || (defined(__linux__)                                          \
+                   && ((defined(__i386__)                                      \
+                        && (defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)))      \
+                       || defined(__ia64__) || defined(__x86_64__)             \
+                       || (defined(__powerpc__) && !defined(__powerpc64__))    \
+                       || defined(__alpha))))
 #define HAVE_ATOMIC_CAS 1
 #else
 // #warning Compare and Swap is not supported on this architecture
 #define HAVE_ATOMIC_CAS 0
 #endif
 
-#include <assert.h>
 #include "log.h"
+#include <assert.h>
 
 #if !HAVE_ATOMIC_CAS
 #include "AmThread.h"
 #endif
 
-
 // 32 bit unsigned integer
 class atomic_int
 #if !HAVE_ATOMIC_CAS
-  : protected AmMutex
+    : protected AmMutex
 #endif
 {
   volatile unsigned int i;
 
-
-public:
-  atomic_int() : i(0) {}
-
-  void set(unsigned int val) {
-    i = val;
+ public:
+  atomic_int()
+      : i(0)
+  {
   }
 
-  unsigned int get() const {
-    return i;
-  }
+  void set(unsigned int val) { i = val; }
+
+  unsigned int get() const { return i; }
 
 #if HAVE_ATOMIC_CAS
   // ++i;
-  unsigned int inc(unsigned int add=1) {
-    return __sync_add_and_fetch(&i,add);
+  unsigned int inc(unsigned int add = 1)
+  {
+    return __sync_add_and_fetch(&i, add);
   }
 
   // --i;
-  unsigned int dec(unsigned int sub=1) {
-    return __sync_sub_and_fetch(&i,sub);
+  unsigned int dec(unsigned int sub = 1)
+  {
+    return __sync_sub_and_fetch(&i, sub);
   }
 #else // if HAVE_ATOMIC_CAS
   // ++i;
-  unsigned int inc(unsigned int add=1) {
+  unsigned int inc(unsigned int add = 1)
+  {
     unsigned int res;
     lock();
     res = (i += add);
@@ -76,7 +67,8 @@ public:
   }
 
   // --i;
-  unsigned int dec(unsigned int sub=1) {
+  unsigned int dec(unsigned int sub = 1)
+  {
     unsigned int res;
     lock();
     res = (i -= sub);
@@ -86,42 +78,43 @@ public:
 #endif
 
   // return --ll != 0;
-  bool dec_and_test() {
-    return dec() == 0;
-  };
+  bool dec_and_test() { return dec() == 0; };
 };
 
 // 64 bit unsigned integer
 class atomic_int64
 #if !HAVE_ATOMIC_CAS
-  : protected AmMutex
+    : protected AmMutex
 #endif
 {
-  volatile unsigned long long ll;
-  
-public:
-  atomic_int64(): ll(0) {}
+  volatile unsigned long long int ll;
+
+ public:
+  atomic_int64()
+      : ll(0)
+  {
+  }
 
 #if HAVE_ATOMIC_CAS
-  void set(unsigned long long val) {
+  void set(unsigned long long int val)
+  {
 #if !defined(__LP64__) || !__LP64__
-    unsigned long long tmp_ll;
+    unsigned long long int tmp_ll;
     do {
       tmp_ll = ll;
-    }
-    while(!__sync_bool_compare_and_swap(&ll, tmp_ll, val));
+    } while (!__sync_bool_compare_and_swap(&ll, tmp_ll, val));
 #else
     ll = val;
 #endif
   }
-  
-  unsigned long long get() {
+
+  unsigned long long int get()
+  {
 #if !defined(__LP64__) || !__LP64__
-    unsigned long long tmp_ll;
+    unsigned long long int tmp_ll;
     do {
       tmp_ll = ll;
-    }
-    while(!__sync_bool_compare_and_swap(&ll, tmp_ll, tmp_ll));
+    } while (!__sync_bool_compare_and_swap(&ll, tmp_ll, tmp_ll));
 
     return tmp_ll;
 #else
@@ -130,18 +123,21 @@ public:
   }
 
   // returns ++ll;
-  unsigned long long inc(unsigned long long add=1) {
-    return __sync_add_and_fetch(&ll,add);
+  unsigned long long int inc(unsigned long long int add = 1)
+  {
+    return __sync_add_and_fetch(&ll, add);
   }
 
   // returns --ll;
-  unsigned long long dec(unsigned long long sub=1) {
-    return __sync_sub_and_fetch(&ll,sub);
+  unsigned long long int dec(unsigned long long int sub = 1)
+  {
+    return __sync_sub_and_fetch(&ll, sub);
   }
 
 #else // if HAVE_ATOMIC_CAS
 
-  void set(unsigned long long val) {
+  void set(unsigned long long int val)
+  {
 #if !defined(__LP64__) || !__LP64__
     lock();
     ll = val;
@@ -150,10 +146,11 @@ public:
     ll = val;
 #endif
   }
-  
-  unsigned long long get() {
+
+  unsigned long long int get()
+  {
 #if !defined(__LP64__) || !__LP64__
-    unsigned long long tmp_ll;
+    unsigned long long int tmp_ll;
     lock();
     tmp_ll = ll;
     unlock();
@@ -164,8 +161,9 @@ public:
   }
 
   // returns ++ll;
-  unsigned long long inc(unsigned long long add=1) {
-    unsigned long long res;
+  unsigned long long int inc(unsigned long long int add = 1)
+  {
+    unsigned long long int res;
     lock();
     res = (ll += add);
     unlock();
@@ -173,8 +171,9 @@ public:
   }
 
   // returns --ll;
-  unsigned long long dec(unsigned long long sub=1) {
-    unsigned long long res;
+  unsigned long long int dec(unsigned long long int sub = 1)
+  {
+    unsigned long long int res;
     lock();
     res = (ll -= sub);
     unlock();
@@ -183,9 +182,7 @@ public:
 #endif
 
   // return --ll == 0;
-  bool dec_and_test() {
-    return dec() == 0;
-  };
+  bool dec_and_test() { return dec() == 0; };
 };
 
 class atomic_ref_cnt;
@@ -196,7 +193,7 @@ class atomic_ref_cnt
 {
   atomic_int ref_cnt;
 
-protected:
+ protected:
   atomic_ref_cnt() {}
 
   void _inc_ref() { ref_cnt.inc(); }
@@ -218,11 +215,10 @@ inline void inc_ref(atomic_ref_cnt* rc)
 inline void dec_ref(atomic_ref_cnt* rc)
 {
   assert(rc);
-  if(rc->_dec_ref()){
+  if (rc->_dec_ref()) {
     rc->on_destroy();
     delete rc;
   }
 }
-
 
 #endif

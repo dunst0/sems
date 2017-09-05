@@ -21,8 +21,8 @@
 #define IvrSipReply_h
 
 // Python stuff
-#include <Python.h>
 #include "structmember.h"
+#include <Python.h>
 
 #include "AmSipMsg.h"
 

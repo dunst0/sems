@@ -18,51 +18,45 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _StatsUDPServer_h_
-#define _StatsUDPServer_h_
+#ifndef _STATSUDPSERVER_H_
+#define _STATSUDPSERVER_H_
 
+#include "AmSessionContainer.h"
 #include "AmThread.h"
 #include "sems.h"
 
 #include <string>
-using std::string;
 
-#define DEFAULT_MONIT_UDP_PORT  5040
-#define MSG_BUF_SIZE            256
-
-class AmSessionContainer;
+#define DEFAULT_MONIT_UDP_PORT 5040
+#define MSG_BUF_SIZE 256
 
 /** \brief UDP server running to provide statistics via simple UDP queries */
-class StatsUDPServer: public AmThread
+class StatsUDPServer : public AmThread
 {
   static StatsUDPServer* _instance;
   AmSessionContainer*    sc;
-  int sd;
-    
+  int                    sd;
+
   StatsUDPServer();
   ~StatsUDPServer();
 
   int init();
 
-  int execute(char* msg_buf, string& reply, 
-	      struct sockaddr_in& addr);
+  int execute(char* msg_buf, std::string& reply, struct sockaddr_in& addr);
 
-  int send_reply(const string& reply,
-		 const struct sockaddr_in& reply_addr);
-	
+  int send_reply(const std::string&        reply,
+                 const struct sockaddr_in& reply_addr);
+
   void run();
-  void on_stop(){}
+  void on_stop() {}
 
-public:
+ public:
   static StatsUDPServer* instance();
 };
 
 #endif
-// Local Variables:
-// mode:C++
-// End:

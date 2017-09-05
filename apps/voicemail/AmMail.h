@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmMail.h */
@@ -31,9 +31,9 @@
 #include "AmThread.h"
 #include <stdio.h>
 
+#include <queue>
 #include <string>
 #include <vector>
-#include <queue>
 using std::string;
 
 /**
@@ -42,19 +42,24 @@ using std::string;
 struct Attachement
 {
   /** Local file name */
-  //string fullname;
+  // string fullname;
   FILE* fp;
-    
+
   /** Proposed remote file name */
-  string filename; 
+  string filename;
   /** Declared content type */
   string content_type;
 
-  //     Attachement(const string& _full, const string& _file="", const string& _ct="")
+  //     Attachement(const string& _full, const string& _file="", const string&
+  //     _ct="")
   // 	: fullname(_full), filename(_file), content_type(_ct) {}
 
-  Attachement(FILE* _fp, const string& _file="", const string& _ct="")
-    : fp(_fp), filename(_file), content_type(_ct) {}
+  Attachement(FILE* _fp, const string& _file = "", const string& _ct = "")
+      : fp(_fp)
+      , filename(_file)
+      , content_type(_ct)
+  {
+  }
 };
 
 typedef std::vector<Attachement> Attachements;
@@ -73,7 +78,7 @@ typedef void (*MailCleanUpFunction)(AmMail* mail);
  */
 struct AmMail
 {
-public:
+ public:
   string from;
   string subject;
   string body;
@@ -90,9 +95,8 @@ public:
 
   int error_count;
 
-  AmMail(const string& _from, const string& _subject,
-	 const string& _to, const string& _body = "",
-	 const string& _header = "");
+  AmMail(const string& _from, const string& _subject, const string& _to,
+         const string& _body = "", const string& _header = "");
 
   ~AmMail();
 };
@@ -102,22 +106,28 @@ public:
  * It is designed as a singleton using a queue to get his work.
  * It wakes up only if there is anything to do.
  */
-class AmMailDeamon: public AmThread
+class AmMailDeamon : public AmThread
 {
   static AmMailDeamon* _instance;
 
-  AmMutex      event_fifo_mut;
-  std::queue<AmMail*>   event_fifo;
-  AmCondition<bool> _run_cond;
+  AmMutex             event_fifo_mut;
+  std::queue<AmMail*> event_fifo;
+  AmCondition<bool>   _run_cond;
 
-  AmMailDeamon() : _run_cond(false) {}
-  AmMailDeamon(const AmMailDeamon&) : _run_cond(false) {}
+  AmMailDeamon()
+      : _run_cond(false)
+  {
+  }
+  AmMailDeamon(const AmMailDeamon&)
+      : _run_cond(false)
+  {
+  }
   ~AmMailDeamon() {}
 
   void run();
   void on_stop();
 
-public:
+ public:
   static AmMailDeamon* instance();
 
   /**
@@ -131,4 +141,3 @@ public:
 };
 
 #endif
-

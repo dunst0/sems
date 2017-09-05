@@ -20,31 +20,30 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _DSM_CORE_MODULE_H
-#define _DSM_CORE_MODULE_H
+
+#ifndef _DSMCOREMODULE_H_
+#define _DSMCOREMODULE_H_
+
 #include "DSMModule.h"
 #include "DSMStateEngine.h"
 
-#include <string>
-using std::string;
 #include <map>
-using std::map;
+#include <string>
 
 class AmSession;
 class DSMSession;
 
-class DSMCoreModule 
-: public DSMModule {
-
+class DSMCoreModule : public DSMModule
+{
  public:
   DSMCoreModule();
-    
-  DSMAction* getAction(const string& from_str);
-  DSMCondition* getCondition(const string& from_str);
+
+  DSMAction* getAction(const std::string& from_str);
+  DSMCondition* getCondition(const std::string& from_str);
 };
 
 DEF_ACTION_1P(SCPlayPromptAction);
@@ -142,21 +141,23 @@ DEF_ACTION_1P(SCTrackObjectAction);
 DEF_ACTION_1P(SCReleaseObjectAction);
 DEF_ACTION_1P(SCFreeObjectAction);
 
-class SCDIAction					
-: public DSMAction {
-  vector<string> params;
-  bool get_res;
- public:
-  SCDIAction(const string& arg, bool get_res);
-  bool execute(AmSession* sess, DSMSession* sc_sess,
-	       DSMCondition::EventType event,
-	       map<string,string>* event_params);
-};									
+class SCDIAction : public DSMAction
+{
+  std::vector<std::string> params;
+  bool                     get_res;
 
-// TODO: replace with real expression matching 
-class TestDSMCondition 
-: public DSMCondition {
-  enum CondType {
+ public:
+  SCDIAction(const std::string& arg, bool get_res);
+  bool execute(AmSession* sess, DSMSession* sc_sess,
+               DSMCondition::EventType event,
+               std::map<std::string, std::string>* event_params);
+};
+
+// TODO: replace with real expression matching
+class TestDSMCondition : public DSMCondition
+{
+  enum CondType
+  {
     None,
     Always,
     Eq,
@@ -164,18 +165,20 @@ class TestDSMCondition
     Less,
     Gt
   };
-  string lhs;
-  string rhs;
-  CondType ttype;
+  std::string lhs;
+  std::string rhs;
+  CondType    ttype;
 
  public:
-  TestDSMCondition(const string& expr, DSMCondition::EventType e);
-  bool match(AmSession* sess, DSMSession* sc_sess, DSMCondition::EventType event,
-	     map<string,string>* event_params);
+  TestDSMCondition(const std::string& expr, DSMCondition::EventType e);
+  bool match(AmSession* sess, DSMSession* sc_sess,
+             DSMCondition::EventType event,
+             std::map<std::string, std::string>* event_params);
 };
 
 /** return string q with variables/params/selects replaced */
-string replaceParams(const string& q, AmSession* sess, DSMSession* sc_sess,
-		     map<string,string>* event_params);
+std::string replaceParams(const std::string& q, AmSession* sess,
+                          DSMSession* sc_sess,
+                          std::map<std::string, std::string>* event_params);
 
 #endif

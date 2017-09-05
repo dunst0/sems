@@ -22,43 +22,36 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-#ifndef _parse_cseq_h
-#define _parse_cseq_h
+#ifndef _PARSE_CSEQ_H_
+#define _PARSE_CSEQ_H_
 
 #include "parse_header.h"
 #include "sip_parser.h"
 
-struct sip_cseq: public sip_parsed_hdr
+struct sip_cseq : public sip_parsed_hdr
 {
-    cstring      num_str;
-    unsigned int num;
-    cstring      method_str;
-    int          method;
+  cstring      num_str;
+  unsigned int num;
+  cstring      method_str;
+  int          method;
 
-    sip_cseq()
-	: sip_parsed_hdr(),
-	  num(0)
-    {}
+  sip_cseq()
+      : sip_parsed_hdr()
+      , num(0)
+  {
+  }
 };
 
 int parse_cseq(sip_cseq* cseq, const char* beg, int len);
 
 inline sip_cseq* get_cseq(const sip_msg* msg)
 {
-    return dynamic_cast<sip_cseq*>(msg->cseq->p);
+  return dynamic_cast<sip_cseq*>(msg->cseq->p);
 }
 
 #endif
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 4
- * End:
- */

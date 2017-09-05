@@ -1,4 +1,4 @@
-plug_in_name = cc_pcalls
+plug_in_name = cc_parallel_calls
 sbc_app_path = ../..
 
 module_ldflags =

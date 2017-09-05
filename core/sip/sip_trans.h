@@ -22,55 +22,49 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _sip_trans_h
-#define _sip_trans_h
+#ifndef _SIP_TRANS_H_
+#define _SIP_TRANS_H_
 
 #include "cstring.h"
+#include "msg_logger.h"
+#include "resolver.h"
+#include "sip_parser.h"
+#include "transport.h"
 #include "wheeltimer.h"
 
 #include <sys/socket.h>
 
-#include <list>
-using std::list;
-
-struct sip_msg;
-struct sip_target_set;
-
-class trsp_socket;
-class msg_logger;
-
 /**
  * Transaction types
  */
-enum {
-
-    TT_UAS=1,
-    TT_UAC
+enum
+{
+  TT_UAS = 1,
+  TT_UAC
 };
 
 /**
  * Transaction states
  */
-enum {
+enum
+{
+  TS_TRYING = 1,     // UAC:!INV;     UAS:!INV
+  TS_CALLING,        // UAC:INV
+  TS_PROCEEDING,     // UAC:INV,!INV; UAS:INV,!INV
+  TS_PROCEEDING_REL, // UAS:INV
+  TS_COMPLETED,      // UAC:INV,!INV; UAS:INV,!INV
+  TS_CONFIRMED,      //               UAS:INV
+  TS_TERMINATED_200,
+  TS_TERMINATED, // UAC:INV,!INV; UAS:INV,!INV
 
-    TS_TRYING=1,   // UAC:!INV;     UAS:!INV
-    TS_CALLING,    // UAC:INV
-    TS_PROCEEDING, // UAC:INV,!INV; UAS:INV,!INV
-    TS_PROCEEDING_REL, // UAS:INV
-    TS_COMPLETED,  // UAC:INV,!INV; UAS:INV,!INV
-    TS_CONFIRMED,  //               UAS:INV
-    TS_TERMINATED_200,
-    TS_TERMINATED, // UAC:INV,!INV; UAS:INV,!INV
-
-    TS_ABANDONED,
-    TS_REMOVED
+  TS_ABANDONED,
+  TS_REMOVED
 };
-
 
 /**
  * We support at most 3 timer per transaction,
@@ -80,149 +74,146 @@ enum {
 
 class sip_trans;
 
-class trans_timer
-    : protected timer
+class trans_timer : protected timer
 {
-    trans_timer(const trans_timer& ti) : timer() {}
+  trans_timer(const trans_timer& ti)
+      : timer()
+  {
+  }
 
-public:
-    unsigned int type;
-    unsigned int bucket_id;
-    sip_trans*   t;
+ public:
+  unsigned int type;
+  unsigned int bucket_id;
+  sip_trans*   t;
 
-    trans_timer(unsigned int timer_type, unsigned int expires,
-		int bucket_id, sip_trans* t)
-        : timer(expires), type(timer_type),
-	  bucket_id(bucket_id), t(t)
-    {}
+  trans_timer(unsigned int timer_type, unsigned int expires, int bucket_id,
+              sip_trans* t)
+      : timer(expires)
+      , type(timer_type)
+      , bucket_id(bucket_id)
+      , t(t)
+  {
+  }
 
-    trans_timer(const trans_timer& ti, int bucket_id, sip_trans* t)
-        : timer(ti.expires), type(ti.type),
-	  bucket_id(bucket_id), t(t)
-    {}
+  trans_timer(const trans_timer& ti, int bucket_id, sip_trans* t)
+      : timer(ti.expires)
+      , type(ti.type)
+      , bucket_id(bucket_id)
+      , t(t)
+  {
+  }
 
-    void fire();
+  void fire();
 };
 
 class sip_trans
 {
-    trans_timer* timers[SIP_TRANS_TIMERS];
+  trans_timer* timers[SIP_TRANS_TIMERS];
 
  public:
-    /** Transaction type */
-    unsigned int type;
-    
-    /** Request that initiated 
-	the transaction */
-    sip_msg* msg;
+  /** Transaction type */
+  unsigned int type;
 
-    /** To-tag included in reply.
-	(useful for ACK matching) */
-    cstring to_tag;
+  /** Request that initiated the transaction */
+  sip_msg* msg;
 
-    /** reply code of last
-        sent/received reply */
-    int reply_status;
+  /** To-tag included in reply. (useful for ACK matching) */
+  cstring to_tag;
 
-    /** Transaction state */
-    int state;
+  /** reply code of last sent/received reply */
+  int reply_status;
 
-    /** used by UAS only; keeps RSeq of last sent reliable 1xx */
-    unsigned int last_rseq;
+  /** Transaction state */
+  int state;
 
-    /** Dialog-ID used for UAC transactions */
-    cstring dialog_id;
+  /** used by UAS only; keeps RSeq of last sent reliable 1xx */
+  unsigned int last_rseq;
 
-    /** Destination list for requests */
-    sip_target_set* targets;
-    
-    /**
-     * Retransmission buffer
-     *  - UAC transaction: ACK
-     *  - UAS transaction: last reply
-     */
-    char* retr_buf;
+  /** Dialog-ID used for UAC transactions */
+  cstring dialog_id;
 
-    /** Length of the retransmission buffer */
-    int   retr_len;
+  /** Destination list for requests */
+  sip_target_set* targets;
 
-    /** Destination for retransmissions */
-    sockaddr_storage retr_addr;
-    trsp_socket*     retr_socket;
+  /**
+   * Retransmission buffer
+   *  - UAC transaction: ACK
+   *  - UAS transaction: last reply
+   */
+  char* retr_buf;
 
-    /** flags used by send_request() */
-    unsigned int flags;
+  /** Length of the retransmission buffer */
+  int retr_len;
 
-    /** message logging */
-    msg_logger* logger;
+  /** Destination for retransmissions */
+  sockaddr_storage retr_addr;
+  trsp_socket*     retr_socket;
 
-    /** request canceled? */
-    bool canceled;
+  /** flags used by send_request() */
+  unsigned int flags;
 
-    /**
-     * Tells if a specific timer is set
-     *
-     * @param timer_type @see sip_timer_type
-     */
-    bool is_timer_set(unsigned int timer_type);
+  /** message logging */
+  msg_logger* logger;
 
-    /**
-     * Fetches a specific timer
-     *
-     * @param timer_type @see sip_timer_type
-     */
-    trans_timer* get_timer(unsigned int timer_type);
-    
-    /**
-     * Resets a specfic timer with a delay value
-     *
-     * @param timer_type @see sip_timer_type
-     * @param expires_delay delay before expiration in millisecond
-     * @param bucket_id id of the transaction's bucket 
-     */
-    void reset_timer(unsigned int timer_type, 
-		     unsigned int expire_delay /* ms */,
-		     unsigned int bucket_id);
+  /** request canceled? */
+  bool canceled;
 
-    /**
-     * Resets a specific timer
-     *
-     * @param t the new timer
-     * @param timer_type @see sip_timer_type
-    */
-    void reset_timer(trans_timer* t, unsigned int timer_type);
+  /**
+   * Tells if a specific timer is set
+   *
+   * @param timer_type @see sip_timer_type
+   */
+  bool is_timer_set(unsigned int timer_type);
 
-    /**
-     * Clears a specfic timer
-     *
-     * @param timer_type @see sip_timer_type
-     */
-    void clear_timer(unsigned int timer_type);
+  /**
+   * Fetches a specific timer
+   *
+   * @param timer_type @see sip_timer_type
+   */
+  trans_timer* get_timer(unsigned int timer_type);
 
-    /**
-     * Resets every timer
-    */
-    void reset_all_timers();
+  /**
+   * Resets a specfic timer with a delay value
+   *
+   * @param timer_type @see sip_timer_type
+   * @param expires_delay delay before expiration in millisecond
+   * @param bucket_id id of the transaction's bucket
+   */
+  void reset_timer(unsigned int timer_type, unsigned int expire_delay,
+                   unsigned int bucket_id);
 
-    /**
-     * Retransmits the content of the retry buffer (replies or non-200 ACK).
-     */
-    void retransmit();
+  /**
+   * Resets a specific timer
+   *
+   * @param t the new timer
+   * @param timer_type @see sip_timer_type
+   */
+  void reset_timer(trans_timer* t, unsigned int timer_type);
 
-    sip_trans();
-    ~sip_trans();
+  /**
+   * Clears a specfic timer
+   *
+   * @param timer_type @see sip_timer_type
+   */
+  void clear_timer(unsigned int timer_type);
 
-    const char* type_str() const;
-    const char* state_str() const;
+  /**
+   * Resets every timer
+   */
+  void reset_all_timers();
 
-    void dump() const;
+  /**
+   * Retransmits the content of the retry buffer (replies or non-200 ACK).
+   */
+  void retransmit();
+
+  sip_trans();
+  ~sip_trans();
+
+  const char* type_str() const;
+  const char* state_str() const;
+
+  void dump() const;
 };
 
 #endif
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 4
- * End:
- */

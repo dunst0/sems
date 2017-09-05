@@ -22,152 +22,149 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _transport_h_
-#define _transport_h_
 
-#include "../AmThread.h"
-#include "../atomic_types.h"
+#ifndef _TRANSPORT_H_
+#define _TRANSPORT_H_
+
+#include "AmThread.h"
+#include "atomic_types.h"
+
 #include <sys/socket.h>
 
 #include <string>
-using std::string;
 
 #define DEFAULT_TCP_CONNECT_TIMEOUT 2000 /* 2 seconds */
 #define DEFAULT_TCP_IDLE_TIMEOUT 3600000 /* 1 hour */
 
-class trsp_socket
-    : public atomic_ref_cnt
+class trsp_socket : public atomic_ref_cnt
 {
-public:
-    enum socket_options {
-	force_via_address       = (1 << 0),
-	force_outbound_if       = (1 << 1),
-	use_raw_sockets         = (1 << 2),
-	no_transport_in_contact = (1 << 3)
-    };
+ public:
+  enum socket_options
+  {
+    force_via_address       = (1 << 0),
+    force_outbound_if       = (1 << 1),
+    use_raw_sockets         = (1 << 2),
+    no_transport_in_contact = (1 << 3)
+  };
 
-    static int log_level_raw_msgs;
-    
-protected:
-    // socket descriptor
-    int sd;
+  static int log_level_raw_msgs;
 
-    // bound address
-    sockaddr_storage addr;
+ protected:
+  // socket descriptor
+  int sd;
 
-    // bound IP
-    string           ip;
+  // bound address
+  sockaddr_storage addr;
 
-    // bound port number
-    unsigned short   port;
+  // bound IP
+  std::string ip;
 
-    // public IP (Via-HF)
-    string      public_ip;
+  // bound port number
+  unsigned short int port;
 
-    // internal interface number
-    unsigned short   if_num;
+  // public IP (Via-HF)
+  std::string public_ip;
 
-    // network interface index
-    unsigned int sys_if_idx;
+  // internal interface number
+  unsigned short int if_num;
 
-    // ORed field of socket_option
-    unsigned int socket_options;
+  // network interface index
+  unsigned int sys_if_idx;
 
-public:
-    trsp_socket(unsigned short if_num, unsigned int opts,
-		unsigned int sys_if_idx = 0, int sd = 0);
-    virtual ~trsp_socket();
+  // ORed field of socket_option
+  unsigned int socket_options;
 
-    /**
-     * Binds the transport socket to an address
-     * @return -1 if error(s) occured.
-     */
-    virtual int bind(const string& address, unsigned short port)=0;
+ public:
+  trsp_socket(unsigned short int if_num, unsigned int opts,
+              unsigned int sys_if_idx = 0, int sd = 0);
+  virtual ~trsp_socket();
 
-    /**
-     * Getter for the transport name
-     */
-    virtual const char* get_transport() const = 0;
+  /**
+   * Binds the transport socket to an address
+   * @return -1 if error(s) occured.
+   */
+  virtual int bind(const std::string& address, unsigned short int port) = 0;
 
-    /**
-     * Getter for IP address
-     */
-    const char* get_ip() const;
-    
-    /**
-     * Getter for the port number
-     */
-    unsigned short get_port() const;
+  /**
+   * Getter for the transport name
+   */
+  virtual const char* get_transport() const = 0;
 
-    /**
-     * Setter for public IP address
-     */
-    void set_public_ip(const string& ip);
-    
-    /**
-     * Getter for advertised IP address
-     * @return either bound IP or public IP
-     */
-    const char* get_advertised_ip() const;
+  /**
+   * Getter for IP address
+   */
+  const char* get_ip() const;
 
-    /**
-     *  Getter for the socket descriptor
-     */
-    int get_sd() const;
+  /**
+   * Getter for the port number
+   */
+  unsigned short int get_port() const;
 
-    /**
-     * Getter for the interface number
-     */
-    unsigned short get_if() const;
+  /**
+   * Setter for public IP address
+   */
+  void set_public_ip(const std::string& ip);
 
-    /**
-     * Is the transport reliable?
-     */
-    virtual bool is_reliable() const { return false; }
+  /**
+   * Getter for advertised IP address
+   * @return either bound IP or public IP
+   */
+  const char* get_advertised_ip() const;
 
-    /**
-     * Checks for socket options
-     */
-    bool is_opt_set(unsigned int mask) const;
+  /**
+   *  Getter for the socket descriptor
+   */
+  int get_sd() const;
 
-    /**
-     * Copy the internal address into the given one (sa).
-     */
-    void copy_addr_to(sockaddr_storage* sa) const;
+  /**
+   * Getter for the interface number
+   */
+  unsigned short int get_if() const;
 
-    /**
-     * Match with the given address
-     * @return true if address matches
-     */
-    bool match_addr(sockaddr_storage* other_addr) const;
+  /**
+   * Is the transport reliable?
+   */
+  virtual bool is_reliable() const { return false; }
 
-    /**
-     * Sends a message.
-     * @return -1 if error(s) occured.
-     */
-    virtual int send(const sockaddr_storage* sa, const char* msg, 
-		     const int msg_len, unsigned int flags)=0;
+  /**
+   * Checks for socket options
+   */
+  bool is_opt_set(unsigned int mask) const;
+
+  /**
+   * Copy the internal address into the given one (sa).
+   */
+  void copy_addr_to(sockaddr_storage* sa) const;
+
+  /**
+   * Match with the given address
+   * @return true if address matches
+   */
+  bool match_addr(sockaddr_storage* other_addr) const;
+
+  /**
+   * Sends a message.
+   * @return -1 if error(s) occured.
+   */
+  virtual int send(const sockaddr_storage* sa, const char* msg,
+                   const int msg_len, unsigned int flags) = 0;
 };
 
-class transport: public AmThread
+class transport : public AmThread
 {
-protected:
-    trsp_socket* sock;
+ protected:
+  trsp_socket* sock;
 
-public:
-    transport(trsp_socket* sock): sock(sock) {}
-    virtual ~transport();
+ public:
+  transport(trsp_socket* sock)
+      : sock(sock)
+  {
+  }
+  virtual ~transport() {}
 };
 
 #endif
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 4
- * End:
- */

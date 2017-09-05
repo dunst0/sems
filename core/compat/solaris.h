@@ -1,5 +1,5 @@
-#ifndef __SOLARIS_H__
-#define __SOLARIS_H__
+#ifndef _SOLARIS_H_
+#define _SOLARIS_H_
 
 /*
  * New compatibility code for Solaris.
@@ -7,29 +7,28 @@
  * need to be conditionalized here.
  */
 
-#ifndef timeradd 
-#define timeradd(a, b, result)                                                \
-  do {                                                                        \
-    (result)->tv_sec = (a)->tv_sec + (b)->tv_sec;                             \
-    (result)->tv_usec = (a)->tv_usec + (b)->tv_usec;                          \
-    if ((result)->tv_usec >= 1000000)                                         \
-      {                                                                       \
-        ++(result)->tv_sec;                                                   \
-        (result)->tv_usec -= 1000000;                                         \
-      }                                                                       \
-  } while (0) 
-#endif 
-#ifndef timersub 
-#define timersub(a, b, result)                                                \
-  do {                                                                        \
-    (result)->tv_sec = (a)->tv_sec - (b)->tv_sec;                             \
-    (result)->tv_usec = (a)->tv_usec - (b)->tv_usec;                          \
-    if ((result)->tv_usec < 0) {                                              \
-      --(result)->tv_sec;                                                     \
-      (result)->tv_usec += 1000000;                                           \
-    }                                                                         \
-  } while (0) 
-#endif 
+#ifndef timeradd
+#define timeradd(a, b, result)                                                 \
+  do {                                                                         \
+    (result)->tv_sec  = (a)->tv_sec + (b)->tv_sec;                             \
+    (result)->tv_usec = (a)->tv_usec + (b)->tv_usec;                           \
+    if ((result)->tv_usec >= 1000000) {                                        \
+      ++(result)->tv_sec;                                                      \
+      (result)->tv_usec -= 1000000;                                            \
+    }                                                                          \
+  } while (0)
+#endif
+#ifndef timersub
+#define timersub(a, b, result)                                                 \
+  do {                                                                         \
+    (result)->tv_sec  = (a)->tv_sec - (b)->tv_sec;                             \
+    (result)->tv_usec = (a)->tv_usec - (b)->tv_usec;                           \
+    if ((result)->tv_usec < 0) {                                               \
+      --(result)->tv_sec;                                                      \
+      (result)->tv_usec += 1000000;                                            \
+    }                                                                          \
+  } while (0)
+#endif
 
 // Work around use of deprecated definitions in Solaris system headers.
 #include <sys/sockio.h>
@@ -45,11 +44,12 @@
 // but I didn't write the code...
 #include <sys/filio.h>
 
-// Solaris doesn't have bcopy/bcmp/bzero. Reimplement them with more common routines.
-// Use memmove rather than memcpy to behave correctly with overlapping sequences.
-#define bzero(b,n) memset(b,0,n)
-#define bcopy(b1,b2,n) memmove(b2,b1,n)
-#define bcmp(b1,b2,n) memmove(b1,b2,n)
+// Solaris doesn't have bcopy/bcmp/bzero. Reimplement them with more common
+// routines. Use memmove rather than memcpy to behave correctly with overlapping
+// sequences.
+#define bzero(b, n) memset(b, 0, n)
+#define bcopy(b1, b2, n) memmove(b2, b1, n)
+#define bcmp(b1, b2, n) memmove(b1, b2, n)
 
 // Assume that we're going to be running on Solaris 10, which *does* have
 // setenv, even though we might be compiling on Solaris 9 (which does not).
@@ -65,13 +65,14 @@
 typedef unsigned long long int u_int64_t;
 #endif
 
-
 #include <sys/byteorder.h>
 
 /* Which of these applies depends on which compiler suite is used! */
-#if (defined(__BYTE_ORDER) && (__BYTE_ORDER == __BIG_ENDIAN)) || defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN)
+#if (defined(__BYTE_ORDER) && (__BYTE_ORDER == __BIG_ENDIAN))                  \
+    || defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN)
 #define BYTE_ORDER BIG_ENDIAN
-#elif (defined(__BYTE_ORDER) && (__BYTE_ORDER == __LITTLE_ENDIAN)) || defined(_LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN)
+#elif (defined(__BYTE_ORDER) && (__BYTE_ORDER == __LITTLE_ENDIAN))             \
+    || defined(_LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN)
 #define BYTE_ORDER LITTLE_ENDIAN
 #else
 #error "No endianness found for Solaris build."

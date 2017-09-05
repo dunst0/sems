@@ -20,69 +20,72 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "PrecodedAnnounce.h"
 
-#include "log.h"
 #include "AmConfigReader.h"
 #include "AmUtils.h"
+#include "log.h"
 
-EXPORT_SESSION_FACTORY(PrecodedFactory,MOD_NAME);
+using std::string;
+using std::map;
+
+EXPORT_SESSION_FACTORY(PrecodedFactory, MOD_NAME);
 
 PrecodedFactory::PrecodedFactory(const string& _app_name)
-  : AmSessionFactory(_app_name)
+    : AmSessionFactory(_app_name)
 {
 }
 
 int PrecodedFactory::onLoad()
 {
-    AmConfigReader cfg;
-    if(cfg.loadFile(AmConfig::ModConfigPath + string(MOD_NAME ".conf")))
-	return -1;
+  AmConfigReader cfg;
+  if (cfg.loadFile(AmConfig::ModConfigPath + string(MOD_NAME ".conf"))) {
+    return -1;
+  }
 
-    if (precoded_file.open(cfg.getParameter("announcement_file")) < 0) {
-      ERROR("loading precoded file");
-      return -1;
-    }
+  if (precoded_file.open(cfg.getParameter("announcement_file")) < 0) {
+    ERROR("loading precoded file");
+    return -1;
+  }
 
-    precoded_file.initPlugin();
-    return 0;
+  precoded_file.initPlugin();
+  return 0;
 }
 
-AmSession* PrecodedFactory::onInvite(const AmSipRequest& req, const string& app_name,
-				     const map<string,string>& app_params)
+AmSession* PrecodedFactory::onInvite(const AmSipRequest& req,
+                                     const string&       app_name,
+                                     const map<string, string>& app_params)
 {
-    return new PrecodedDialog(&precoded_file);
+  return new PrecodedDialog(&precoded_file);
 }
 
 PrecodedDialog::PrecodedDialog(AmPrecodedFile* file_def)
-  : file_def(file_def)
+    : file_def(file_def)
 {
   RTPStream()->setPayloadProvider(file_def);
 }
 
-PrecodedDialog::~PrecodedDialog()
-{
-}
+PrecodedDialog::~PrecodedDialog() {}
 
 void PrecodedDialog::onSessionStart()
 {
-  AmPrecodedFileInstance* file = 
-    file_def->getFileInstance(RTPStream()->getPayloadType());
+  AmPrecodedFileInstance* file =
+      file_def->getFileInstance(RTPStream()->getPayloadType());
   if (!file) {
     ERROR("no payload\n");
   }
-  if (!file || file->open()) { 
+  if (!file || file->open()) {
     ERROR("PrecodedDialog::onSessionStart: Cannot open file\n");
     dlg->bye();
     setStopped();
     return;
   }
- 
+
   setOutput(file);
   setReceiving(false);
 
@@ -91,7 +94,6 @@ void PrecodedDialog::onSessionStart()
 
 void PrecodedDialog::onBye(const AmSipRequest& req)
 {
-    DBG("onBye: stopSession\n");
-    setStopped();
+  DBG("onBye: stopSession\n");
+  setStopped();
 }
-

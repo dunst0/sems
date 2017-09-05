@@ -21,7 +21,7 @@
 # destination IP[:port] for outgoing requests
 #next_hop=192.168.5.106
 
-## filters: 
+## filters:
 #header_filter=blacklist
 #header_list=P-App-Param,P-App-Name
 #message_filter=transparent
@@ -38,7 +38,7 @@ call_timer_module=cc_call_timer
 call_timer_timer=$P(t)
 
 #
-# Kamailio/sip-router script: 
+# Kamailio/sip-router script:
 #  remove_hf("P-App-Param");
 #  append_hf("P-App-Param: t=120\r\n");
 #  t_relay_to_udp("10.0.0.3","5070");

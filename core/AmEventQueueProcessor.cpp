@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -29,126 +29,141 @@
 #include "AmEventQueue.h"
 
 #include <deque>
+
 using std::deque;
 
-AmEventQueueProcessor::AmEventQueueProcessor()
-{
-  threads_it = threads.begin();
-}
+AmEventQueueProcessor::AmEventQueueProcessor() { threads_it = threads.begin(); }
 
 AmEventQueueProcessor::~AmEventQueueProcessor()
 {
-  threads_mut.lock();
+  threads_mutex.lock();
+
   threads_it = threads.begin();
-  while(threads_it != threads.end()) {
+  while (threads_it != threads.end()) {
     (*threads_it)->stop();
+    threads_it++;
+  }
+
+  threads_it = threads.begin();
+  while (threads_it != threads.end()) {
     (*threads_it)->join();
     delete (*threads_it);
     threads_it++;
   }
-  threads_mut.unlock();
+
+  threads_mutex.unlock();
 }
 
-EventQueueWorker* AmEventQueueProcessor::getWorker()
+AmEventQueueWorker* AmEventQueueProcessor::getWorker()
 {
-  threads_mut.lock();
+  threads_mutex.lock();
+
   if (!threads.size()) {
     ERROR("requesting EventQueue processing thread but none available\n");
-    threads_mut.unlock();
+    threads_mutex.unlock();
     return NULL;
   }
 
   // round robin
-  if (threads_it == threads.end())
-    threads_it = threads.begin();
+  if (threads_it == threads.end()) threads_it = threads.begin();
 
-  EventQueueWorker* res = *threads_it;
+  AmEventQueueWorker* res = *threads_it;
   threads_it++;
-  threads_mut.unlock();
+
+  threads_mutex.unlock();
 
   return res;
 }
 
-int AmEventQueueProcessor::startEventQueue(AmEventQueue* q) 
+int AmEventQueueProcessor::startEventQueue(AmEventQueue* q)
 {
-  EventQueueWorker* worker = getWorker();
-  if(!worker) return -1;
+  AmEventQueueWorker* worker = getWorker();
+  if (!worker) return -1;
 
   worker->startEventQueue(q);
   return 0;
 }
 
-void AmEventQueueProcessor::addThreads(unsigned int num_threads) 
+void AmEventQueueProcessor::addThreads(unsigned int num_threads)
 {
   DBG("starting %u session processor threads\n", num_threads);
-  threads_mut.lock();
-  for (unsigned int i=0; i < num_threads;i++) {
-    threads.push_back(new EventQueueWorker());
-    threads.back()->start();
+
+  threads_mutex.lock();
+
+  for (unsigned int i = 0; i < num_threads; i++) {
+    AmEventQueueWorker* worker = new AmEventQueueWorker();
+    threads.push_back(worker);
+    worker->start();
   }
+
   threads_it = threads.begin();
-  DBG("now %zd session processor threads running\n",  threads.size());
-  threads_mut.unlock();
+  DBG("now %zd session processor threads running\n", threads.size());
+  threads_mutex.unlock();
 }
 
-
-EventQueueWorker::EventQueueWorker() 
-  : runcond(false)
+void AmEventQueueWorker::notify(AmEventQueue* sender)
 {
-}
+  process_queues_mutex.lock();
 
-EventQueueWorker::~EventQueueWorker() {
-}
-
-void EventQueueWorker::notify(AmEventQueue* sender) 
-{
-  process_queues_mut.lock();
   process_queues.push_back(sender);
   inc_ref(sender);
-  runcond.set(true);
-  process_queues_mut.unlock();
+  getRunCondition().set(true);
+
+  process_queues_mutex.unlock();
 }
 
-void EventQueueWorker::run()
+void AmEventQueueWorker::run()
 {
-  stop_requested = false;
-  while(!stop_requested.get()){
+  DBG("EventQueueWorker (%s_%lu) is start running.\n", thread_name.c_str(),
+      getPid());
 
-    runcond.wait_for();
+  while (isRunning()) {
+    getRunCondition().wait_for();
 
-    DBG("running processing loop\n");
-    process_queues_mut.lock();
-    while(!process_queues.empty()) {
-
-      AmEventQueue* ev_q = process_queues.front();
-      process_queues.pop_front();
-      process_queues_mut.unlock();
-
-      if(!ev_q->processingCycle()) {
-	ev_q->setEventNotificationSink(NULL);
-	if(!ev_q->is_finalized())
-	  ev_q->finalize();
-      }
-      dec_ref(ev_q);
-
-      process_queues_mut.lock();
+    if (!isRunning()) {
+      break;
     }
 
-    runcond.set(false);
-    process_queues_mut.unlock();
+    DBG("EventQueueWorker (%s_%lu) is running processing loop\n",
+        thread_name.c_str(), getPid());
+
+    process_queues_mutex.lock();
+    while (!process_queues.empty()) {
+      AmEventQueue* ev_q = process_queues.front();
+      process_queues.pop_front();
+      process_queues_mutex.unlock();
+
+      if (!ev_q->processingCycle()) {
+        ev_q->setEventNotificationSink(NULL);
+
+        if (!ev_q->isFinalized()) {
+          ev_q->finalize();
+        }
+      }
+
+      dec_ref(ev_q);
+
+      process_queues_mutex.lock();
+    }
+
+    getRunCondition().set(false);
+    process_queues_mutex.unlock();
   }
+
+  DBG("EventQueueWorker (%s_%lu) has stopped running.\n", thread_name.c_str(),
+      getPid());
 }
 
-void EventQueueWorker::on_stop() 
+void AmEventQueueWorker::on_stop()
 {
-  INFO("requesting worker to stop.\n");
-  stop_requested.set(true);
-  runcond.set(true);
+  DBG("EventQueueWorker (%s_%lu) requesting to stop worker.\n",
+      thread_name.c_str(), getPid());
 }
 
-void EventQueueWorker::startEventQueue(AmEventQueue* q) 
+void AmEventQueueWorker::startEventQueue(AmEventQueue* q)
 {
-  if(q->startup())
+  if (q->startup()) {
     // register us to be notified if some event comes to the session
     q->setEventNotificationSink(this);
+  }
 }

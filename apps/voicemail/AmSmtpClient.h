@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmSmtpClient.h */
@@ -35,15 +35,15 @@
 using std::string;
 using std::vector;
 
-/** 
- * SMTP Line buffer for commands and responses 
- * (not for data transmission!) 
+/**
+ * SMTP Line buffer for commands and responses
+ * (not for data transmission!)
  */
-#define SMTP_LINE_BUFFER  512
+#define SMTP_LINE_BUFFER 512
 
 /**
  * \brief SMTP client implementation
- * 
+ *
  */
 class AmSmtpClient
 {
@@ -51,19 +51,25 @@ class AmSmtpClient
   unsigned short server_port;
 
   /** socket descriptor */
-  int          sd;
+  int sd;
   /** size of last response receved */
   unsigned int received;
   /** recv & scratch buffer */
-  char         lbuf[SMTP_LINE_BUFFER];
+  char lbuf[SMTP_LINE_BUFFER];
   /** code of the last response */
   unsigned int res_code;
   /** code of the last response */
-  //char         res_code_str[4]; // null-terminated
+  // char         res_code_str[4]; // null-terminated
   /** textof the last response */
-  string       res_msg;
+  string res_msg;
 
-  enum Status { st_None=0, st_Ok, st_Error, st_Unknown };
+  enum Status
+  {
+    st_None = 0,
+    st_Ok,
+    st_Error,
+    st_Unknown
+  };
   /** Client status */
   Status status;
 
@@ -80,9 +86,9 @@ class AmSmtpClient
   /** @return true if failed */
   bool send_command(const string& cmd);
   /** @return true if failed */
-  bool send_body(const vector<string>& hdrs, const AmMail& mail); 
+  bool send_body(const vector<string>& hdrs, const AmMail& mail);
 
-public:
+ public:
   AmSmtpClient();
   ~AmSmtpClient();
 
@@ -101,4 +107,3 @@ public:
 // Local Variables:
 // mode:C++
 // End:
-

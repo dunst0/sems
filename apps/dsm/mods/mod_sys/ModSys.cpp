@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "ModSys.h"
@@ -33,6 +33,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -115,7 +116,7 @@ MATCH_CONDITION_START(SystemCondition) {
 
 bool sys_mkdir(const char* p) {
   if (mkdir(p,  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
-    ERROR("mkdir failed for '%s': %s\n", 
+    ERROR("mkdir failed for '%s': %s\n",
 	  p, strerror(errno));
     return false;
   }
@@ -126,7 +127,7 @@ EXEC_ACTION_START(SCMkDirAction) {
   string d = resolveVars(arg, sess, sc_sess, event_params);
   DBG("mkdir '%s'\n", d.c_str());
   if (sys_mkdir(d.c_str())) {
-    sc_sess->SET_ERRNO(DSM_ERRNO_OK);    
+    sc_sess->SET_ERRNO(DSM_ERRNO_OK);
   } else {
     sc_sess->SET_ERRNO(DSM_ERRNO_FILE);
   }
@@ -142,14 +143,14 @@ bool sys_get_parent_dir(const char* path, char* parentPath) {
       return false;
     }
   }
-  
+
   // copy the parent substring to parentPath
   unsigned int i;
   for (i = 0; &(path[i+1]) != ptr; i++) {
     parentPath[i] = path[i];
   }
   parentPath[i] = '\0';
-  
+
   return true;
 }
 
@@ -175,7 +176,7 @@ EXEC_ACTION_START(SCMkDirRecursiveAction) {
   string d = resolveVars(arg, sess, sc_sess, event_params);
   DBG("mkdir recursive '%s'\n", d.c_str());
   if (sys_mkdir_recursive(d.c_str())) {
-    sc_sess->SET_ERRNO(DSM_ERRNO_OK);    
+    sc_sess->SET_ERRNO(DSM_ERRNO_OK);
   } else {
     sc_sess->SET_ERRNO(DSM_ERRNO_FILE);
   }
@@ -185,7 +186,7 @@ EXEC_ACTION_START(SCMkDirRecursiveAction) {
 void filecopy(FILE* ifp, FILE* ofp) {
   size_t nread;
   char buf[1024];
-  
+
   rewind(ifp);
   while (!feof(ifp)) {
     nread = fread(buf, 1, 1024, ifp);
@@ -201,11 +202,11 @@ EXEC_ACTION_START(SCRenameAction) {
 
   int rres = rename(src.c_str(), dst.c_str());
   if (!rres) {
-    sc_sess->SET_ERRNO(DSM_ERRNO_OK);    
+    sc_sess->SET_ERRNO(DSM_ERRNO_OK);
   } else if (rres == EXDEV) {
     FILE* f1 = fopen(src.c_str(), "r");
     if (NULL == f1) {
-      WARN("opening source file '%s' for copying failed: '%s'\n", 
+      WARN("opening source file '%s' for copying failed: '%s'\n",
 	   src.c_str(), strerror(errno));
       sc_sess->SET_ERRNO(DSM_ERRNO_FILE);
       return false;
@@ -213,27 +214,27 @@ EXEC_ACTION_START(SCRenameAction) {
 
     FILE* f2 = fopen(dst.c_str(), "w");
     if (NULL == f2) {
-      WARN("opening destination file '%s' for copying failed: '%s'\n", 
+      WARN("opening destination file '%s' for copying failed: '%s'\n",
 	   dst.c_str(), strerror(errno));
       sc_sess->SET_ERRNO(DSM_ERRNO_FILE);
       return false;
     }
 
     filecopy(f1, f2);
-    
+
     fclose(f1);
     fclose(f2);
-    
+
     if (unlink(src.c_str())) {
-      WARN("unlinking source file '%s' for copying failed: '%s'\n", 
+      WARN("unlinking source file '%s' for copying failed: '%s'\n",
 	   src.c_str(), strerror(errno));
       sc_sess->SET_ERRNO(DSM_ERRNO_FILE);
       return false;
-    } 
+    }
 
     sc_sess->SET_ERRNO(DSM_ERRNO_OK);
   } else {
-    WARN("renaming '%s' to '%s' failed: '%s'\n", 
+    WARN("renaming '%s' to '%s' failed: '%s'\n",
 	 src.c_str(), dst.c_str(), strerror(errno));
     sc_sess->SET_ERRNO(DSM_ERRNO_FILE);
   }
@@ -246,9 +247,9 @@ EXEC_ACTION_START(SCUnlinkAction) {
     return false;
 
   if (!unlink(fname.c_str())) {
-    sc_sess->SET_ERRNO(DSM_ERRNO_OK);    
+    sc_sess->SET_ERRNO(DSM_ERRNO_OK);
   } else {
-    WARN("unlink '%s' failed: '%s'\n", 
+    WARN("unlink '%s' failed: '%s'\n",
 	fname.c_str(), strerror(errno));
     sc_sess->SET_ERRNO(DSM_ERRNO_FILE);
   }
@@ -268,13 +269,13 @@ EXEC_ACTION_START(SCUnlinkArrayAction) {
     return false;
   }
 
-  sc_sess->SET_ERRNO(DSM_ERRNO_OK);    
+  sc_sess->SET_ERRNO(DSM_ERRNO_OK);
   for (unsigned int i=0;i<arr_size;i++)  {
-    
+
     string file_fullname  = prefix + '/' + sc_sess->var[fname + "_"+int2str(i)];
     DBG("unlinking '%s'\n", file_fullname.c_str());
     if (unlink(file_fullname.c_str())) {
-      DBG("unlink '%s' failed: '%s'\n", 
+      DBG("unlink '%s' failed: '%s'\n",
 	  file_fullname.c_str(), strerror(errno));
       sc_sess->SET_ERRNO(DSM_ERRNO_FILE);
     }
@@ -300,8 +301,8 @@ EXEC_ACTION_START(SCPopenAction) {
     dst_var = dst_var.substr(1);
 
   string cmd = resolveVars(par2, sess, sc_sess, event_params);
-  
-  DBG("executing '%s' while saving output to $%s\n", 
+
+  DBG("executing '%s' while saving output to $%s\n",
       cmd.c_str(), dst_var.c_str());
 
   char buf[100];
@@ -313,7 +314,7 @@ EXEC_ACTION_START(SCPopenAction) {
 
   size_t rlen;
 
-  while (true) {    
+  while (true) {
     rlen = fread(buf, 1, 100, fp);
     if (rlen < 100) {
       if (rlen)
@@ -325,7 +326,7 @@ EXEC_ACTION_START(SCPopenAction) {
   }
 
   sc_sess->var[dst_var] = res;
-  
+
   int status = pclose(fp);
   if (status==-1) {
     throw DSMException("sys", "type", "pclose", "cause", strerror(errno));

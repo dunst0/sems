@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2006 iptego GmbH
  *
  * This file is part of SEMS, a free SIP media server.
@@ -20,16 +20,17 @@
 #ifndef PY_SEMSB2ABDIALOG_H
 #define PY_SEMSB2ABDIALOG_H
 
-#include "PySems.h"
 #include "AmApi.h"
 #include "AmB2ABSession.h"
 #include "AmPlaylist.h"
+#include "PySems.h"
 
 class PySemsB2ABCalleeDialog;
 
 /** \brief pySems wrapper for base of pySems dialog classes */
-class PySemsB2ABDialog : public AmB2ABCallerSession, 
-  public PySemsDialogBase
+class PySemsB2ABDialog
+    : public AmB2ABCallerSession
+    , public PySemsDialogBase
 {
  public:
   AmPlaylist playlist;
@@ -49,22 +50,26 @@ class PySemsB2ABDialog : public AmB2ABCallerSession,
 };
 
 /** \brief base class for events in Py-B2AB sessions */
-struct PySemsB2ABEvent: public B2ABEvent
+struct PySemsB2ABEvent : public B2ABEvent
 {
  public:
- PySemsB2ABEvent(int ev_id) 
-   : B2ABEvent(ev_id)
-  {}
+  PySemsB2ABEvent(int ev_id)
+      : B2ABEvent(ev_id)
+  {
+  }
 };
 
 /** \brief pySems wrapper for B leg in pysems B2AB session */
 class PySemsB2ABCalleeDialog : public AmB2ABCalleeSession
 {
  public:
- PySemsB2ABCalleeDialog(const string& other_local_tag, 
-			AmSessionAudioConnector* connector)
-   : AmB2ABCalleeSession(other_local_tag, connector) { }
-  virtual ~PySemsB2ABCalleeDialog() { }
+  PySemsB2ABCalleeDialog(const string&            other_local_tag,
+                         AmSessionAudioConnector* connector)
+      : AmB2ABCalleeSession(other_local_tag, connector)
+  {
+  }
+  virtual ~PySemsB2ABCalleeDialog() {}
+
  protected:
   void onB2ABEvent(B2ABEvent* ev);
 

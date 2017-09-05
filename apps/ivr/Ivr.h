@@ -31,22 +31,27 @@
 #include "flite.h"
 #endif
 
-#include <string>
 #include <map>
+#include <string>
 using std::string;
 using std::map;
 
 class IvrDialog;
 
 /** \brief C++ wrapper for extra thread created by Python IVR script */
-class PythonScriptThread : public AmThread {
+class PythonScriptThread : public AmThread
+{
   PyObject* py_thread_object;
+
  protected:
   void run();
   void on_stop();
+
  public:
- PythonScriptThread(PyObject* py_thread_object_) 
-   : py_thread_object(py_thread_object_) { }
+  PythonScriptThread(PyObject* py_thread_object_)
+      : py_thread_object(py_thread_object_)
+  {
+  }
 };
 
 /** \brief binds a script module and the python dialog class */
@@ -55,33 +60,35 @@ struct IvrScriptDesc
   PyObject* mod;
   PyObject* dlg_class;
 
-IvrScriptDesc()
-: mod(0), 
-    dlg_class(0)
-  {}
+  IvrScriptDesc()
+      : mod(0)
+      , dlg_class(0)
+  {
+  }
 
-IvrScriptDesc(const IvrScriptDesc& d)
-: mod(d.mod), 
-    dlg_class(d.dlg_class)
-  {}
+  IvrScriptDesc(const IvrScriptDesc& d)
+      : mod(d.mod)
+      , dlg_class(d.dlg_class)
+  {
+  }
 
-IvrScriptDesc(PyObject* mod, 
-	      PyObject* dlg_class)
-: mod(mod),
-    dlg_class(dlg_class)
-  {}
+  IvrScriptDesc(PyObject* mod, PyObject* dlg_class)
+      : mod(mod)
+      , dlg_class(dlg_class)
+  {
+  }
 };
 
 /** \brief session factory for python IVR sessions */
-class IvrFactory: public AmSessionFactory
+class IvrFactory : public AmSessionFactory
 {
   static AmConfigReader cfg;
 
   PyObject* ivr_module;
-  //string script_path;
+  // string script_path;
   string default_script;
 
-  map<string,IvrScriptDesc> mod_reg;
+  map<string, IvrScriptDesc> mod_reg;
 
   static AmSessionEventHandlerFactory* session_timer_f;
 
@@ -89,27 +96,25 @@ class IvrFactory: public AmSessionFactory
   void set_sys_path(const string& script_path);
   void import_ivr_builtins();
 
-  void import_object(PyObject* m, 
-		     const char* name, 
-		     PyTypeObject* type);
+  void import_object(PyObject* m, const char* name, PyTypeObject* type);
 
   /** @return true if everything ok */
   bool loadScript(const string& path);
 
-  //void setScriptPath(const string& path);
+  // void setScriptPath(const string& path);
   bool checkCfg();
 
   IvrDialog* newDlg(const string& name);
 
   std::queue<PyObject*> deferred_threads;
-  void start_deferred_threads();
-   
+  void                  start_deferred_threads();
+
  public:
   IvrFactory(const string& _app_name);
 
-  int onLoad();
+  int        onLoad();
   AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-		      const map<string,string>& app_params);
+                      const map<string, string>&             app_params);
 
   void addDeferredThread(PyObject* pyCallable);
 
@@ -119,17 +124,18 @@ class IvrFactory: public AmSessionFactory
 /** \brief python IVR wrapper for session base implementation */
 class IvrDialog : public AmB2BCallerSession
 {
-  PyObject  *py_mod;
-  PyObject  *py_dlg;
+  PyObject* py_mod;
+  PyObject* py_dlg;
 
   bool callPyEventHandler(const char* name, const char* fmt, ...);
-    
+
   void process(AmEvent* event);
 
   string b2b_callee_from_party;
   string b2b_callee_from_uri;
 
   void createCalleeSession();
+
  public:
   AmPlaylist playlist;
 
@@ -137,14 +143,14 @@ class IvrDialog : public AmB2BCallerSession
   ~IvrDialog();
 
   // must be called before everything else.
-  void setPyPtrs(PyObject *mod, PyObject *dlg);
+  void setPyPtrs(PyObject* mod, PyObject* dlg);
 
   int transfer(const string& target);
   int refer(const string& target, int expires);
   int drop();
-    
+
   void onInvite(const AmSipRequest& req);
-  int  onSdpCompleted(const AmSdp& offer, const AmSdp& answer);
+  int onSdpCompleted(const AmSdp& offer, const AmSdp& answer);
   void onSessionStart();
 
   void onBye(const AmSipRequest& req);
@@ -153,16 +159,14 @@ class IvrDialog : public AmB2BCallerSession
   bool onOtherBye(const AmSipRequest& req);
   bool onOtherReply(const AmSipReply& r);
 
-  void onSipReply(const AmSipRequest& req,
-		  const AmSipReply& reply, 
-		  AmBasicSipDialog::Status old_dlg_status);
+  void onSipReply(const AmSipRequest& req, const AmSipReply& reply,
+                  AmBasicSipDialog::Status old_dlg_status);
   void onSipRequest(const AmSipRequest& r);
 
   void onRtpTimeout();
-    
-  void connectCallee(const string& remote_party, const string& remote_uri,
-		     const string& from_party, const string& from_uri);
 
+  void connectCallee(const string& remote_party, const string& remote_uri,
+                     const string& from_party, const string& from_uri);
 };
 
 #endif

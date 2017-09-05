@@ -18,61 +18,60 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _EarlyAnnounce_h_
-#define _EarlyAnnounce_h_
+#ifndef _EARLYANNOUNCE_H_
+#define _EARLYANNOUNCE_H_
 
 #ifdef USE_MYSQL
 #include <mysql++/mysql++.h>
 #endif
 
-#include "AmB2BSession.h"
 #include "AmAudioFile.h"
+#include "AmB2BSession.h"
 #include "AmConfigReader.h"
 
 #include <string>
-using std::string;
 
 /** \brief Factory for early_announce sessions */
-class EarlyAnnounceFactory: public AmSessionFactory
+class EarlyAnnounceFactory : public AmSessionFactory
 {
-public:
-
+ public:
 #ifdef USE_MYSQL
   static mysqlpp::Connection Connection;
-  static string AnnounceApplication;
-  static string AnnounceMessage;
-  static string DefaultLanguage;
-#else 
-  static string AnnouncePath;
-  static string AnnounceFile;
+  static std::string         AnnounceApplication;
+  static std::string         AnnounceMessage;
+  static std::string         DefaultLanguage;
+#else
+  static std::string AnnouncePath;
+  static std::string AnnounceFile;
 #endif
-  enum ContB2B {
+  enum ContB2B
+  {
     Always = 0,
     Never,
     AppParam
   };
   static ContB2B ContinueB2B;
 
-  EarlyAnnounceFactory(const string& _app_name);
+  EarlyAnnounceFactory(const std::string& _app_name);
 
-  int onLoad();
-  AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-		      const map<string,string>& app_params);
+  int        onLoad();
+  AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
+                      const std::map<std::string, std::string>&   app_params);
 };
 
 /** \brief session logic implementation for early_announce sessions */
 class EarlyAnnounceDialog : public AmB2BCallerSession
 {
   AmAudioFile wav_file;
-  string filename;
-    
-public:
-  EarlyAnnounceDialog(const string& filename);
+  std::string filename;
+
+ public:
+  EarlyAnnounceDialog(const std::string& filename);
   ~EarlyAnnounceDialog();
 
   void onInvite(const AmSipRequest& req);
@@ -82,11 +81,9 @@ public:
   void onDtmf(int event, int duration_msec) {}
 
   void process(AmEvent* event);
-
 };
 
 #endif
 // Local Variables:
 // mode:C++
 // End:
-

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 TelTech Systems Inc.
- * 
+ *
  * This file is part of SEMS, a free SIP media server.
  *
  * SEMS is free software; you can redistribute it and/or modify
@@ -20,22 +20,23 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _JSON_RPC_H_
-#define _JSON_RPC_H_
+#ifndef _JSONRPC_H_
+#define _JSONRPC_H_
+
 #include "AmApi.h"
 #include "RpcServerLoop.h"
 
-#define DEFAULT_JSONRPC_SERVER_PORT    7080
+#define DEFAULT_JSONRPC_SERVER_PORT 7080
 #define DEFAULT_JSONRPC_SERVER_THREADS 5
 
 class JsonRPCServerModule
-: public AmDynInvokeFactory, 
-  public AmDynInvoke 
+    : public AmDynInvokeFactory
+    , public AmDynInvoke
 {
   static JsonRPCServerModule* _instance;
 
@@ -57,8 +58,7 @@ class JsonRPCServerModule
   // DI API
   static JsonRPCServerModule* instance();
 
-  void invoke(const string& method, 
-	      const AmArg& args, AmArg& ret);
+  void invoke(const string& method, const AmArg& args, AmArg& ret);
 
   // configuration
   static int port;

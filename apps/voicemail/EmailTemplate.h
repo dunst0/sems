@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -34,7 +34,7 @@ using std::string;
 
 struct AmMail;
 
-typedef std::map<std::string,std::string> EmailTmplDict;
+typedef std::map<std::string, std::string> EmailTmplDict;
 
 /** \brief loads, processes and outputs an email template file */
 class EmailTemplate
@@ -48,7 +48,7 @@ class EmailTemplate
   string header;
 
   int parse(char* buffer);
-  string replaceVars(const string& str,const EmailTmplDict& dict) const;
+  string replaceVars(const string& str, const EmailTmplDict& dict) const;
 
  public:
   /* return 0 if success */

@@ -20,17 +20,17 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef _Rtmp_h_
 #define _Rtmp_h_
 
-#include "RtmpServer.h"
 #include "AmApi.h"
 #include "AmEventProcessingThread.h"
+#include "RtmpServer.h"
 
 #define MOD_NAME "rtmp"
 #define FACTORY_Q_NAME (MOD_NAME "_ev_proc")
@@ -40,7 +40,7 @@ class RtmpConnection;
 struct RtmpConfig
 {
   // RTMP server params
-  string ListenAddress;
+  string       ListenAddress;
   unsigned int ListenPort;
 
   // Outbound call params
@@ -55,23 +55,22 @@ struct RtmpConfig
 };
 
 class RtmpFactory
-  : public AmSessionFactory,
-    public AmEventProcessingThread
+    : public AmSessionFactory
+    , public AmEventProcessingThread
 {
   // Global module configuration
   RtmpConfig cfg;
 
   // Container keeping trace of registered RTMP connections
   // to enable inbound calls to RTMP clients
-  map<string,RtmpConnection*> connections;
-  AmMutex                     m_connections;
-  
+  map<string, RtmpConnection*> connections;
+  AmMutex m_connections;
+
   // registrar_client instance pointer
   AmDynInvoke* di_reg_client;
 
-protected:
-
-public:
+ protected:
+ public:
   RtmpFactory();
   ~RtmpFactory();
 
@@ -80,11 +79,11 @@ public:
 
   // from AmSessionFactory
   AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-		      const map<string,string>& app_params);
+                      const map<string, string>&             app_params);
 
   const RtmpConfig* getConfig() { return &cfg; }
-  AmDynInvoke* getRegClient() { return di_reg_client; }
-  
+  AmDynInvoke*      getRegClient() { return di_reg_client; }
+
   int addConnection(const string& ident, RtmpConnection*);
   void removeConnection(const string& ident);
 };

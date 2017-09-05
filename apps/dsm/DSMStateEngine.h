@@ -20,17 +20,17 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #ifndef _STATE_ENGINE_H
 #define _STATE_ENGINE_H
 
-#include "DSMElemContainer.h"
-#include "AmSipMsg.h"
 #include "AmArg.h"
 #include "AmSdp.h"
+#include "AmSipMsg.h"
+#include "DSMElemContainer.h"
 
 class AmSession;
 class DSMSession;
@@ -46,18 +46,19 @@ using std::pair;
 
 #include "log.h"
 
-class DSMElement {
- public: 
-  DSMElement() { }
-  virtual ~DSMElement() { }
+class DSMElement
+{
+ public:
+  DSMElement() {}
+  virtual ~DSMElement() {}
   string name; // documentary only
-
 };
 
-class DSMCondition
-  : public DSMElement {
+class DSMCondition : public DSMElement
+{
  public:
-  enum EventType {
+  enum EventType
+  {
     Any,
 
     Start,
@@ -88,7 +89,7 @@ class DSMCondition
     NoAudio,
     PlaylistSeparator,
 
-    DSMEvent,    
+    DSMEvent,
     B2BEvent,
     DSMException,
 
@@ -124,123 +125,134 @@ class DSMCondition
     RelayOnB2BReply
 
 #ifdef WITH_ZRTP
-    , ZRTPProtocolEvent,
+    ,
+    ZRTPProtocolEvent,
     ZRTPSecurityEvent
 #endif
   };
 
   static const char* type2str(EventType event);
 
-  bool invert; 
-  
-  DSMCondition() : invert(false) { }
-  virtual ~DSMCondition() { }
+  bool invert;
+
+  DSMCondition()
+      : invert(false)
+  {
+  }
+  virtual ~DSMCondition() {}
 
   EventType type;
   map<string, string> params;
 
-  bool _match(AmSession* sess, DSMSession* sc_sess, DSMCondition::EventType event,
-	      map<string,string>* event_params);
+  bool _match(AmSession* sess, DSMSession* sc_sess,
+              DSMCondition::EventType event, map<string, string>* event_params);
 
-  virtual bool match(AmSession* sess, DSMSession* sc_sess, DSMCondition::EventType event,
-		     map<string,string>* event_params);
+  virtual bool match(AmSession* sess, DSMSession* sc_sess,
+                     DSMCondition::EventType event,
+                     map<string, string>* event_params);
 };
 
-class DSMAction 
-: public DSMElement {
+class DSMAction : public DSMElement
+{
  public:
   /** modifies State Engine operation */
-  enum SEAction {
+  enum SEAction
+  {
     None,   // no modification
     Repost, // repost current event
     Jump,   // jump FSM
     Call,   // call FSM
-    Return, // return from FSM call 
+    Return, // return from FSM call
     Break   // break execution of current action list
   };
 
-  DSMAction() { /* DBG("const action\n"); */ }
-  virtual ~DSMAction() { /* DBG("dest action\n"); */ }
+  DSMAction() { /* DBG("const action\n"); */}
+  virtual ~DSMAction() { /* DBG("dest action\n"); */}
 
   /** @return whether state engine is to be modified (via getSEAction) */
-  virtual bool execute(AmSession* sess, DSMSession* sc_sess, 
-		       DSMCondition::EventType event,
-		       map<string,string>* event_params) = 0;
+  virtual bool execute(AmSession* sess, DSMSession* sc_sess,
+                       DSMCondition::EventType event,
+                       map<string, string>* event_params) = 0;
 
   /** @return state engine modification */
-  virtual SEAction getSEAction(string& param,
-			       AmSession* sess, DSMSession* sc_sess,
-			       DSMCondition::EventType event,
-			       map<string,string>* event_params) { return None; }
+  virtual SEAction getSEAction(string& param, AmSession* sess,
+                               DSMSession*             sc_sess,
+                               DSMCondition::EventType event,
+                               map<string, string>* event_params)
+  {
+    return None;
+  }
 };
 
 class DSMTransition;
 
-class State
-: public DSMElement {
+class State : public DSMElement
+{
  public:
   State();
   ~State();
   vector<DSMElement*> pre_actions;
   vector<DSMElement*> post_actions;
-  
+
   vector<DSMTransition> transitions;
 };
 
-class DSMTransition
-: public DSMElement {
+class DSMTransition : public DSMElement
+{
  public:
   DSMTransition();
   ~DSMTransition();
 
   vector<DSMCondition*> precond;
-  vector<DSMElement*> actions;
-  string from_state;
-  string to_state;
+  vector<DSMElement*>   actions;
+  string                from_state;
+  string                to_state;
 
   bool is_exception;
 };
 
-class DSMConditionTree
-: public DSMElement {
+class DSMConditionTree : public DSMElement
+{
  public:
   vector<DSMCondition*> conditions;
-  vector<DSMElement*> run_if_true;
-  vector<DSMElement*> run_if_false;
-  bool is_exception;
+  vector<DSMElement*>   run_if_true;
+  vector<DSMElement*>   run_if_false;
+  bool                  is_exception;
 };
 
-class DSMFunction
-: public DSMElement {
+class DSMFunction : public DSMElement
+{
  public:
-  string name;
+  string              name;
   vector<DSMElement*> actions;
 };
 
-class DSMArrayFor
-: public DSMElement {
+class DSMArrayFor : public DSMElement
+{
  public:
-  DSMArrayFor() { }
-  ~DSMArrayFor() { }
+  DSMArrayFor() {}
+  ~DSMArrayFor() {}
 
-  enum DSMForType {
+  enum DSMForType
+  {
     Range,
     Array,
     Struct
   } for_type;
 
-  string k; // for(k in array)
-  string v; // for(k,v in struct), or range lower bound
+  string k;            // for(k in array)
+  string v;            // for(k,v in struct), or range lower bound
   string array_struct; // array or struct name, or range upper bound
   vector<DSMElement*> actions;
 };
 
 class DSMModule;
 
-class DSMStateDiagram  {
+class DSMStateDiagram
+{
   vector<State> states;
-  string name;
-  string initial_state;
+  string        name;
+  string        initial_state;
 
   bool checkInitialState(string& report);
   bool checkDestinationStates(string& report);
@@ -259,82 +271,97 @@ class DSMStateDiagram  {
   bool checkConsistency(string& report);
 };
 
-class DSMException {
+class DSMException
+{
  public:
-  DSMException(const string& e_type) 
-    { params["type"] = e_type; }
+  DSMException(const string& e_type) { params["type"] = e_type; }
 
-  DSMException(const string& e_type, 
-	       const string& key1, const string& val1) 
-    { params["type"] = e_type; 
-      params[key1] = val1; }
+  DSMException(const string& e_type, const string& key1, const string& val1)
+  {
+    params["type"] = e_type;
+    params[key1]   = val1;
+  }
 
-  DSMException(const string& e_type, 
-	       const string& key1, const string& val1,
-	       const string& key2, const string& val2) 
-    { params["type"] = e_type; 
-      params[key1] = val1; 
-      params[key2] = val2; }
+  DSMException(const string& e_type, const string& key1, const string& val1,
+               const string& key2, const string& val2)
+  {
+    params["type"] = e_type;
+    params[key1]   = val1;
+    params[key2]   = val2;
+  }
 
   DSMException(map<string, string>& params)
-    : params(params) { }
+      : params(params)
+  {
+  }
 
-  ~DSMException() { }
+  ~DSMException() {}
 
-  map<string, string> params;    
+  map<string, string> params;
 };
 
-struct DSMStackElement {
-  DSMStateDiagram* diag;
-  State* state;
+struct DSMStackElement
+{
+  DSMStateDiagram*    diag;
+  State*              state;
   vector<DSMElement*> actions;
 
   DSMStackElement(DSMStateDiagram* diag, State* state)
-  : diag(diag), state(state) { }
+      : diag(diag)
+      , state(state)
+  {
+  }
 
-  DSMStackElement(DSMStateDiagram* diag, State* state, const vector<DSMElement*>& actions)
-  : diag(diag), state(state), actions(actions) { }
-
+  DSMStackElement(DSMStateDiagram* diag, State* state,
+                  const vector<DSMElement*>& actions)
+      : diag(diag)
+      , state(state)
+      , actions(actions)
+  {
+  }
 };
 
-class DSMStateEngine {
-  State* current;
-  DSMStateDiagram* current_diag;
+class DSMStateEngine
+{
+  State*                   current;
+  DSMStateDiagram*         current_diag;
   vector<DSMStateDiagram*> diags;
 
   //  vector<pair<DSMStateDiagram*, State*> > stack;
   vector<DSMStackElement> stack;
 
-  bool callDiag(const string& diag_name, AmSession* sess, DSMSession* sc_sess, 
-		DSMCondition::EventType event,
-		map<string,string>* event_params,
-		vector<DSMElement*>::iterator actions_from, vector<DSMElement*>::iterator actions_to);
+  bool callDiag(const string& diag_name, AmSession* sess, DSMSession* sc_sess,
+                DSMCondition::EventType event,
+                map<string, string>* event_params,
+                vector<DSMElement*>::iterator actions_from,
+                vector<DSMElement*>::iterator actions_to);
   bool jumpDiag(const string& diag_name, AmSession* sess, DSMSession* sc_sess,
-		DSMCondition::EventType event,
-		map<string,string>* event_params);
-  bool returnDiag(AmSession* sess, DSMSession* sc_sess, DSMCondition::EventType event, map<string,string>* event_params);
-  bool runactions(vector<DSMElement*>::iterator from, 
-		  vector<DSMElement*>::iterator to, 
-		  AmSession* sess, DSMSession* sc_sess, DSMCondition::EventType event,
-		  map<string,string>* event_params, bool& is_consumed, bool& do_break);
+                DSMCondition::EventType event,
+                map<string, string>* event_params);
+  bool returnDiag(AmSession* sess, DSMSession* sc_sess,
+                  DSMCondition::EventType event,
+                  map<string, string>* event_params);
+  bool runactions(vector<DSMElement*>::iterator from,
+                  vector<DSMElement*>::iterator to, AmSession* sess,
+                  DSMSession* sc_sess, DSMCondition::EventType event,
+                  map<string, string>* event_params, bool& is_consumed,
+                  bool& do_break);
 
   vector<DSMModule*> mods;
 
- public: 
+ public:
   DSMStateEngine();
   ~DSMStateEngine();
 
-  void addDiagram(DSMStateDiagram* diag); 
+  void addDiagram(DSMStateDiagram* diag);
   void addModules(vector<DSMModule*> modules);
 
-  bool init(AmSession* sess, DSMSession* sc_sess,
-	    const string& startDiagram,
-	    DSMCondition::EventType init_event);
+  bool init(AmSession* sess, DSMSession* sc_sess, const string& startDiagram,
+            DSMCondition::EventType init_event);
 
   void runEvent(AmSession* sess, DSMSession* sc_sess,
-		DSMCondition::EventType event,
-		map<string,string>* event_params,
-		bool run_exception = false);
+                DSMCondition::EventType event,
+                map<string, string>* event_params, bool run_exception = false);
 
   /** @return whether call should be accepted */
   bool onInvite(const AmSipRequest& req, DSMSession* sess);
@@ -344,6 +371,7 @@ class DSMStateEngine {
   void processSdpAnswer(const AmSdp& offer, AmSdp& answer);
 };
 
-extern void varPrintArg(const AmArg& a, map<string, string>& dst, const string& name);
+extern void varPrintArg(const AmArg& a, map<string, string>& dst,
+                        const string& name);
 
 #endif

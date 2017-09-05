@@ -18,31 +18,34 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef _ECHO_H_
 #define _ECHO_H_
 
-#include "AmSession.h"
 #include "AmAudioEcho.h"
+#include "AmSession.h"
 
+#include <map>
 #include <string>
-using std::string;
+
+#define MODULE_NAME "echo"
 
 /** \brief Factory for echo sessions */
-class EchoFactory: public AmSessionFactory
+class EchoFactory : public AmSessionFactory
 {
   AmSessionEventHandlerFactory* session_timer_f;
-  AmConfigReader conf;
+  AmConfigReader                conf;
 
-public:
-  EchoFactory(const string& _app_name);
+ public:
+  EchoFactory(const std::string& _app_name);
   virtual int onLoad();
-  virtual AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-			      const map<string,string>& app_params);
+  virtual AmSession*
+  onInvite(const AmSipRequest& req, const std::string& app_name,
+           const std::map<std::string, std::string>&   app_params);
 };
 
 /** \brief echo session logic implementation */
@@ -50,21 +53,19 @@ class EchoDialog : public AmSession
 {
   AmAudioEcho echo;
   PlayoutType playout_type;
-public:
+
+ public:
   EchoDialog();
   ~EchoDialog();
 
-  void onSessionStart(/*const AmSipRequest& req);
-			void onSessionStart(const AmSipReply& rep*/);
+  void onSessionStart();
+  // UNUSED
+  // void onSessionStart(const AmSipRequest& req);
+  // void onSessionStart(const AmSipReply& rep);
+  // UNUSED_END
+
   void onBye(const AmSipRequest& req);
   void onDtmf(int event, int duration);
 };
 
-
-#define MODULE_NAME "echo"
-
 #endif
-// Local Variables:
-// mode:C++
-// End:
-

@@ -31,15 +31,15 @@
 
 #include "diameter_client.h"
 
-#include "AmThread.h"
-#include "AmEventQueue.h"
 #include "AmArg.h"
+#include "AmEventQueue.h"
+#include "AmThread.h"
 
-#include <string>
-#include <vector>
 #include <map>
-#include <utility>
 #include <stdint.h>
+#include <string>
+#include <utility>
+#include <vector>
 using std::string;
 using std::vector;
 using std::map;
@@ -47,7 +47,8 @@ using std::pair;
 
 #define AF_IP4 1 // http://www.iana.org/assignments/address-family-numbers
 
-enum {
+enum
+{
   AAA_ERROR_NOTINIT    = -1,
   AAA_ERROR_NOCONN     = -2,
   AAA_ERROR_NOFREECONN = -3,
@@ -56,29 +57,33 @@ enum {
   AAA_ERROR_COMM       = -6
 };
 
-struct DiameterRequestEvent 
-  : public AmEvent
+struct DiameterRequestEvent : public AmEvent
 {
-  int command_code;
-  int app_id;
-  AmArg val;
+  int    command_code;
+  int    app_id;
+  AmArg  val;
   string sess_link;
 
-  enum { ID_NewRequest = 0 }; 
-  DiameterRequestEvent(int command_code,
-		       int app_id,
-		       AmArg val,
-		       string sess_link)
-    : AmEvent(ID_NewRequest), command_code(command_code),
-    app_id(app_id), val(val), sess_link(sess_link)
+  enum
+  {
+    ID_NewRequest = 0
+  };
+  DiameterRequestEvent(int command_code, int app_id, AmArg val,
+                       string sess_link)
+      : AmEvent(ID_NewRequest)
+      , command_code(command_code)
+      , app_id(app_id)
+      , val(val)
+      , sess_link(sess_link)
   {
   }
 };
 
-struct DiameterServerConnection {
-  bool in_use;
+struct DiameterServerConnection
+{
+  bool          in_use;
   dia_tcp_conn* dia_conn; // transport connection
-  rd_buf_t rb;
+  rd_buf_t      rb;
 
   string origin_host;
 
@@ -92,38 +97,38 @@ struct DiameterServerConnection {
   ~DiameterServerConnection() {}
 };
 
-class ServerConnection 
-: public AmThread,
-  public AmEventQueue,
-  public AmEventHandler
+class ServerConnection
+    : public AmThread
+    , public AmEventQueue
+    , public AmEventHandler
 {
   struct timeval connect_ts;
-  bool open;
-  int timeout_check_cntr;
-  
+  bool           open;
+  int            timeout_check_cntr;
+
   string server_name;
-  int server_port;
+  int    server_port;
 
   // openssl
   string ca_file;
   string cert_file;
 
-  string origin_host;
-  string origin_realm;
-  string origin_ip;
+  string           origin_host;
+  string           origin_realm;
+  string           origin_ip;
   AAAApplicationId app_id;
 
   int request_timeout; // millisec
 
-  char origin_ip_address[2+4];// AF and address
+  char origin_ip_address[2 + 4]; // AF and address
 
   //  the client
-  string product_name;
+  string   product_name;
   uint32_t vendorID;
-  
+
   DiameterServerConnection conn;
 
-  typedef map<unsigned int, pair<string, struct timeval> > DReqMap;
+  typedef map<unsigned int, pair<string, struct timeval>> DReqMap;
   DReqMap req_map;
   AmMutex req_map_mut;
 
@@ -138,12 +143,15 @@ class ServerConnection
   AmArg AAAMessageAVPs2AmArg(AAAMessage* rep);
   int AAAMessageGetReplyCode(AAAMessage* rep);
 
-  static int addStringAVP(AAAMessage* msg, AAA_AVPCode avp_code, string& val, bool attail = false);
-  static int addDataAVP(AAAMessage* msg, AAA_AVPCode avp_code, char* val, unsigned int len);
+  static int addStringAVP(AAAMessage* msg, AAA_AVPCode avp_code, string& val,
+                          bool attail = false);
+  static int addDataAVP(AAAMessage* msg, AAA_AVPCode avp_code, char* val,
+                        unsigned int len);
   static int addResultCodeAVP(AAAMessage* msg, AAAResultCode code);
-  static int addGroupedAVP(AAA_AVP *avp, AAA_AVPCode avp_code, char* val, unsigned int len);
+  static int addGroupedAVP(AAA_AVP* avp, AAA_AVPCode avp_code, char* val,
+                           unsigned int len);
 
-  // send request and get response  
+  // send request and get response
   int sendRequest(AAAMessage* req, unsigned int& exe);
   void process(AmEvent*);
   void receive();
@@ -154,17 +162,12 @@ class ServerConnection
  public:
   ServerConnection();
   ~ServerConnection();
-  int init(const string& _server_name, 
-	   int _server_port,
-	   const string& _ca_file,
-	   const string& _cert_file,
-	   const string& _origin_host, 
-	   const string& _origin_realm,
-	   const string& _origin_ip,
-	   AAAApplicationId _app_id,
-	   unsigned int _vendorID,
-	   const string& _product_name,
-	   int _request_timeout); // millisec
+  int init(const string& _server_name, int _server_port, const string& _ca_file,
+           const string& _cert_file, const string& _origin_host,
+           const string& _origin_realm, const string& _origin_ip,
+           AAAApplicationId _app_id, unsigned int _vendorID,
+           const string& _product_name,
+           int           _request_timeout); // millisec
 
   bool is_open() { return open; }
   void run();

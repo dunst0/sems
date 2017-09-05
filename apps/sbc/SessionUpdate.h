@@ -1,9 +1,10 @@
-#ifndef __SESSION_UPDATE_H
-#define __SESSION_UPDATE_H
+#ifndef _SESSIONUPDATE_H_
+#define _SESSIONUPDATE_H_
+
+#include "AmAppTimer.h"
+#include "AmMimeBody.h"
 
 #include <string>
-#include "AmMimeBody.h"
-#include "AmAppTimer.h"
 
 class CallLeg;
 
@@ -16,79 +17,93 @@ class CallLeg;
  * */
 class SessionUpdate
 {
-  private:
-    int request_cseq;
+ private:
+  int request_cseq;
 
-  protected:
-    void setCSeq(int cseq) { request_cseq = cseq; }
+ protected:
+  void setCSeq(int cseq) { request_cseq = cseq; }
 
-    SessionUpdate(): request_cseq(-1) { }
+  SessionUpdate()
+      : request_cseq(-1)
+  {
+  }
 
-  public:
-    // used to (re)apply session update
-    // returns the CSeq of generated request (reINVITE/...)
-    virtual void apply(CallLeg *call) = 0;
+ public:
+  // used to (re)apply session update
+  // returns the CSeq of generated request (reINVITE/...)
+  virtual void apply(CallLeg* call) = 0;
 
-//    virtual void onSipReply(CallLeg *call, AmSipReply &reply);
-    virtual ~SessionUpdate() { }
+  //    virtual void onSipReply(CallLeg *call, AmSipReply &reply);
+  virtual ~SessionUpdate() {}
 
-    // check whether update request was sent out
-    bool hasCSeq() const { return request_cseq >= 0; }
+  // check whether update request was sent out
+  bool hasCSeq() const { return request_cseq >= 0; }
 
-    // check the request cseq value
-    bool hasCSeq(int cseq) const { return request_cseq == cseq; }
+  // check the request cseq value
+  bool hasCSeq(int cseq) const { return request_cseq == cseq; }
 
-    // reset internal state to be prepared for retrying the update operation
-    virtual void reset() { setCSeq(-1); }
-
+  // reset internal state to be prepared for retrying the update operation
+  virtual void reset() { setCSeq(-1); }
 };
 
-class PutOnHold: public SessionUpdate
+class PutOnHold : public SessionUpdate
 {
-  public:
-    virtual void apply(CallLeg *call);
+ public:
+  virtual void apply(CallLeg* call);
 };
 
-class ResumeHeld: public SessionUpdate
+class ResumeHeld : public SessionUpdate
 {
-  public:
-    virtual void apply(CallLeg *call);
+ public:
+  virtual void apply(CallLeg* call);
 };
 
-class Reinvite: public SessionUpdate
+class Reinvite : public SessionUpdate
 {
-    std::string hdrs;
-    AmMimeBody body;
-    unsigned r_cseq;
-    bool relayed_invite;
-    bool establishing;
+  std::string hdrs;
+  AmMimeBody  body;
+  unsigned    r_cseq;
+  bool        relayed_invite;
+  bool        establishing;
 
-  public:
-    virtual void apply(CallLeg *call);
+ public:
+  virtual void apply(CallLeg* call);
 
-    Reinvite(const std::string& _hdrs, const AmMimeBody& _body,
-        bool _establishing = false,
-        bool _relayed_invite = false, unsigned int _r_cseq = 0):
-          hdrs(_hdrs), body(_body), establishing(_establishing),
-          relayed_invite(_relayed_invite), r_cseq(_r_cseq) { }
+  Reinvite(const std::string& _hdrs, const AmMimeBody& _body,
+           bool _establishing = false, bool _relayed_invite = false,
+           unsigned int _r_cseq = 0)
+      : hdrs(_hdrs)
+      , body(_body)
+      , r_cseq(_r_cseq)
+      , relayed_invite(_relayed_invite)
+      , establishing(_establishing)
+  {
+  }
 };
 
-class SessionUpdateTimer: public DirectAppTimer
+class SessionUpdateTimer : public DirectAppTimer
 {
-  private:
-    std::string ltag;
-    bool has_started;
+ private:
+  std::string ltag;
+  bool        has_started;
 
-  public:
-    SessionUpdateTimer(): has_started(false) { }
-    ~SessionUpdateTimer() { if (has_started) AmAppTimer::instance()->removeTimer(this); }
+ public:
+  SessionUpdateTimer()
+      : has_started(false)
+  {
+  }
 
-    void fire();
-    bool started() { return has_started; }
+  ~SessionUpdateTimer()
+  {
+    if (has_started) AmAppTimer::instance()->removeTimer(this);
+  }
 
-    // start the timer (local tag is supplied here because it may change during
-    // call legs's lifetime)
-    void start(const std::string &_ltag, double delay);
+  void fire();
+  bool started() { return has_started; }
+
+  // start the timer (local tag is supplied here because it may change during
+  // call legs's lifetime)
+  void start(const std::string& _ltag, double delay);
 };
 
 #endif

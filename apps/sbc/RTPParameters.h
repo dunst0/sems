@@ -23,12 +23,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _RTPParameters_h_
-#define _RTPParameters_h_
+#ifndef _RTPPARAMETERS_H_
+#define _RTPPARAMETERS_H_
 
-struct iana_rtp_payload {
-  const char* payload_name;
-  bool is_audio;
+struct iana_rtp_payload
+{
+  const char*  payload_name;
+  bool         is_audio;
   unsigned int clock_rate;
   unsigned int channels;
 };

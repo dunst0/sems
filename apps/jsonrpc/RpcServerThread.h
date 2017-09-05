@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 TelTech Systems Inc.
- * 
+ *
  * This file is part of SEMS, a free SIP media server.
  *
  * SEMS is free software; you can redistribute it and/or modify
@@ -20,23 +20,24 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _RpcServerThread_h_
-#define _RpcServerThread_h_
+#ifndef _RPCSERVERTHREAD_H_
+#define _RPCSERVERTHREAD_H_
 
 #include "AmEvent.h"
 #include "AmEventQueue.h"
 #include "AmThread.h"
 #include "RpcPeer.h"
 
-class RpcServerThread 
-: public AmThread, public AmEventQueue, public AmEventHandler 
+class RpcServerThread
+    : public AmThread
+    , public AmEventQueue
+    , public AmEventHandler
 {
-
   char rcvbuf[MAX_RPC_MSG_SIZE];
 
  public:
@@ -49,16 +50,16 @@ class RpcServerThread
   void process(AmEvent* event);
 };
 
-class RpcServerThreadpool 
+class RpcServerThreadpool
 {
-  vector<RpcServerThread*> threads;
-  vector<RpcServerThread*>::iterator t_it;
-  AmMutex threads_mut;
+  std::vector<RpcServerThread*>           threads;
+  std::vector<RpcServerThread*>::iterator t_it;
+  AmMutex                                 threads_mut;
 
  public:
   RpcServerThreadpool();
   ~RpcServerThreadpool();
-  
+
   void dispatch(AmEvent* ev);
   void addThreads(unsigned int cnt);
 };

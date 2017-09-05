@@ -22,19 +22,21 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef _wheeltimer_h_
-#define _wheeltimer_h_
+#ifndef _WHEELTIMER_H_
+#define _WHEELTIMER_H_
 
-#include "../AmThread.h"
-#include <sys/types.h>
-#include <deque>
-
+#include "AmThread.h"
 #include "atomic_types.h"
+#include "singleton.h"
+
+#include <sys/types.h>
+
+#include <deque>
 
 #define BITS_PER_WHEEL 8
 #define ELMTS_PER_WHEEL (1 << BITS_PER_WHEEL)
@@ -47,95 +49,79 @@
 
 class base_timer
 {
-public:
-    base_timer* next;
+ public:
+  base_timer* next;
 
-    base_timer():next(0) {}
-    virtual ~base_timer() {}
+  base_timer();
+  virtual ~base_timer();
 };
 
-class timer: public base_timer
+class timer : public base_timer
 {
-public:
-    base_timer*  prev;
-    u_int32_t    expires;
+ public:
+  base_timer* prev;
+  u_int32_t   expires;
 
-    timer() 
-	: base_timer(),
-	  prev(0), expires(0) 
-    {}
+  timer();
+  timer(unsigned int expires);
+  ~timer();
 
-    timer(unsigned int expires)
-        : base_timer(),
-	  prev(0), expires(expires)
-    {}
-
-    ~timer(); 
-
-    virtual void fire()=0;
+  virtual void fire() = 0;
 };
 
-#include "singleton.h"
-
-class _wheeltimer:
-    public AmThread
+class _wheeltimer : public AmThread
 {
-    struct timer_req {
+  struct timer_req
+  {
+    timer* t;
+    bool   insert; // false -> remove
 
-	timer* t;
-	bool   insert; // false -> remove
-	
-	timer_req(timer* t, bool insert)
-	    : t(t), insert(insert)
-	{}
-    };
+    timer_req(timer* t, bool insert)
+        : t(t)
+        , insert(insert)
+    {
+    }
+  };
 
-    //the timer wheel
-    base_timer wheels[WHEELS][ELMTS_PER_WHEEL];
+  // the timer wheel
+  base_timer wheels[WHEELS][ELMTS_PER_WHEEL];
 
-    // request backlog lock (insert/remove)
-    AmMutex               reqs_m;
-    std::deque<timer_req> reqs_backlog;
-    std::deque<timer_req> reqs_process;
+  // request backlog lock (insert/remove)
+  AmMutex               reqs_mutex;
+  std::deque<timer_req> reqs_backlog;
+  std::deque<timer_req> reqs_process;
 
-    void turn_wheel();
-    void update_wheel(int wheel);
+  void turn_wheel();
+  void update_wheel(int wheel);
 
-    void place_timer(timer* t);
-    void place_timer(timer* t, int wheel);
+  void place_timer(timer* t);
+  void place_timer(timer* t, int wheel);
 
-    void add_timer_to_wheel(timer* t, int wheel, unsigned int pos);
-    void delete_timer(timer* t);
+  void add_timer_to_wheel(timer* t, int wheel, unsigned int pos);
+  void delete_timer(timer* t);
 
-    void process_current_timers();
+  void process_current_timers();
 
-protected:
-    void run();
-    void on_stop(){}
+ protected:
+  void run();
+  void on_stop() {}
 
-    _wheeltimer();
-    ~_wheeltimer();
+  _wheeltimer();
+  ~_wheeltimer();
 
-public:
-    //clock reference
-    volatile u_int32_t wall_clock; // 32 bits
+ public:
+  // clock reference
+  volatile u_int32_t wall_clock; // 32 bits
 #ifdef __LP64__
-    atomic_int64 unix_clock; // 64 bits
+  atomic_int64 unix_clock; // 64 bits
 #else
-    atomic_int unix_clock; // 32 bits
+  atomic_int unix_clock; // 32 bits
 #endif
 
-    void insert_timer(timer* t);
-    void remove_timer(timer* t);
+  void insert_timer(timer* t);
+  void remove_timer(timer* t);
 };
 
 typedef singleton<_wheeltimer> wheeltimer;
 
 #endif
-
-/** EMACS **
- * Local variables:
- * mode: c++
- * c-basic-offset: 4
- * End:
- */

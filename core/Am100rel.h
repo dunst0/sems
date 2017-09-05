@@ -1,5 +1,5 @@
-#ifndef _Am100rel_h_
-#define _Am100rel_h_
+#ifndef _AM100REL_H_
+#define _AM100REL_H_
 
 #include "AmSipMsg.h"
 
@@ -8,32 +8,33 @@ class AmSipDialogEventHandler;
 
 class Am100rel
 {
-
-public:
+ public:
   /** enable the reliability of provisional replies? */
-  enum State {
-    REL100_DISABLED=0,
+  enum State
+  {
+    REL100_DISABLED = 0,
     REL100_SUPPORTED,
     REL100_REQUIRE,
-    //REL100_PREFERED, //TODO
+    // REL100_PREFERED, //TODO
     REL100_IGNORED,
     REL100_MAX
   };
-  
-private:
+
+ private:
   State reliable_1xx;
 
-  unsigned rseq;          // RSeq for next request
-  bool rseq_confirmed;    // latest RSeq is confirmed
-  unsigned rseq_1st;      // value of first RSeq (init value)
+  unsigned int rseq;           // RSeq for next request
+  bool         rseq_confirmed; // latest RSeq is confirmed
+  unsigned int rseq_1st;       // value of first RSeq (init value)
 
-  AmSipDialog* dlg;
+  AmSipDialog*             dlg;
   AmSipDialogEventHandler* hdl;
-  
-public:
+
+ public:
   Am100rel(AmSipDialog* dlg, AmSipDialogEventHandler* hdl);
 
   void setState(State s) { reliable_1xx = s; }
+
   State getState() { return reliable_1xx; }
 
   int  onRequestIn(const AmSipRequest& req);

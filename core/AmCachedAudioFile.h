@@ -18,36 +18,37 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file AmCachedAudioFile.h */
-#ifndef _AMFILECACHE_H
-#define _AMFILECACHE_H
+
+#ifndef _AMCACHEDAUDIOFILE_H_
+#define _AMCACHEDAUDIOFILE_H_
 
 #include "AmAudioFile.h"
 
 #include <string>
 
 /**
- * \brief memory cache for AmAudioFile 
- * 
- * The AmFileCache class loads a file once into memory 
+ * \brief memory cache for AmAudioFile
+ *
+ * The AmFileCache class loads a file once into memory
  * to be used e.g. by AmCachedAudioFile.
  */
-class AmFileCache 
+class AmFileCache
 {
-  void* data;
-  size_t data_size;
+  void*       data;
+  size_t      data_size;
   std::string name;
 
  public:
   AmFileCache();
   ~AmFileCache();
 
-  /** load filename into memory 
-   * @return 0 if everything's OK 
+  /** load filename into memory
+   * @return 0 if everything's OK
    */
   int load(const std::string& filename);
   /** get the size of the file */
@@ -55,26 +56,25 @@ class AmFileCache
   /** read size bytes from pos into buf */
   int read(void* buf, size_t* pos, size_t size);
   /** get the filename */
-  const string& getFilename();
+  const std::string& getFilename();
   /** get a pointer to the file's data - use with caution! */
   void* getData() { return data; }
 };
 
 /**
  * \brief AmAudio implementation for cached file
- *  
- *  This uses an AmFileCache instance to read the data 
- *  rather than a file. 
+ *
+ *  This uses an AmFileCache instance to read the data
+ *  rather than a file.
  */
-class AmCachedAudioFile 
-: public AmAudio
+class AmCachedAudioFile : public AmAudio
 {
   AmFileCache* cache;
   /** current position */
   size_t fpos;
   /** beginning of data in file */
-  size_t begin; 
-  bool good;
+  size_t begin;
+  bool   good;
 
   /** @see AmAudio::read */
   int read(unsigned int user_ts, unsigned int size);
@@ -83,7 +83,7 @@ class AmCachedAudioFile
   int write(unsigned int user_ts, unsigned int size);
 
   /** get the file format from the file name */
-  AmAudioFileFormat* fileName2Fmt(const string& name);
+  AmAudioFileFormat* fileName2Fmt(const std::string& name);
 
   /** Format of that file. @see fp, open(). */
   amci_inoutfmt_t* iofmt;
@@ -103,7 +103,8 @@ class AmCachedAudioFile
   /** Closes the file. */
   void close();
 
-  /** everything ok? */	
+  /** everything ok? */
   bool is_good() { return good; }
 };
-#endif //_AMFILECACHE_H
+
+#endif

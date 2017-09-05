@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2002-2003 Fhg Fokus
  *
  * This file is part of SEMS, a free SIP media server.
@@ -22,8 +22,9 @@
 
 #include <Python.h>
 
-PyObject * type_error(const char *msg);
-PyObject * null_error(void);
-PyObject * PyObject_VaCallMethod(PyObject *o, char *name, char *format, va_list va);
+PyObject* type_error(const char* msg);
+PyObject* null_error(void);
+PyObject* PyObject_VaCallMethod(PyObject* o, char* name, char* format,
+                                va_list va);
 
 #endif

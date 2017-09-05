@@ -2,12 +2,12 @@
 #define PySemsAudio_h
 
 // Python stuff
-#include <Python.h>
 #include "structmember.h"
+#include <Python.h>
 
 #include "AmAudioFile.h"
 
-#define AUDIO_READ  1
+#define AUDIO_READ 1
 #define AUDIO_WRITE 2
 
 #ifdef PY_SEMS_WITH_TTS
@@ -15,17 +15,16 @@
 #endif
 
 /** \brief pySems wrapper for AmAudioFile  */
-typedef struct {
-    
-  PyObject_HEAD
-  AmAudioFile* af;
+typedef struct
+{
+  PyObject_HEAD AmAudioFile* af;
 
 #ifdef PY_SEMS_WITH_TTS
   cst_voice* tts_voice;
   string*    filename;
   bool       del_file;
 #endif
-    
+
 } PySemsAudioFile;
 
 extern PyTypeObject PySemsAudioFileType;

@@ -25,37 +25,39 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 /** @file sems.h */
-#ifndef _sems_h_
-#define _sems_h_
 
-#define CONFIG_FILE         "/usr/local/etc/sems/sems.conf"
-#define MOD_CFG_PATH        "/usr/local/etc/sems/etc/"
-#define ANNOUNCE_PATH       "/usr/local/lib/sems/audio"
-#define ANNOUNCE_FILE       "default.wav"
-#define PLUG_IN_PATH        "/usr/local/lib/sems/plug-in"
-#define RTP_LOWPORT         1024
-#define RTP_HIGHPORT        0xffff
-#define MAX_FORWARDS        70
+#ifndef _SEMS_H_
+#define _SEMS_H_
+
+#define CONFIG_FILE "/usr/local/etc/sems/sems.conf"
+#define MOD_CFG_PATH "/usr/local/etc/sems/etc/"
+#define ANNOUNCE_PATH "/usr/local/lib/sems/audio"
+#define ANNOUNCE_FILE "default.wav"
+#define PLUG_IN_PATH "/usr/local/lib/sems/plug-in"
+#define RTP_LOWPORT 1024
+#define RTP_HIGHPORT 0xffff
+#define MAX_FORWARDS 70
 
 #define DEFAULT_MAX_SHUTDOWN_TIME 10 // 10 seconds max for shutting down
 
 #ifndef DISABLE_DAEMON_MODE
-# define DEFAULT_DAEMON_MODE        true
-# define DEFAULT_DAEMON_PID_FILE    "/var/local/run/sems.pid"
-# define DEFAULT_DAEMON_UID         ""
-# define DEFAULT_DAEMON_GID         ""
+#define DEFAULT_DAEMON_MODE true
+#define DEFAULT_DAEMON_PID_FILE "/var/local/run/sems.pid"
+#define DEFAULT_DAEMON_UID ""
+#define DEFAULT_DAEMON_GID ""
 #endif
 
-#define DEFAULT_SIGNATURE "Sip Express Media Server " \
-		"(" SEMS_VERSION " (" ARCH "/" OS"))"
+#define DEFAULT_SIGNATURE                                                      \
+  "Sip Express Media Server "                                                  \
+  "(" SEMS_VERSION " (" ARCH "/" OS "))"
 
 // session considered dead after 5 minutes no RTP
-#define DEAD_RTP_TIME       5*60
+#define DEAD_RTP_TIME 5 * 60
 
 /* Session Timer default configuration: */
 #define DEFAULT_ENABLE_SESSION_TIMER 1
-#define SESSION_EXPIRES              60 // seconds
-#define MINIMUM_TIMER                5   //seconds
+#define SESSION_EXPIRES 60 // seconds
+#define MINIMUM_TIMER 5    // seconds
 
 // threads to start for signaling/application
 #define NUM_SESSION_PROCESSORS 10
@@ -66,7 +68,7 @@
 // number of SIP servers to start
 #define NUM_SIP_SERVERS 4
 
-#define MAX_NET_DEVICES     32
+#define MAX_NET_DEVICES 32
 
 extern const char* progname;
 

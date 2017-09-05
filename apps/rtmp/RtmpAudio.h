@@ -20,8 +20,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -40,8 +40,8 @@ using std::queue;
 class RtmpSender;
 
 class RtmpAudio
-  : public AmAudio,
-    public AmPLCBuffer
+    : public AmAudio
+    , public AmPLCBuffer
 {
   RtmpSender* sender;
   AmMutex     m_sender;
@@ -49,8 +49,8 @@ class RtmpAudio
   queue<RTMPPacket> q_recv;
   AmMutex           m_q_recv;
 
-  AmAdaptivePlayout  playout_buffer;
-  unsigned int       play_stream_id;
+  AmAdaptivePlayout playout_buffer;
+  unsigned int      play_stream_id;
 
   bool         recv_offset_i;
   unsigned int recv_rtp_offset;
@@ -62,38 +62,38 @@ class RtmpAudio
   void process_recv_queue(unsigned int ref_ts);
   int send(unsigned int user_ts, unsigned int size);
 
-public:
+ public:
   RtmpAudio(RtmpSender* s);
   ~RtmpAudio();
 
   /* @see AmAudio */
-  int get(unsigned long long system_ts, unsigned char* buffer, 
-	  int output_sample_rate, unsigned int nb_samples);
-  int put(unsigned long long system_ts, unsigned char* buffer, 
-	  int output_sample_rate, unsigned int size);
+  int get(unsigned long long system_ts, unsigned char* buffer,
+          int output_sample_rate, unsigned int nb_samples);
+  int put(unsigned long long system_ts, unsigned char* buffer,
+          int output_sample_rate, unsigned int size);
 
   void bufferPacket(const RTMPPacket& p);
 
   /* @see AmPLCBuffer */
-  void add_to_history(int16_t *, unsigned int);
-  unsigned int conceal_loss(unsigned int, unsigned char *);
+  void         add_to_history(int16_t*, unsigned int);
+  unsigned int conceal_loss(unsigned int, unsigned char*);
 
-  /* 
-   * Called by RtmpSession when 
-   * the connection has been released 
+  /*
+   * Called by RtmpSession when
+   * the connection has been released
    * or changed.
    */
   void setSenderPtr(RtmpSender* s);
 
-  /* 
-   * Called by RtmpSession when 
-   * the client has called the play 
+  /*
+   * Called by RtmpSession when
+   * the client has called the play
    * method to propagate the stream ID.
    */
   void setPlayStreamID(unsigned int stream_id);
 
-protected:
-  int read(unsigned int user_ts, unsigned int size)  { return 0; }
+ protected:
+  int read(unsigned int user_ts, unsigned int size) { return 0; }
   int write(unsigned int user_ts, unsigned int size) { return 0; }
 };
 
