@@ -72,6 +72,7 @@ class CallBackFactory
   static PlayoutType m_PlayoutType;
 
   CallBackFactory(const std::string& _app_name);
+  ~CallBackFactory();
   AmSession* onInvite(const AmSipRequest&, const std::string&   app_name,
                       const std::map<std::string, std::string>& app_params);
   AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,

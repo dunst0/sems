@@ -50,6 +50,12 @@ CallBackFactory::CallBackFactory(const string& _app_name)
 {
 }
 
+CallBackFactory::~CallBackFactory()
+{
+  stop();
+  join();
+}
+
 PlayoutType CallBackFactory::m_PlayoutType = ADAPTIVE_PLAYOUT;
 
 int CallBackFactory::onLoad()
@@ -188,12 +194,14 @@ AmSession* CallBackFactory::onInvite(const AmSipRequest& req,
 void CallBackFactory::run()
 {
   DBG("running CallBack thread.\n");
-  while (true) {
+
+  while (isRunning()) {
     scheduled_calls_mut.lock();
     vector<string> todo;
     time_t         now;
     time(&now);
     std::multimap<time_t, string>::iterator it = scheduled_calls.begin();
+
     while (it != scheduled_calls.end()) {
       if (it->first > now) break;
       todo.push_back(it->second);

@@ -71,6 +71,11 @@ void _AmRtpReceiver::dispose()
   for (unsigned int i = 0; i < n_receivers; i++) {
     if (receivers[i].isRunning()) {
       receivers[i].stop();
+    }
+  }
+
+  for (unsigned int i = 0; i < n_receivers; i++) {
+    if (receivers[i].isRunning()) {
       receivers[i].join();
     }
   }
