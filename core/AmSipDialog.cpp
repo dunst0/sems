@@ -341,30 +341,30 @@ bool AmSipDialog::onRxReplyStatus(const AmSipReply& reply)
   // Dialog established only by 101-199 or 2xx
   // responses to INVITE
 
-  if(reply.cseq_method == SIP_METH_INVITE) {
-
-    switch(status){
-
-    case Trying:
-    case Proceeding:
-      if(reply.code < 200){
-	// Do not go to Early state if To tag can still change
-	// Otherwise reply check will fail
-	if (((reply.code == 100) || (reply.code == 181) || (reply.code == 182))
-	    || reply.to_tag.empty())
-	  setStatus(Proceeding);
-	else {
-	  setStatus(Early);
-	  setRemoteTag(reply.to_tag);
-	  setRouteSet(reply.route);
-	}
-      }
-      else if(reply.code < 300){
-	setStatus(Connected);
-	setRouteSet(reply.route);
-	if(reply.to_tag.empty()){
-	  DBG("received 2xx reply without to-tag "
-	      "(callid=%s): sending BYE\n",reply.callid.c_str());
+  if (reply.cseq_method == SIP_METH_INVITE) {
+    switch (status) {
+      case Trying:
+      case Proceeding:
+        if (reply.code < 200) {
+          // Do not go to Early state if To tag can still change
+          // Otherwise reply check will fail
+          if (((reply.code == 100) || (reply.code == 181)
+               || (reply.code == 182))
+              || reply.to_tag.empty())
+            setStatus(Proceeding);
+          else {
+            setStatus(Early);
+            setRemoteTag(reply.to_tag);
+            setRouteSet(reply.route);
+          }
+        }
+        else if (reply.code < 300) {
+          setStatus(Connected);
+          setRouteSet(reply.route);
+          if (reply.to_tag.empty()) {
+            DBG("received 2xx reply without to-tag "
+                "(callid=%s): sending BYE\n",
+                reply.callid.c_str());
 
             send_200_ack(reply.cseq);
             sendRequest(SIP_METH_BYE);

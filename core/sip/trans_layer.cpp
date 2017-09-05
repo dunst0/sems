@@ -2532,8 +2532,8 @@ try_next_dest:
   }
 
   if (use_new_trans) {
-    string                     n_uri;
-    cstring                    old_uri;
+    string                n_uri;
+    cstring               old_uri;
     unique_ptr<sip_trans> n_tr(copy_uac_trans(tr));
 
     // Warning: no deep copy!!!
