@@ -88,7 +88,7 @@ bool SessionTimer::onSipRequest(const AmSipRequest& req)
 bool SessionTimer::onSipReply(const AmSipRequest& req, const AmSipReply& reply,
                               AmBasicSipDialog::Status old_dlg_status)
 {
-  if (session_timer_conf.getEnableSessionTimer() {
+  if (session_timer_conf.getEnableSessionTimer()) {
     if (reply.cseq_method == SIP_METH_INVITE
         || reply.cseq_method == SIP_METH_UPDATE) {
       if (reply.code == 422 && s->dlg->getStatus() != AmSipDialog::Connected) {
