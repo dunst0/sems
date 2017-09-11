@@ -31,6 +31,7 @@
 #include "AmUtils.h"
 
 using std::string;
+using std::map;
 
 EXPORT_SESSION_EVENT_HANDLER_FACTORY(SessionTimerFactory, MOD_NAME);
 
@@ -87,68 +88,84 @@ bool SessionTimer::onSipRequest(const AmSipRequest& req)
 bool SessionTimer::onSipReply(const AmSipRequest& req, const AmSipReply& reply,
                               AmBasicSipDialog::Status old_dlg_status)
 {
-  if (session_timer_conf.getEnableSessionTimer() &&
-      ((reply.cseq_method == SIP_METH_INVITE) ||
-       (reply.cseq_method == SIP_METH_UPDATE))) {
-    if ((reply.code == 422) &&
-	(s->dlg->getStatus() != AmSipDialog::Connected)) {
-      // get Min-SE
-      unsigned int i_minse;
-      string min_se_hdr = getHeader(reply.hdrs, SIP_HDR_MIN_SE, true);
-      if (!min_se_hdr.empty()) {
-	if (str2i(strip_header_params(min_se_hdr), i_minse)) {
-	  WARN("error while parsing " SIP_HDR_MIN_SE " header value '%s'\n",
-	       strip_header_params(min_se_hdr).c_str());
-	} else {
-	  if (i_minse <= session_timer_conf.getMaximumTimer()) {
-	    session_interval = i_minse;
-	    unsigned int new_cseq = s->dlg->cseq;
-	    DBG("old dialog status is: %s\n",
-		AmBasicSipDialog::getStatusStr(old_dlg_status));
-	    // resend request with interval i_minse
-	    std::map<unsigned int, SIPRequestInfo>::iterator ri =
-	      sent_requests.find(reply.cseq);
-	    if (ri != sent_requests.end()) {
-	      s->dlg->setRemoteTag("");
-	      if (s->dlg->sendRequest(req.method, &(ri->second.body),
-				      ri->second.hdrs) == 0) {
-		DBG("request with new Session Interval %u successfully sent\n",
-		    i_minse);
-		// undo SIP dialog status change
-		DBG("new dialog status is: %s\n", s->dlg->getStatusStr());
-		if (s->dlg->getStatus() != old_dlg_status)
-		  s->dlg->setStatus(old_dlg_status);
-		s->updateUACTransCSeq(reply.cseq, new_cseq);
+  if (session_timer_conf.getEnableSessionTimer() {
+    if (reply.cseq_method == SIP_METH_INVITE
+        || reply.cseq_method == SIP_METH_UPDATE) {
+      if (reply.code == 422 && s->dlg->getStatus() != AmSipDialog::Connected) {
+        // get Min-SE
+        unsigned int i_minse;
+        string       min_se_hdr = getHeader(reply.hdrs, SIP_HDR_MIN_SE, true);
 
-		// processed
-		DBG("erasing %d from sent_requests\n", req.cseq);
-		sent_requests.erase(reply.cseq);
-		return true;
-	      } else {
-		ERROR("failed to send request with new Session Interval\n");
-	      }
-	    } else {
-	      ERROR("could not find sent request with cseq %u\n", reply.cseq);
-	    }
-	  } else {
-	    DBG("other side requests too high Min-SE: %u (our limit %u)\n",
-		i_minse, session_timer_conf.getMaximumTimer());
-	  }
-	}
-      } else {
-	WARN("mandatory Min-SE header missing in 422 reply\n");
+        if (!min_se_hdr.empty()) {
+          if (str2i(strip_header_params(min_se_hdr), i_minse)) {
+            WARN("error while parsing " SIP_HDR_MIN_SE " header value '%s'\n",
+                 strip_header_params(min_se_hdr).c_str());
+          }
+          else {
+            if (i_minse <= session_timer_conf.getMaximumTimer()) {
+              session_interval         = i_minse;
+              unsigned int new_cseq    = s->dlg->cseq;
+              int          send_result = 0;
+
+              DBG("old dialog status is: %s\n",
+                  AmBasicSipDialog::getStatusStr(old_dlg_status));
+
+              // resend request with interval i_minse
+              map<unsigned int, SIPRequestInfo>::iterator ri =
+                  sent_requests.find(reply.cseq);
+
+              if (ri != sent_requests.end()) {
+                s->dlg->setRemoteTag("");
+                send_result = s->dlg->sendRequest(
+                    req.method, &(ri->second.body), ri->second.hdrs);
+
+                if (send_result == 0) {
+                  DBG("request with new Session Interval %u successfully "
+                      "sent\n",
+                      i_minse);
+
+                  // undo SIP dialog status change
+                  DBG("new dialog status is: %s\n", s->dlg->getStatusStr());
+                  if (s->dlg->getStatus() != old_dlg_status) {
+                    s->dlg->setStatus(old_dlg_status);
+                  }
+                  s->updateUACTransCSeq(reply.cseq, new_cseq);
+
+                  // processed
+                  DBG("erasing %d from sent_requests\n", req.cseq);
+                  sent_requests.erase(reply.cseq);
+                  return true;
+                }
+                else {
+                  ERROR("failed to send request with new Session Interval\n");
+                }
+              }
+              else {
+                ERROR("could not find sent request with cseq %u\n", reply.cseq);
+              }
+            }
+            else {
+              DBG("other side requests too high Min-SE: %u (our limit %u)\n",
+                  i_minse, session_timer_conf.getMaximumTimer());
+            }
+          }
+        }
+        else {
+          WARN("mandatory Min-SE header missing in 422 reply\n");
+        }
       }
-    }
-    if ((reply.code >= 200) &&
-	(strcmp(s->dlg->getStatusStr(old_dlg_status), "Connected") != 0)) {
-      DBG("erasing %d from sent_requests\n", req.cseq);
-      sent_requests.erase(reply.cseq);
+
+      if (reply.code >= 200
+          && strcmp(s->dlg->getStatusStr(old_dlg_status), "Connected") != 0) {
+        DBG("erasing %d from sent_requests\n", req.cseq);
+        sent_requests.erase(reply.cseq);
+      }
     }
   }
 
-  if ((reply.cseq_method == SIP_METH_INVITE) ||
-      (reply.cseq_method == SIP_METH_UPDATE)) {
-    updateTimer(s,reply);
+  if (reply.cseq_method == SIP_METH_INVITE
+      || reply.cseq_method == SIP_METH_UPDATE) {
+    updateTimer(s, reply);
   }
 
   return false;
@@ -161,19 +178,16 @@ bool SessionTimer::onSendRequest(AmSipRequest& req, int& flags)
     return false;
   }
 
-  // UNUSED
-  // if (session_timer_conf.getEnableSessionTimer() &&
-  //     ((req.method == SIP_METH_INVITE) || (req.method == SIP_METH_UPDATE))) {
-  // save INVITE and UPDATE so we can resend on 422 reply
-  // DBG("adding %d to list of sent requests.\n", req.cseq);
-  // sent_requests[req.cseq] = SIPRequestInfo(req.method,
-  // 					     &req.body,
-  // 					     req.hdrs);
-  // }
-  // UNUSED_END
+  if (session_timer_conf.getEnableSessionTimer()
+      && (req.method == SIP_METH_INVITE || req.method == SIP_METH_UPDATE)
+      && s->dlg->getStatus() == AmSipDialog::Disconnected) {
+    // save initial INVITE and UPDATE so we can resend on 422 reply
+    DBG("adding %d to sent_requests\n", req.cseq);
+    sent_requests[req.cseq] = SIPRequestInfo(req.method, &req.body, req.hdrs);
+  }
 
   addOptionTag(req.hdrs, SIP_HDR_SUPPORTED, TIMER_OPTION_TAG);
-  if ((req.method != SIP_METH_INVITE) && (req.method != SIP_METH_UPDATE)) {
+  if (req.method != SIP_METH_INVITE && req.method != SIP_METH_UPDATE) {
     return false; // session-expires / min-se only in INV/UPD
   }
 
@@ -189,16 +203,16 @@ bool SessionTimer::onSendReply(const AmSipRequest& req, AmSipReply& reply,
                                int& flags)
 {
   // only in 2xx responses to INV/UPD
-  if (((reply.cseq_method != SIP_METH_INVITE)
-       && (reply.cseq_method != SIP_METH_UPDATE))
-      || (reply.code < 200) || (reply.code >= 300)) {
+  if ((reply.cseq_method != SIP_METH_INVITE
+       && reply.cseq_method != SIP_METH_UPDATE)
+      || reply.code < 200 || reply.code >= 300) {
     return false;
   }
 
   addOptionTag(reply.hdrs, SIP_HDR_SUPPORTED, TIMER_OPTION_TAG);
 
-  if (((session_refresher_role == UAC) && (session_refresher == refresh_remote))
-      || ((session_refresher_role == UAS) && remote_timer_aware)) {
+  if ((session_refresher_role == UAC && session_refresher == refresh_remote)
+      || (session_refresher_role == UAS && remote_timer_aware)) {
     addOptionTag(reply.hdrs, SIP_HDR_REQUIRE, TIMER_OPTION_TAG);
   }
   else {

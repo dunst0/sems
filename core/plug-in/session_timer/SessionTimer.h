@@ -144,8 +144,8 @@ class SessionTimer : public AmSessionEventHandler
   void updateTimer(AmSession* s, const AmSipReply& reply);
 
   virtual void setTimers(AmSession* s);
-  void retryRefreshTimer(AmSession* s);
-  void removeTimers(AmSession* s);
+  void         retryRefreshTimer(AmSession* s);
+  void         removeTimers(AmSession* s);
 
   std::string getReplyHeaders(const AmSipRequest& req);
   std::string getRequestHeaders(const std::string& method);
@@ -161,7 +161,7 @@ class SessionTimer : public AmSessionEventHandler
   virtual ~SessionTimer();
 
   /* @see AmSessionEventHandler */
-  virtual int configure(AmConfigReader& conf);
+  virtual int  configure(AmConfigReader& conf);
   virtual bool process(AmEvent*);
 
   virtual bool onSipRequest(const AmSipRequest&);
