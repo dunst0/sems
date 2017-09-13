@@ -317,6 +317,7 @@ void SessionTimer::updateTimer(AmSession* s, const AmSipRequest& req)
 
     bool         rem_has_sess_expires = false;
     unsigned int rem_sess_expires     = 0;
+
     if (!sess_expires_hdr.empty()) {
       if (str2i(strip_header_params(sess_expires_hdr), rem_sess_expires)) {
         WARN("error while parsing " SIP_HDR_SESSION_EXPIRES
@@ -348,21 +349,22 @@ void SessionTimer::updateTimer(AmSession* s, const AmSipRequest& req)
       if (rem_sess_expires <= min_se) {
         session_interval = min_se;
       }
-      else {
-        if (rem_sess_expires < session_interval)
-          session_interval = rem_sess_expires;
+      else if (rem_sess_expires < session_interval) {
+        session_interval = rem_sess_expires;
       }
     }
 
     DBG("using actual session interval %u\n", session_interval);
+    DBG("remote is timer aware: %s\n", remote_timer_aware ? "yes" : "no");
+    DBG("remote Session-Expires header: %s\n", sess_expires_hdr.c_str());
 
     // determine session refresher -- cf rfc4028 Table 2
     // only if the remote party supports timer and asks
     // to be refresher we will let the remote party do it.
     // if remote supports timer and does not specify,
     // could also be refresher=uac
-    if ((remote_timer_aware) && (!sess_expires_hdr.empty())
-        && (get_header_param(sess_expires_hdr, "refresher") == "uac")) {
+    if (remote_timer_aware && !sess_expires_hdr.empty()
+        && get_header_param(sess_expires_hdr, "refresher") == "uac") {
       DBG("session refresher will be remote UAC.\n");
       session_refresher      = refresh_remote;
       session_refresher_role = UAC;
@@ -376,7 +378,7 @@ void SessionTimer::updateTimer(AmSession* s, const AmSipRequest& req)
     removeTimers(s);
     setTimers(s);
   }
-  else if (req.method == "BYE") { // remove all timers?
+  else if (req.method == SIP_METH_BYE) { // remove all timers?
     removeTimers(s);
   }
 }
@@ -388,7 +390,7 @@ void SessionTimer::updateTimer(AmSession* s, const AmSipReply& reply)
   }
 
   // only update timer on positive reply, or 501 if config'd
-  if (((reply.code < 200) || (reply.code >= 300))
+  if ((reply.code < 200 || reply.code >= 300)
       && (!(accept_501_reply && reply.code == 501))) {
     return;
   }
@@ -402,6 +404,7 @@ void SessionTimer::updateTimer(AmSession* s, const AmSipReply& reply)
 
   if (!sess_expires_hdr.empty()) {
     unsigned int sess_i_tmp = 0;
+
     if (str2i(strip_header_params(sess_expires_hdr), sess_i_tmp)) {
       WARN("error while parsing " SIP_HDR_SESSION_EXPIRES
            " header value '%s'\n",
@@ -416,6 +419,7 @@ void SessionTimer::updateTimer(AmSession* s, const AmSipReply& reply)
         session_interval = sess_i_tmp;
       }
     }
+
     if (get_header_param(sess_expires_hdr, "refresher") == "uas") {
       session_refresher      = refresh_remote;
       session_refresher_role = UAS;
