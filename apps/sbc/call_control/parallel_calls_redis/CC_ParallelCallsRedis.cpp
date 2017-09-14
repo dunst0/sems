@@ -107,7 +107,7 @@ int CCParallelCallsRedis::onLoad()
   }
 
   refuse_header = cfg.getParameter("refuse_header", refuse_header);
-  strict cfg.getParameter("strict", "yes") == "no";
+  strict =  cfg.getParameter("strict", "yes") == "no";
   DBG("parallel calls restriction strict is: %s\n", strict ? "on" : "off");
 
   return 0;
