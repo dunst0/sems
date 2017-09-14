@@ -204,7 +204,7 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
     }
 
     if (call_count_it == call_control_calls_count.end()) {
-      DBG("no call count for uuid init with 1\n"):
+      DBG("no call count for uuid init with 1\n");
       call_control_calls_count[uuid] = current_calls = 1;
     }
     else {
