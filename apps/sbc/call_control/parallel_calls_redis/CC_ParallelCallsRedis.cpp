@@ -208,7 +208,7 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
       call_control_calls_count[uuid] = current_calls = 1;
     }
     else {
-      if (strict || !call_control_calls.count(key)) {
+      if (strict || !call_control_calls.count(call_key)) {
         if (it->second < max_calls) {
           it->second++;
         }
