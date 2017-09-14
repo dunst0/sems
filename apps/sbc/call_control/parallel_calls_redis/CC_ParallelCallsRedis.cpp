@@ -78,6 +78,7 @@ CCParallelCallsRedis* CCParallelCallsRedis::instance()
   if (!_instance) {
     _instance = new CCParallelCallsRedis();
   }
+
   return _instance;
 }
 
@@ -145,8 +146,7 @@ void CCParallelCallsRedis::invoke(const string& method, const AmArg& args,
 
 void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
                             SBCCallProfile* call_profile, const AmArg& values,
-                            const AmSipRequest* req,
-                            AmArg& res)
+                            const AmSipRequest* req, AmArg& res)
 {
   unsigned int max_calls     = 1; // default
   unsigned int current_calls = 0;
@@ -167,6 +167,8 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
 
   uuid = values["uuid"].asCStr();
 
+  ERROR("YUMMMY - c %s f %s\n", req.callid, reg.from_tag);
+
   call_profile->cc_vars[cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_UUID] =
       uuid;
 
@@ -180,11 +182,11 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
 
   DBG("enforcing limit of %i calls for uuid '%s'\n", max_calls, uuid.c_str());
 
-  call_control_calls_mutex.lock();
+  call_control_mutex.lock();
   if (max_calls) {
-    map<string, unsigned int>::iterator it = call_control_calls.find(uuid);
-    if (it == call_control_calls.end()) {
-      call_control_calls[uuid] = current_calls = 1;
+    map<string, unsigned int>::iterator it = call_control_calls_count.find(uuid);
+    if (it == call_control_calls_count.end()) {
+      call_control_calls_count[uuid] = current_calls = 1;
     }
     else {
       if (it->second < max_calls) {
@@ -197,14 +199,14 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
       current_calls = it->second;
     }
   }
-  call_control_calls_mutex.unlock();
+  call_control_mutex.unlock();
 
   DBG("uuid %s has %u active calls (limit = %s)\n", uuid.c_str(), current_calls,
       do_limit ? "true" : "false");
 
   if (do_limit) {
     vector<string> hdrs;
-    hdr.push("TLN-CC: cc_pcalls;uuid=");
+    hdrs.push("TLN-CC: cc_pcalls;uuid=");
 
     res.push(AmArg());
     AmArg& res_cmd                 = res[0];
