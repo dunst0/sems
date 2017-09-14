@@ -207,7 +207,7 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
 
   if (do_limit) {
     vector<string> hdrs;
-    hdrs.push("TLN-CC: cc_pcalls;uuid=");
+    hdrs.push_back("TLN-CC: cc_pcalls;uuid=");
 
     res.push(AmArg());
     AmArg& res_cmd                 = res[0];
