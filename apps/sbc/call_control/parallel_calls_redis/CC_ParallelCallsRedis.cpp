@@ -187,35 +187,42 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
     }
   }
 
-  DBG("enforcing %slimit of %i calls for uuid '%s'\n", (strict ? "strict " : ""),
-      max_calls, uuid.c_str());
+  DBG("enforcing %slimit of %i calls for uuid '%s'\n",
+      (strict ? "strict " : ""), max_calls, uuid.c_str());
 
   call_control_mutex.lock();
   if (max_calls) {
-    string call_key = uuid + "-" + req->callid + req->from_tag;
-    map<string, unsigned int>::iterator call_count_it = call_control_calls_count.find(uuid);
+    map<string, unsigned int>::iterator call_count_it =
+        call_control_calls_count.find(uuid);
 
     if (call_count_it == call_control_calls_count.end()) {
-      DBG("no call count for uuid init with 1\n");
-      call_control_calls_count[uuid] = current_calls = 1;
+      call_control_calls_count[uuid] = current_calls = 0;
+    }
 
-      map<string, bool>::iterator call_it = call_control_calls.find(call_key);
-      if (call_it == call_control_calls.end()) {
-        call_control_calls[call_key] = false;
+    if (strict) {
+      if (current_calls < max_calls) {
+        current_calls++;
+      }
+      else {
+        do_limit = true;
       }
     }
     else {
-      if (strict || !call_control_calls.count(call_key)) {
-        if (call_count_it->second < max_calls) {
-          call_count_it->second++;
+      string call_key = uuid + "-" + req->callid + req->from_tag;
+
+      if (!call_control_calls.count(call_key)) {
+        if (current_calls < max_calls) {
+          current_calls++;
         }
         else {
           do_limit = true;
         }
-      }
 
-      current_calls = call_count_it->second;
+        call_control_calls[call_key] = false;
+      }
     }
+
+    call_control_calls_count[uuid] = current_calls;
   }
   call_control_mutex.unlock();
 
