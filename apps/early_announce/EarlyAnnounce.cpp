@@ -118,7 +118,7 @@ int get_announce_msg(string application, string message, string user,
         unsigned long length = row.raw_string(0).size();
         fwrite(row.at(0).data(), 1, length, file);
 #else
-        mysqlpp::String       s   = row[0];
+        mysqlpp::String s = row[0];
         fwrite(s.data(), 1, s.length(), file);
 #endif
         fclose(file);
@@ -288,8 +288,8 @@ void EarlyAnnounceDialog::onInvite(const AmSipRequest& req)
   }
 }
 
-AmSession* EarlyAnnounceFactory::onInvite(const AmSipRequest& req,
-                                          const string&       app_name,
+AmSession* EarlyAnnounceFactory::onInvite(const AmSipRequest&        req,
+                                          const string&              app_name,
                                           const map<string, string>& app_params)
 {
 #ifdef USE_MYSQL
@@ -398,7 +398,7 @@ void EarlyAnnounceDialog::process(AmEvent* event)
           ERROR("while parsing Final-Reply-Code parameter\n");
         }
         reason = get_header_keyvalue(iptel_app_param, "Final-Reply-Reason");
-        if (!reason.length()) reason = "Not Found";
+        if (!reason.length()) reason= "Not Found";
       }
       else {
         string code = getHeader(invite_req.hdrs, "P-Final-Reply-Code", true);

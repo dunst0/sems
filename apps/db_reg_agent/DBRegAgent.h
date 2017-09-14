@@ -150,7 +150,7 @@ class DBRegAgent
   map<long, AmSIPRegistration*> registrations;
   map<string, long>             registration_ltags;
   map<long, RegTimer*>          registration_timers;
-  AmMutex registrations_mut;
+  AmMutex                       registrations_mut;
 
   // connection used in main DBRegAgent thread
   static mysqlpp::Connection MainDBConnection;

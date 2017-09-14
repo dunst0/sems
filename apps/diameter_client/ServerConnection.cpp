@@ -362,8 +362,8 @@ int ServerConnection::addStringAVP(AAAMessage* msg, AAA_AVPCode avp_code,
     return -1;
   }
 
-  AAA_AVP* pos    = 0;
-  if (attail) pos = msg->avpList.tail;
+  AAA_AVP* pos = 0;
+  if (attail) pos= msg->avpList.tail;
 
   if (AAAAddAVPToMessage(msg, avp, pos) != AAA_ERR_SUCCESS) {
     ERROR(M_NAME ": addStringAVP(): AVP not added!\n");

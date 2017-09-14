@@ -12,14 +12,14 @@ class RegisterDialog : public SimpleRelayDialog
 
   bool contact_hiding;
 
-  bool reg_caching;
+  bool                               reg_caching;
   std::map<std::string, AmUriParser> alias_map;
-  std::string        aor; // From-URI
-  std::string        source_ip;
-  unsigned short int source_port;
-  std::string        transport;
-  unsigned short int local_if;
-  std::string        from_ua;
+  std::string                        aor; // From-URI
+  std::string                        source_ip;
+  unsigned short int                 source_port;
+  std::string                        transport;
+  unsigned short int                 local_if;
+  std::string                        from_ua;
 
   // Max 'Expire' value returned to
   // registering UAC.

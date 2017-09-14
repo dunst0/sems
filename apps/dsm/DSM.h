@@ -78,7 +78,7 @@ class DSMFactory
   map<string, DSMScriptConfig> ScriptConfigs;
   // config name -> config
   map<string, DSMScriptConfig> Name2ScriptConfig;
-  AmMutex ScriptConfigs_mut;
+  AmMutex                      ScriptConfigs_mut;
 
 #ifdef USE_MONITORING
   static MonSelectType  MonSelectCaller;
@@ -94,7 +94,7 @@ class DSMFactory
   bool           loaded;
   AmConfigReader cfg;
 
-  int preloadModules(AmConfigReader& cfg, string& res, const string& ModPath);
+  int  preloadModules(AmConfigReader& cfg, string& res, const string& ModPath);
   bool loadConfig(const string& conf_file_name, const string& conf_name,
                   bool live_reload, DSMStateDiagramCollection* m_diags);
   bool loadDiags(AmConfigReader& cfg, DSMStateDiagramCollection* m_diags);
@@ -105,12 +105,12 @@ class DSMFactory
   bool hasDSM(const string& dsm_name, const string& conf_name);
 
   map<string, AmPromptCollection*> prompt_sets;
-  void prepareSession(DSMCall* s);
+  void                             prepareSession(DSMCall* s);
   void addVariables(DSMCall* s, const string& prefix,
-                    map<string, string>&      vars);
+                    map<string, string>& vars);
   void addParams(DSMCall* s, const string& hdrs);
   void runMonitorAppSelect(const AmSipRequest& req, string& start_diag,
-                           map<string, string>&             vars);
+                           map<string, string>& vars);
 
   DSMChartReader preload_reader;
 
@@ -125,7 +125,7 @@ class DSMFactory
   void loadConfig(const AmArg& args, AmArg& ret);
 
   AmSessionEventHandlerFactory* session_timer_f;
-  void setupSessionTimer(AmSession* s);
+  void                          setupSessionTimer(AmSession* s);
 
  public:
   static DSMFactory* instance();
@@ -137,7 +137,7 @@ class DSMFactory
 
   int        onLoad();
   AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-                      const map<string, string>&             app_params);
+                      const map<string, string>& app_params);
   AmSession* onInvite(const AmSipRequest& req, const string& app_name,
                       AmArg& session_params);
   // DI
@@ -157,7 +157,7 @@ class DSMFactory
   */
   bool addScriptDiagsToEngine(const string& config_set, DSMStateEngine* engine,
                               map<string, string>& config_vars,
-                              bool& SetParamVariables);
+                              bool&                SetParamVariables);
 };
 
 #endif

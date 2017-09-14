@@ -75,7 +75,7 @@ struct SampleInfo
 
 struct LogBucket
 {
-  AmMutex log_lock;
+  AmMutex                           log_lock;
   std::map<std::string, LogInfo>    log;
   std::map<std::string, SampleInfo> samples;
 };
@@ -133,7 +133,7 @@ class Monitor
   // DI API
   static Monitor* instance();
   void invoke(const std::string& method, const AmArg& args, AmArg& ret);
-  int                 onLoad();
+  int  onLoad();
   static unsigned int gcInterval;
 
   friend class MonitorGarbageCollector;

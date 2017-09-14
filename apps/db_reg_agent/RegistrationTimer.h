@@ -96,7 +96,7 @@ class RegistrationTimer : public AmThread
   unsigned int   current_bucket;
   AmMutex        buckets_mut;
 
-  int get_bucket_index(time_t tv);
+  int  get_bucket_index(time_t tv);
   void place_timer(RegTimer* timer, int bucket_index);
   void fire_timer(RegTimer* timer);
   void run_timers();

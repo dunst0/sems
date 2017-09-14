@@ -46,7 +46,7 @@ class DSMModule
   DSMModule();
   virtual ~DSMModule();
 
-  virtual DSMAction* getAction(const string& from_str)       = 0;
+  virtual DSMAction*    getAction(const string& from_str)    = 0;
   virtual DSMCondition* getCondition(const string& from_str) = 0;
 
   virtual int  preload() { return 0; }
@@ -98,7 +98,7 @@ class SCStrArgAction : public DSMAction
     }                                                                          \
     bool execute(AmSession* sess, DSMSession* sc_sess,                         \
                  DSMCondition::EventType event,                                \
-                 map<string, string>* event_params);                           \
+                 map<string, string>*    event_params);                           \
   };
 
 #define DEF_SCModSEStrArgAction(CL_Name)                                       \
@@ -116,12 +116,12 @@ class SCStrArgAction : public DSMAction
     UNUSED_END */                                                              \
     {                                                                          \
     }                                                                          \
-    bool execute(AmSession* sess, DSMSession* sc_sess,                         \
-                 DSMCondition::EventType event,                                \
-                 map<string, string>* event_params);                           \
+    bool     execute(AmSession* sess, DSMSession* sc_sess,                     \
+                     DSMCondition::EventType event,                            \
+                     map<string, string>*    event_params);                       \
     SEAction getSEAction(std::string&, AmSession* sess, DSMSession* sc_sess,   \
                          DSMCondition::EventType event,                        \
-                         map<string, string>* event_params);                   \
+                         map<string, string>*    event_params);                   \
   };
 
 #define DEF_ACTION_2P(CL_Name)                                                 \
@@ -134,7 +134,7 @@ class SCStrArgAction : public DSMAction
     CL_Name(const string& arg);                                                \
     bool execute(AmSession* sess, DSMSession* sc_sess,                         \
                  DSMCondition::EventType event,                                \
-                 map<string, string>* event_params);                           \
+                 map<string, string>*    event_params);                           \
   };
 
 /* bool xsplit(const string& arg, char sep, bool optional, string& par1, string&
@@ -173,8 +173,8 @@ class SCStrArgAction : public DSMAction
     return;                                                                    \
   }                                                                            \
                                                                                \
-  par1                = trim(arg.substr(0, p), " \t");                         \
-  if (sep_found) par2 = trim(arg.substr(p + 1), " \t");                        \
+  par1 = trim(arg.substr(0, p), " \t");                                        \
+  if (sep_found) par2= trim(arg.substr(p + 1), " \t");                                       \
                                                                                \
   if (par1.length() && par1[0] == '\'') {                                      \
     par1        = trim(par1, "\'");                                            \
@@ -211,7 +211,7 @@ class SCStrArgAction : public DSMAction
 #define EXEC_ACTION_START(act_name)                                            \
   bool act_name::execute(AmSession* sess, DSMSession* sc_sess,                 \
                          DSMCondition::EventType event,                        \
-                         map<string, string>* event_params)                    \
+                         map<string, string>*    event_params)                 \
   {
 #define EXEC_ACTION_END                                                        \
   return false;                                                                \
@@ -246,7 +246,7 @@ void splitCmd(const string& from_str, string& cmd, string& params);
     }                                                                          \
     bool match(AmSession* sess, DSMSession* sc_sess,                           \
                DSMCondition::EventType event,                                  \
-               map<string, string>* event_params);                             \
+               map<string, string>*    event_params);                             \
   };
 
 #define DEF_CONDITION_2P(cond_name)                                            \
@@ -260,7 +260,7 @@ void splitCmd(const string& from_str, string& cmd, string& params);
     cond_name(const string& arg, bool inv);                                    \
     bool match(AmSession* sess, DSMSession* sc_sess,                           \
                DSMCondition::EventType event,                                  \
-               map<string, string>* event_params);                             \
+               map<string, string>*    event_params);                             \
   };
 
 #define CONST_CONDITION_2P(cond_name, _sep, _optional)                         \
@@ -273,7 +273,7 @@ void splitCmd(const string& from_str, string& cmd, string& params);
 #define MATCH_CONDITION_START(cond_clsname)                                    \
   bool cond_clsname::match(AmSession* sess, DSMSession* sc_sess,               \
                            DSMCondition::EventType event,                      \
-                           map<string, string>* event_params)                  \
+                           map<string, string>*    event_params)               \
   {
 #define MATCH_CONDITION_END }
 
@@ -284,7 +284,7 @@ void splitCmd(const string& from_str, string& cmd, string& params);
     mod_cls_name() {}                                                          \
     ~mod_cls_name() {}                                                         \
                                                                                \
-    DSMAction* getAction(const string& from_str);                              \
+    DSMAction*    getAction(const string& from_str);                           \
     DSMCondition* getCondition(const string& from_str);                        \
   };
 
@@ -295,7 +295,7 @@ void splitCmd(const string& from_str, string& cmd, string& params);
     mod_cls_name() {}                                                          \
     ~mod_cls_name() {}                                                         \
                                                                                \
-    DSMAction* getAction(const string& from_str);                              \
+    DSMAction*    getAction(const string& from_str);                           \
     DSMCondition* getCondition(const string& from_str);
 
 #define DECLARE_MODULE_END }

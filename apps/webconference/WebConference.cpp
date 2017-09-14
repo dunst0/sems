@@ -346,7 +346,7 @@ string WebConferenceFactory::getAdminpin(const string& room)
   string res = "";
   rooms_mut.lock();
   map<string, ConferenceRoom>::iterator it = rooms.find(room);
-  if (it != rooms.end()) res = it->second.adminpin;
+  if (it != rooms.end()) res               = it->second.adminpin;
   rooms_mut.unlock();
   return res;
 }
@@ -355,8 +355,8 @@ ConferenceRoom* WebConferenceFactory::getRoom(const string& room,
                                               const string& adminpin,
                                               bool ignore_adminpin = false)
 {
-  ConferenceRoom* res = NULL;
-  map<string, ConferenceRoom>::iterator it = rooms.find(room);
+  ConferenceRoom*                       res = NULL;
+  map<string, ConferenceRoom>::iterator it  = rooms.find(room);
   if (it == rooms.end()) {
     if (PrivateRoomsMode) return NULL;
 
@@ -373,7 +373,7 @@ ConferenceRoom* WebConferenceFactory::getRoom(const string& room,
     else {
       // update adminpin if room was created by dialin
       if (it->second.adminpin.empty()) it->second.adminpin = adminpin;
-      res                                                  = &it->second;
+      res = &it->second;
 
       if (res->expired()) {
         DBG("clearing expired room '%s'\n", room.c_str());
@@ -419,8 +419,8 @@ void WebConferenceFactory::setupSessionTimer(AmSession* s)
 }
 
 // incoming calls
-AmSession* WebConferenceFactory::onInvite(const AmSipRequest& req,
-                                          const string&       app_name,
+AmSession* WebConferenceFactory::onInvite(const AmSipRequest&        req,
+                                          const string&              app_name,
                                           const map<string, string>& app_params)
 {
   if (NULL != session_timer_f) {

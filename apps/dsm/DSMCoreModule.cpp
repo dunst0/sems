@@ -422,8 +422,8 @@ EXEC_ACTION_START(SCPlayRingtoneAction)
 {
   int length = 0, on = 0, off = 0, f = 0, f2 = 0;
 
-  string varname                                     = par1;
-  if (varname.length() && varname[0] == '$') varname = varname.substr(1);
+  string varname = par1;
+  if (varname.length() && varname[0] == '$') varname= varname.substr(1);
 
   string front = resolveVars(par2, sess, sc_sess, event_params);
 
@@ -472,17 +472,17 @@ EXEC_ACTION_END;
 
 EXEC_ACTION_START(SCGetRecordLengthAction)
 {
-  string varname               = resolveVars(arg, sess, sc_sess, event_params);
-  if (varname.empty()) varname = "record_length";
-  sc_sess->var[varname]        = int2str(sc_sess->getRecordLength());
+  string varname = resolveVars(arg, sess, sc_sess, event_params);
+  if (varname.empty()) varname= "record_length";
+  sc_sess->var[varname] = int2str(sc_sess->getRecordLength());
 }
 EXEC_ACTION_END;
 
 EXEC_ACTION_START(SCGetRecordDataSizeAction)
 {
-  string varname               = resolveVars(arg, sess, sc_sess, event_params);
-  if (varname.empty()) varname = "record_data_size";
-  sc_sess->var[varname]        = int2str(sc_sess->getRecordDataSize());
+  string varname = resolveVars(arg, sess, sc_sess, event_params);
+  if (varname.empty()) varname= "record_data_size";
+  sc_sess->var[varname] = int2str(sc_sess->getRecordDataSize());
 }
 EXEC_ACTION_END;
 
@@ -616,7 +616,7 @@ EXEC_ACTION_END;
                                                                                \
   bool clsname::execute(AmSession* sess, DSMSession* sc_sess,                  \
                         DSMCondition::EventType event,                         \
-                        map<string, string>* event_params)                     \
+                        map<string, string>*    event_params)                  \
   {                                                                            \
     return true;                                                               \
   }
@@ -625,7 +625,7 @@ DEF_SCModActionExec(SCRepostAction);
 DSMAction::SEAction
 SCRepostAction::getSEAction(string& param, AmSession* sess, DSMSession* sc_sess,
                             DSMCondition::EventType event,
-                            map<string, string>* event_params)
+                            map<string, string>*    event_params)
 {
   return Repost;
 }
@@ -644,7 +644,7 @@ DEF_SCModActionExec(SCBreakAction);
 DSMAction::SEAction
 SCBreakAction::getSEAction(string& param, AmSession* sess, DSMSession* sc_sess,
                            DSMCondition::EventType event,
-                           map<string, string>* event_params)
+                           map<string, string>*    event_params)
 {
   param = resolveVars(arg, sess, sc_sess, event_params);
   return Break;
@@ -866,7 +866,7 @@ string replaceParams(const string& q, AmSession* sess, DSMSession* sc_sess,
     else
       rend = res.find_first_of(" ,()[]$#@\t;:'\"", rstart + 1);
     if (rend == string::npos) rend = res.length();
-    string keyname                 = res.substr(rstart + 1, rend - rstart - 1);
+    string keyname = res.substr(rstart + 1, rend - rstart - 1);
 
     if (keyname.length() > 2) {
       if ((keyname[0] == '(' && res[rend] == ')')
@@ -1302,7 +1302,7 @@ TestDSMCondition::TestDSMCondition(const string&           expr,
 
 bool TestDSMCondition::match(AmSession* sess, DSMSession* sc_sess,
                              DSMCondition::EventType event,
-                             map<string, string>* event_params)
+                             map<string, string>*    event_params)
 {
   if (ttype == None || (type != DSMCondition::Any && type != event))
     return false;
@@ -1614,7 +1614,7 @@ EXEC_ACTION_START(SCB2BConnectCalleeAction)
   string remote_uri     = resolveVars(par2, sess, sc_sess, event_params);
   bool   relayed_invite = false;
   VarMapT::iterator it  = sc_sess->var.find(DSM_B2B_RELAYED_INVITE);
-  if (it != sc_sess->var.end() && it->second == "true") relayed_invite = true;
+  if (it != sc_sess->var.end() && it->second == "true") relayed_invite= true;
   DBG("B2B connecting callee '%s', URI '%s', relayed: %s\n",
       remote_party.c_str(), remote_uri.c_str(), relayed_invite ? "yes" : "no");
   sc_sess->B2BconnectCallee(remote_party, remote_uri, relayed_invite);
@@ -1666,7 +1666,7 @@ EXEC_ACTION_START(SCB2BSetHeadersAction)
   string val          = resolveVars(par1, sess, sc_sess, event_params);
   string repl         = resolveVars(par2, sess, sc_sess, event_params);
   bool   replace_crlf = false;
-  if (repl == "true") replace_crlf = true;
+  if (repl == "true") replace_crlf= true;
   DBG("setting B2B headers to '%s' (%sreplacing CRLF)\n", val.c_str(),
       replace_crlf ? "" : "not ");
   sc_sess->B2BsetHeaders(val, replace_crlf);

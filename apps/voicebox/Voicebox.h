@@ -51,9 +51,9 @@ class VoiceboxFactory : public AmSessionFactory
                                   const std::string& language,
                                   PromptOptions&     po);
 
-  AmPromptCollection* loadPrompts(std::string prompt_base_path,
-                                  std::string domain, std::string language,
-                                  bool load_digits);
+  AmPromptCollection*        loadPrompts(std::string prompt_base_path,
+                                         std::string domain, std::string language,
+                                         bool load_digits);
   static AmDynInvokeFactory* MessageStorage;
   static unsigned int        repeat_key;
   static unsigned int        save_key;
@@ -65,7 +65,7 @@ class VoiceboxFactory : public AmSessionFactory
  public:
   VoiceboxFactory(const std::string& _app_name);
 
-  AmSession* onInvite(const AmSipRequest&, const std::string&   app_name,
+  AmSession* onInvite(const AmSipRequest&, const std::string& app_name,
                       const std::map<std::string, std::string>& app_params);
   // AmSession* onInvite(const AmSipRequest& req, AmArg& session_params);
   int onLoad();

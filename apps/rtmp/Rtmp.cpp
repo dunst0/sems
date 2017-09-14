@@ -121,8 +121,8 @@ int RtmpFactory::onLoad()
   return 0;
 }
 
-AmSession* RtmpFactory::onInvite(const AmSipRequest& req,
-                                 const string&       app_name,
+AmSession* RtmpFactory::onInvite(const AmSipRequest&        req,
+                                 const string&              app_name,
                                  const map<string, string>& app_params)
 {
   RtmpSession* sess = NULL;

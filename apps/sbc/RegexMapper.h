@@ -39,7 +39,7 @@ struct RegexMapper
   ~RegexMapper() {}
 
   std::map<std::string, RegexMappingVector> regex_mappings;
-  AmMutex regex_mappings_mut;
+  AmMutex                                   regex_mappings_mut;
 
   void lock() { regex_mappings_mut.lock(); }
   void unlock() { regex_mappings_mut.unlock(); }

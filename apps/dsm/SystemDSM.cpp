@@ -72,7 +72,7 @@ void SystemDSM::process(AmEvent* event)
 {
   AmPluginEvent* plugin_event = dynamic_cast<AmPluginEvent*>(event);
   if (plugin_event && plugin_event->name == "timer_timeout") {
-    int timer_id = plugin_event->data.get(0).asInt();
+    int                 timer_id = plugin_event->data.get(0).asInt();
     map<string, string> params;
     params["id"] = int2str(timer_id);
     engine.runEvent(&dummy_session, this, DSMCondition::Timer, &params);
@@ -125,7 +125,7 @@ void SystemDSM::process(AmEvent* event)
       params["ev_type"]   = "JsonRpcRequest";
       params["is_notify"] = req_ev->isNotification() ? "true" : "false";
       params["method"]    = req_ev->method;
-      if (!req_ev->id.empty()) params["id"] = req_ev->id;
+      if (!req_ev->id.empty()) params["id"]= req_ev->id;
 
       // decode request params result for easy use from script
       varPrintArg(req_ev->params, params, "params");

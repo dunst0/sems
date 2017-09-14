@@ -44,7 +44,7 @@ using std::pair;
 using std::set;
 
 typedef vector<SdpPayload>::iterator PayloadIterator;
-static string payload2str(const SdpPayload& p);
+static string                        payload2str(const SdpPayload& p);
 
 //////////////////////////////////////////////////////////////////////////////////
 // helper defines for parameter evaluation
@@ -1107,7 +1107,7 @@ void SBCCallProfile::replace_cc_values(ParamReplacerCtx&   ctx,
     for (std::map<string, string>::iterator it = cc_if.cc_values.begin();
          it != cc_if.cc_values.end(); it++) {
       it->second = ctx.replaceParameters(it->second, it->first.c_str(), req);
-      if (values) (*values)[it->first] = it->second;
+      if (values) (*values)[it->first]= it->second;
     }
   }
 }
@@ -1416,7 +1416,7 @@ static bool readPayload(SdpPayload& p, const string& src)
   if (elems.size() > 1)
     str2int(elems[1], p.clock_rate);
   else
-    p.clock_rate  = 8000; // default value
+    p.clock_rate = 8000; // default value
   p.encoding_name = elems[0];
 
   string pname = p.encoding_name;
@@ -1557,7 +1557,7 @@ void SBCCallProfile::CodecPreferences::infoPrint() const
 }
 
 bool SBCCallProfile::CodecPreferences::
-operator==(const CodecPreferences& rhs) const
+     operator==(const CodecPreferences& rhs) const
 {
   if (!payloadDescsEqual(aleg_payload_order, rhs.aleg_payload_order))
     return false;
@@ -1709,7 +1709,7 @@ bool SBCCallProfile::TranscoderSettings::readConfig(AmConfigReader& cfg)
 }
 
 bool SBCCallProfile::TranscoderSettings::
-operator==(const TranscoderSettings& rhs) const
+     operator==(const TranscoderSettings& rhs) const
 {
   bool res = (transcoder_mode == rhs.transcoder_mode);
   res      = res && (enabled == rhs.enabled);
@@ -1739,8 +1739,8 @@ string SBCCallProfile::TranscoderSettings::print() const
 
   string s("?");
   switch (transcoder_mode) {
-    case Always: s              = "always"; break;
-    case Never: s               = "never"; break;
+    case Always: s = "always"; break;
+    case Never: s = "never"; break;
     case OnMissingCompatible: s = "on_missing_compatible"; break;
   }
   res += "\nenable transcoder: " + s;
@@ -1782,7 +1782,7 @@ bool SBCCallProfile::TranscoderSettings::evaluate(ParamReplacerCtx&   ctx,
   // enable transcoder according to transcoder mode and optionally request's SDP
   switch (transcoder_mode) {
     case Always: enabled = true; break;
-    case Never: enabled  = false; break;
+    case Never: enabled = false; break;
     case OnMissingCompatible:
       enabled = isTranscoderNeeded(
           req, callee_codec_capabilities,

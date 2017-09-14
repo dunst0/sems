@@ -138,7 +138,7 @@ int get_audio_file(const string& message, const string& domain,
         unsigned long length = row.raw_string(0).size();
         fwrite(row.at(0).data(), 1, length, file);
 #else
-        mysqlpp::String       s   = row[0];
+        mysqlpp::String s = row[0];
         fwrite(s.data(), 1, s.length(), file);
 #endif
         fclose(file);
@@ -332,8 +332,8 @@ int ConferenceFactory::onLoad()
   return 0;
 }
 
-AmSession* ConferenceFactory::onInvite(const AmSipRequest& req,
-                                       const string&       app_name,
+AmSession* ConferenceFactory::onInvite(const AmSipRequest&        req,
+                                       const string&              app_name,
                                        const map<string, string>& app_params)
 {
   if ((ConferenceFactory::MaxParticipants > 0)
@@ -379,8 +379,8 @@ void ConferenceFactory::setupSessionTimer(AmSession* s)
   }
 }
 
-AmSession* ConferenceFactory::onRefer(const AmSipRequest& req,
-                                      const string&       app_name,
+AmSession* ConferenceFactory::onRefer(const AmSipRequest&        req,
+                                      const string&              app_name,
                                       const map<string, string>& app_params)
 {
   if (req.to_tag.empty()) throw AmSession::Exception(488, "Not accepted here");

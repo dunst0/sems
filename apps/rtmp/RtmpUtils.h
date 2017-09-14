@@ -37,7 +37,7 @@
   {                                                                            \
     (char*) s, sizeof(s) - 1                                                   \
   }
-#define SAVC(x) const AVal            av_##x = {(char*) #x, sizeof(#x) - 1}
+#define SAVC(x) const AVal av_##x = {(char*) #x, sizeof(#x) - 1}
 #define SAVC_def(x) extern const AVal av_##x
 #define STR2AVAL(av, str)                                                      \
   {                                                                            \

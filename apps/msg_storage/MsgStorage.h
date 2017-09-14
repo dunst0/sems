@@ -18,15 +18,15 @@ class MsgStorage
   Listeners listeners;
   AmMutex   listeners_mut;
 
-  int msg_new(std::string domain, std::string user, std::string msg_name,
-              FILE* data);
+  int  msg_new(std::string domain, std::string user, std::string msg_name,
+               FILE* data);
   void msg_get(std::string domain, std::string user, std::string msg_name,
                AmArg& ret);
-  int msg_markread(std::string domain, std::string user, std::string msg_name);
-  int msg_delete(std::string domain, std::string user, std::string msg_name);
+  int  msg_markread(std::string domain, std::string user, std::string msg_name);
+  int  msg_delete(std::string domain, std::string user, std::string msg_name);
 
   void userdir_open(std::string domain, std::string user, AmArg& ret);
-  int userdir_close(std::string domain, std::string user);
+  int  userdir_close(std::string domain, std::string user);
   void userdir_getcount(std::string domain, std::string user, AmArg& ret);
 
   void events_subscribe(AmDynInvoke* event_sink, std::string method);

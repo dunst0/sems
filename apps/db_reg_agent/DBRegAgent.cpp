@@ -400,7 +400,7 @@ void DBRegAgent::createRegistration(long subscriber_id, const string& user,
                                pass,
                                outbound_proxy, // proxy
                                contact_uri     // contact
-                               );
+  );
 
   registrations_mut.lock();
   try {
@@ -783,7 +783,7 @@ void DBRegAgent::onSipReplyEvent(AmSipReplyEvent* ev)
 #else
       ev->reply.local_tag.c_str()
 #endif
-          );
+  );
   registrations_mut.lock();
 
   string local_tag =
@@ -795,7 +795,7 @@ void DBRegAgent::onSipReplyEvent(AmSipReplyEvent* ev)
 
   map<string, long>::iterator it = registration_ltags.find(local_tag);
   if (it != registration_ltags.end()) {
-    long subscriber_id = it->second;
+    long                                    subscriber_id = it->second;
     map<long, AmSIPRegistration*>::iterator r_it =
         registrations.find(subscriber_id);
     if (r_it != registrations.end()) {
@@ -972,7 +972,7 @@ void DBRegAgent::setRegistrationTimer(
       "%u\n",
       subscriber_id, timeout, reg_action);
 
-  RegTimer* timer = NULL;
+  RegTimer*                      timer = NULL;
   map<long, RegTimer*>::iterator it = registration_timers.find(subscriber_id);
   if (it == registration_timers.end()) {
     DBG("timer object for subscription %ld not found\n", subscriber_id);
@@ -1004,7 +1004,7 @@ void DBRegAgent::setRegistrationTimer(long subscriber_id, time_t expiry,
       "%ld\n",
       subscriber_id, expiry, reg_start_ts);
 
-  RegTimer* timer = NULL;
+  RegTimer*                      timer = NULL;
   map<long, RegTimer*>::iterator it = registration_timers.find(subscriber_id);
   if (it == registration_timers.end()) {
     DBG("timer object for subscription %ld not found\n", subscriber_id);

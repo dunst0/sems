@@ -28,7 +28,7 @@
 #include "AmSipMsg.h"
 
 extern PyTypeObject IvrSipRequestType;
-PyObject* IvrSipRequest_FromPtr(AmSipRequest* req);
-PyObject* IvrSipRequest_BorrowedFromPtr(AmSipRequest* req);
+PyObject*           IvrSipRequest_FromPtr(AmSipRequest* req);
+PyObject*           IvrSipRequest_BorrowedFromPtr(AmSipRequest* req);
 
 #endif

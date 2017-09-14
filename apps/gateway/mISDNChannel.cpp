@@ -207,12 +207,12 @@ void mISDNChannel::init()
   fromISDN_buffer.assign("");
 }
 
-void mISDNChannel::setSession(GWSession* session) { m_session = session; }
+void       mISDNChannel::setSession(GWSession* session) { m_session = session; }
 GWSession* mISDNChannel::getSession() { return m_session; }
 
 void mISDNChannel::unregister_CR()
 {
-  mISDNStack* stack = mISDNStack::instance();
+  mISDNStack*                            stack   = mISDNStack::instance();
   std::map<int, mISDNChannel*>::iterator CR_iter = stack->CR_map.find(m_CR);
   ;
   if (CR_iter == stack->CR_map.end()) {
@@ -264,7 +264,7 @@ int mISDNChannel::placeCall(const AmSipRequest& req, std::string tonumber,
     m_caller = gwconf.getParameter("out_msn", "");
   }
   else
-    m_caller       = fromnumber;
+    m_caller = fromnumber;
   m_TON_r          = 0; // Unknown
   m_NPI_r          = 1; // ISDN E.164
   m_Screening_r    = 0; // user provided
@@ -362,13 +362,13 @@ int mISDNChannel::call()
   if (m_Presentation_r >= 0) {
     ie[1] = 0x00 + (m_TON_r << 4) + m_NPI_r;
     ie[2] = 0x80 + (m_Presentation_r << 5) + m_Screening_r;
-    for (i = 0; i < m_caller.size(); i++) ie[3 + i] = m_caller[i] & 0x7f;
-    ie[3 + m_caller.size()]                         = 0;
+    for (i = 0; i < m_caller.size(); i++) ie[3 + i]= m_caller[i] & 0x7f;
+    ie[3 + m_caller.size()] = 0;
   }
   else {
     ie[1] = 0x80 + (m_TON_r << 4) + m_NPI_r;
-    for (i = 0; i < m_caller.size(); i++) ie[2 + i] = m_caller[i] & 0x7f;
-    ie[2 + m_caller.size()]                         = 0;
+    for (i = 0; i < m_caller.size(); i++) ie[2 + i]= m_caller[i] & 0x7f;
+    ie[2 + m_caller.size()] = 0;
   }
   ret = mISDN_AddIE(qi, p, IE_CALLING_PN, ie);
   if (ret < 0) {
@@ -380,8 +380,8 @@ int mISDNChannel::call()
   ie[1] = 0x80 + (m_TON_d << 4)
           + m_NPI_d; /* Ext = '1'B, Type = '000'B, Plan = '0001'B. */
   for (i = 0; i < m_called.size(); i++) ie[2 + i] = m_called[i] & 0x7f;
-  ie[2 + m_called.size()]                         = 0;
-  ret = mISDN_AddIE(qi, p, IE_CALLED_PN, ie);
+  ie[2 + m_called.size()] = 0;
+  ret                     = mISDN_AddIE(qi, p, IE_CALLED_PN, ie);
   if (ret < 0) {
     ERROR("mISDNChannel::call Add IE_CALLED_PN error %d\n", ret);
     return FAIL;

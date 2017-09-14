@@ -223,8 +223,8 @@ DSMCondition* DSMChartReader::conditionFromToken(const string& str, bool invert)
     }
   }
 
-  DSMCondition* c  = core_mod.getCondition(str);
-  if (c) c->invert = invert;
+  DSMCondition* c = core_mod.getCondition(str);
+  if (c) c->invert= invert;
 
   if (c) return c;
   ERROR("could not find condition for '%s' (missing import?)\n", str.c_str());

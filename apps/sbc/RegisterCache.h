@@ -318,7 +318,7 @@ class _RegisterCache : public AmThread
    * aor: canonical Address-of-Record
    * alias_map: alias -> contact
    */
-  bool getAorAliasMap(const std::string& aor,
+  bool getAorAliasMap(const std::string&                  aor,
                       std::map<std::string, std::string>& alias_map);
 
   /**

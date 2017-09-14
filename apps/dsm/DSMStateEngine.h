@@ -141,7 +141,7 @@ class DSMCondition : public DSMElement
   }
   virtual ~DSMCondition() {}
 
-  EventType type;
+  EventType           type;
   map<string, string> params;
 
   bool _match(AmSession* sess, DSMSession* sc_sess,
@@ -149,7 +149,7 @@ class DSMCondition : public DSMElement
 
   virtual bool match(AmSession* sess, DSMSession* sc_sess,
                      DSMCondition::EventType event,
-                     map<string, string>* event_params);
+                     map<string, string>*    event_params);
 };
 
 class DSMAction : public DSMElement
@@ -172,13 +172,13 @@ class DSMAction : public DSMElement
   /** @return whether state engine is to be modified (via getSEAction) */
   virtual bool execute(AmSession* sess, DSMSession* sc_sess,
                        DSMCondition::EventType event,
-                       map<string, string>* event_params) = 0;
+                       map<string, string>*    event_params) = 0;
 
   /** @return state engine modification */
   virtual SEAction getSEAction(string& param, AmSession* sess,
                                DSMSession*             sc_sess,
                                DSMCondition::EventType event,
-                               map<string, string>* event_params)
+                               map<string, string>*    event_params)
   {
     return None;
   }
@@ -265,10 +265,10 @@ class DSMStateDiagram
   State* getInitialState();
   State* getState(const string& s_name);
 
-  void addState(const State& state, bool is_initial = false);
-  bool addTransition(const DSMTransition& trans);
+  void          addState(const State& state, bool is_initial = false);
+  bool          addTransition(const DSMTransition& trans);
   const string& getName() { return name; }
-  bool checkConsistency(string& report);
+  bool          checkConsistency(string& report);
 };
 
 class DSMException
@@ -331,16 +331,16 @@ class DSMStateEngine
   vector<DSMStackElement> stack;
 
   bool callDiag(const string& diag_name, AmSession* sess, DSMSession* sc_sess,
-                DSMCondition::EventType event,
-                map<string, string>* event_params,
+                DSMCondition::EventType       event,
+                map<string, string>*          event_params,
                 vector<DSMElement*>::iterator actions_from,
                 vector<DSMElement*>::iterator actions_to);
   bool jumpDiag(const string& diag_name, AmSession* sess, DSMSession* sc_sess,
                 DSMCondition::EventType event,
-                map<string, string>* event_params);
+                map<string, string>*    event_params);
   bool returnDiag(AmSession* sess, DSMSession* sc_sess,
                   DSMCondition::EventType event,
-                  map<string, string>* event_params);
+                  map<string, string>*    event_params);
   bool runactions(vector<DSMElement*>::iterator from,
                   vector<DSMElement*>::iterator to, AmSession* sess,
                   DSMSession* sc_sess, DSMCondition::EventType event,

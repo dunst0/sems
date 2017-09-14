@@ -55,8 +55,8 @@ class mISDNStack : public AmThread
   mISDNStack();
   ~mISDNStack();
 
-  int placeCall(const AmSipRequest& req, GWSession* session,
-                const std::string& tonumber, const std::string& fromnumber);
+  int        placeCall(const AmSipRequest& req, GWSession* session,
+                       const std::string& tonumber, const std::string& fromnumber);
   int        m_mISDNdevice;
   int        m_entity;
   int        m_crcount;
@@ -65,16 +65,16 @@ class mISDNStack : public AmThread
    * number and decide to which channel object pass message */
   std::map<int, mISDNChannel*> CR_map;
   std::map<int, mISDNChannel*> BC_map;
-  mISDNChannel* NewCR(mISDNport* port, mISDN::iframe_t* frame);
-  mISDNChannel* FindCR(mISDN::iframe_t* frame);
-  mISDNChannel* FindBC(mISDN::iframe_t* frame);
+  mISDNChannel*                NewCR(mISDNport* port, mISDN::iframe_t* frame);
+  mISDNChannel*                FindCR(mISDN::iframe_t* frame);
+  mISDNChannel*                FindBC(mISDN::iframe_t* frame);
 
   static mISDNStack* instance();
   static int         GetPortInfo();
   int                GenerateCR();
-  void l1l2l3_trace_header(struct mISDNport* mISDNport, int port,
-                           unsigned long prim, int direction);
-  std::string dumpIE(char* buf, int len);
+  void               l1l2l3_trace_header(struct mISDNport* mISDNport, int port,
+                                         unsigned long prim, int direction);
+  std::string        dumpIE(char* buf, int len);
 };
 #define DIRECTION_NONE 0
 #define DIRECTION_OUT 1

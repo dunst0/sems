@@ -46,7 +46,7 @@ class ExtendedCCInterface
   /** First method called from extended CC module interface.
    * It should initialize CC module internals (values from sbcprofile.conf can
    * be used for evaluating CC module parameters). */
-  virtual bool init(SBCCallLeg* call,
+  virtual bool init(SBCCallLeg*                               call,
                     const std::map<std::string, std::string>& values)
   {
     return true;

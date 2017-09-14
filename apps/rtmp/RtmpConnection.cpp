@@ -267,9 +267,9 @@ int RtmpConnection::invoke(RTMPPacket* packet, unsigned int offset)
       if (cobj.o_props[i].p_type == AMF_STRING)
         pval = cobj.o_props[i].p_vu.p_aval;
       if (AVMATCH(&pname, &av_app)) {
-        rtmp.Link.app                                   = pval;
-        pval.av_val                                     = NULL;
-        if (!rtmp.Link.app.av_val) rtmp.Link.app.av_val = (char*) "";
+        rtmp.Link.app = pval;
+        pval.av_val   = NULL;
+        if (!rtmp.Link.app.av_val) rtmp.Link.app.av_val= (char*) "";
       }
       else if (AVMATCH(&pname, &av_flashVer)) {
         rtmp.Link.flashVer = pval;
@@ -614,7 +614,7 @@ void RtmpConnection::rxAudio(RTMPPacket* packet)
 RtmpSession* RtmpConnection::startSession(const char* uri)
 {
   unique_ptr<RtmpSession> n_session(new RtmpSession(this));
-  AmSipDialog* dialout_dlg = n_session->dlg;
+  AmSipDialog*            dialout_dlg = n_session->dlg;
 
   string dialout_id = AmSession::getNewId();
   dialout_dlg->setLocalTag(dialout_id);

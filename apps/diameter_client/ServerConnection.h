@@ -89,7 +89,7 @@ struct DiameterServerConnection
 
   AAAMsgIdentifier h2h;
   AAAMsgIdentifier e2e;
-  void terminate(bool tls_shutdown = false);
+  void             terminate(bool tls_shutdown = false);
 
   void setIDs(AAAMessage* msg);
 
@@ -129,19 +129,19 @@ class ServerConnection
   DiameterServerConnection conn;
 
   typedef map<unsigned int, pair<string, struct timeval>> DReqMap;
-  DReqMap req_map;
-  AmMutex req_map_mut;
+  DReqMap                                                 req_map;
+  AmMutex                                                 req_map_mut;
 
   void openConnection();
   void closeConnection(bool tls_shutdown = false);
 
   int addOrigin(AAAMessage* msg);
 
-  int handleReply(AAAMessage* rep);
-  int handleRequest(AAAMessage* req);
+  int         handleReply(AAAMessage* rep);
+  int         handleRequest(AAAMessage* req);
   AAAMessage* ReqEvent2AAAMessage(DiameterRequestEvent* re);
-  AmArg AAAMessageAVPs2AmArg(AAAMessage* rep);
-  int AAAMessageGetReplyCode(AAAMessage* rep);
+  AmArg       AAAMessageAVPs2AmArg(AAAMessage* rep);
+  int         AAAMessageGetReplyCode(AAAMessage* rep);
 
   static int addStringAVP(AAAMessage* msg, AAA_AVPCode avp_code, string& val,
                           bool attail = false);
@@ -152,7 +152,7 @@ class ServerConnection
                            unsigned int len);
 
   // send request and get response
-  int sendRequest(AAAMessage* req, unsigned int& exe);
+  int  sendRequest(AAAMessage* req, unsigned int& exe);
   void process(AmEvent*);
   void receive();
   void setRetryConnectLater();

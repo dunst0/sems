@@ -47,7 +47,7 @@ class SIPRegistrarClient
     , public AmDynInvokeFactory
 {
   // registrations container
-  AmMutex reg_mut;
+  AmMutex                                   reg_mut;
   std::map<std::string, AmSIPRegistration*> registrations;
 
   void add_reg(const std::string& reg_id, AmSIPRegistration* new_reg);
@@ -78,7 +78,7 @@ class SIPRegistrarClient
   void invoke(const std::string& method, const AmArg& args, AmArg& ret);
 
   bool onSipReply(const AmSipReply& rep, AmSipDialog::Status old_dlg_status);
-  int onLoad();
+  int  onLoad();
 
   void run();
   void on_stop();
@@ -86,11 +86,11 @@ class SIPRegistrarClient
 
   // API
   std::string
-  createRegistration(const std::string& domain, const std::string& user,
-                     const std::string& name, const std::string& auth_user,
-                     const std::string& pwd, const std::string& sess_link,
-                     const std::string& proxy, const std::string& contact,
-                     const std::string& handle);
+       createRegistration(const std::string& domain, const std::string& user,
+                          const std::string& name, const std::string& auth_user,
+                          const std::string& pwd, const std::string& sess_link,
+                          const std::string& proxy, const std::string& contact,
+                          const std::string& handle);
   void removeRegistration(const std::string& handle);
 
   bool hasRegistration(const std::string& handle);

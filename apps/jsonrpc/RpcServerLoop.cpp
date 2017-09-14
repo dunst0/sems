@@ -59,7 +59,7 @@ JsonRPCServerLoop*  JsonRPCServerLoop::_instance = NULL;
 RpcServerThreadpool JsonRPCServerLoop::threadpool;
 
 map<string, JsonrpcPeerConnection*> JsonRPCServerLoop::connections;
-AmMutex JsonRPCServerLoop::connections_mut;
+AmMutex                             JsonRPCServerLoop::connections_mut;
 
 vector<JsonServerEvent*> JsonRPCServerLoop::pending_events;
 AmMutex                  JsonRPCServerLoop::pending_events_mut;
@@ -453,7 +453,7 @@ bool JsonRPCServerLoop::registerConnection(JsonrpcPeerConnection* peer,
   bool res = false;
   connections_mut.lock();
   if (connections.find(id) != connections.end()) res = true;
-  connections[id]                                    = peer;
+  connections[id] = peer;
   connections_mut.unlock();
 
   DBG("registered connection '%s'\n", id.c_str());
@@ -479,7 +479,7 @@ JsonrpcPeerConnection* JsonRPCServerLoop::getConnection(const string& id)
   JsonrpcPeerConnection* res = NULL;
   connections_mut.lock();
   map<string, JsonrpcPeerConnection*>::iterator it = connections.find(id);
-  if (it != connections.end()) res = it->second;
+  if (it != connections.end()) res                 = it->second;
   connections_mut.unlock();
   return res;
 }

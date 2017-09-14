@@ -64,7 +64,7 @@ class RtmpFactory
   // Container keeping trace of registered RTMP connections
   // to enable inbound calls to RTMP clients
   map<string, RtmpConnection*> connections;
-  AmMutex m_connections;
+  AmMutex                      m_connections;
 
   // registrar_client instance pointer
   AmDynInvoke* di_reg_client;
@@ -79,12 +79,12 @@ class RtmpFactory
 
   // from AmSessionFactory
   AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-                      const map<string, string>&             app_params);
+                      const map<string, string>& app_params);
 
   const RtmpConfig* getConfig() { return &cfg; }
   AmDynInvoke*      getRegClient() { return di_reg_client; }
 
-  int addConnection(const string& ident, RtmpConnection*);
+  int  addConnection(const string& ident, RtmpConnection*);
   void removeConnection(const string& ident);
 };
 

@@ -224,9 +224,9 @@ void Monitor::add(const AmArg& args, AmArg& ret, int a)
   bucket.log_lock.lock();
   try {
     // for (size_t i=1;i<args.size();i++) {
-    int    val           = 0;
-    AmArg& v             = bucket.log[args[0].asCStr()].info[args[1].asCStr()];
-    if (isArgInt(v)) val = v.asInt();
+    int    val = 0;
+    AmArg& v   = bucket.log[args[0].asCStr()].info[args[1].asCStr()];
+    if (isArgInt(v)) val= v.asInt();
     val += a;
     v = val;
     //}

@@ -51,7 +51,7 @@ class Click2DialFactory : public AmSessionFactory
 
   int        onLoad();
   AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
-                      const std::map<std::string, std::string>&   app_params);
+                      const std::map<std::string, std::string>& app_params);
   AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
                       AmArg& session_params);
 };
@@ -70,9 +70,9 @@ class C2DCallerDialog
                   const std::string& callee_uri,
                   UACAuthCred*       credentials = NULL);
 
-  void process(AmEvent* event);
-  void onInvite(const AmSipRequest& req);
-  void onInvite2xx(const AmSipReply& reply);
+  void                process(AmEvent* event);
+  void                onInvite(const AmSipRequest& req);
+  void                onInvite2xx(const AmSipReply& reply);
   void                onSessionStart();
   void                createCalleeSession();
   inline UACAuthCred* getCredentials() { return cred.get(); }

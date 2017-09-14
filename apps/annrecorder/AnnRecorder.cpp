@@ -114,7 +114,7 @@ int AnnRecorderFactory::onLoad()
   return 0;
 }
 
-void AnnRecorderFactory::getAppParams(const AmSipRequest& req,
+void AnnRecorderFactory::getAppParams(const AmSipRequest&  req,
                                       map<string, string>& params)
 {
   string language;
@@ -146,17 +146,17 @@ void AnnRecorderFactory::getAppParams(const AmSipRequest& req,
     user = get_header_keyvalue(iptel_app_param, "uid", "UserID");
     if (user.empty()) {
       user = get_header_keyvalue(iptel_app_param, "usr", "User");
-      if (!user.length()) user = req.user;
+      if (!user.length()) user= req.user;
     }
 
     domain = get_header_keyvalue(iptel_app_param, "did", "DomainID");
     if (domain.empty()) {
       domain = get_header_keyvalue(iptel_app_param, "dom", "Domain");
-      if (domain.empty()) domain = req.domain;
+      if (domain.empty()) domain= req.domain;
     }
 
     typ = get_header_keyvalue(iptel_app_param, "typ", "Type");
-    if (!typ.length()) typ = DEFAULT_TYPE;
+    if (!typ.length()) typ= DEFAULT_TYPE;
   }
 
   // checks
@@ -183,7 +183,7 @@ void AnnRecorderFactory::getAppParams(const AmSipRequest& req,
   }
 
   announce_file = add2path(AnnouncePath, 1, DefaultAnnounce.c_str());
-  if (!file_exists(announce_file)) announce_file = "";
+  if (!file_exists(announce_file)) announce_file= "";
 
 announce_found:
 
@@ -200,8 +200,8 @@ announce_found:
   params["type"]        = typ;
 }
 
-AmSession* AnnRecorderFactory::onInvite(const AmSipRequest& req,
-                                        const string&       app_name,
+AmSession* AnnRecorderFactory::onInvite(const AmSipRequest&        req,
+                                        const string&              app_name,
                                         const map<string, string>& app_params)
 {
   map<string, string> params;
@@ -230,8 +230,8 @@ AmSession* AnnRecorderFactory::onInvite(const AmSipRequest& req,
 }
 
 AnnRecorderDialog::AnnRecorderDialog(const map<string, string>& params,
-                                     AmPromptCollection& prompts,
-                                     UACAuthCred*        credentials)
+                                     AmPromptCollection&        prompts,
+                                     UACAuthCred*               credentials)
     : prompts(prompts)
     , playlist(this)
     , params(params)

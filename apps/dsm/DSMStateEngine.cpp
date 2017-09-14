@@ -161,8 +161,8 @@ bool DSMStateDiagram::addTransition(const DSMTransition& trans)
   vector<string> from_states;
 
   if (trans.from_state.find_first_of("(") != string::npos) {
-    string states                                   = trans.from_state;
-    if (states.length() && states[0] == '(') states = states.substr(1);
+    string states = trans.from_state;
+    if (states.length() && states[0] == '(') states= states.substr(1);
     if (states.length() && states[states.length() - 1] == ')')
       states = states.substr(0, states.length() - 1);
 
@@ -316,7 +316,7 @@ bool DSMStateEngine::runactions(vector<DSMElement*>::iterator from,
                                 vector<DSMElement*>::iterator to,
                                 AmSession* sess, DSMSession* sc_sess,
                                 DSMCondition::EventType event,
-                                map<string, string>* event_params,
+                                map<string, string>*    event_params,
                                 bool& is_consumed, bool& do_break)
 {
   DBG("running %zd DSM action elements\n", to - from);
@@ -418,7 +418,7 @@ bool DSMStateEngine::runactions(vector<DSMElement*>::iterator from,
         v_name.erase(0, 1);
 
       vector<pair<string, string>> cnt_values;
-      int range[2] = {0, 0};
+      int                          range[2] = {0, 0};
       // get the counter values
       if (array_for->for_type == DSMArrayFor::Struct) {
         VarMapT::iterator lb = sc_sess->var.lower_bound(array_name);
@@ -484,9 +484,9 @@ bool DSMStateEngine::runactions(vector<DSMElement*>::iterator from,
       bool   v_exists = false;
       string v_save;
       if (array_for->for_type == DSMArrayFor::Struct) {
-        c_it                 = sc_sess->var.find(v_name);
-        v_exists             = c_it != sc_sess->var.end();
-        if (v_exists) v_save = c_it->second;
+        c_it     = sc_sess->var.find(v_name);
+        v_exists = c_it != sc_sess->var.end();
+        if (v_exists) v_save= c_it->second;
       }
 
       // run the loop
@@ -588,7 +588,7 @@ bool DSMStateEngine::init(AmSession* sess, DSMSession* sc_sess,
 
 bool DSMCondition::_match(AmSession* sess, DSMSession* sc_sess,
                           DSMCondition::EventType event,
-                          map<string, string>* event_params)
+                          map<string, string>*    event_params)
 {
   // or xor
   return invert ? (!match(sess, sc_sess, event, event_params))
@@ -597,7 +597,7 @@ bool DSMCondition::_match(AmSession* sess, DSMSession* sc_sess,
 
 bool DSMCondition::match(AmSession* sess, DSMSession* sc_sess,
                          DSMCondition::EventType event,
-                         map<string, string>* event_params)
+                         map<string, string>*    event_params)
 {
   if ((type != Any) && (event != type)) return false;
 
@@ -615,15 +615,15 @@ bool DSMCondition::match(AmSession* sess, DSMSession* sc_sess,
 
 void DSMStateEngine::runEvent(AmSession* sess, DSMSession* sc_sess,
                               DSMCondition::EventType event,
-                              map<string, string>* event_params,
-                              bool run_exception)
+                              map<string, string>*    event_params,
+                              bool                    run_exception)
 {
   if (!current || !current_diag) return;
 
-  DSMCondition::EventType active_event = event;
-  map<string, string>* active_params = event_params;
-  map<string, string>  exception_params;
-  bool is_exception = run_exception;
+  DSMCondition::EventType active_event  = event;
+  map<string, string>*    active_params = event_params;
+  map<string, string>     exception_params;
+  bool                    is_exception = run_exception;
 
   DBG("o v DSM current state '%s', processing '%s' event v\n",
       current->name.c_str(), DSMCondition::type2str(event));
@@ -746,9 +746,9 @@ void DSMStateEngine::runEvent(AmSession* sess, DSMSession* sc_sess,
 }
 
 bool DSMStateEngine::callDiag(const string& diag_name, AmSession* sess,
-                              DSMSession*             sc_sess,
-                              DSMCondition::EventType event,
-                              map<string, string>* event_params,
+                              DSMSession*                   sc_sess,
+                              DSMCondition::EventType       event,
+                              map<string, string>*          event_params,
                               vector<DSMElement*>::iterator actions_from,
                               vector<DSMElement*>::iterator actions_to)
 {
@@ -766,7 +766,7 @@ bool DSMStateEngine::callDiag(const string& diag_name, AmSession* sess,
 bool DSMStateEngine::jumpDiag(const string& diag_name, AmSession* sess,
                               DSMSession*             sc_sess,
                               DSMCondition::EventType event,
-                              map<string, string>* event_params)
+                              map<string, string>*    event_params)
 {
   for (vector<DSMStateDiagram*>::iterator it = diags.begin(); it != diags.end();
        it++) {
@@ -806,7 +806,7 @@ bool DSMStateEngine::jumpDiag(const string& diag_name, AmSession* sess,
 
 bool DSMStateEngine::returnDiag(AmSession* sess, DSMSession* sc_sess,
                                 DSMCondition::EventType event,
-                                map<string, string>* event_params)
+                                map<string, string>*    event_params)
 {
   if (stack.empty()) {
     ERROR("returning from empty stack\n");
@@ -861,9 +861,9 @@ void varPrintArg(const AmArg& a, map<string, string>& dst, const string& name)
       dst[name] = a.asInt() < 0 ? "-" + int2str(abs(a.asInt()))
                                 : int2str(abs(a.asInt()));
       return;
-    case AmArg::Bool: dst[name]   = a.asBool() ? "true" : "false"; return;
+    case AmArg::Bool: dst[name] = a.asBool() ? "true" : "false"; return;
     case AmArg::Double: dst[name] = double2str(a.asDouble()); return;
-    case AmArg::CStr: dst[name]   = a.asCStr(); return;
+    case AmArg::CStr: dst[name] = a.asCStr(); return;
     case AmArg::Array:
       for (size_t i = 0; i < a.size(); i++)
         varPrintArg(a.get(i), dst,

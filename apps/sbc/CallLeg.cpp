@@ -438,8 +438,8 @@ void CallLeg::onB2BEvent(B2BEvent* ev)
         // being connected to us and thus it can't set) Need not to be done if
         // we have only one possible B leg so instead of checking call_status we
         // can check if sip_relay_only is set or not
-        B2BSipRequestEvent* req_ev  = dynamic_cast<B2BSipRequestEvent*>(ev);
-        if (req_ev) req_ev->forward = false;
+        B2BSipRequestEvent* req_ev = dynamic_cast<B2BSipRequestEvent*>(ev);
+        if (req_ev) req_ev->forward= false;
       }
     // continue handling in AmB2bSession
 

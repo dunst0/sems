@@ -102,7 +102,7 @@ class RtmpConnection : public AmThread
   RtmpConnection(int fd);
   ~RtmpConnection();
 
-  void setSessionPtr(RtmpSession* s);
+  void        setSessionPtr(RtmpSession* s);
   RtmpSender* getSenderPtr() { return sender; }
 
   int SendCallStatus(int status);
@@ -116,8 +116,8 @@ class RtmpConnection : public AmThread
 
  private:
   RtmpSession* startSession(const char* uri);
-  void disconnectSession();
-  void detachSession();
+  void         disconnectSession();
+  void         detachSession();
 
   void createRegistration(const string& domain, const string& user,
                           const string& display_name,

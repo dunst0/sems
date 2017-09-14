@@ -72,8 +72,8 @@ int AnnounceTransferFactory::onLoad()
 }
 
 AmSession*
-AnnounceTransferFactory::onInvite(const AmSipRequest& req,
-                                  const string&       app_name,
+AnnounceTransferFactory::onInvite(const AmSipRequest&        req,
+                                  const string&              app_name,
                                   const map<string, string>& app_params)
 {
   string announce_path = AnnouncePath;

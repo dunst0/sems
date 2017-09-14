@@ -606,7 +606,7 @@ int WebConferenceDialog::readStreams(unsigned long long ts,
     if (local_input)
       got = local_input->get(ts, buffer, stream->getSampleRate(), f_size);
     else
-      got            = stream->get(ts, buffer, stream->getSampleRate(), f_size);
+      got = stream->get(ts, buffer, stream->getSampleRate(), f_size);
     if (got < 0) res = -1;
     if (got > 0) {
       if (isDtmfDetectionEnabled()) putDtmfAudio(buffer, got, ts);

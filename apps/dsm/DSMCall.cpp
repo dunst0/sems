@@ -93,7 +93,7 @@ string DSMCall::getVar(const string& var_name)
 
 /** returns whether params, param exists && param==value*/
 bool checkParam(const string& par_name, const string& par_val,
-                map<string, string>*                  params)
+                map<string, string>* params)
 {
   if (NULL == params) return false;
 
@@ -129,7 +129,7 @@ void DSMCall::onInvite(const AmSipRequest& req)
 
   if (old_st != dlg->getStatus()
       // checkVar(DSM_CONNECT_SESSION, DSM_CONNECT_SESSION_FALSE)
-      ) {
+  ) {
     DBG("session choose to not connect media\n");
     run_session_invite = false; // don't accept audio
   }
@@ -518,7 +518,7 @@ void DSMCall::process(AmEvent* event)
 
   AmPluginEvent* plugin_event = dynamic_cast<AmPluginEvent*>(event);
   if (plugin_event && plugin_event->name == "timer_timeout") {
-    int timer_id = plugin_event->data.get(0).asInt();
+    int                 timer_id = plugin_event->data.get(0).asInt();
     map<string, string> params;
     params["id"] = int2str(timer_id);
     engine.runEvent(this, this, DSMCondition::Timer, &params);
@@ -578,7 +578,7 @@ void DSMCall::process(AmEvent* event)
       params["ev_type"]   = "JsonRpcRequest";
       params["is_notify"] = req_ev->isNotification() ? "true" : "false";
       params["method"]    = req_ev->method;
-      if (!req_ev->id.empty()) params["id"] = req_ev->id;
+      if (!req_ev->id.empty()) params["id"]= req_ev->id;
 
       // decode request params result for easy use from script
       varPrintArg(req_ev->params, params, "params");

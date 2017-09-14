@@ -497,8 +497,8 @@ int AnswerMachineFactory::onLoad()
   return 0;
 }
 
-AmSession* AnswerMachineFactory::onInvite(const AmSipRequest& req,
-                                          const string&       app_name,
+AmSession* AnswerMachineFactory::onInvite(const AmSipRequest&        req,
+                                          const string&              app_name,
                                           const map<string, string>& app_params)
 {
   string language;
@@ -559,22 +559,22 @@ AmSession* AnswerMachineFactory::onInvite(const AmSipRequest& req,
     }
 
     user = get_header_keyvalue(iptel_app_param, "usr", "User");
-    if (!user.length()) user = req.user;
+    if (!user.length()) user= req.user;
 
     sender = get_header_keyvalue(iptel_app_param, "snd", "Sender");
-    if (!sender.length()) sender = req.from;
+    if (!sender.length()) sender= req.from;
 
     domain = get_header_keyvalue(iptel_app_param, "dom", "Domain");
-    if (!domain.length()) domain = req.domain;
+    if (!domain.length()) domain= req.domain;
 
     typ = get_header_keyvalue(iptel_app_param, "typ", "Type");
-    if (!typ.length()) typ = DEFAULT_TYPE;
+    if (!typ.length()) typ= DEFAULT_TYPE;
 
     uid = get_header_keyvalue(iptel_app_param, "uid", "UserID");
-    if (uid.empty()) uid = user;
+    if (uid.empty()) uid= user;
 
     did = get_header_keyvalue(iptel_app_param, "did", "DomainID");
-    if (did.empty()) did = domain;
+    if (did.empty()) did= domain;
   }
 
   // checks
@@ -599,8 +599,8 @@ AmSession* AnswerMachineFactory::onInvite(const AmSipRequest& req,
   DBG(" UID:      <%s> \n", uid.c_str());
   DBG(" DID:      <%s> \n", did.c_str());
 
-  FILE* greeting_fp                    = NULL;
-  if (TryPersonalGreeting) greeting_fp = getMsgStoreGreeting(typ, uid, did);
+  FILE* greeting_fp = NULL;
+  if (TryPersonalGreeting) greeting_fp= getMsgStoreGreeting(typ, uid, did);
 
 #ifdef USE_MYSQL
 
@@ -651,7 +651,7 @@ AmSession* AnswerMachineFactory::onInvite(const AmSipRequest& req,
   }
 
   announce_file = add2path(AnnouncePath, 1, DefaultAnnounce.c_str());
-  if (!file_exists(announce_file)) announce_file = "";
+  if (!file_exists(announce_file)) announce_file= "";
 
 #endif
 

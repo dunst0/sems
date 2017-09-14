@@ -39,7 +39,7 @@ class PayloadIdMapping
 
  public:
   void map(int stream_index, int payload_index, int payload_id);
-  int get(int stream_index, int payload_index);
+  int  get(int stream_index, int payload_index);
   void reset();
 };
 
@@ -112,7 +112,7 @@ class SBCCallLeg
                      const AmSipRequest& original_invite,
                      const AmSipRequest& invite_req);
 
-  int filterSdp(AmMimeBody& body, const std::string& method);
+  int  filterSdp(AmMimeBody& body, const std::string& method);
   void appendTranscoderCodecs(AmSdp& sdp);
   void savePayloadIDs(AmSdp& sdp);
 
@@ -168,8 +168,8 @@ class SBCCallLeg
                         const std::vector<AmDynInvoke*>& cc_module_di);
   bool initPendingCCExtModules();
   void
-  addPendingCCExtModule(const std::string& cc_name,
-                        const std::string& cc_module,
+  addPendingCCExtModule(const std::string&                        cc_name,
+                        const std::string&                        cc_module,
                         const std::map<std::string, std::string>& cc_values);
 
   /** save call timer; only effective before call is connected */
@@ -206,14 +206,14 @@ class SBCCallLeg
   // media interface must be accessible from CC modules
   AmB2BMedia*  getMediaSession() { return AmB2BSession::getMediaSession(); }
   virtual void updateLocalSdp(AmSdp& sdp);
-  void changeRtpMode(RTPRelayMode new_mode)
+  void         changeRtpMode(RTPRelayMode new_mode)
   {
     CallLeg::changeRtpMode(new_mode);
   }
 
   bool reinvite(const AmSdp& sdp, unsigned& request_cseq);
 
-  int relayEvent(AmEvent* ev);
+  int  relayEvent(AmEvent* ev);
   void onSipRequest(const AmSipRequest& req);
   bool isALeg() { return a_leg; }
 
@@ -280,7 +280,7 @@ class SBCCallLeg
 
   int applySSTCfg(AmConfigReader& sst_cfg, const AmSipRequest* p_req);
 
-  bool openLogger(const std::string& path);
+  bool        openLogger(const std::string& path);
   msg_logger* getLogger() { return logger; }
 
   virtual double get491RetryTime()

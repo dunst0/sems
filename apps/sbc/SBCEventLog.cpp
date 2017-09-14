@@ -112,9 +112,9 @@ void _SBCEventLog::logCallStart(const AmSipRequest& req,
   start_event["to-ua"] = to_remote_ua;
   DBG("to-ua: '%s'", to_remote_ua.c_str());
 
-  start_event["call-id"]            = req.callid;
-  if (code) start_event["res-code"] = code;
-  start_event["reason"]             = reason;
+  start_event["call-id"] = req.callid;
+  if (code) start_event["res-code"]= code;
+  start_event["reason"] = reason;
 
   logEvent(local_tag, code >= 200 && code < 300 ? "call-start" : "call-attempt",
            start_event);

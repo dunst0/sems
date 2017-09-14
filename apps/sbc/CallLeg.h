@@ -299,7 +299,7 @@ class CallLeg : public AmB2BSession
   // functions offered to successors
 
   virtual void setCallStatus(CallStatus new_status);
-  CallStatus getCallStatus() { return call_status; }
+  CallStatus   getCallStatus() { return call_status; }
 
   // @see AmSession
   virtual void onInvite(const AmSipRequest& req);
@@ -448,7 +448,7 @@ class CallLeg : public AmB2BSession
   virtual ~CallLeg();
 
   // OA callbacks
-  virtual int onSdpCompleted(const AmSdp& local, const AmSdp& remote);
+  virtual int  onSdpCompleted(const AmSdp& local, const AmSdp& remote);
   virtual bool getSdpOffer(AmSdp& offer) { return false; }
   virtual bool getSdpAnswer(const AmSdp& offer, AmSdp& answer) { return false; }
   virtual void onEarlySessionStart() {}

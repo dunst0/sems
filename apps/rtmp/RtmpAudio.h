@@ -60,7 +60,7 @@ class RtmpAudio
   unsigned int send_rtmp_offset;
 
   void process_recv_queue(unsigned int ref_ts);
-  int send(unsigned int user_ts, unsigned int size);
+  int  send(unsigned int user_ts, unsigned int size);
 
  public:
   RtmpAudio(RtmpSender* s);

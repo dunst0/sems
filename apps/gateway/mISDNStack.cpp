@@ -367,8 +367,8 @@ int mISDNStack::init()
       }
     }
     /* add mISDNport structure */
-    mISDNportp                     = &mISDNport_first;
-    while (*mISDNportp) mISDNportp = &((*mISDNportp)->next);
+    mISDNportp = &mISDNport_first;
+    while (*mISDNportp) mISDNportp= &((*mISDNportp)->next);
     mISDNport   = (struct mISDNport*) malloc(sizeof(struct mISDNport));
     *mISDNportp = mISDNport;
 
@@ -485,7 +485,7 @@ int mISDNStack::GenerateCR()
   int cr;
   // llock()
   if (m_crcount++ > 0x7fff) m_crcount = 0x0001;
-  cr                                  = (m_entity << 16) | m_crcount;
+  cr = (m_entity << 16) | m_crcount;
   // unlock();
   return cr;
 }

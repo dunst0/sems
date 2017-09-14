@@ -56,7 +56,7 @@ class CallBackFactory
   regex_t accept_caller_re;
 
   std::multimap<time_t, std::string> scheduled_calls;
-  AmMutex scheduled_calls_mut;
+  AmMutex                            scheduled_calls_mut;
   // seconds to wait before calling back
   int cb_wait;
 
@@ -73,11 +73,11 @@ class CallBackFactory
 
   CallBackFactory(const std::string& _app_name);
   ~CallBackFactory();
-  AmSession* onInvite(const AmSipRequest&, const std::string&   app_name,
+  AmSession* onInvite(const AmSipRequest&, const std::string& app_name,
                       const std::map<std::string, std::string>& app_params);
   AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
                       AmArg& session_params);
-  int onLoad();
+  int        onLoad();
 
   void run();
   void on_stop();

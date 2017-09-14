@@ -39,13 +39,13 @@
 #include <string>
 
 typedef std::map<std::string, AmArg> SBCVarMap;
-typedef SBCVarMap::iterator       SBCVarMapIterator;
-typedef SBCVarMap::const_iterator SBCVarMapConstIterator;
+typedef SBCVarMap::iterator          SBCVarMapIterator;
+typedef SBCVarMap::const_iterator    SBCVarMapConstIterator;
 
 struct CCInterface
 {
-  std::string cc_name;
-  std::string cc_module;
+  std::string                        cc_name;
+  std::string                        cc_module;
   std::map<std::string, std::string> cc_values;
 
   CCInterface(std::string cc_name)
@@ -101,9 +101,9 @@ class PayloadDesc
   unsigned    clock_rate; // 0 means "doesn't matter"
 
  public:
-  bool match(const SdpPayload& p) const;
+  bool        match(const SdpPayload& p) const;
   std::string print() const;
-  bool operator==(const PayloadDesc& other) const;
+  bool        operator==(const PayloadDesc& other) const;
 
   /* FIXME: really want all of this?
    * reads from format: name/clock_rate, nothing need to be set
@@ -277,9 +277,9 @@ struct SBCCallProfile : public AmObject
 
     bool evaluate(ParamReplacerCtx& ctx, const AmSipRequest& req);
 
-    bool readConfig(AmConfigReader& cfg);
-    void infoPrint() const;
-    bool operator==(const TranscoderSettings& rhs) const;
+    bool        readConfig(AmConfigReader& cfg);
+    void        infoPrint() const;
+    bool        operator==(const TranscoderSettings& rhs) const;
     std::string print() const;
 
     bool isActive() { return enabled; }
@@ -308,9 +308,9 @@ struct SBCCallProfile : public AmObject
     bool                     bleg_prefer_existing_payloads;
     std::vector<PayloadDesc> bleg_payload_order;
 
-    bool readConfig(AmConfigReader& cfg);
-    void infoPrint() const;
-    bool operator==(const CodecPreferences& rhs) const;
+    bool        readConfig(AmConfigReader& cfg);
+    void        infoPrint() const;
+    bool        operator==(const CodecPreferences& rhs) const;
     std::string print() const;
 
     void orderSDP(AmSdp& sdp, bool a_leg); // do the SDP changes
@@ -452,7 +452,7 @@ struct SBCCallProfile : public AmObject
   bool readFromConfiguration(const std::string& name,
                              const std::string  profile_file_name);
 
-  bool operator==(const SBCCallProfile& rhs) const;
+  bool        operator==(const SBCCallProfile& rhs) const;
   std::string print() const;
 
   int refuse(ParamReplacerCtx& ctx, const AmSipRequest& req) const;

@@ -49,7 +49,7 @@ struct SBCCallRegistryEntry
 
 class SBCCallRegistry
 {
-  static AmMutex registry_mutex;
+  static AmMutex                                     registry_mutex;
   static std::map<std::string, SBCCallRegistryEntry> registry;
 
  public:

@@ -121,34 +121,34 @@ class DSMSession
   virtual ~DSMSession();
 
   virtual void playPrompt(const string& name, bool loop = false,
-                          bool front = false) = 0;
+                          bool front = false)                              = 0;
   virtual void playFile(const string& name, bool loop, bool front = false) = 0;
-  virtual void playSilence(unsigned int length, bool front = false) = 0;
+  virtual void playSilence(unsigned int length, bool front = false)        = 0;
   virtual void playRingtone(int length, int on, int off, int f, int f2,
-                            bool front) = 0;
+                            bool front)                                    = 0;
 
-  virtual void recordFile(const string& name) = 0;
-  virtual unsigned int getRecordLength()      = 0;
-  virtual unsigned int getRecordDataSize()    = 0;
-  virtual void         stopRecord()           = 0;
-  virtual void         setInOutPlaylist()     = 0;
-  virtual void         setInputPlaylist()     = 0;
-  virtual void         setOutputPlaylist()    = 0;
+  virtual void         recordFile(const string& name) = 0;
+  virtual unsigned int getRecordLength()              = 0;
+  virtual unsigned int getRecordDataSize()            = 0;
+  virtual void         stopRecord()                   = 0;
+  virtual void         setInOutPlaylist()             = 0;
+  virtual void         setInputPlaylist()             = 0;
+  virtual void         setOutputPlaylist()            = 0;
 
   virtual void addToPlaylist(AmPlaylistItem* item, bool front = false) = 0;
-  virtual void flushPlaylist()                  = 0;
-  virtual void setPromptSet(const string& name) = 0;
-  virtual void addSeparator(const string& name, bool front = false) = 0;
-  virtual void connectMedia()    = 0;
-  virtual void disconnectMedia() = 0;
-  virtual void mute()            = 0;
-  virtual void unmute()          = 0;
+  virtual void flushPlaylist()                                         = 0;
+  virtual void setPromptSet(const string& name)                        = 0;
+  virtual void addSeparator(const string& name, bool front = false)    = 0;
+  virtual void connectMedia()                                          = 0;
+  virtual void disconnectMedia()                                       = 0;
+  virtual void mute()                                                  = 0;
+  virtual void unmute()                                                = 0;
 
   /** B2BUA functions */
   virtual void B2BconnectCallee(const string& remote_party,
                                 const string& remote_uri,
                                 bool          relayed_invite = false) = 0;
-  virtual void B2BterminateOtherLeg()                                 = 0;
+  virtual void B2BterminateOtherLeg()                        = 0;
 
   /** insert request in list of received ones */
   virtual void B2BaddReceivedRequest(const AmSipRequest& req) = 0;
@@ -192,7 +192,7 @@ class DSMStateDiagramCollection;
 struct DSMScriptConfig
 {
   DSMStateDiagramCollection* diags;
-  map<string, string> config_vars;
+  map<string, string>        config_vars;
 
   bool RunInviteEvent;
   bool SetParamVariables;

@@ -267,7 +267,7 @@ string _RegisterCache::canonicalize_aor(const string& uri)
   }
 
   switch (parsed_uri.scheme) {
-    case sip_uri::SIP: canon_uri  = "sip:"; break;
+    case sip_uri::SIP: canon_uri = "sip:"; break;
     case sip_uri::SIPS: canon_uri = "sips:"; break;
     default: DBG("Unknown URI scheme in '%s'", uri.c_str()); return "";
   }
@@ -716,7 +716,7 @@ void _RegisterCache::removeAlias(const string& alias, bool generate_event)
   alias_bucket->unlock();
 }
 
-bool _RegisterCache::getAorAliasMap(const string& canon_aor,
+bool _RegisterCache::getAorAliasMap(const string&        canon_aor,
                                     map<string, string>& alias_map)
 {
   if (canon_aor.empty()) {
@@ -934,7 +934,7 @@ bool _RegisterCache::throttleRegister(RegisterCacheCtx&   ctx,
   }
 
   // reply 200 w/ contacts
-  vector<AmUriParser>::iterator it = ctx.contacts.begin();
+  vector<AmUriParser>::iterator            it = ctx.contacts.begin();
   vector<pair<string, long int>>::iterator alias_update_it =
       alias_updates.begin();
 
@@ -977,7 +977,7 @@ bool _RegisterCache::saveSingleContact(RegisterCacheCtx&   ctx,
   }
 
   if (req.contact.empty()) {
-    string contact_hdr;
+    string              contact_hdr;
     map<string, string> alias_map;
     if (getAorAliasMap(ctx.from_aor, alias_map) && !alias_map.empty()) {
       struct timeval now;

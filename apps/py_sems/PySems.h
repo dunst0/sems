@@ -85,7 +85,7 @@ class PySemsFactory : public AmSessionFactory
   void import_py_sems_builtins();
 
   PyObject* import_module(const char* modname);
-  void import_object(PyObject* m, char* name, PyTypeObject* type);
+  void      import_object(PyObject* m, char* name, PyTypeObject* type);
 
   /** @return true if everything ok */
   bool loadScript(const string& path);

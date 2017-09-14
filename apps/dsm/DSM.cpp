@@ -518,7 +518,7 @@ void DSMFactory::setupSessionTimer(AmSession* s)
 }
 
 void DSMFactory::addVariables(DSMCall* s, const string& prefix,
-                              map<string, string>&      vars)
+                              map<string, string>& vars)
 {
   for (map<string, string>::iterator it = vars.begin(); it != vars.end(); it++)
     s->var[prefix + it->first] = it->second;
@@ -528,7 +528,7 @@ void DSMFactory::addParams(DSMCall* s, const string& hdrs)
 {
   // TODO: use real parser with quoting and optimize
   map<string, string> params;
-  vector<string> items = explode(getHeader(hdrs, PARAM_HDR, true), ";");
+  vector<string>      items = explode(getHeader(hdrs, PARAM_HDR, true), ";");
   for (vector<string>::iterator it = items.begin(); it != items.end(); it++) {
     vector<string> kv = explode(*it, "=");
     if (kv.size() == 2) params.insert(make_pair(kv[0], kv[1]));
@@ -559,8 +559,8 @@ void AmArg2DSMStrMap(const AmArg& arg, map<string, string>& vars)
   }
 }
 
-void DSMFactory::runMonitorAppSelect(const AmSipRequest& req,
-                                     string&             start_diag,
+void DSMFactory::runMonitorAppSelect(const AmSipRequest&  req,
+                                     string&              start_diag,
                                      map<string, string>& vars)
 {
 #define FALLBACK_OR_EXCEPTION(code, reason)                                    \
@@ -689,7 +689,7 @@ void DSMFactory::runMonitorAppSelect(const AmSipRequest& req,
 AmSession* DSMFactory::onInvite(const AmSipRequest& req, const string& app_name,
                                 const map<string, string>& app_params)
 {
-  string start_diag;
+  string              start_diag;
   map<string, string> vars;
 
   if (app_name == MOD_NAME) {
@@ -750,7 +750,7 @@ AmSession* DSMFactory::onInvite(const AmSipRequest& req, const string& app_name,
     start_diag = app_name;
   }
 
-  UACAuthCred* cred = NULL;
+  UACAuthCred*        cred = NULL;
   map<string, string> vars;
   // Creds
   if (session_params.getType() == AmArg::AObject) {
@@ -987,7 +987,7 @@ bool DSMFactory::hasDSM(const string& dsm_name, const string& conf_name)
     res = MainScriptConfig.diags->hasDiagram(dsm_name);
   else {
     map<string, DSMScriptConfig>::iterator i = ScriptConfigs.find(conf_name);
-    if (i != ScriptConfigs.end()) res = i->second.diags->hasDiagram(dsm_name);
+    if (i != ScriptConfigs.end()) res        = i->second.diags->hasDiagram(dsm_name);
   }
   return res;
 }
@@ -1135,10 +1135,10 @@ void DSMFactory::loadDSMWithPaths(const AmArg& args, AmArg& ret)
   ScriptConfigs_mut.unlock();
 }
 
-bool DSMFactory::addScriptDiagsToEngine(const string&   config_set,
-                                        DSMStateEngine* engine,
+bool DSMFactory::addScriptDiagsToEngine(const string&        config_set,
+                                        DSMStateEngine*      engine,
                                         map<string, string>& config_vars,
-                                        bool& SetParamVariables)
+                                        bool&                SetParamVariables)
 {
   bool res = false;
   ScriptConfigs_mut.lock();
@@ -1166,7 +1166,7 @@ void DSMFactory::invoke(const string& method, const AmArg& args, AmArg& ret)
     assertArgCStr(args.get(0))
 
         DSMEvent* ev = new DSMEvent();
-    for (size_t i                        = 0; i < args[1].size(); i++)
+    for (size_t i = 0; i < args[1].size(); i++)
       ev->params[args[1][i][0].asCStr()] = args[1][i][1].asCStr();
 
     if (AmSessionContainer::instance()->postEvent(args.get(0).asCStr(), ev)) {

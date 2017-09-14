@@ -114,7 +114,7 @@ class IvrFactory : public AmSessionFactory
 
   int        onLoad();
   AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-                      const map<string, string>&             app_params);
+                      const map<string, string>& app_params);
 
   void addDeferredThread(PyObject* pyCallable);
 
@@ -150,7 +150,7 @@ class IvrDialog : public AmB2BCallerSession
   int drop();
 
   void onInvite(const AmSipRequest& req);
-  int onSdpCompleted(const AmSdp& offer, const AmSdp& answer);
+  int  onSdpCompleted(const AmSdp& offer, const AmSdp& answer);
   void onSessionStart();
 
   void onBye(const AmSipRequest& req);

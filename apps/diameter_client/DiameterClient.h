@@ -44,7 +44,7 @@ class DiameterClient
   static DiameterClient* _instance;
 
   multimap<string, ServerConnection*> connections;
-  AmMutex conn_mut;
+  AmMutex                             conn_mut;
 
   void newConnection(const AmArg& args, AmArg& ret);
   void sendRequest(const AmArg& args, AmArg& ret);

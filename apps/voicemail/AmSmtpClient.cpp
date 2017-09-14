@@ -224,7 +224,7 @@ bool AmSmtpClient::send_body(const vector<string>& hdrs, const AmMail& mail)
 
 static void base64_encode(unsigned char* in, unsigned char* out,
                           unsigned int in_size);
-static int base64_encode_file(FILE* in, int out);
+static int  base64_encode_file(FILE* in, int out);
 
 bool AmSmtpClient::send_data(const vector<string>& hdrs, const AmMail& mail)
 {

@@ -30,7 +30,7 @@
 using std::map;
 using std::string;
 
-AmMutex SBCCallRegistry::registry_mutex;
+AmMutex                           SBCCallRegistry::registry_mutex;
 map<string, SBCCallRegistryEntry> SBCCallRegistry::registry;
 
 void SBCCallRegistry::addCall(const string&               ltag,

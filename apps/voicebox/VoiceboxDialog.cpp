@@ -291,7 +291,7 @@ void VoiceboxDialog::openMailbox()
   }
   else {
     if (saved_msgs.size()) cur_msg = saved_msgs.begin();
-    in_saved_msgs                  = true;
+    in_saved_msgs = true;
   }
 }
 

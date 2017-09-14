@@ -99,11 +99,11 @@ class ConferenceFactory : public AmSessionFactory
 
   ConferenceFactory(const std::string& _app_name);
   virtual AmSession*
-  onInvite(const AmSipRequest&, const std::string&   app_name,
+  onInvite(const AmSipRequest&, const std::string& app_name,
            const std::map<std::string, std::string>& app_params);
   virtual AmSession*
-  onRefer(const AmSipRequest& req, const std::string& app_name,
-          const std::map<std::string, std::string>&   app_params);
+              onRefer(const AmSipRequest& req, const std::string& app_name,
+                      const std::map<std::string, std::string>& app_params);
   virtual int onLoad();
 };
 
@@ -145,7 +145,7 @@ class ConferenceDialog : public AmSession
   void setupAudio();
 
 #ifdef WITH_SAS_TTS
-  void sayTTS(std::string text);
+  void                      sayTTS(std::string text);
   std::string               last_sas;
   cst_voice*                tts_voice;
   std::vector<AmAudioFile*> TTSFiles;

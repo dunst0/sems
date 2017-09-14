@@ -71,7 +71,7 @@ class AnswerMachineFactory : public AmSessionFactory
   int loadEmailTemplates(const string& path);
 #endif
 
-  FILE* getMsgStoreGreeting(string msgname, string user, string domain);
+  FILE*        getMsgStoreGreeting(string msgname, string user, string domain);
   AmDynInvoke* msg_storage;
 
  public:
@@ -101,7 +101,7 @@ class AnswerMachineFactory : public AmSessionFactory
 
   int        onLoad();
   AmSession* onInvite(const AmSipRequest& req, const string& app_name,
-                      const map<string, string>&             app_params);
+                      const map<string, string>& app_params);
 };
 
 class AnswerMachineDialog : public AmSession

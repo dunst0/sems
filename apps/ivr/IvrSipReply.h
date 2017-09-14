@@ -27,6 +27,6 @@
 #include "AmSipMsg.h"
 
 extern PyTypeObject IvrSipReplyType;
-PyObject* IvrSipReply_FromPtr(AmSipReply* req);
+PyObject*           IvrSipReply_FromPtr(AmSipReply* req);
 
 #endif

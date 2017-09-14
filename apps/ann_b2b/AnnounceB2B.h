@@ -45,7 +45,7 @@ class AnnounceB2BFactory : public AmSessionFactory
 
   int        onLoad();
   AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
-                      const std::map<std::string, std::string>&   app_params);
+                      const std::map<std::string, std::string>& app_params);
 };
 
 /** \brief Session logic implementation of A leg in announce_b2b sessions */

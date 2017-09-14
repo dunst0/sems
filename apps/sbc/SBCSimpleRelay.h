@@ -80,7 +80,7 @@ class SimpleRelayDialog
 
  protected:
   typedef std::map<unsigned int, unsigned int> RelayMap;
-  RelayMap relayed_reqs;
+  RelayMap                                     relayed_reqs;
 
   // AmEventHandler
   void process(AmEvent* ev);

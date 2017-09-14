@@ -58,8 +58,8 @@
 /** \brief Factory for announcement sessions */
 class AnnRecorderFactory : public AmSessionFactory
 {
-  void getAppParams(const AmSipRequest& req,
-                    std::map<std::string, std::string>& params);
+  void               getAppParams(const AmSipRequest&                 req,
+                                  std::map<std::string, std::string>& params);
   AmPromptCollection prompts;
 
  public:
@@ -73,7 +73,7 @@ class AnnRecorderFactory : public AmSessionFactory
 
   int        onLoad();
   AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
-                      const std::map<std::string, std::string>&   app_params);
+                      const std::map<std::string, std::string>& app_params);
   AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
                       AmArg& session_params);
 };
@@ -88,7 +88,7 @@ class AnnRecorderDialog
   // we need only one separator in queue
   std::unique_ptr<AmPlaylistSeparator> playlist_separator;
 
-  AmAudioFile wav_file;
+  AmAudioFile                        wav_file;
   std::map<std::string, std::string> params;
 
   std::string msg_filename; // recorded file
@@ -109,15 +109,15 @@ class AnnRecorderDialog
   void             enqueueCurrent();
   void             saveAndConfirm();
   void             replayRecording();
-  void enqueueSeparator(int id);
+  void             enqueueSeparator(int id);
 
   FILE* getCurrentMessage();
-  void saveMessage(FILE* fp);
+  void  saveMessage(FILE* fp);
 
  public:
   AnnRecorderDialog(const std::map<std::string, std::string>& params,
-                    AmPromptCollection& prompts,
-                    UACAuthCred*        credentials = NULL);
+                    AmPromptCollection&                       prompts,
+                    UACAuthCred* credentials = NULL);
   ~AnnRecorderDialog();
 
   void onSessionStart();

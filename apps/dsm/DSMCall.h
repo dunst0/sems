@@ -59,15 +59,15 @@ class DSMCall
   bool process_invite;
   bool process_sessionstart;
 
-  std::vector<AmAudio*> audiofiles;
-  AmAudioFile*          rec_file;
+  std::vector<AmAudio*>                      audiofiles;
+  AmAudioFile*                               rec_file;
   std::map<std::string, AmPromptCollection*> prompt_sets;
-  std::set<AmPromptCollection*> used_prompt_sets;
+  std::set<AmPromptCollection*>              used_prompt_sets;
 
   // owned by this instance
   std::set<DSMDisposable*> gc_trash;
 
-  bool checkVar(const std::string& var_name, const std::string& var_val);
+  bool        checkVar(const std::string& var_name, const std::string& var_val);
   std::string getVar(const std::string& var_name);
 
  public:
@@ -82,7 +82,7 @@ class DSMCall
   void onRinging(const AmSipReply& reply);
   void onEarlySessionStart();
   void onSessionStart();
-  int onSdpCompleted(const AmSdp& offer, const AmSdp& answer);
+  int  onSdpCompleted(const AmSdp& offer, const AmSdp& answer);
   void startSession();
   void onCancel(const AmSipRequest& cancel);
   void onBye(const AmSipRequest& req);
@@ -182,10 +182,10 @@ class DSMCallCalleeSession
   DSMCallCalleeSession(const std::string& other_local_tag);
   DSMCallCalleeSession(const AmB2BCallerSession* caller);
 
-  void setCredentials(const std::string& realm, const std::string& user,
-                      const std::string& pwd);
+  void         setCredentials(const std::string& realm, const std::string& user,
+                              const std::string& pwd);
   UACAuthCred* getCredentials();
-  void setAuthHandler(AmSessionEventHandler* h);
+  void         setAuthHandler(AmSessionEventHandler* h);
 };
 
 #endif

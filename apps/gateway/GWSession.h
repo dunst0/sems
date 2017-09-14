@@ -20,8 +20,8 @@ class GWSession
   static GWSession* CallFromOutside(std::string& fromnumber,
                                     std::string& tonumber, int backend,
                                     AmAudio* device);
-  void setOtherLeg(AmAudio* otherleg);
-  void onProgress(const AmSipReply& reply);
+  void              setOtherLeg(AmAudio* otherleg);
+  void              onProgress(const AmSipReply& reply);
 
   // Parent methods
   // virtual  void process(AmEvent* ev);

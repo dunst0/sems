@@ -36,6 +36,7 @@
 
 using std::string;
 using std::map;
+using std::vector;
 
 #define SBCVAR_PARALLEL_CALLS_UUID "uuid"
 
@@ -59,7 +60,7 @@ class CCParallelCallsRedisFactory : public AmDynInvokeFactory
   }
 };
 
-EXPORT_PLUGIN_CLASS_FACTORY(CCParallelCallsRdisFactory, MOD_NAME);
+EXPORT_PLUGIN_CLASS_FACTORY(CCParallelCallsRedisFactory, MOD_NAME);
 
 unsigned int     CCParallelCallsRedis::refuse_code   = 402;
 string           CCParallelCallsRedis::refuse_reason = "Too Many Simultaneous Calls";
@@ -113,7 +114,7 @@ void CCParallelCallsRedis::invoke(const string& method, const AmArg& args,
     SBCCallProfile* call_profile = dynamic_cast<SBCCallProfile*>(
         args[CC_API_PARAMS_CALL_PROFILE].asObject());
 
-    const AmSipRequest* reg = dynamic_cast<const AmSipRequest*>(
+    const AmSipRequest* req = dynamic_cast<const AmSipRequest*>(
         args[CC_API_PARAMS_SIP_MSG].asObject());
 
     start(args[CC_API_PARAMS_CC_NAMESPACE].asCStr(),
@@ -167,7 +168,7 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
 
   uuid = values["uuid"].asCStr();
 
-  ERROR("YUMMMY - c %s f %s\n", req.callid, reg.from_tag);
+  ERROR("YUMMMY - c %s f %s\n", req->callid.c_str(), req->from_tag.c_str());
 
   call_profile->cc_vars[cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_UUID] =
       uuid;
@@ -245,14 +246,14 @@ void CCParallelCallsRedis::end(const string& cc_namespace, const string& ltag,
 
   unsigned int new_call_count = 0;
 
-  call_control_calls_mutex.lock();
-  if (call_control_calls[uuid] > 1) {
-    new_call_count = --call_control_calls[uuid];
+  call_control_mutex.lock();
+  if (call_control_calls_count[uuid] > 1) {
+    new_call_count = --call_control_calls_count[uuid];
   }
   else {
-    call_control_calls.erase(uuid);
+    call_control_calls_count.erase(uuid);
   }
-  call_control_calls_mutex.unlock();
+  call_control_mutex.unlock();
 
   DBG("uuid '%s' now has %u active calls\n", uuid.c_str(), new_call_count);
 }

@@ -151,13 +151,13 @@ int RegisterDialog::fixUacContacts(const AmSipRequest& req)
     vector<pair<string, long int>> alias_updates;
     for (vector<AmUriParser>::iterator contact_it = uac_contacts.begin();
          contact_it != uac_contacts.end(); contact_it++) {
-      long int contact_expires = 0;
+      long int                      contact_expires = 0;
       map<string, string>::iterator expires_it =
           contact_it->params.find("expires");
 
       if (expires_it == contact_it->params.end()) {
         // no 'expires=xxx' param, use header field or min value
-        if (!is_a_dereg) is_a_dereg   = !requested_expires;
+        if (!is_a_dereg) is_a_dereg = !requested_expires;
         contact_it->params["expires"] = int2str(requested_expires);
         contact_expires               = requested_expires;
       }
@@ -606,8 +606,8 @@ string RegisterDialog::encodeUsername(const AmUriParser&    original_contact,
   if (!contact_hiding_vars.empty()) {
     vector<string> ve = explode(contact_hiding_vars, ";");
     for (vector<string>::iterator it = ve.begin(); it != ve.end(); it++) {
-      vector<string> e                 = explode(*it, "=");
-      if (e.size() == 2) ch_dict[e[0]] = e[1];
+      vector<string> e = explode(*it, "=");
+      if (e.size() == 2) ch_dict[e[0]]= e[1];
     }
   }
   string encoded = arg2username(ch_dict);

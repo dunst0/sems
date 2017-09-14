@@ -71,8 +71,8 @@ class RegistrationAgentFactory : public AmSessionFactory
 
   int        onLoad();
   AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
-                      const std::map<std::string, std::string>&   app_params);
-  void postEvent(AmEvent* ev);
+                      const std::map<std::string, std::string>& app_params);
+  void       postEvent(AmEvent* ev);
 };
 
 #endif

@@ -68,7 +68,7 @@ static PyObject* IvrAudioFile_open(IvrAudioFile* self, PyObject* args)
     return NULL;
 
   switch (ivr_open_mode) {
-    case AUDIO_READ: open_mode  = AmAudioFile::Read; break;
+    case AUDIO_READ: open_mode = AmAudioFile::Read; break;
     case AUDIO_WRITE: open_mode = AmAudioFile::Write; break;
     default:
       PyErr_SetString(PyExc_TypeError, "Unknown open mode");
@@ -110,7 +110,7 @@ static PyObject* IvrAudioFile_fpopen(IvrAudioFile* self, PyObject* args)
     return NULL;
 
   switch (ivr_open_mode) {
-    case AUDIO_READ: open_mode  = AmAudioFile::Read; break;
+    case AUDIO_READ: open_mode = AmAudioFile::Read; break;
     case AUDIO_WRITE: open_mode = AmAudioFile::Write; break;
     default:
       PyErr_SetString(PyExc_TypeError, "Unknown open mode");

@@ -1773,8 +1773,8 @@ bool SBCCallLeg::initPendingCCExtModules()
   return true;
 }
 
-void SBCCallLeg::addPendingCCExtModule(const string& cc_name,
-                                       const string& cc_module,
+void SBCCallLeg::addPendingCCExtModule(const string&              cc_name,
+                                       const string&              cc_module,
                                        const map<string, string>& cc_values)
 {
   cc_module_queue.push_back(CCInterface(cc_name));

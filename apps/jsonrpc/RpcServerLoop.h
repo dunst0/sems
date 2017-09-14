@@ -52,7 +52,7 @@ class JsonRPCServerLoop
   static JsonRPCServerLoop* _instance;
 
   static std::map<std::string, JsonrpcPeerConnection*> connections;
-  static AmMutex connections_mut;
+  static AmMutex                                       connections_mut;
 
   static std::vector<JsonServerEvent*>
                  pending_events; // todo: use map<set<> > if many pending events
@@ -79,9 +79,9 @@ class JsonRPCServerLoop
                           const std::string& method, const std::string& id,
                           const std::string& reply_sink, const AmArg& params,
                           const AmArg& udata, AmArg& ret);
-  void run();
-  void on_stop();
-  void process(AmEvent* ev);
+  void        run();
+  void        on_stop();
+  void        process(AmEvent* ev);
 
   static std::string newConnectionId();
 

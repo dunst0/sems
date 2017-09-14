@@ -45,7 +45,7 @@ class AnnounceTransferFactory : public AmSessionFactory
 
   int        onLoad();
   AmSession* onInvite(const AmSipRequest& req, const std::string& app_name,
-                      const std::map<std::string, std::string>&   app_params);
+                      const std::map<std::string, std::string>& app_params);
 };
 
 /** \brief session logic implementation for announce_transfer sessions */

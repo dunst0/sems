@@ -329,7 +329,7 @@ int JsonrpcNetstringsConnection::netstringsBlockingWrite()
 #else
                           0
 #endif
-                          );
+    );
     if (((ssize_t) written < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
         || written == 0) {
       usleep(SEND_SLEEP);

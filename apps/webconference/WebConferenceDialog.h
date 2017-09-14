@@ -88,7 +88,7 @@ class WebConferenceDialog
   std::string participant_id;
 
   AmAudio* local_input;
-  void setLocalInput(AmAudio* in);
+  void     setLocalInput(AmAudio* in);
 
   /** flag to indicate whether user was joined by anyone in the room */
   bool lonely_user;
@@ -119,7 +119,7 @@ class WebConferenceDialog
   UACAuthCred* getCredentials() { return cred; }
 
   // overriden media processing (local_input)
-  virtual int readStreams(unsigned long long int ts, unsigned char* buffer);
+  virtual int  readStreams(unsigned long long int ts, unsigned char* buffer);
   virtual bool isAudioSet();
   virtual void clearAudio();
 };

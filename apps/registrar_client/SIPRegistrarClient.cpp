@@ -271,7 +271,7 @@ AmSIPRegistration* SIPRegistrarClient::get_reg(const string& reg_id)
   AmSIPRegistration* res = NULL;
   reg_mut.lock();
   map<string, AmSIPRegistration*>::iterator it = registrations.find(reg_id);
-  if (it != registrations.end()) res = it->second;
+  if (it != registrations.end()) res           = it->second;
   reg_mut.unlock();
   DBG("get registration : res = '%ld' (this = %ld)\n", (long) res, (long) this);
   return res;
@@ -280,9 +280,9 @@ AmSIPRegistration* SIPRegistrarClient::get_reg(const string& reg_id)
 AmSIPRegistration* SIPRegistrarClient::get_reg_unsafe(const string& reg_id)
 {
   //	DBG("get registration_unsafe '%s'\n", reg_id.c_str());
-  AmSIPRegistration* res = NULL;
-  map<string, AmSIPRegistration*>::iterator it = registrations.find(reg_id);
-  if (it != registrations.end()) res = it->second;
+  AmSIPRegistration*                        res = NULL;
+  map<string, AmSIPRegistration*>::iterator it  = registrations.find(reg_id);
+  if (it != registrations.end()) res            = it->second;
   //     DBG("get registration_unsafe : res = '%ld' (this = %ld)\n", (long)res,
   //     (long)this);
   return res;
@@ -299,8 +299,8 @@ AmSIPRegistration* SIPRegistrarClient::remove_reg(const string& reg_id)
 AmSIPRegistration* SIPRegistrarClient::remove_reg_unsafe(const string& reg_id)
 {
   DBG("removing registration '%s'\n", reg_id.c_str());
-  AmSIPRegistration* reg = NULL;
-  map<string, AmSIPRegistration*>::iterator it = registrations.find(reg_id);
+  AmSIPRegistration*                        reg = NULL;
+  map<string, AmSIPRegistration*>::iterator it  = registrations.find(reg_id);
   if (it != registrations.end()) {
     reg = it->second;
     registrations.erase(it);
@@ -392,9 +392,9 @@ void SIPRegistrarClient::invoke(const string& method, const AmArg& args,
 {
   if (method == "createRegistration") {
     string proxy, contact, handle;
-    if (args.size() > 6) proxy   = args.get(6).asCStr();
+    if (args.size() > 6) proxy = args.get(6).asCStr();
     if (args.size() > 7) contact = args.get(7).asCStr();
-    if (args.size() > 8) handle  = args.get(8).asCStr();
+    if (args.size() > 8) handle = args.get(8).asCStr();
 
     ret.push(createRegistration(args.get(0).asCStr(), args.get(1).asCStr(),
                                 args.get(2).asCStr(), args.get(3).asCStr(),

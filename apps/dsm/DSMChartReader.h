@@ -100,11 +100,11 @@ class DSMChartReader
   bool is_wsp(const char c);
   bool is_snt(const char c);
 
-  string getToken(string str, size_t& pos);
-  DSMFunction* functionFromToken(const string& str);
-  DSMAction* actionFromToken(const string& str);
+  string        getToken(string str, size_t& pos);
+  DSMFunction*  functionFromToken(const string& str);
+  DSMAction*    actionFromToken(const string& str);
   DSMCondition* conditionFromToken(const string& str, bool invert);
-  bool forFromToken(DSMArrayFor& af, const string& token);
+  bool          forFromToken(DSMArrayFor& af, const string& token);
 
   bool importModule(const string& mod_cmd, const string& mod_path);
   vector<DSMModule*> mods;

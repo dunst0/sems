@@ -123,9 +123,9 @@ int EmailTemplate::parse(char* buffer)
 
     switch (state) {
       case P_SUBJECT: subject = begin; break;
-      case P_TO: to           = begin; break;
-      case P_FROM: from       = begin; break;
-      case P_HEADER: header   = begin; break;
+      case P_TO: to = begin; break;
+      case P_FROM: from = begin; break;
+      case P_HEADER: header = begin; break;
     }
     begin = ++s;
   }

@@ -42,7 +42,7 @@ class DSMCoreModule : public DSMModule
  public:
   DSMCoreModule();
 
-  DSMAction* getAction(const std::string& from_str);
+  DSMAction*    getAction(const std::string& from_str);
   DSMCondition* getCondition(const std::string& from_str);
 };
 
@@ -149,7 +149,7 @@ class SCDIAction : public DSMAction
  public:
   SCDIAction(const std::string& arg, bool get_res);
   bool execute(AmSession* sess, DSMSession* sc_sess,
-               DSMCondition::EventType event,
+               DSMCondition::EventType             event,
                std::map<std::string, std::string>* event_params);
 };
 
@@ -172,13 +172,13 @@ class TestDSMCondition : public DSMCondition
  public:
   TestDSMCondition(const std::string& expr, DSMCondition::EventType e);
   bool match(AmSession* sess, DSMSession* sc_sess,
-             DSMCondition::EventType event,
+             DSMCondition::EventType             event,
              std::map<std::string, std::string>* event_params);
 };
 
 /** return string q with variables/params/selects replaced */
 std::string replaceParams(const std::string& q, AmSession* sess,
-                          DSMSession* sc_sess,
+                          DSMSession*                         sc_sess,
                           std::map<std::string, std::string>* event_params);
 
 #endif

@@ -121,8 +121,8 @@ int CallBackFactory::onLoad()
     return -1;
   }
 
-  auth_user                          = cfg.getParameter("auth_user");
-  if (!auth_user.length()) auth_user = gw_user; // default to user
+  auth_user = cfg.getParameter("auth_user");
+  if (!auth_user.length()) auth_user= gw_user; // default to user
 
   auth_pwd = cfg.getParameter("auth_pwd");
   if (!auth_pwd.length()) {
@@ -140,8 +140,8 @@ int CallBackFactory::onLoad()
 }
 
 // incoming calls
-AmSession* CallBackFactory::onInvite(const AmSipRequest& req,
-                                     const string&       app_name,
+AmSession* CallBackFactory::onInvite(const AmSipRequest&        req,
+                                     const string&              app_name,
                                      const map<string, string>& app_params)
 {
   // or req.from -> with display name ?

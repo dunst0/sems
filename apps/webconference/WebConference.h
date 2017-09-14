@@ -83,7 +83,7 @@ class WebConferenceFactory
   AmPromptCollection prompts;
 
   map<string, ConferenceRoom> rooms;
-  AmMutex rooms_mut;
+  AmMutex                     rooms_mut;
 
   int room_sweep_cnt;
 
@@ -111,7 +111,7 @@ class WebConferenceFactory
   unsigned int direct_room_strip;
 
   ofstream feedback_file;
-  void saveFeedback(const string& s);
+  void     saveFeedback(const string& s);
 
   WCCCallStats* stats;
 
@@ -153,10 +153,10 @@ class WebConferenceFactory
 
   WebConferenceFactory(const string& _app_name);
   AmSession* onInvite(const AmSipRequest&, const string& app_name,
-                      const map<string, string>&         app_params);
+                      const map<string, string>& app_params);
   AmSession* onInvite(const AmSipRequest& req, const string& app_name,
                       AmArg& session_params);
-  int onLoad();
+  int        onLoad();
 
   bool isValidConference(const string& conf_id, const string& participant_id);
   bool newParticipant(const string& conf_id, const string& localtag,
