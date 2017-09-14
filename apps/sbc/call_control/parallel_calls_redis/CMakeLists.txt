@@ -1,4 +1,4 @@
-set (cc_parallel_calls_SRCS
+set (cc_parallel_calls_redis_SRCS
 CC_ParallelCallsRedis.cpp
 )
 
