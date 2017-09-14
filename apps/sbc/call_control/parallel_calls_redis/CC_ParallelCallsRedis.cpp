@@ -209,15 +209,15 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
     }
     else {
       if (strict || !call_control_calls.count(call_key)) {
-        if (it->second < max_calls) {
-          it->second++;
+        if (call_count_it->second < max_calls) {
+          call_count_it->second++;
         }
         else {
           do_limit = true;
         }
       }
 
-      current_calls = it->second;
+      current_calls = call_count_it->second;
     }
   }
   call_control_mutex.unlock();
