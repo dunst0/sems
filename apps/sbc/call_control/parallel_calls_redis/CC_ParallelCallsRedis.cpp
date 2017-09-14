@@ -108,7 +108,7 @@ int CCParallelCallsRedis::onLoad()
   }
 
   refuse_header = cfg.getParameter("refuse_header", refuse_header);
-  strict        = cfg.getParameter("strict") == "no";
+  strict        = cfg.getParameter("strict") == "yes";
   DBG("parallel calls restriction strict is: %s\n", strict ? "on" : "off");
 
   return 0;
@@ -189,22 +189,26 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
     }
   }
 
-  DBG("enforcing %slimit of %i calls for uuid '%s'\n", (strict ? "stric " : ""),
+  DBG("enforcing %slimit of %i calls for uuid '%s'\n", (strict ? "strict " : ""),
       max_calls, uuid.c_str());
 
   call_control_mutex.lock();
   if (max_calls) {
-    map<string, unsigned int>::iterator it =
-        call_control_calls_count.find(uuid);
+    string call_key = uuid + "-" + req->callid + req->from_tag;
+    map<string, bool>::iterator call_it = call_control_calls.find(call_key);
+    map<string, unsigned int>::iterator call_count_it = call_control_calls_count.find(uuid);
 
-    if (it == call_control_calls_count.end()) {
-      call_control_calls[uuid + "-" + req->callid + req->from_tag] = false;
+    if (call_it == call_control_calls.end()) {
+      DBG("unknown call saving uudi with call-id and from-tag\n");
+      call_control_calls[call_key] = false;
+    }
+
+    if (call_count_it == call_control_calls_count.end()) {
+      DBG("no call count for uuid init with 1\n"):
       call_control_calls_count[uuid] = current_calls = 1;
     }
     else {
-      if (strict
-          || !call_control_calls.count(uuid + "-" + req->callid
-                                       + req->from_tag)) {
+      if (strict || !call_control_calls.count(key)) {
         if (it->second < max_calls) {
           it->second++;
         }
