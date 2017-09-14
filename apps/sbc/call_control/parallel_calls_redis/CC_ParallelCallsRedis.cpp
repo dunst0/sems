@@ -176,8 +176,6 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
 
   uuid = values["uuid"].asCStr();
 
-  ERROR("YUMMMY - c %s f %s\n", req->callid.c_str(), req->from_tag.c_str());
-
   call_profile->cc_vars[cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_UUID] =
       uuid;
 
@@ -195,17 +193,16 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
   call_control_mutex.lock();
   if (max_calls) {
     string call_key = uuid + "-" + req->callid + req->from_tag;
-    map<string, bool>::iterator call_it = call_control_calls.find(call_key);
     map<string, unsigned int>::iterator call_count_it = call_control_calls_count.find(uuid);
-
-    if (call_it == call_control_calls.end()) {
-      DBG("unknown call saving uudi with call-id and from-tag\n");
-      call_control_calls[call_key] = false;
-    }
 
     if (call_count_it == call_control_calls_count.end()) {
       DBG("no call count for uuid init with 1\n");
       call_control_calls_count[uuid] = current_calls = 1;
+
+      map<string, bool>::iterator call_it = call_control_calls.cont(call_key);
+      if (call_it == call_control_calls.end()) {
+        call_control_calls[call_key] = false;
+      }
     }
     else {
       if (strict || !call_control_calls.count(call_key)) {
