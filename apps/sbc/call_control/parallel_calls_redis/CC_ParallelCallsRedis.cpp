@@ -224,7 +224,7 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
 
     if (!refuse_header.empty()) {
       res_cmd[SBC_CC_REFUSE_HEADERS] = AmArg();
-      res_cmd[SBC_CC_REFUSE_HEADERS].push(refuse_header + string(": " MOD_NAME ";uuid=" uuid));
+      res_cmd[SBC_CC_REFUSE_HEADERS].push(refuse_header + string(": " MOD_NAME ";uuid=") + uuid);
     }
   }
 
