@@ -43,9 +43,9 @@ class CCParallelCallsRedis : public AmDynInvoke
   static bool         strict;
 
   // this map contains # of calls per uuid
-  AmMutex call_control_mutex;
+  AmMutex                             call_control_mutex;
   std::map<std::string, unsigned int> call_control_calls_count;
-  std::map<std::string, bool> call_control_calls;
+  std::map<std::string, bool>         call_control_calls;
 
   static CCParallelCallsRedis* _instance;
 
@@ -61,7 +61,7 @@ class CCParallelCallsRedis : public AmDynInvoke
  public:
   static CCParallelCallsRedis* instance();
   void invoke(const std::string& method, const AmArg& args, AmArg& ret);
-  int onLoad();
+  int  onLoad();
 };
 
 #endif
