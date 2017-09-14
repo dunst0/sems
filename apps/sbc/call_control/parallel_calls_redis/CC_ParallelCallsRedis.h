@@ -40,11 +40,12 @@ class CCParallelCallsRedis : public AmDynInvoke
   static unsigned int refuse_code;
   static std::string  refuse_reason;
   static std::string  refuse_header;
+  static bool         strict;
 
   // this map contains # of calls per uuid
   AmMutex call_control_mutex;
   std::map<std::string, unsigned int> call_control_calls_count;
-  std::set<std::string> call_control_calls;
+  std::map<std::string, bool> call_control_calls;
 
   static CCParallelCallsRedis* _instance;
 

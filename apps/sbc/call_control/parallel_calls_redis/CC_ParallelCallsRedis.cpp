@@ -65,6 +65,7 @@ EXPORT_PLUGIN_CLASS_FACTORY(CCParallelCallsRedisFactory, MOD_NAME);
 unsigned int     CCParallelCallsRedis::refuse_code   = 402;
 string           CCParallelCallsRedis::refuse_reason = "Too Many Simultaneous Calls";
 string           CCParallelCallsRedis::refuse_header = "";
+bool             CCParallelCallsRedis::strict        = true;
 CCParallelCallsRedis* CCParallelCallsRedis::_instance     = NULL;
 
 CCParallelCallsRedis::CCParallelCallsRedis() {}
@@ -104,6 +105,9 @@ int CCParallelCallsRedis::onLoad()
       return -1;
     }
   }
+
+  refuse_header = cfg.getParameter("refuse_header", refuse_header);
+  strict cfg.getParameter("strict", "yes") == "no";
 
   return 0;
 }
@@ -187,15 +191,19 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
   call_control_mutex.lock();
   if (max_calls) {
     map<string, unsigned int>::iterator it = call_control_calls_count.find(uuid);
+
     if (it == call_control_calls_count.end()) {
+      call_control_calls[uuid + "-" + req->callid + req->from_tag] = false;
       call_control_calls_count[uuid] = current_calls = 1;
     }
     else {
-      if (it->second < max_calls) {
-        it->second++;
-      }
-      else {
-        do_limit = true;
+      if (strict || !call_control_calls.count(uuid + "-" + req->callid + req->from_tag)) {
+        if (it->second < max_calls) {
+          it->second++;
+        }
+        else {
+          do_limit = true;
+        }
       }
 
       current_calls = it->second;
