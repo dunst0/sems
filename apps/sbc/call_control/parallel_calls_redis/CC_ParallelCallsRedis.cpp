@@ -64,6 +64,7 @@ EXPORT_PLUGIN_CLASS_FACTORY(CCParallelCallsRedisFactory, MOD_NAME);
 
 unsigned int     CCParallelCallsRedis::refuse_code   = 402;
 string           CCParallelCallsRedis::refuse_reason = "Too Many Simultaneous Calls";
+string           CCParallelCallsRedis::refuse_header = "";
 CCParallelCallsRedis* CCParallelCallsRedis::_instance     = NULL;
 
 CCParallelCallsRedis::CCParallelCallsRedis() {}
@@ -206,15 +207,16 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
       do_limit ? "true" : "false");
 
   if (do_limit) {
-    vector<string> hdrs;
-    hdrs.push_back("TLN-CC: cc_pcalls;uuid=");
-
     res.push(AmArg());
     AmArg& res_cmd                 = res[0];
     res_cmd[SBC_CC_ACTION]         = SBC_CC_REFUSE_ACTION;
     res_cmd[SBC_CC_REFUSE_CODE]    = (int) refuse_code;
     res_cmd[SBC_CC_REFUSE_REASON]  = refuse_reason;
-    res_cmd[SBC_CC_REFUSE_HEADERS] = AmArg(hdrs);
+
+    if (!refuse_header.empty()) {
+      res_cmd[SBC_CC_REFUSE_HEADERS] = AmArg();
+      res_cmd[SBC_CC_REFUSE_HEADERS].push(refuse_header + string(": " MOD_NAME ";uuid=" uuid));
+    }
   }
 
   return;
