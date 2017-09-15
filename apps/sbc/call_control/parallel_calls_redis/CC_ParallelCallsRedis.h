@@ -27,9 +27,10 @@
 #ifndef _CC_PARALLELCALLSREDIS_H_
 #define _CC_PARALLELCALLSREDIS_H_
 
-#include "SBCCallProfile.h"
+#include "CallCounter.h"
 
 #include "AmApi.h"
+#include "SBCCallProfile.h"
 
 #include <map>
 

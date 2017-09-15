@@ -210,24 +210,24 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
           refuse_header + string(": " MOD_NAME ";uuid=") + uuid);
     }
   }
-      //string call_key = uuid + "-" + req->callid + req->from_tag;
+  // string call_key = uuid + "-" + req->callid + req->from_tag;
 
-      //DBG("got call for key %s - count %lu\n", call_key.c_str(),
-      //    call_control_calls.count(call_key));
+  // DBG("got call for key %s - count %lu\n", call_key.c_str(),
+  //    call_control_calls.count(call_key));
 
-      //if (!call_control_calls.count(call_key)) {
-      //  DBG("current_calls %u got call for key %s - count %lu\n", current_calls,
-      //      call_key.c_str(), call_control_calls.count(call_key));
+  // if (!call_control_calls.count(call_key)) {
+  //  DBG("current_calls %u got call for key %s - count %lu\n", current_calls,
+  //      call_key.c_str(), call_control_calls.count(call_key));
 
-      //  if (current_calls < max_calls) {
-      //    current_calls++;
-      //  }
-      //  else {
-      //    do_limit = true;
-      //  }
+  //  if (current_calls < max_calls) {
+  //    current_calls++;
+  //  }
+  //  else {
+  //    do_limit = true;
+  //  }
 
-      //  call_control_calls[call_key] = false;
-      //}
+  //  call_control_calls[call_key] = false;
+  //}
 
   return;
 
