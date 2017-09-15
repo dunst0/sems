@@ -38,7 +38,9 @@ using std::string;
 using std::map;
 using std::vector;
 
-#define SBCVAR_PARALLEL_CALLS_UUID "uuid"
+#define SBCVAR_PARALLEL_CALLS_REDIS_UUID "uuid"
+#define SBCVAR_PARALLEL_CALLS_REDIS_CALLID "callid"
+#define SBCVAR_PARALLEL_CALLS_REDIS_FROM_TAG "from_tag"
 
 class CCParallelCallsRedisFactory : public AmDynInvokeFactory
 {
@@ -143,11 +145,8 @@ void CCParallelCallsRedis::invoke(const string& method, const AmArg& args,
     SBCCallProfile* call_profile = dynamic_cast<SBCCallProfile*>(
         args[CC_API_PARAMS_CALL_PROFILE].asObject());
 
-    const AmSipRequest* req = dynamic_cast<const AmSipRequest*>(
-        args[CC_API_PARAMS_SIP_MSG].asObject());
-
     end(args[CC_API_PARAMS_CC_NAMESPACE].asCStr(),
-        args[CC_API_PARAMS_LTAG].asCStr(), call_profile, req);
+        args[CC_API_PARAMS_LTAG].asCStr(), call_profile);
   }
   else if (method == CC_INTERFACE_MAND_VALUES_METHOD) {
     ret.push("uuid");
@@ -170,8 +169,10 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
   unsigned int max_calls = 1;
   string       uuid;
 
-  ERROR("start - req->callid=%s reg->from_tag=%s\n", req->callid.c_str(),
-        req->from_tag.c_str());
+  if (!req) {
+    ERROR("internal: req object not found in parameters\n");
+    goto error;
+  }
 
   if (!call_profile) {
     ERROR("internal: call_profile object not found in parameters\n");
@@ -186,8 +187,16 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
   }
 
   uuid = values["uuid"].asCStr();
-  call_profile->cc_vars[cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_UUID] =
-      uuid;
+  call_profile
+      ->cc_vars[cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_REDIS_UUID] = uuid;
+
+  call_profile
+      ->cc_vars[cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_REDIS_CALLID] =
+      req->callid;
+
+  call_profile
+      ->cc_vars[cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_REDIS_FROM_TAG] =
+      req->from_tag;
 
   if (values.hasMember("max_calls") && isArgCStr(values["max_calls"])) {
     if (str2i(values["max_calls"].asCStr(), max_calls)) {
@@ -197,37 +206,19 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
     }
   }
 
-  // if (!callCounter->tryIncrement(uuid, req->callid, req->from_tag, max_calls)) {
-  //   res.push(AmArg());
-  //   AmArg& res_cmd                = res[0];
-  //   res_cmd[SBC_CC_ACTION]        = SBC_CC_REFUSE_ACTION;
-  //   res_cmd[SBC_CC_REFUSE_CODE]   = (int) refuse_code;
-  //   res_cmd[SBC_CC_REFUSE_REASON] = refuse_reason;
-  //
-  //   if (!refuse_header.empty()) {
-  //     res_cmd[SBC_CC_REFUSE_HEADERS] = AmArg();
-  //     res_cmd[SBC_CC_REFUSE_HEADERS].push(
-  //         refuse_header + string(": " MOD_NAME ";uuid=") + uuid);
-  //   }
-  // }
-  // string call_key = uuid + "-" + req->callid + req->from_tag;
+  if (!callCounter->tryIncrement(uuid, req->callid, req->from_tag, max_calls)) {
+    res.push(AmArg());
+    AmArg& res_cmd                = res[0];
+    res_cmd[SBC_CC_ACTION]        = SBC_CC_REFUSE_ACTION;
+    res_cmd[SBC_CC_REFUSE_CODE]   = (int) refuse_code;
+    res_cmd[SBC_CC_REFUSE_REASON] = refuse_reason;
 
-  // DBG("got call for key %s - count %lu\n", call_key.c_str(),
-  //    call_control_calls.count(call_key));
-
-  // if (!call_control_calls.count(call_key)) {
-  //  DBG("current_calls %u got call for key %s - count %lu\n", current_calls,
-  //      call_key.c_str(), call_control_calls.count(call_key));
-
-  //  if (current_calls < max_calls) {
-  //    current_calls++;
-  //  }
-  //  else {
-  //    do_limit = true;
-  //  }
-
-  //  call_control_calls[call_key] = false;
-  //}
+    if (!refuse_header.empty()) {
+      res_cmd[SBC_CC_REFUSE_HEADERS] = AmArg();
+      res_cmd[SBC_CC_REFUSE_HEADERS].push(
+          refuse_header + string(": " MOD_NAME ";uuid=") + uuid);
+    }
+  }
 
   return;
 
@@ -240,11 +231,11 @@ error:
 }
 
 void CCParallelCallsRedis::end(const string& cc_namespace, const string& ltag,
-                               SBCCallProfile*     call_profile,
-                               const AmSipRequest* req)
+                               SBCCallProfile* call_profile)
 {
-  ERROR("end - req->callid=%s reg->from_tag=%s\n", req->callid.c_str(),
-        req->from_tag.c_str());
+  string uuid;
+  string callid;
+  string from_tag;
 
   if (!call_profile) {
     ERROR("internal: call_profile object not found in parameters\n");
@@ -252,13 +243,43 @@ void CCParallelCallsRedis::end(const string& cc_namespace, const string& ltag,
   }
 
   SBCVarMapIterator vars_it = call_profile->cc_vars.find(
-      cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_UUID);
+      cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_REDIS_UUID);
   if (vars_it == call_profile->cc_vars.end() || !isArgCStr(vars_it->second)) {
     ERROR("internal: could not find UUID for ending call '%s'\n", ltag.c_str());
+  }
+  else {
+    uuid = vars_it->second.asCStr();
+    call_profile->cc_vars.erase(cc_namespace
+                                + "::" + SBCVAR_PARALLEL_CALLS_REDIS_UUID);
+  }
+
+  SBCVarMapIterator vars_it = call_profile->cc_vars.find(
+      cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_REDIS_CALLID);
+  if (vars_it == call_profile->cc_vars.end() || !isArgCStr(vars_it->second)) {
+    ERROR("internal: could not find callid for ending call '%s'\n",
+          ltag.c_str());
+  }
+  else {
+    callid = vars_it->second.asCStr();
+    call_profile->cc_vars.erase(cc_namespace
+                                + "::" + SBCVAR_PARALLEL_CALLS_REDIS_CALLID);
+  }
+
+  SBCVarMapIterator vars_it = call_profile->cc_vars.find(
+      cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_REDIS_FROM_TAG);
+  if (vars_it == call_profile->cc_vars.end() || !isArgCStr(vars_it->second)) {
+    ERROR("internal: could not find from_tag for ending call '%s'\n",
+          ltag.c_str());
+  }
+  else {
+    from_tag = vars_it->second.asCStr();
+    call_profile->cc_vars.erase(cc_namespace
+                                + "::" + SBCVAR_PARALLEL_CALLS_REDIS_FROM_TAG);
+  }
+
+  if (uuid.empty() || callid.empty() || from_tag.empty()) {
     return;
   }
-  string uuid = vars_it->second.asCStr();
-  call_profile->cc_vars.erase(cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_UUID);
 
-  //callCounter->decrement(uuid, req->callid, req->from_tag);
+  callCounter->decrement(uuid, callid, from_tag);
 }

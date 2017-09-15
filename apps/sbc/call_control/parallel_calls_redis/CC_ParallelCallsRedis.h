@@ -52,7 +52,7 @@ class CCParallelCallsRedis : public AmDynInvoke
              SBCCallProfile* call_profile, const AmArg& values,
              const AmSipRequest* req, AmArg& res);
   void end(const std::string& cc_namespace, const std::string& ltag,
-           SBCCallProfile* call_profile, const AmSipRequest* req);
+           SBCCallProfile* call_profile);
 
   CCParallelCallsRedis();
   ~CCParallelCallsRedis();
