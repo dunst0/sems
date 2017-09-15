@@ -44,7 +44,7 @@ class CCParallelCallsRedis : public AmDynInvoke
   static std::string  refuse_header;
   static bool         strict;
 
-  static CallCounter* callCounter;
+  CallCounter* callCounter;
 
   static CCParallelCallsRedis* _instance;
 
