@@ -242,7 +242,9 @@ void CCParallelCallsRedis::end(const string& cc_namespace, const string& ltag,
     return;
   }
 
-  SBCVarMapIterator vars_it = call_profile->cc_vars.find(
+  SBCVarMapIterator vars_it;
+
+  vars_it = call_profile->cc_vars.find(
       cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_REDIS_UUID);
   if (vars_it == call_profile->cc_vars.end() || !isArgCStr(vars_it->second)) {
     ERROR("internal: could not find UUID for ending call '%s'\n", ltag.c_str());
@@ -253,7 +255,7 @@ void CCParallelCallsRedis::end(const string& cc_namespace, const string& ltag,
                                 + "::" + SBCVAR_PARALLEL_CALLS_REDIS_UUID);
   }
 
-  SBCVarMapIterator vars_it = call_profile->cc_vars.find(
+  vars_it = call_profile->cc_vars.find(
       cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_REDIS_CALLID);
   if (vars_it == call_profile->cc_vars.end() || !isArgCStr(vars_it->second)) {
     ERROR("internal: could not find callid for ending call '%s'\n",
@@ -265,7 +267,7 @@ void CCParallelCallsRedis::end(const string& cc_namespace, const string& ltag,
                                 + "::" + SBCVAR_PARALLEL_CALLS_REDIS_CALLID);
   }
 
-  SBCVarMapIterator vars_it = call_profile->cc_vars.find(
+  vars_it = call_profile->cc_vars.find(
       cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_REDIS_FROM_TAG);
   if (vars_it == call_profile->cc_vars.end() || !isArgCStr(vars_it->second)) {
     ERROR("internal: could not find from_tag for ending call '%s'\n",
