@@ -7,6 +7,7 @@
 #include "log.h"
 
 using std::string;
+using std::map;
 
 CallCounter::CallCounter(bool strict, bool useRedis)
     : strict(strict)
