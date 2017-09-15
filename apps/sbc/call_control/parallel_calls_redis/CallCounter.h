@@ -29,6 +29,6 @@ class CallCounter
                     unsigned int max_calls);
   void refresh(std::string uuid, std::string callid, std::string from_tag);
   void decrement(std::string uuid, std::string callid, std::string from_tag);
-}
+};
 
 #endif
