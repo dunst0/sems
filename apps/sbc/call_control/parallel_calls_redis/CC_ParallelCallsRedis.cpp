@@ -197,19 +197,19 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
     }
   }
 
-  if (!callCounter->tryIncrement(uuid, req->callid, req->from_tag, max_calls)) {
-    res.push(AmArg());
-    AmArg& res_cmd                = res[0];
-    res_cmd[SBC_CC_ACTION]        = SBC_CC_REFUSE_ACTION;
-    res_cmd[SBC_CC_REFUSE_CODE]   = (int) refuse_code;
-    res_cmd[SBC_CC_REFUSE_REASON] = refuse_reason;
-
-    if (!refuse_header.empty()) {
-      res_cmd[SBC_CC_REFUSE_HEADERS] = AmArg();
-      res_cmd[SBC_CC_REFUSE_HEADERS].push(
-          refuse_header + string(": " MOD_NAME ";uuid=") + uuid);
-    }
-  }
+  // if (!callCounter->tryIncrement(uuid, req->callid, req->from_tag, max_calls)) {
+  //   res.push(AmArg());
+  //   AmArg& res_cmd                = res[0];
+  //   res_cmd[SBC_CC_ACTION]        = SBC_CC_REFUSE_ACTION;
+  //   res_cmd[SBC_CC_REFUSE_CODE]   = (int) refuse_code;
+  //   res_cmd[SBC_CC_REFUSE_REASON] = refuse_reason;
+  //
+  //   if (!refuse_header.empty()) {
+  //     res_cmd[SBC_CC_REFUSE_HEADERS] = AmArg();
+  //     res_cmd[SBC_CC_REFUSE_HEADERS].push(
+  //         refuse_header + string(": " MOD_NAME ";uuid=") + uuid);
+  //   }
+  // }
   // string call_key = uuid + "-" + req->callid + req->from_tag;
 
   // DBG("got call for key %s - count %lu\n", call_key.c_str(),
@@ -260,5 +260,5 @@ void CCParallelCallsRedis::end(const string& cc_namespace, const string& ltag,
   string uuid = vars_it->second.asCStr();
   call_profile->cc_vars.erase(cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_UUID);
 
-  callCounter->decrement(uuid, req->callid, req->from_tag);
+  //callCounter->decrement(uuid, req->callid, req->from_tag);
 }
