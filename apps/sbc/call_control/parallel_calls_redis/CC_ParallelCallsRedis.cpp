@@ -187,13 +187,12 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
   }
 
   uuid = values["uuid"].asCStr();
+
   call_profile
       ->cc_vars[cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_REDIS_UUID] = uuid;
-
   call_profile
       ->cc_vars[cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_REDIS_CALLID] =
       req->callid;
-
   call_profile
       ->cc_vars[cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_REDIS_FROM_TAG] =
       req->from_tag;
@@ -251,8 +250,6 @@ void CCParallelCallsRedis::end(const string& cc_namespace, const string& ltag,
   }
   else {
     uuid = vars_it->second.asCStr();
-    call_profile->cc_vars.erase(cc_namespace
-                                + "::" + SBCVAR_PARALLEL_CALLS_REDIS_UUID);
   }
 
   vars_it = call_profile->cc_vars.find(
@@ -263,8 +260,6 @@ void CCParallelCallsRedis::end(const string& cc_namespace, const string& ltag,
   }
   else {
     callid = vars_it->second.asCStr();
-    call_profile->cc_vars.erase(cc_namespace
-                                + "::" + SBCVAR_PARALLEL_CALLS_REDIS_CALLID);
   }
 
   vars_it = call_profile->cc_vars.find(
@@ -275,13 +270,18 @@ void CCParallelCallsRedis::end(const string& cc_namespace, const string& ltag,
   }
   else {
     from_tag = vars_it->second.asCStr();
-    call_profile->cc_vars.erase(cc_namespace
-                                + "::" + SBCVAR_PARALLEL_CALLS_REDIS_FROM_TAG);
   }
 
   if (uuid.empty() || callid.empty() || from_tag.empty()) {
     return;
   }
 
-  callCounter->decrement(uuid, callid, from_tag);
+  if (callCounter->decrement(uuid, callid, from_tag)) {
+    call_profile->cc_vars.erase(cc_namespace
+                                + "::" + SBCVAR_PARALLEL_CALLS_REDIS_UUID);
+    call_profile->cc_vars.erase(cc_namespace
+                                + "::" + SBCVAR_PARALLEL_CALLS_REDIS_CALLID);
+    call_profile->cc_vars.erase(cc_namespace
+                                + "::" + SBCVAR_PARALLEL_CALLS_REDIS_FROM_TAG);
+  }
 }

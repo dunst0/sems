@@ -8,7 +8,6 @@
 #include "AmThread.h"
 
 #include <map>
-#include <set>
 #include <string>
 
 class CallCounter
@@ -19,7 +18,7 @@ class CallCounter
   /* map uuid to call counts */
   std::map<std::string, unsigned int> call_uuid_count;
   /* keep uuid with call-id and from-tag for less strict counting */
-  std::set<std::string> known_calls_uuid;
+  std::map<std::string, unsigned int> known_calls_uuid;
 
  public:
   CallCounter(bool strict, bool useRedis);
@@ -28,7 +27,7 @@ class CallCounter
   bool tryIncrement(std::string uuid, std::string callid, std::string from_tag,
                     unsigned int max_calls);
   void refresh(std::string uuid, std::string callid, std::string from_tag);
-  void decrement(std::string uuid, std::string callid, std::string from_tag);
+  bool decrement(std::string uuid, std::string callid, std::string from_tag);
 };
 
 #endif
