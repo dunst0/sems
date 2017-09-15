@@ -28,8 +28,11 @@ bool CallCounter::tryIncrement(string uuid, string callid, string from_tag,
     call_uuid_count[uuid] = 0;
   }
 
-  if (strict) {
-    // check redis
+  string call_key = uuid + "-" + callid + "-" + from_tag;
+  DBG("building call key <%s> for uuid '%s'\n", call_key.c_str(), uuid.c_str());
+
+  if (strict || known_calls_uuid.count(call_key) == 0) {
+    // TODO check redis
 
     if (call_uuid_count[uuid] == max_calls) {
       DBG("uuid '%s' has already reached max calls %u reject call\n",
@@ -43,10 +46,12 @@ bool CallCounter::tryIncrement(string uuid, string callid, string from_tag,
     ++call_uuid_count[uuid];
     DBG("uuid '%s' has now %u active calls\n", uuid.c_str(),
         call_uuid_count[uuid]);
+
+    DBG("insert call key <%s> into known call list\n", call_key.c_str());
+    known_calls_uuid.insert(call_key);
   }
   else {
-    string call_key = uuid + "-" + callid + "-" + from_tag;
-    // TODO
+    DBG("known call key <%s> into known call list\n", call_key.c_str());
   }
 
   call_counter_mutex.unlock();

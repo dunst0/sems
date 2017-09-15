@@ -19,7 +19,7 @@ class CallCounter
   /* map uuid to call counts */
   std::map<std::string, unsigned int> call_uuid_count;
   /* keep uuid with call-id and from-tag for less strict counting */
-  std::set<std::string> know_calls_uuid;
+  std::set<std::string> known_calls_uuid;
 
  public:
   CallCounter(bool strict, bool useRedis);
