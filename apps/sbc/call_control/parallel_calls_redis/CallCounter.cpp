@@ -64,7 +64,8 @@ void CallCounter::decrement(string uuid, string callid, string from_tag)
   }
   else {
     call_uuid_count.erase(uuid);
-    DBG("uuid '%s' now has 0 active calls, deleting call counter\n, uuid.c_str());
+    DBG("uuid '%s' now has 0 active calls, deleting call counter\n",
+        uuid.c_str());
   }
   call_counter_mutex.unlock();
 }
