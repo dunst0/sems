@@ -79,7 +79,7 @@ bool CallCounter::decrement(string uuid, string callid, string from_tag)
     known_calls_uuid.erase(call_key);
     DBG("uuid '%s' now has %u active calls, with 0 branches, deleting branche "
         "counter\n",
-        uuid.c_str(), call_uuid_count[uuid], known_calls_uuid[call_key]);
+        uuid.c_str(), call_uuid_count[uuid]);
   }
 
   if (call_uuid_count[uuid] > 1) {
