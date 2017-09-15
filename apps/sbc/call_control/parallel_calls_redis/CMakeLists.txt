@@ -1,5 +1,6 @@
 set (cc_parallel_calls_redis_SRCS
 CC_ParallelCallsRedis.cpp
+CallCounter.cpp
 )
 
 SET(sems_sbc_call_control_name cc_parallel_calls_redis)

@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2017 Rick Barenthin, Julien Arlt - terralink networks GmbH
  * Copyright (C) 2011 Stefan Sayer
  *
  * This file is part of SEMS, a free SIP media server.
@@ -42,10 +43,7 @@ class CCParallelCallsRedis : public AmDynInvoke
   static std::string  refuse_header;
   static bool         strict;
 
-  // this map contains # of calls per uuid
-  AmMutex                             call_control_mutex;
-  std::map<std::string, unsigned int> call_control_calls_count;
-  std::map<std::string, bool>         call_control_calls;
+  static CallCounter* callCounter;
 
   static CCParallelCallsRedis* _instance;
 
@@ -53,7 +51,7 @@ class CCParallelCallsRedis : public AmDynInvoke
              SBCCallProfile* call_profile, const AmArg& values,
              const AmSipRequest* req, AmArg& res);
   void end(const std::string& cc_namespace, const std::string& ltag,
-           SBCCallProfile* call_profile);
+           SBCCallProfile* call_profile, const AmSipRequest* req);
 
   CCParallelCallsRedis();
   ~CCParallelCallsRedis();

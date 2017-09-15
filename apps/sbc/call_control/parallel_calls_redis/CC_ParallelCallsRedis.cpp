@@ -72,6 +72,10 @@ CCParallelCallsRedis::CCParallelCallsRedis() {}
 
 CCParallelCallsRedis::~CCParallelCallsRedis()
 {
+  if (callCounter) {
+    delete callCounter;
+  }
+
   if (_instance) {
     delete _instance;
   }
@@ -111,6 +115,8 @@ int CCParallelCallsRedis::onLoad()
   strict        = cfg.getParameter("strict") == "yes";
   DBG("parallel calls restriction strict is: %s\n", strict ? "on" : "off");
 
+  callCounter = new CallCounter(strict, false);
+
   return 0;
 }
 
@@ -133,11 +139,15 @@ void CCParallelCallsRedis::invoke(const string& method, const AmArg& args,
   }
   else if (method == "end") {
     args[CC_API_PARAMS_TIMESTAMPS].assertArrayFmt("iiiiii");
+
     SBCCallProfile* call_profile = dynamic_cast<SBCCallProfile*>(
         args[CC_API_PARAMS_CALL_PROFILE].asObject());
 
+    const AmSipRequest* req = dynamic_cast<const AmSipRequest*>(
+        args[CC_API_PARAMS_SIP_MSG].asObject());
+
     end(args[CC_API_PARAMS_CC_NAMESPACE].asCStr(),
-        args[CC_API_PARAMS_LTAG].asCStr(), call_profile);
+        args[CC_API_PARAMS_LTAG].asCStr(), call_profile, req);
   }
   else if (method == CC_INTERFACE_MAND_VALUES_METHOD) {
     ret.push("uuid");
@@ -157,10 +167,11 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
                                  const AmArg& values, const AmSipRequest* req,
                                  AmArg& res)
 {
-  unsigned int max_calls     = 1; // default
-  unsigned int current_calls = 0;
-  bool         do_limit      = false;
+  unsigned int max_calls = 1;
   string       uuid;
+
+  ERROR("start - req->callid=%s reg->from_tag=%s\n", req->callid.c_str(),
+        req->from_tag.c_str());
 
   if (!call_profile) {
     ERROR("internal: call_profile object not found in parameters\n");
@@ -175,7 +186,6 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
   }
 
   uuid = values["uuid"].asCStr();
-
   call_profile->cc_vars[cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_UUID] =
       uuid;
 
@@ -187,49 +197,7 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
     }
   }
 
-  DBG("enforcing %slimit of %i calls for uuid '%s'\n",
-      (strict ? "strict " : ""), max_calls, uuid.c_str());
-
-  call_control_mutex.lock();
-  if (max_calls) {
-    map<string, unsigned int>::iterator call_count_it =
-        call_control_calls_count.find(uuid);
-
-    if (call_count_it == call_control_calls_count.end()) {
-      call_control_calls_count[uuid] = current_calls = 0;
-    }
-
-    if (strict) {
-      if (current_calls < max_calls) {
-        current_calls++;
-      }
-      else {
-        do_limit = true;
-      }
-    }
-    else {
-      string call_key = uuid + "-" + req->callid + req->from_tag;
-
-      if (!call_control_calls.count(call_key)) {
-        if (current_calls < max_calls) {
-          current_calls++;
-        }
-        else {
-          do_limit = true;
-        }
-
-        call_control_calls[call_key] = false;
-      }
-    }
-
-    call_control_calls_count[uuid] = current_calls;
-  }
-  call_control_mutex.unlock();
-
-  DBG("uuid %s has %u active calls (limit = %s)\n", uuid.c_str(), current_calls,
-      do_limit ? "true" : "false");
-
-  if (do_limit) {
+  if (!callCounter->tryIncrement(uuid, req->callid, req->from_tag, max_calls)) {
     res.push(AmArg());
     AmArg& res_cmd                = res[0];
     res_cmd[SBC_CC_ACTION]        = SBC_CC_REFUSE_ACTION;
@@ -242,6 +210,24 @@ void CCParallelCallsRedis::start(const string& cc_namespace, const string& ltag,
           refuse_header + string(": " MOD_NAME ";uuid=") + uuid);
     }
   }
+      //string call_key = uuid + "-" + req->callid + req->from_tag;
+
+      //DBG("got call for key %s - count %lu\n", call_key.c_str(),
+      //    call_control_calls.count(call_key));
+
+      //if (!call_control_calls.count(call_key)) {
+      //  DBG("current_calls %u got call for key %s - count %lu\n", current_calls,
+      //      call_key.c_str(), call_control_calls.count(call_key));
+
+      //  if (current_calls < max_calls) {
+      //    current_calls++;
+      //  }
+      //  else {
+      //    do_limit = true;
+      //  }
+
+      //  call_control_calls[call_key] = false;
+      //}
 
   return;
 
@@ -254,8 +240,12 @@ error:
 }
 
 void CCParallelCallsRedis::end(const string& cc_namespace, const string& ltag,
-                               SBCCallProfile* call_profile)
+                               SBCCallProfile*     call_profile,
+                               const AmSipRequest* req)
 {
+  ERROR("end - req->callid=%s reg->from_tag=%s\n", req->callid.c_str(),
+        req->from_tag.c_str());
+
   if (!call_profile) {
     ERROR("internal: call_profile object not found in parameters\n");
     return;
@@ -270,16 +260,5 @@ void CCParallelCallsRedis::end(const string& cc_namespace, const string& ltag,
   string uuid = vars_it->second.asCStr();
   call_profile->cc_vars.erase(cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_UUID);
 
-  unsigned int new_call_count = 0;
-
-  call_control_mutex.lock();
-  if (call_control_calls_count[uuid] > 1) {
-    new_call_count = --call_control_calls_count[uuid];
-  }
-  else {
-    call_control_calls_count.erase(uuid);
-  }
-  call_control_mutex.unlock();
-
-  DBG("uuid '%s' now has %u active calls\n", uuid.c_str(), new_call_count);
+  callCounter->decrement(uuid, req->callid, req->from_tag);
 }
