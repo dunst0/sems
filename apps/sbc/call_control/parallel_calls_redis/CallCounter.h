@@ -5,6 +5,8 @@
 #ifndef _CALLCOUNTER_H_
 #define _CALLCOUNTER_H_
 
+#include "AmThread.h"
+
 #include <map>
 #include <set>
 #include <string>

@@ -260,5 +260,5 @@ void CCParallelCallsRedis::end(const string& cc_namespace, const string& ltag,
   string uuid = vars_it->second.asCStr();
   call_profile->cc_vars.erase(cc_namespace + "::" + SBCVAR_PARALLEL_CALLS_UUID);
 
-  callCounter->decrement(uuid, req->callid, req->from_tag);
+  callCounter->decrement(uuid, req->callid, req->from_tag);
 }
