@@ -16,9 +16,9 @@ class CallCounter
 
   AmMutex call_counter_mutex;
   /* map uuid to call counts */
-  std::map<std::string, unsigned int> call_uuid_count;
+  std::map<std::string, unsigned int> uuid_call_count;
   /* keep uuid with call-id and from-tag for less strict counting */
-  std::map<std::string, unsigned int> known_calls_uuid;
+  std::map<std::string, unsigned int> uuid_known_calls;
 
  public:
   CallCounter(bool strict, bool useRedis);

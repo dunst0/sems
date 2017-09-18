@@ -277,6 +277,7 @@ void CCParallelCallsRedis::end(const string& cc_namespace, const string& ltag,
   }
 
   if (callCounter->decrement(uuid, callid, from_tag)) {
+    DBG("last branche called end, deleting variables from call profile\n");
     call_profile->cc_vars.erase(cc_namespace
                                 + "::" + SBCVAR_PARALLEL_CALLS_REDIS_UUID);
     call_profile->cc_vars.erase(cc_namespace
